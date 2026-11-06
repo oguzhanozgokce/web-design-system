@@ -1,16 +1,16 @@
 import { KbdCombo, type KbdKey } from '@/registry/ds/ui/kbd';
 
 const actions: { label: string; keys: KbdKey[] }[] = [
-  { label: 'Duplicate', keys: ['mod', 'D'] },
-  { label: 'Mark as paid', keys: ['mod', 'shift', 'P'] },
-  { label: 'Download PDF', keys: ['mod', 'S'] },
-  { label: 'Archive', keys: ['backspace'] },
+  { label: 'Copy', keys: ['mod', 'C'] },
+  { label: 'Cut', keys: ['mod', 'X'] },
+  { label: 'Paste', keys: ['mod', 'V'] },
+  { label: 'Delete', keys: ['backspace'] },
 ];
 
 export default function KbdMenu() {
   return (
     <ul
-      aria-label="Invoice INV-2048 actions"
+      aria-label="Edit"
       className="w-64 rounded-sm bg-surface-container py-2 text-body-md text-on-surface shadow-elevation-2"
     >
       {actions.map((action) => (

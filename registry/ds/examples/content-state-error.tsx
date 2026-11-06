@@ -17,10 +17,10 @@ export default function ContentStateError() {
         headingLevel={3}
         errorTitle={(error) =>
           error instanceof HttpError && error.status === 503
-            ? 'Reports are being rebuilt'
-            : 'Reports are unavailable'
+            ? 'Down for maintenance'
+            : 'This page is unavailable'
         }
-        errorDescription="This takes a few minutes after a large import. The page updates by itself."
+        errorDescription="This usually takes a few minutes. The page updates by itself."
         className="rounded-lg border border-outline-variant bg-surface"
       />
       <ContentState
@@ -30,11 +30,11 @@ export default function ContentStateError() {
           <EmptyState
             headingLevel={3}
             icon={<LockIcon />}
-            title="You don’t have access to Billing"
+            title="You don’t have access"
             description={
               error instanceof HttpError && error.status === 403
-                ? 'Ask a workspace owner to give you the Billing role.'
-                : 'Ask a workspace owner for access.'
+                ? 'Ask the owner to share this page with you.'
+                : 'Ask the owner for access.'
             }
             primaryAction={<ButtonLink href="#accessibility">Request access</ButtonLink>}
           />

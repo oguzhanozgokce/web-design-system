@@ -6,13 +6,17 @@ import { Button } from '@/registry/ds/ui/button';
 import { Tab, TabList, TabPanel, Tabs } from '@/registry/ds/ui/tabs';
 
 const steps = [
-  { id: 'company', label: 'Company', body: 'Legal name, tax number and registered address.' },
-  { id: 'team', label: 'Team', body: 'Invite the people who approve invoices.' },
-  { id: 'billing', label: 'Billing', body: 'Choose how your customers pay you.' },
+  { id: 'account', label: 'Account', body: 'Choose an email address and a password.' },
+  { id: 'profile', label: 'Profile', body: 'Add your name and a photo so people recognise you.' },
+  {
+    id: 'preferences',
+    label: 'Preferences',
+    body: 'Pick a language, a theme and the updates you want.',
+  },
 ];
 
 export default function TabsControlled() {
-  const [selected, setSelected] = useState<Key>('company');
+  const [selected, setSelected] = useState<Key>('account');
   const index = steps.findIndex((step) => step.id === selected);
   const next = steps[index + 1];
 
@@ -23,7 +27,7 @@ export default function TabsControlled() {
       onSelectionChange={setSelected}
       className="w-full max-w-md"
     >
-      <TabList aria-label="Workspace setup" items={steps}>
+      <TabList aria-label="Account setup" items={steps}>
         {(step) => <Tab id={step.id}>{step.label}</Tab>}
       </TabList>
       {steps.map((step) => (
@@ -34,7 +38,7 @@ export default function TabsControlled() {
               Continue to {next.label.toLowerCase()}
             </Button>
           ) : (
-            <Button size="sm" variant="tonal" onPress={() => setSelected('company')}>
+            <Button size="sm" variant="tonal" onPress={() => setSelected('account')}>
               Review from the start
             </Button>
           )}

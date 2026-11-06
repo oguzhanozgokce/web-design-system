@@ -41,13 +41,14 @@ export const defaultLinkLabels: LinkLabels = {
 const glyphStyles = tv({
   slots: {
     wrapper: '',
+    spacer: 'inline-block w-[0.1875em]',
     icon: 'shrink-0 transition-[translate] duration-(--ds-duration-spatial-fast) ease-spatial-fast rtl:-scale-x-100 motion-reduce:transition-none',
   },
   variants: {
     variant: {
       inline: {
         wrapper: 'whitespace-nowrap',
-        icon: 'ms-[0.1875em] inline-block size-[1em] align-[-0.125em]',
+        icon: 'inline-block size-[1em] align-[-0.125em]',
       },
       standalone: {
         wrapper: 'inline-flex items-center',
@@ -142,7 +143,12 @@ export function Link({
           data-slot={glyph === 'external' ? 'external-icon' : 'arrow'}
           className={glyphClasses.wrapper()}
         >
-          {resolvedVariant === 'inline' ? wordJoiner : null}
+          {resolvedVariant === 'inline' ? (
+            <>
+              {wordJoiner}
+              <span className={glyphClasses.spacer()} />
+            </>
+          ) : null}
           <Glyph className={glyphClasses.icon()} />
         </span>
       ) : null}

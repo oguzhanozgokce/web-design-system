@@ -13,10 +13,10 @@ interface Member {
 }
 
 const members: Member[] = [
-  { id: 'ayse', name: 'Ayşe Demir', role: 'Finance lead' },
-  { id: 'mert', name: 'Mert Kaya', role: 'Accountant' },
-  { id: 'lena', name: 'Lena Fischer', role: 'Bookkeeper' },
-  { id: 'omar', name: 'Omar Haddad', role: 'Auditor, read-only access' },
+  { id: 'ayse', name: 'Ayşe Demir', role: 'Owner' },
+  { id: 'mert', name: 'Mert Kaya', role: 'Editor' },
+  { id: 'lena', name: 'Lena Fischer', role: 'Editor' },
+  { id: 'omar', name: 'Omar Haddad', role: 'Viewer, cannot be assigned' },
 ];
 
 export default function MenuDynamic() {

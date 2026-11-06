@@ -5,19 +5,14 @@ import { AddCircleIcon, GroupIcon, PersonIcon } from '@/registry/ds/lib/icons';
 import { CardHeader, ClickableCard } from '@/registry/ds/ui/card';
 
 const templates = [
+  { id: 'blank', title: 'Blank project', description: 'Start from scratch', icon: AddCircleIcon },
   {
-    id: 'blank',
-    title: 'Blank ledger',
-    description: 'No accounts, no categories',
-    icon: AddCircleIcon,
-  },
-  {
-    id: 'freelancer',
-    title: 'Freelancer',
-    description: 'Invoices, expenses and tax set-aside',
+    id: 'personal',
+    title: 'Personal',
+    description: 'Tasks, notes and reminders',
     icon: PersonIcon,
   },
-  { id: 'agency', title: 'Agency', description: 'Clients, retainers and payroll', icon: GroupIcon },
+  { id: 'team', title: 'Team', description: 'Shared boards and roles', icon: GroupIcon },
 ];
 
 export default function CardAsync() {
@@ -44,7 +39,7 @@ export default function CardAsync() {
         ))}
       </div>
       <p className="text-body-sm text-on-surface-variant" aria-live="polite">
-        {created ? `Created a ledger from “${created}”.` : 'Pick a template to create a ledger.'}
+        {created ? `Created a project from “${created}”.` : 'Pick a template to create a project.'}
       </p>
     </div>
   );

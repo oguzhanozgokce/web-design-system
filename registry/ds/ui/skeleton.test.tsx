@@ -7,12 +7,12 @@ function all(root: Element, slot: string) {
   return [...root.querySelectorAll<HTMLElement>(`[data-slot="${slot}"]`)];
 }
 
-function InvoiceCard() {
+function ProjectCard() {
   const [loaded, setLoaded] = useState(false);
   return (
-    <section aria-label="Invoice" aria-busy={!loaded}>
+    <section aria-label="Project" aria-busy={!loaded}>
       <Skeleton isLoaded={loaded} className="w-fit">
-        <button type="button">Pay INV-2048</button>
+        <button type="button">Pay DOC-2048</button>
       </Skeleton>
       <button type="button" onClick={() => setLoaded(true)}>
         Finish loading
@@ -88,17 +88,17 @@ describe('Skeleton', () => {
   });
 
   it('keeps wrapped content out of reach until it is loaded', async () => {
-    const screen = await renderWithDS(<InvoiceCard />);
+    const screen = await renderWithDS(<ProjectCard />);
     await expect
-      .element(screen.getByRole('button', { name: 'Pay INV-2048' }))
+      .element(screen.getByRole('button', { name: 'Pay DOC-2048' }))
       .not.toBeInTheDocument();
-    const region = screen.getByRole('region', { name: 'Invoice' });
+    const region = screen.getByRole('region', { name: 'Project' });
     await expect.element(region).toHaveAttribute('aria-busy', 'true');
     const placeholder = all(screen.container, 'skeleton')[0];
     expect(placeholder.getBoundingClientRect().width).toBeGreaterThan(0);
 
     await screen.getByRole('button', { name: 'Finish loading' }).click();
-    await expect.element(screen.getByRole('button', { name: 'Pay INV-2048' })).toBeVisible();
+    await expect.element(screen.getByRole('button', { name: 'Pay DOC-2048' })).toBeVisible();
     await expect.element(region).toHaveAttribute('aria-busy', 'false');
     expect(all(screen.container, 'skeleton')[0].dataset.loaded).toBe('true');
   });
@@ -140,7 +140,7 @@ describe('Skeleton', () => {
       <>
         <button type="button">Before</button>
         <Skeleton className="w-fit">
-          <button type="button">Pay INV-2048</button>
+          <button type="button">Pay DOC-2048</button>
         </Skeleton>
         <button type="button">After</button>
       </>,

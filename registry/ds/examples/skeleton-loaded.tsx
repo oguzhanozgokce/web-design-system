@@ -16,31 +16,31 @@ export default function SkeletonLoaded() {
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-4">
       <section
-        aria-label="Invoice INV-2048"
+        aria-label="Latest message"
         aria-busy={!loaded}
         className="w-full rounded-lg bg-surface-container-low p-4 text-on-surface"
       >
         <div className="flex items-center gap-3">
           <Skeleton isLoaded={loaded} shape="circle" className="w-fit rounded-full">
             <span className="flex size-10 items-center justify-center rounded-full bg-tertiary-container text-title-sm text-on-tertiary-container">
-              AC
+              AD
             </span>
           </Skeleton>
           <div className="min-w-0 flex-1">
             <Skeleton isLoaded={loaded} shape="text" className="w-fit">
-              <p className="text-title-sm">Acme Corp</p>
+              <p className="text-title-sm">Ayşe Demir</p>
             </Skeleton>
             <Skeleton isLoaded={loaded} shape="text" className="mt-0.5 w-fit">
-              <p className="text-body-sm text-on-surface-variant">Due 14 November</p>
+              <p className="text-body-sm text-on-surface-variant">Sent you 3 photos</p>
             </Skeleton>
           </div>
           <Skeleton isLoaded={loaded} shape="text" className="w-fit">
-            <p className="text-title-md tabular-digits">€1,280.00</p>
+            <p className="text-body-sm text-on-surface-variant tabular-digits">09:41</p>
           </Skeleton>
         </div>
       </section>
       <Button variant="tonal" size="sm" onPress={() => setLoaded(false)} isDisabled={!loaded}>
-        Reload invoice
+        Reload message
       </Button>
     </div>
   );

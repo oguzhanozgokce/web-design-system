@@ -19,7 +19,7 @@ export default function MenuSizes() {
         <div key={size} className="flex flex-col gap-2">
           <p className="text-label-md text-on-surface-variant">{label}</p>
           <div className={menuPopoverStyles({ motion: 'none', className: 'w-56' })}>
-            <MenuList aria-label={`Invoice actions, ${label}`} size={size}>
+            <MenuList aria-label={`Actions, ${label}`} size={size}>
               <MenuItem startIcon={<EditIcon />} shortcut={['mod', 'E']}>
                 Edit
               </MenuItem>

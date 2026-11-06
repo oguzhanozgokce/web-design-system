@@ -1,7 +1,7 @@
 'use client';
 
 import { useMediaQuery } from '@/registry/ds/hooks/use-media-query';
-import { CallIcon, LockIcon, NotificationsIcon, PersonIcon } from '@/registry/ds/lib/icons';
+import { LockIcon, NotificationsIcon, PaletteIcon, PersonIcon } from '@/registry/ds/lib/icons';
 import { Tab, TabList, TabPanel, Tabs } from '@/registry/ds/ui/tabs';
 
 const sections = [
@@ -9,25 +9,25 @@ const sections = [
     id: 'profile',
     label: 'Profile',
     icon: <PersonIcon />,
-    body: 'Your name and photo appear on invoices you send.',
-  },
-  {
-    id: 'security',
-    label: 'Security',
-    icon: <LockIcon />,
-    body: 'Two-step verification is on. Last sign-in from Istanbul, 2 hours ago.',
+    body: 'Choose the name and photo other people see.',
   },
   {
     id: 'notifications',
     label: 'Notifications',
     icon: <NotificationsIcon />,
-    body: 'Email me when an invoice is paid or becomes overdue.',
+    body: 'Pick what you hear about, and whether by email or push.',
   },
   {
-    id: 'support',
-    label: 'Support',
-    icon: <CallIcon />,
-    body: 'Our team answers within one working day.',
+    id: 'privacy',
+    label: 'Privacy',
+    icon: <LockIcon />,
+    body: 'Decide who can see your profile and your activity.',
+  },
+  {
+    id: 'appearance',
+    label: 'Appearance',
+    icon: <PaletteIcon />,
+    body: 'Use a light or dark theme, or follow your device.',
   },
 ];
 
@@ -40,7 +40,7 @@ export default function TabsVertical() {
       iconPlacement="start"
       className="w-full max-w-xl"
     >
-      <TabList aria-label="Account settings" items={sections}>
+      <TabList aria-label="Settings" items={sections}>
         {(section) => (
           <Tab id={section.id} icon={section.icon}>
             {section.label}

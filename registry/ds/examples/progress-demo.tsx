@@ -16,7 +16,7 @@ export default function ProgressDemo() {
 
   return (
     <LinearProgress
-      label="Uploading statements-2026-q3.csv"
+      label="Uploading photos.zip"
       value={uploaded}
       showValueLabel
       className="max-w-md"

@@ -37,7 +37,7 @@ export default function EmptyStatePage() {
       size="page"
       illustration={<ProjectsIllustration />}
       title="Start your first project"
-      description="Projects group invoices, expenses and hours by client, so you can see what each engagement earns."
+      description="A project keeps the files, tasks and people for one piece of work in one place."
       primaryAction={<Button startIcon={<AddIcon />}>Create project</Button>}
       secondaryAction={<ButtonLink href="#usage">Read the guide</ButtonLink>}
     />

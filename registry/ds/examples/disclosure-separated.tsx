@@ -1,4 +1,4 @@
-import { LockIcon, TuneIcon, UploadIcon } from '@/registry/ds/lib/icons';
+import { GroupIcon, PersonIcon, UploadIcon } from '@/registry/ds/lib/icons';
 import {
   Accordion,
   Disclosure,
@@ -9,31 +9,30 @@ import {
 export default function DisclosureSeparated() {
   return (
     <Accordion variant="separated" className="w-full max-w-xl">
-      <Disclosure id="bank">
-        <DisclosureTrigger startIcon={<LockIcon />} description="About 5 minutes">
-          Add your bank details
+      <Disclosure id="profile">
+        <DisclosureTrigger startIcon={<PersonIcon />} description="About 2 minutes">
+          Complete your profile
         </DisclosureTrigger>
         <DisclosurePanel>
-          Enter the account that receives payouts. We send a test deposit of a few cents to confirm
-          it, which you can check on your next statement.
+          Add your name and a photo so people know who they are working with.
         </DisclosurePanel>
       </Disclosure>
       <Disclosure id="import">
-        <DisclosureTrigger startIcon={<UploadIcon />} description="CSV or Excel">
-          Import your customers
+        <DisclosureTrigger startIcon={<UploadIcon />} description="CSV or vCard">
+          Import your contacts
         </DisclosureTrigger>
         <DisclosurePanel>
-          Upload a file with one customer per row. Columns for name, email and VAT number are
-          matched automatically; anything else can be mapped by hand.
+          Upload a file with one contact per row. Name and email columns are matched automatically;
+          anything else can be mapped by hand.
         </DisclosurePanel>
       </Disclosure>
-      <Disclosure id="tax">
-        <DisclosureTrigger startIcon={<TuneIcon />} description="Required before invoicing">
-          Set up tax rates
+      <Disclosure id="invite">
+        <DisclosureTrigger startIcon={<GroupIcon />} description="Optional">
+          Invite people
         </DisclosureTrigger>
         <DisclosurePanel>
-          Add the rates you charge, such as 20% standard VAT, and choose which one new invoices use
-          by default.
+          Send invitations by email or share a link. You can change what each person can do at any
+          time.
         </DisclosurePanel>
       </Disclosure>
     </Accordion>

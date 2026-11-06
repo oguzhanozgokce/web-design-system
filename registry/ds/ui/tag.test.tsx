@@ -101,9 +101,9 @@ describe('Tag', () => {
 describe('TagGroup', () => {
   it('renders a labelled grid of tags with a description', async () => {
     const screen = await renderWithDS(
-      <TagGroup label="Labels" description="Shown on the invoice">
-        <Tag id="billing" tone="primary">
-          Billing
+      <TagGroup label="Labels" description="Shown on the project">
+        <Tag id="sharing" tone="primary">
+          Sharing
         </Tag>
         <Tag id="urgent" tone="error">
           Urgent
@@ -112,7 +112,7 @@ describe('TagGroup', () => {
     );
     const grid = screen.getByRole('grid', { name: 'Labels' });
     await expect.element(grid).toBeVisible();
-    await expect.element(grid).toHaveAccessibleDescription('Shown on the invoice');
+    await expect.element(grid).toHaveAccessibleDescription('Shown on the project');
     const urgent = screen.getByRole('row', { name: 'Urgent' });
     await expect.element(urgent).toHaveAttribute('data-tone', 'error');
     await expect.element(urgent).toHaveAttribute('data-variant', 'tonal');
@@ -121,9 +121,9 @@ describe('TagGroup', () => {
   });
 
   it('removes a tag from its remove button and from the keyboard', async () => {
-    const screen = await renderWithDS(<Labels initial={['Billing', 'Enterprise', 'Urgent']} />);
-    await screen.getByRole('button', { name: 'Remove Billing' }).click();
-    await expect.element(screen.getByRole('row', { name: 'Billing' })).not.toBeInTheDocument();
+    const screen = await renderWithDS(<Labels initial={['Sharing', 'Enterprise', 'Urgent']} />);
+    await screen.getByRole('button', { name: 'Remove Sharing' }).click();
+    await expect.element(screen.getByRole('row', { name: 'Sharing' })).not.toBeInTheDocument();
 
     screen.getByRole('row', { name: 'Enterprise' }).element().focus();
     await userEvent.keyboard('{Backspace}');
@@ -132,15 +132,15 @@ describe('TagGroup', () => {
   });
 
   it('says None in English once every tag is removed', async () => {
-    const screen = await renderWithDS(<Labels initial={['Billing']} />);
-    await screen.getByRole('button', { name: 'Remove Billing' }).click();
+    const screen = await renderWithDS(<Labels initial={['Sharing']} />);
+    await screen.getByRole('button', { name: 'Remove Sharing' }).click();
     await expect.element(screen.getByText('None')).toBeVisible();
     await expect.element(screen.getByRole('group', { name: 'Labels' })).toBeInTheDocument();
   });
 
   it('shows a focus ring on the group when the last tag is removed from the keyboard', async () => {
-    const screen = await renderWithDS(<Labels initial={['Billing']} />);
-    screen.getByRole('row', { name: 'Billing' }).element().focus();
+    const screen = await renderWithDS(<Labels initial={['Sharing']} />);
+    screen.getByRole('row', { name: 'Sharing' }).element().focus();
     await userEvent.keyboard('{Delete}');
     const group = screen.getByRole('group', { name: 'Labels' });
     await expect.element(group).toHaveFocus();
@@ -148,17 +148,37 @@ describe('TagGroup', () => {
     expect(getComputedStyle(group.element()).outlineStyle).toBe('solid');
   });
 
+  it('gives the remove button a 24px hit area at both sizes', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <TagGroup label="Small" size="sm" onRemove={() => {}}>
+          <Tag id="design">Design</Tag>
+        </TagGroup>
+        <TagGroup label="Medium" onRemove={() => {}}>
+          <Tag id="beta">Beta</Tag>
+        </TagGroup>
+      </div>,
+    );
+    const buttons = screen.container.querySelectorAll('[data-slot="remove"]');
+    expect(buttons).toHaveLength(2);
+    for (const remove of buttons) {
+      const hitArea = getComputedStyle(remove, '::after');
+      expect(hitArea.width).toBe('24px');
+      expect(hitArea.height).toBe('24px');
+    }
+  });
+
   it('names the remove button after a numeric label or the textValue', async () => {
     const screen = await renderWithDS(
-      <TagGroup label="Invoice years" onRemove={() => {}}>
+      <TagGroup label="Project years" onRemove={() => {}}>
         <Tag id="2024">{2024}</Tag>
-        <Tag id="vip" textValue="VIP customer" icon={<ScheduleIcon />}>
-          <strong>VIP</strong> customer
+        <Tag id="vip" textValue="VIP follower" icon={<ScheduleIcon />}>
+          <strong>VIP</strong> follower
         </Tag>
       </TagGroup>,
     );
     await expect.element(screen.getByRole('button', { name: 'Remove 2024' })).toBeVisible();
-    await expect.element(screen.getByRole('button', { name: 'Remove VIP customer' })).toBeVisible();
+    await expect.element(screen.getByRole('button', { name: 'Remove VIP follower' })).toBeVisible();
   });
 
   it('falls back to React Aria naming when a tag has no text label', async () => {
@@ -190,7 +210,7 @@ describe('TagGroup', () => {
           onRemove={() => {}}
           labels={{ remove: '{label} etiketini kaldır' }}
         >
-          <Tag id="billing">Fatura</Tag>
+          <Tag id="sharing">Fatura</Tag>
           <Tag id="urgent" labels={{ remove: ({ label }) => `${label} etiketini sil` }}>
             Acil
           </Tag>
@@ -228,36 +248,36 @@ describe('TagGroup', () => {
         variant="outlined"
         onSelectionChange={onSelectionChange}
       >
-        <Tag id="payment">Payment received</Tag>
-        <Tag id="overdue">Invoice overdue</Tag>
+        <Tag id="message">Message received</Tag>
+        <Tag id="overdue">Project overdue</Tag>
       </TagGroup>,
     );
-    const payment = screen.getByRole('row', { name: 'Payment received' });
-    expect(payment.element().className).toContain('state-layer');
-    expect(payment.element().querySelector('[data-slot="check"]')).toBeNull();
-    const outlinedBackground = getComputedStyle(payment.element()).backgroundColor;
+    const message = screen.getByRole('row', { name: 'Message received' });
+    expect(message.element().className).toContain('state-layer');
+    expect(message.element().querySelector('[data-slot="check"]')).toBeNull();
+    const outlinedBackground = getComputedStyle(message.element()).backgroundColor;
 
-    await payment.click();
-    await expect.element(payment).toHaveAttribute('aria-selected', 'true');
-    expect([...onSelectionChange.mock.lastCall![0]]).toEqual(['payment']);
-    expect(payment.element().querySelector('[data-slot="check"]')).not.toBeNull();
+    await message.click();
+    await expect.element(message).toHaveAttribute('aria-selected', 'true');
+    expect([...onSelectionChange.mock.lastCall![0]]).toEqual(['message']);
+    expect(message.element().querySelector('[data-slot="check"]')).not.toBeNull();
     const probe = document.createElement('span');
     probe.className = 'bg-primary';
     screen.getByTestId('ds-root').element().append(probe);
     const primary = getComputedStyle(probe).backgroundColor;
     expect(outlinedBackground).toBe('rgba(0, 0, 0, 0)');
-    await expect.poll(() => getComputedStyle(payment.element()).backgroundColor).toBe(primary);
+    await expect.poll(() => getComputedStyle(message.element()).backgroundColor).toBe(primary);
 
     await userEvent.keyboard('{ArrowRight}');
     await userEvent.keyboard(' ');
     await expect
-      .element(screen.getByRole('row', { name: 'Invoice overdue' }))
+      .element(screen.getByRole('row', { name: 'Project overdue' }))
       .toHaveAttribute('aria-selected', 'true');
   });
 
   it('follows a controlled selection', async () => {
     function Controlled() {
-      const [selected, setSelected] = useState<Selection>(new Set(['payment']));
+      const [selected, setSelected] = useState<Selection>(new Set(['message']));
       return (
         <>
           <TagGroup
@@ -266,8 +286,8 @@ describe('TagGroup', () => {
             selectedKeys={selected}
             onSelectionChange={setSelected}
           >
-            <Tag id="payment">Payment received</Tag>
-            <Tag id="overdue">Invoice overdue</Tag>
+            <Tag id="message">Message received</Tag>
+            <Tag id="overdue">Project overdue</Tag>
           </TagGroup>
           <button type="button" onClick={() => setSelected(new Set())}>
             Clear
@@ -276,12 +296,12 @@ describe('TagGroup', () => {
       );
     }
     const screen = await renderWithDS(<Controlled />);
-    const payment = screen.getByRole('row', { name: 'Payment received' });
-    const overdue = screen.getByRole('row', { name: 'Invoice overdue' });
-    await expect.element(payment).toHaveAttribute('aria-selected', 'true');
+    const message = screen.getByRole('row', { name: 'Message received' });
+    const overdue = screen.getByRole('row', { name: 'Project overdue' });
+    await expect.element(message).toHaveAttribute('aria-selected', 'true');
     await overdue.click();
     await expect.element(overdue).toHaveAttribute('aria-selected', 'true');
-    await expect.element(payment).toHaveAttribute('aria-selected', 'false');
+    await expect.element(message).toHaveAttribute('aria-selected', 'false');
     await screen.getByRole('button', { name: 'Clear' }).click();
     await expect.element(overdue).toHaveAttribute('aria-selected', 'false');
   });
@@ -323,12 +343,12 @@ describe('TagGroup', () => {
     const onRemove = vi.fn();
     const screen = await renderWithDS(
       <TagGroup label="Access" isDisabled onRemove={onRemove}>
-        <Tag id="payroll">Payroll</Tag>
+        <Tag id="backups">Backups</Tag>
       </TagGroup>,
     );
-    const payroll = screen.getByRole('row', { name: 'Payroll' });
-    await expect.element(payroll).toHaveAttribute('data-disabled', 'true');
-    const remove = screen.getByRole('button', { name: 'Remove Payroll' });
+    const backups = screen.getByRole('row', { name: 'Backups' });
+    await expect.element(backups).toHaveAttribute('data-disabled', 'true');
+    const remove = screen.getByRole('button', { name: 'Remove Backups' });
     await expect.element(remove).toBeDisabled();
     await remove.click({ force: true });
     expect(onRemove).not.toHaveBeenCalled();
@@ -339,7 +359,7 @@ describe('TagGroup', () => {
       <div>
         <button type="button">Before</button>
         <TagGroup label="Access" isDisabled onRemove={() => {}}>
-          <Tag id="payroll">Payroll</Tag>
+          <Tag id="backups">Backups</Tag>
           <Tag id="reports">Reports</Tag>
         </TagGroup>
         <button type="button">After</button>
@@ -391,19 +411,19 @@ describe('Tag accessibility', () => {
           </div>
           <TagGroup
             label="Labels"
-            description="Shown on the invoice"
+            description="Shown on the project"
             onRemove={() => {}}
             selectionMode="multiple"
-            defaultSelectedKeys={['billing']}
+            defaultSelectedKeys={['sharing']}
           >
             {tones.map((tone) => (
-              <Tag key={tone} id={tone === 'primary' ? 'billing' : tone} tone={tone}>
+              <Tag key={tone} id={tone === 'primary' ? 'sharing' : tone} tone={tone}>
                 {tone}
               </Tag>
             ))}
           </TagGroup>
           <TagGroup label="Access" isDisabled onRemove={() => {}}>
-            <Tag id="payroll">Payroll</Tag>
+            <Tag id="backups">Backups</Tag>
           </TagGroup>
           <TagGroup label="Empty" items={[]} isInvalid errorMessage="Add at least one label.">
             {(item: { id: string }) => <Tag id={item.id}>{item.id}</Tag>}

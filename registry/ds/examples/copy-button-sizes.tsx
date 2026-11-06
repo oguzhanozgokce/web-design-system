@@ -6,10 +6,10 @@ export default function CopyButtonSizes() {
       {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
         <CopyButton
           key={size}
-          value="ws_8f3a21c9e4"
+          value="https://example.com/s/7Q4M2K"
           size={size}
           variant="outlined"
-          aria-label={`Copy workspace ID, size ${size}`}
+          aria-label={`Copy link, size ${size}`}
         />
       ))}
     </div>

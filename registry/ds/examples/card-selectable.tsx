@@ -9,23 +9,23 @@ import {
 const templates = [
   {
     value: 'blank',
-    title: 'Blank ledger',
-    description: 'Start with no accounts.',
+    title: 'Blank project',
+    description: 'Start with nothing.',
     detail: 'Best when you are importing from another tool.',
     icon: AddCircleIcon,
   },
   {
-    value: 'freelancer',
-    title: 'Freelancer',
-    description: 'Invoices, expenses and a tax set-aside.',
-    detail: '14 accounts · 2 reports',
+    value: 'personal',
+    title: 'Personal',
+    description: 'Tasks, notes and reminders.',
+    detail: '3 lists · 12 sample tasks',
     icon: PersonIcon,
   },
   {
-    value: 'agency',
-    title: 'Agency',
-    description: 'Clients, retainers and payroll.',
-    detail: '32 accounts · 6 reports',
+    value: 'team',
+    title: 'Team',
+    description: 'Shared boards and roles.',
+    detail: '5 boards · 3 roles',
     icon: GroupIcon,
   },
 ];
@@ -34,9 +34,9 @@ export default function CardSelectable() {
   return (
     <SelectableCardGroup
       label="Start from a template"
-      description="You can add or remove accounts later."
+      description="You can change everything later."
       orientation="horizontal"
-      defaultValue="freelancer"
+      defaultValue="personal"
       className="w-full"
     >
       {templates.map((template) => (

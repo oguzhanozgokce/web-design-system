@@ -5,11 +5,11 @@ export default function TextFieldDemo() {
   return (
     <TextField
       className="w-full max-w-sm"
-      label="Work email"
+      label="Email"
       type="email"
       autoComplete="email"
-      placeholder="name@company.com"
-      description="We send receipts and security alerts here."
+      placeholder="name@example.com"
+      description="We never share your email."
       startAdornment={<MailIcon />}
       isRequired
     />

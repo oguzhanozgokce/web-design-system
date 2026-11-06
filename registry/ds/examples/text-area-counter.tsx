@@ -6,7 +6,7 @@ export default function TextAreaCounter() {
       className="w-full max-w-md"
       label="Short bio"
       description="Appears on your public profile."
-      defaultValue="Finance lead at Northwind. I keep the shared ledgers tidy."
+      defaultValue="Photographer and amateur cook. I post about travel, film cameras and bread."
       maxLength={160}
       minRows={2}
     />

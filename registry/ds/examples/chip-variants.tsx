@@ -9,11 +9,11 @@ export default function ChipVariants() {
           label={variant}
           variant={variant}
           selectionMode="multiple"
-          defaultSelectedKeys={['card']}
+          defaultSelectedKeys={['photos']}
         >
-          <Chip id="card">Card</Chip>
-          <Chip id="transfer">Bank transfer</Chip>
-          <Chip id="cash">Cash</Chip>
+          <Chip id="photos">Photos</Chip>
+          <Chip id="videos">Videos</Chip>
+          <Chip id="music">Music</Chip>
         </ChipGroup>
       ))}
     </div>

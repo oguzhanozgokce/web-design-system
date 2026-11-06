@@ -2,7 +2,7 @@ import { SegmentedControl, SegmentedControlItem } from '@/registry/ds/ui/segment
 
 export default function SegmentedControlDemo() {
   return (
-    <SegmentedControl aria-label="Report period" defaultSelectedKeys={['week']}>
+    <SegmentedControl aria-label="Calendar view" defaultSelectedKeys={['week']}>
       <SegmentedControlItem id="day">Day</SegmentedControlItem>
       <SegmentedControlItem id="week">Week</SegmentedControlItem>
       <SegmentedControlItem id="month">Month</SegmentedControlItem>

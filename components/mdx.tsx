@@ -8,10 +8,12 @@ import {
   InstallCommand,
 } from '@/components/docs/component-preview';
 import { PaletteSwatches } from '@/components/docs/palette-swatches';
+import { ComponentGrid } from '@/components/showcase/component-grid';
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
     ...defaultMdxComponents,
+    ComponentGrid,
     ComponentPreview,
     ComponentSource,
     InstallCommand,

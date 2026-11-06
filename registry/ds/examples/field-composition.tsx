@@ -12,7 +12,7 @@ import {
   fieldStyles,
 } from '@/registry/ds/ui/field';
 
-const inviteLink = 'https://ledger.app/join/7f3k-q9xa';
+const inviteLink = 'https://example.com/invite/7f3k-q9xa';
 
 export default function FieldComposition() {
   const { status, attempt, copy } = useCopyToClipboard();

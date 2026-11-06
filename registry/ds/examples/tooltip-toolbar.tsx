@@ -7,27 +7,22 @@ import { Tooltip, TooltipGroup, TooltipTrigger } from '@/registry/ds/ui/tooltip'
 
 const actions: { label: string; hint: string; shortcut: KbdKey[]; icon: ReactNode }[] = [
   { label: 'Undo', hint: 'Undo', shortcut: ['mod', 'Z'], icon: <UndoIcon /> },
-  {
-    label: 'Copy link',
-    hint: 'Copy invoice link',
-    shortcut: ['mod', 'shift', 'C'],
-    icon: <CopyIcon />,
-  },
+  { label: 'Copy link', hint: 'Copy link', shortcut: ['mod', 'shift', 'C'], icon: <CopyIcon /> },
   {
     label: 'Download',
-    hint: 'Download PDF',
+    hint: 'Download a copy',
     shortcut: ['mod', 'shift', 'D'],
     icon: <DownloadIcon />,
   },
-  { label: 'Archive', hint: 'Archive', shortcut: ['E'], icon: <ArchiveIcon /> },
-  { label: 'Delete', hint: 'Delete draft', shortcut: ['backspace'], icon: <DeleteIcon /> },
+  { label: 'Archive', hint: 'Move to archive', shortcut: ['E'], icon: <ArchiveIcon /> },
+  { label: 'Delete', hint: 'Move to trash', shortcut: ['backspace'], icon: <DeleteIcon /> },
 ];
 
 export default function TooltipToolbar() {
   return (
     <TooltipGroup placement="bottom" delay={400}>
       <Toolbar
-        aria-label="Invoice actions"
+        aria-label="Actions"
         className="flex items-center gap-1 rounded-full bg-surface-container px-2 py-1"
       >
         {actions.map((action) => (

@@ -3,14 +3,14 @@ import { Checkbox, CheckboxGroup } from '@/registry/ds/ui/checkbox';
 export default function CheckboxGroupExample() {
   return (
     <CheckboxGroup
-      label="Weekly digest"
-      description="Sent every Monday at 9:00 in your workspace time zone."
-      defaultValue={['payouts', 'invoices']}
+      label="Interests"
+      description="Pick the topics you want to see first."
+      defaultValue={['music', 'travel']}
     >
-      <Checkbox value="payouts">Payouts</Checkbox>
-      <Checkbox value="invoices">Paid invoices</Checkbox>
-      <Checkbox value="refunds">Refunds and disputes</Checkbox>
-      <Checkbox value="members">New team members</Checkbox>
+      <Checkbox value="music">Music</Checkbox>
+      <Checkbox value="movies">Movies</Checkbox>
+      <Checkbox value="sports">Sports</Checkbox>
+      <Checkbox value="travel">Travel</Checkbox>
     </CheckboxGroup>
   );
 }

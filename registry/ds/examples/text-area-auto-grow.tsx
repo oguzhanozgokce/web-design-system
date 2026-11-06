@@ -8,7 +8,7 @@ export default function TextAreaAutoGrow() {
       minRows={2}
       maxRows={6}
       defaultValue={
-        'Exports now include the payee category.\nShared ledgers show who added each expense.'
+        'Dark mode now follows your system setting.\nPhotos load faster on slow connections.'
       }
       description="Grows from 2 to 6 lines, then scrolls."
     />

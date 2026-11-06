@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { CloudUploadIcon, DescriptionIcon, GroupIcon, SendIcon } from '@/registry/ds/lib/icons';
+import { DescriptionIcon, EventIcon, FolderIcon, ImageIcon } from '@/registry/ds/lib/icons';
 import { FabMenu, FabMenuItem } from '@/registry/ds/ui/fab';
 
-const labels: Record<string, string> = {
-  invoice: 'New invoice',
-  receipt: 'Upload receipt',
-  transfer: 'Send transfer',
-  client: 'Add client',
+const actions: Record<string, string> = {
+  document: 'New document',
+  photo: 'Upload photo',
+  folder: 'New folder',
+  event: 'New event',
 };
 
 export default function FabMenuExample() {
@@ -17,20 +17,20 @@ export default function FabMenuExample() {
   return (
     <div className="relative flex h-96 w-full max-w-sm flex-col justify-between rounded-lg bg-surface-container-low p-4">
       <p className="text-body-md text-on-surface-variant" aria-live="polite">
-        {last ? `Started: ${labels[last]}` : 'Nothing created yet'}
+        {last ? `Last action: ${actions[last]}` : 'No action yet'}
       </p>
       <FabMenu aria-label="Create" className="self-end" onAction={(key) => setLast(String(key))}>
-        <FabMenuItem id="invoice" icon={<DescriptionIcon />}>
-          {labels.invoice}
+        <FabMenuItem id="document" icon={<DescriptionIcon />}>
+          {actions.document}
         </FabMenuItem>
-        <FabMenuItem id="receipt" icon={<CloudUploadIcon />}>
-          {labels.receipt}
+        <FabMenuItem id="photo" icon={<ImageIcon />}>
+          {actions.photo}
         </FabMenuItem>
-        <FabMenuItem id="transfer" icon={<SendIcon className="rtl:-scale-x-100" />}>
-          {labels.transfer}
+        <FabMenuItem id="folder" icon={<FolderIcon />}>
+          {actions.folder}
         </FabMenuItem>
-        <FabMenuItem id="client" icon={<GroupIcon />}>
-          {labels.client}
+        <FabMenuItem id="event" icon={<EventIcon />}>
+          {actions.event}
         </FabMenuItem>
       </FabMenu>
     </div>

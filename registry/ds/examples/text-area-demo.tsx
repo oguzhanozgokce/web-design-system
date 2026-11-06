@@ -4,9 +4,9 @@ export default function TextAreaDemo() {
   return (
     <TextArea
       className="w-full max-w-md"
-      label="Invoice note"
-      description="Printed under the totals on every invoice."
-      placeholder="Thanks for your business. Payment is due within 14 days."
+      label="Message"
+      description="Everyone in the conversation can read it."
+      placeholder="Write a message"
     />
   );
 }

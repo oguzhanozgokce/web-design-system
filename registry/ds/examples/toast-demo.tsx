@@ -5,7 +5,7 @@ import { SendIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { Toaster, toast } from '@/registry/ds/ui/toast';
 
-const customers = ['Acme Corp', 'Globex', 'Initech', 'Umbrella Health'];
+const recipients = ['Ayşe', 'Jonas', 'Priya', 'Lucía'];
 
 export default function ToastDemo() {
   const [sent, setSent] = useState(0);
@@ -15,13 +15,13 @@ export default function ToastDemo() {
       <Button
         startIcon={<SendIcon className="rtl:-scale-x-100" />}
         onPress={() => {
-          toast(`Invoice INV-${2048 + sent} sent to ${customers[sent % customers.length]}`, {
+          toast(`Message sent to ${recipients[sent % recipients.length]}`, {
             toasterId: 'toast-demo',
           });
           setSent((count) => count + 1);
         }}
       >
-        Send invoice
+        Send message
       </Button>
       <Toaster toasterId="toast-demo" />
     </>

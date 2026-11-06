@@ -13,14 +13,14 @@ describe('Banner', () => {
       <Banner
         tone="warning"
         title="Card ending 4242 expires soon"
-        description="Update it before the invoice on 1 December."
+        description="Update it before the project on 1 December."
       />,
     );
     const status = screen.getByRole('status');
     await expect
       .element(status)
       .toHaveTextContent(
-        'Warning: Card ending 4242 expires soonUpdate it before the invoice on 1 December.',
+        'Warning: Card ending 4242 expires soonUpdate it before the project on 1 December.',
       );
     const banner = screen.container.querySelector('[data-slot="banner"]')!;
     expect(banner.getAttribute('data-tone')).toBe('warning');
@@ -35,16 +35,16 @@ describe('Banner', () => {
   it('becomes an alert only for announced errors', async () => {
     const screen = await renderWithDS(
       <>
-        <Banner tone="error" announce title="Payment failed" />
+        <Banner tone="error" announce title="Message failed" />
         <Banner tone="info" announce title="Export started" />
-        <Banner tone="error" title="Two invoices are overdue" />
+        <Banner tone="error" title="Two projects are overdue" />
       </>,
     );
-    await expect.element(screen.getByRole('alert')).toHaveTextContent('Error: Payment failed');
+    await expect.element(screen.getByRole('alert')).toHaveTextContent('Error: Message failed');
     const statuses = screen.getByRole('status').elements();
     expect(statuses.map((element) => element.textContent)).toEqual([
       'Information: Export started',
-      'Error: Two invoices are overdue',
+      'Error: Two projects are overdue',
     ]);
   });
 
@@ -67,7 +67,7 @@ describe('Banner', () => {
     const screen = await renderWithDS(
       <Banner
         tone="error"
-        title="Bank sync paused"
+        title="Team sync paused"
         actions={
           <>
             <Button onPress={onRetry}>Retry</Button>
@@ -127,9 +127,9 @@ describe('Banner', () => {
           isDismissable
           onDismiss={onDismiss}
           onOpenChange={onOpenChange}
-          title="New: recurring invoices"
+          title="New: recurring projects"
         />
-        <Button>Create invoice</Button>
+        <Button>Create project</Button>
       </div>,
     );
     const dismiss = screen.getByRole('button', { name: 'Dismiss' });
@@ -139,7 +139,7 @@ describe('Banner', () => {
 
     expect(onDismiss).toHaveBeenCalledOnce();
     expect(onOpenChange).toHaveBeenCalledWith(false);
-    await expect.element(screen.getByRole('button', { name: 'Create invoice' })).toHaveFocus();
+    await expect.element(screen.getByRole('button', { name: 'Create project' })).toHaveFocus();
     await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
   });
 
@@ -206,12 +206,12 @@ describe('Banner', () => {
             isDismissable
             isOpen={isOpen}
             onOpenChange={setOpen}
-            title="New: recurring invoices"
+            title="New: recurring projects"
           />
           <Button isDisabled={isOpen} onPress={() => setOpen(true)}>
             Show again
           </Button>
-          <Button>Create invoice</Button>
+          <Button>Create project</Button>
         </>
       );
     }
@@ -229,18 +229,18 @@ describe('Banner', () => {
   it('moves focus to the previous focusable element when nothing follows', async () => {
     const screen = await renderWithDS(
       <div>
-        <Button>Export ledger</Button>
+        <Button>Export folder</Button>
         <Banner isDismissable tone="success" title="Export ready" />
       </div>,
     );
     await screen.getByRole('button', { name: 'Dismiss' }).click();
-    await expect.element(screen.getByRole('button', { name: 'Export ledger' })).toHaveFocus();
+    await expect.element(screen.getByRole('button', { name: 'Export folder' })).toHaveFocus();
     await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
   });
 
   it('fades out as inert, and leaves at once when motion is disabled', async () => {
     const animated = await renderWithDS(
-      <Banner isDismissable title="Payout sent" data-testid="animated" />,
+      <Banner isDismissable title="Upload sent" data-testid="animated" />,
     );
     await animated.getByRole('button', { name: 'Dismiss' }).click();
     const exiting = animated.getByTestId('animated').element();
@@ -250,7 +250,7 @@ describe('Banner', () => {
     await animated.unmount();
 
     const instant = await renderWithDS(
-      <Banner isDismissable title="Payout sent" data-testid="instant" />,
+      <Banner isDismissable title="Upload sent" data-testid="instant" />,
       { provider: { motion: 'disabled' } },
     );
     await instant.getByRole('button', { name: 'Dismiss' }).click();
@@ -275,11 +275,11 @@ describe('Banner', () => {
   it('takes its dismiss and tone labels from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <>
-        <Banner tone="error" isDismissable title="Ödeme başarısız" />
+        <Banner tone="error" isDismissable title="Kaydedilemedi" />
         <Banner
           tone="warning"
           isDismissable
-          title="Kartın süresi doluyor"
+          title="Depolama dolmak üzere"
           labels={{ dismiss: 'Gizle', warning: 'Dikkat:' }}
         />
       </>,
@@ -289,8 +289,8 @@ describe('Banner', () => {
     await expect.element(screen.getByRole('button', { name: 'Gizle' })).toBeInTheDocument();
     const statuses = screen.getByRole('status').elements();
     expect(statuses.map((element) => element.textContent)).toEqual([
-      'Hata: Ödeme başarısız',
-      'Dikkat: Kartın süresi doluyor',
+      'Hata: Kaydedilemedi',
+      'Dikkat: Depolama dolmak üzere',
     ]);
   });
 
@@ -306,7 +306,7 @@ describe('Banner', () => {
                 variant={variant}
                 isDismissable
                 title={`${tone} ${variant}`}
-                description="Invoices sync every 15 minutes."
+                description="Projects sync every 15 minutes."
                 actions={<Button>Review</Button>}
               />
             )),

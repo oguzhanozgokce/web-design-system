@@ -1,9 +1,9 @@
 import { Divider } from '@/registry/ds/ui/divider';
 
 const settings = [
-  { title: 'Default currency', value: 'USD, US dollar' },
-  { title: 'Fiscal year starts', value: 'January' },
-  { title: 'Invoice numbering', value: 'INV-0001, then +1' },
+  { title: 'Language', value: 'English' },
+  { title: 'Time zone', value: 'Set automatically' },
+  { title: 'Theme', value: 'Same as device' },
 ];
 
 export default function DividerDemo() {

@@ -14,7 +14,7 @@ describe('Slider', () => {
     const screen = await renderWithDS(
       <Slider
         label="Monthly spending limit"
-        description="Payments above this are declined."
+        description="Messages above this are declined."
         defaultValue={1500}
         maxValue={5000}
         step={100}
@@ -23,7 +23,7 @@ describe('Slider', () => {
     );
     const slider = screen.getByRole('slider', { name: 'Monthly spending limit' });
     await expect.element(slider).toHaveAttribute('aria-valuetext', '$1,500');
-    await expect.element(slider).toHaveAccessibleDescription('Payments above this are declined.');
+    await expect.element(slider).toHaveAccessibleDescription('Messages above this are declined.');
     await expect.element(screen.getByRole('status')).toHaveTextContent('$1,500');
     await expect.element(screen.getByRole('group')).toHaveAttribute('data-size', 'sm');
     await expect
@@ -167,7 +167,7 @@ describe('Slider', () => {
         <p id="plan-note">Your plan allows up to 5,000.</p>
         <Slider
           label="Monthly spending limit"
-          description="Payments above this are declined."
+          description="Messages above this are declined."
           aria-describedby="plan-note"
           defaultValue={1500}
           maxValue={5000}
@@ -177,7 +177,7 @@ describe('Slider', () => {
     await expect
       .element(screen.getByRole('slider'))
       .toHaveAccessibleDescription(
-        'Payments above this are declined. Your plan allows up to 5,000.',
+        'Messages above this are declined. Your plan allows up to 5,000.',
       );
   });
 
@@ -199,7 +199,7 @@ describe('Slider', () => {
   it('lets showStops override the automatic stops', async () => {
     const screen = await renderWithDS(
       <>
-        <Slider label="Payment retries" defaultValue={3} maxValue={8} showStops={false} />
+        <Slider label="Message retries" defaultValue={3} maxValue={8} showStops={false} />
         <Slider label="Volume" defaultValue={30} step={10} marks={[0, 50, 100]} showStops />
       </>,
     );
@@ -211,7 +211,7 @@ describe('Slider', () => {
   it('shows stops automatically when the step leaves few positions', async () => {
     const screen = await renderWithDS(
       <>
-        <Slider label="Payment retries" defaultValue={3} maxValue={8} />
+        <Slider label="Message retries" defaultValue={3} maxValue={8} />
         <Slider label="Volume" defaultValue={30} />
       </>,
     );
@@ -249,6 +249,38 @@ describe('Slider', () => {
     await expect.element(screen.getByText('Dedicated')).toBeVisible();
     const [retention] = screen.getByRole('group').elements();
     expect(parts('mark', retention)).toHaveLength(3);
+  });
+
+  it('shows one value, without a tilde, when both range thumbs meet', async () => {
+    await renderWithDS(
+      <Slider label="Price" defaultValue={[480, 480]} maxValue={1000} formatOptions={usd} />,
+    );
+    expect(parts('output')[0].textContent).toBe('$480');
+  });
+
+  it('draws no stop on the seam of a centred slider', async () => {
+    await renderWithDS(
+      <div className="w-80">
+        <Slider
+          label="Balance"
+          defaultValue={0.08}
+          minValue={-0.2}
+          maxValue={0.2}
+          step={0.01}
+          fillOffset={0}
+          marks={[-0.2, 0, 0.2]}
+          formatOptions={{ style: 'percent', signDisplay: 'exceptZero' }}
+        />
+      </div>,
+    );
+    const rail = parts('rail')[0].getBoundingClientRect();
+    const seam = rail.left + rail.width / 2;
+    const stops = parts('stop');
+    expect(stops).toHaveLength(2);
+    for (const stop of stops) {
+      const { left, right } = stop.getBoundingClientRect();
+      expect(right < seam - 1 || left > seam + 1).toBe(true);
+    }
   });
 
   it('fills from the offset for a centred slider', async () => {
@@ -517,7 +549,7 @@ describe('Slider', () => {
         <div className="flex w-96 flex-col gap-6 p-4">
           <Slider
             label="Monthly spending limit"
-            description="Payments above this are declined."
+            description="Messages above this are declined."
             defaultValue={1500}
             maxValue={5000}
             step={100}

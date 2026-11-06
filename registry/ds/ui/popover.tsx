@@ -17,6 +17,7 @@ import {
   type PopoverProps as AriaPopoverProps,
 } from 'react-aria-components';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
+import { ButtonGroupContext } from '@/registry/ds/ui/button';
 import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
@@ -132,8 +133,10 @@ export function Popover({
     >
       {composeRenderProps(children, (children) => (
         <SurfaceContext value="surface-container-high">
-          {showArrow ? <PopoverArrow /> : null}
-          {children}
+          <ButtonGroupContext value={null}>
+            {showArrow ? <PopoverArrow /> : null}
+            {children}
+          </ButtonGroupContext>
         </SurfaceContext>
       ))}
     </AriaPopover>

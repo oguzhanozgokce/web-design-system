@@ -1,19 +1,15 @@
 import { ListBoxItem } from '@/registry/ds/ui/list-box';
 import { Select } from '@/registry/ds/ui/select';
 
-function BillingCycle({ variant }: { variant: 'outlined' | 'filled' }) {
+function Repeat({ variant }: { variant: 'outlined' | 'filled' }) {
   return (
-    <Select
-      label={variant === 'outlined' ? 'Billing cycle, outlined' : 'Billing cycle, filled'}
-      variant={variant}
-      defaultValue="monthly"
-      className="w-full"
-    >
-      <ListBoxItem id="monthly">Monthly</ListBoxItem>
-      <ListBoxItem id="quarterly">Quarterly</ListBoxItem>
-      <ListBoxItem id="yearly" description="Save 2 months">
-        Yearly
+    <Select label={`Repeat, ${variant}`} variant={variant} defaultValue="weekly" className="w-full">
+      <ListBoxItem id="never">Never</ListBoxItem>
+      <ListBoxItem id="daily">Daily</ListBoxItem>
+      <ListBoxItem id="weekly" description="On the same day each week">
+        Weekly
       </ListBoxItem>
+      <ListBoxItem id="monthly">Monthly</ListBoxItem>
     </Select>
   );
 }
@@ -21,8 +17,8 @@ function BillingCycle({ variant }: { variant: 'outlined' | 'filled' }) {
 export default function SelectVariants() {
   return (
     <div className="grid w-full max-w-lg grid-cols-1 gap-4 sm:grid-cols-2">
-      <BillingCycle variant="outlined" />
-      <BillingCycle variant="filled" />
+      <Repeat variant="outlined" />
+      <Repeat variant="filled" />
     </div>
   );
 }

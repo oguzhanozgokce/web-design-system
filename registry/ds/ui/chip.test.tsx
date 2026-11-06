@@ -30,14 +30,14 @@ function Labels({ initial }: { initial: string[] }) {
 describe('ChipGroup', () => {
   it('renders a labelled grid of chips', async () => {
     const screen = await renderWithDS(
-      <ChipGroup label="Status" description="Filter invoices by status">
+      <ChipGroup label="Status" description="Filter projects by status">
         <Chip id="paid">Paid</Chip>
         <Chip id="overdue">Overdue</Chip>
       </ChipGroup>,
     );
     const grid = screen.getByRole('grid', { name: 'Status' });
     await expect.element(grid).toBeVisible();
-    await expect.element(grid).toHaveAccessibleDescription('Filter invoices by status');
+    await expect.element(grid).toHaveAccessibleDescription('Filter projects by status');
     const chip = screen.getByRole('row', { name: 'Paid' });
     await expect.element(chip).toHaveAttribute('data-variant', 'outlined');
     await expect.element(chip).toHaveAttribute('data-size', 'md');
@@ -104,13 +104,13 @@ describe('ChipGroup', () => {
   });
 
   it('removes a chip from its remove button and from the keyboard', async () => {
-    const screen = await renderWithDS(<Labels initial={['Design', 'Billing', 'Urgent']} />);
+    const screen = await renderWithDS(<Labels initial={['Design', 'Sharing', 'Urgent']} />);
     await screen.getByRole('button', { name: 'Remove Design' }).click();
     await expect.element(screen.getByRole('row', { name: 'Design' })).not.toBeInTheDocument();
 
-    screen.getByRole('row', { name: 'Billing' }).element().focus();
+    screen.getByRole('row', { name: 'Sharing' }).element().focus();
     await userEvent.keyboard('{Delete}');
-    await expect.element(screen.getByRole('row', { name: 'Billing' })).not.toBeInTheDocument();
+    await expect.element(screen.getByRole('row', { name: 'Sharing' })).not.toBeInTheDocument();
     await expect.element(screen.getByRole('row', { name: 'Urgent' })).toBeInTheDocument();
   });
 
@@ -118,7 +118,7 @@ describe('ChipGroup', () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-2">
         <button type="button">Before</button>
-        <Labels initial={['Design', 'Billing']} />
+        <Labels initial={['Design', 'Sharing']} />
         <button type="button">After</button>
       </div>,
     );
@@ -132,13 +132,13 @@ describe('ChipGroup', () => {
   });
 
   it('moves focus to the next chip after its remove button is pressed', async () => {
-    const screen = await renderWithDS(<Labels initial={['Design', 'Billing']} />);
+    const screen = await renderWithDS(<Labels initial={['Design', 'Sharing']} />);
     screen.getByRole('row', { name: 'Design' }).element().focus();
     await userEvent.keyboard('{Tab}');
     await expect.element(screen.getByRole('button', { name: 'Remove Design' })).toHaveFocus();
     await userEvent.keyboard('{Enter}');
     await expect.element(screen.getByRole('row', { name: 'Design' })).not.toBeInTheDocument();
-    await expect.element(screen.getByRole('row', { name: 'Billing' })).toHaveFocus();
+    await expect.element(screen.getByRole('row', { name: 'Sharing' })).toHaveFocus();
   });
 
   it('shows a focus ring on the empty group after the last chip is removed', async () => {
@@ -185,8 +185,8 @@ describe('ChipGroup', () => {
         </ChipGroup>
         <ChipGroup aria-label="Labels" onRemove={() => {}} labels={{ remove: 'Delete {label}' }}>
           <Chip id="design">Design</Chip>
-          <Chip id="billing" labels={{ remove: 'Drop {label}' }}>
-            Billing
+          <Chip id="sharing" labels={{ remove: 'Drop {label}' }}>
+            Sharing
           </Chip>
         </ChipGroup>
       </div>,
@@ -196,7 +196,7 @@ describe('ChipGroup', () => {
       .element(screen.getByRole('button', { name: 'Tasarım öğesini kaldır' }))
       .toBeInTheDocument();
     await expect.element(screen.getByRole('button', { name: 'Delete Design' })).toBeInTheDocument();
-    await expect.element(screen.getByRole('button', { name: 'Drop Billing' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('button', { name: 'Drop Sharing' })).toBeInTheDocument();
   });
 
   it('moves focus with ArrowRight, Home and End', async () => {
@@ -324,11 +324,11 @@ describe('ChipGroup', () => {
     const screen = await renderWithDS(
       <ChipGroup aria-label="Suggestions">
         <Chip id="overdue" onAction={onAction}>
-          Show overdue invoices
+          Show overdue projects
         </Chip>
       </ChipGroup>,
     );
-    const chip = screen.getByRole('row', { name: 'Show overdue invoices' });
+    const chip = screen.getByRole('row', { name: 'Show overdue projects' });
     expect(chip.element().className).toContain('state-layer');
     await chip.click();
     expect(onAction).toHaveBeenCalledOnce();
@@ -495,7 +495,7 @@ describe('Chip accessibility', () => {
               {(item) => <Chip id={item.id}>{item.name}</Chip>}
             </ChipGroup>
           ))}
-          <Labels initial={['Design', 'Billing']} />
+          <Labels initial={['Design', 'Sharing']} />
           <ChipGroup aria-label="Assignees" onRemove={() => {}}>
             <Chip id="ayse" avatar="AD">
               Ayşe Demir

@@ -158,16 +158,16 @@ describe('ComboBox', () => {
   });
 
   it('matches items whose text is built from several text nodes', async () => {
-    const invoice = 2041;
+    const project = 2041;
     await renderWithDS(
       <ComboBox label="Office">
         <ListBoxItem id="draft">Draft</ListBoxItem>
-        <ListBoxItem id="inv">Invoice {invoice}</ListBoxItem>
+        <ListBoxItem id="inv">Project {project}</ListBoxItem>
       </ComboBox>,
     );
     await input().click();
     await userEvent.keyboard('2041');
-    expect(await optionNames()).toEqual(['Invoice 2041']);
+    expect(await optionNames()).toEqual(['Project 2041']);
   });
 
   it('turns the arrow without a transition when motion is reduced', async () => {
@@ -389,7 +389,7 @@ describe('ComboBox', () => {
       document.documentElement.classList.toggle('dark', 'dark' in options);
       const variants = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          <CityComboBox defaultValue="lis" description="Where invoices are issued from." />
+          <CityComboBox defaultValue="lis" description="Where projects are issued from." />
           <CityComboBox label="Branch" variant="filled" isInvalid errorMessage="Pick a branch" />
           <CityComboBox label="Warehouse" isLoading size="sm" />
           <CityComboBox label="Archive" isDisabled />

@@ -13,7 +13,7 @@ export default function IconButtonAsync() {
     <div className="flex items-center gap-3">
       <IconButton
         variant="outlined"
-        aria-label="Refresh exchange rates"
+        aria-label="Refresh"
         icon={<RefreshIcon />}
         onPress={async () => {
           await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -22,8 +22,8 @@ export default function IconButtonAsync() {
       />
       <p className="text-body-md text-on-surface-variant" aria-live="polite">
         {syncedAt
-          ? `Rates updated at ${new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(syncedAt)}`
-          : 'Rates from this morning'}
+          ? `Updated at ${new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(syncedAt)}`
+          : 'Updated this morning'}
       </p>
     </div>
   );

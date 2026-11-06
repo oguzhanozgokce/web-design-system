@@ -1,30 +1,26 @@
 import { Tab, TabList, TabPanel, Tabs } from '@/registry/ds/ui/tabs';
 
-const categories = [
-  { id: 'all', label: 'All spending', total: '€48,210' },
-  { id: 'payroll', label: 'Payroll', total: '€31,400' },
-  { id: 'rent', label: 'Rent', total: '€6,000' },
-  { id: 'software', label: 'Software', total: '€2,184' },
-  { id: 'travel', label: 'Travel', total: '€1,920' },
-  { id: 'marketing', label: 'Marketing', total: '€3,350' },
-  { id: 'equipment', label: 'Equipment', total: '€1,780' },
-  { id: 'insurance', label: 'Insurance', total: '€640' },
-  { id: 'taxes', label: 'Taxes', total: '€936' },
+const topics = [
+  { id: 'news', label: 'News' },
+  { id: 'sports', label: 'Sports' },
+  { id: 'music', label: 'Music' },
+  { id: 'movies', label: 'Movies' },
+  { id: 'travel', label: 'Travel' },
+  { id: 'food', label: 'Food' },
+  { id: 'science', label: 'Science' },
+  { id: 'design', label: 'Design' },
+  { id: 'health', label: 'Health' },
 ];
 
 export default function TabsScrollable() {
   return (
     <Tabs variant="secondary" className="w-full max-w-sm">
-      <TabList aria-label="Spending categories" items={categories}>
-        {(category) => <Tab id={category.id}>{category.label}</Tab>}
+      <TabList aria-label="Topics" items={topics}>
+        {(topic) => <Tab id={topic.id}>{topic.label}</Tab>}
       </TabList>
-      {categories.map((category) => (
-        <TabPanel
-          key={category.id}
-          id={category.id}
-          className="text-body-md text-on-surface-variant"
-        >
-          {category.label}: {category.total} in October.
+      {topics.map((topic) => (
+        <TabPanel key={topic.id} id={topic.id} className="text-body-md text-on-surface-variant">
+          New articles in {topic.label}.
         </TabPanel>
       ))}
     </Tabs>

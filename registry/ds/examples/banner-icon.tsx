@@ -7,14 +7,14 @@ export default function BannerIcon() {
       <Banner
         tone="neutral"
         icon={<CalendarIcon />}
-        title="Support is closed on 29 October"
-        description="Replies to tickets opened that day start on 30 October at 09:00."
+        title="Event moved to Friday"
+        description="The team meeting now starts at 10:00 in the same room."
       />
       <Banner
         tone="info"
         variant="outlined"
         icon={null}
-        description="Amounts are shown in your workspace currency. Change it in Settings → Billing."
+        description="Times are shown in your time zone. Change it in Settings → Language and region."
       />
     </div>
   );

@@ -4,21 +4,21 @@ export default function CardStates() {
   return (
     <SelectableCardGroup
       label="Data region"
-      description="Where your ledgers and backups are stored. This cannot be changed later."
+      description="Where your files and backups are stored. This cannot be changed later."
       isRequired
       isInvalid
       errorMessage="Choose a region to continue."
       orientation="horizontal"
       className="w-full"
     >
-      <SelectableCard value="eu">
-        <CardHeader title="Frankfurt" description="EU, GDPR" />
+      <SelectableCard value="europe">
+        <CardHeader title="Europe" description="Frankfurt" />
       </SelectableCard>
       <SelectableCard value="us">
-        <CardHeader title="Virginia" description="United States" />
+        <CardHeader title="United States" description="Virginia" />
       </SelectableCard>
-      <SelectableCard value="tr" isDisabled>
-        <CardHeader title="Istanbul" description="Available in Q1 2027" />
+      <SelectableCard value="asia" isDisabled>
+        <CardHeader title="Asia Pacific" description="Coming soon" />
       </SelectableCard>
     </SelectableCardGroup>
   );

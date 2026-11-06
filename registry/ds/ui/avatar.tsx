@@ -383,11 +383,11 @@ export function Avatar({
             data-slot="avatar-image"
             data-loaded={imageState === 'loaded' || undefined}
             onLoad={(event) => {
-              settleImage('loaded');
+              if (event.currentTarget.isConnected) settleImage('loaded');
               imageProps?.onLoad?.(event);
             }}
             onError={(event) => {
-              settleImage('error');
+              if (event.currentTarget.isConnected) settleImage('error');
               imageProps?.onError?.(event);
             }}
             className={styles.image({ className: imageProps?.className })}

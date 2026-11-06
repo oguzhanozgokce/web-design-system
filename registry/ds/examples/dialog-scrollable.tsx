@@ -11,51 +11,43 @@ import {
   DialogTrigger,
 } from '@/registry/ds/ui/dialog';
 
-const merchants = [
-  'Northwind Supplies',
-  'Contoso Cloud',
-  'Fabrikam Office',
-  'Tailspin Travel',
-  'Litware Payroll',
-  'Adventure Works',
-];
-
-const transactions = Array.from({ length: 24 }, (_, index) => ({
-  id: `TX-${4100 + index}`,
-  merchant: merchants[index % merchants.length],
-  amount: -((index * 37.5 + 12.9) % 940),
+const files = Array.from({ length: 24 }, (_, index) => ({
+  name: `IMG_${4100 + index}.jpg`,
+  size: 1.2 + ((index * 0.7) % 4.6),
   day: (index % 28) + 1,
 }));
 
 export default function DialogScrollable() {
   const { locale } = useLocale();
-  const currency = new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' });
+  const size = new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit: 'megabyte',
+    maximumFractionDigits: 1,
+  });
   const date = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
 
   return (
     <DialogTrigger>
       <Button variant="outlined" startIcon={<UploadIcon />}>
-        Review import
+        Upload photos
       </Button>
       <Dialog>
         <DialogHeader
-          title="Review 24 transactions"
-          description="From march-statement.csv. Check the merchants before they reach the ledger."
+          title="Upload 24 photos?"
+          description="Check the list before the photos are added to your library."
         />
         <DialogBody>
           <ul className="divide-y divide-outline-variant">
-            {transactions.map((transaction) => (
-              <li key={transaction.id} className="flex items-center justify-between gap-4 py-3">
+            {files.map((file) => (
+              <li key={file.name} className="flex items-center justify-between gap-4 py-3">
                 <span className="flex min-w-0 flex-col">
-                  <span className="truncate text-body-lg text-on-surface">
-                    {transaction.merchant}
-                  </span>
+                  <span className="truncate text-body-lg text-on-surface">{file.name}</span>
                   <span className="text-body-sm text-on-surface-variant">
-                    {transaction.id} · {date.format(new Date(2026, 2, transaction.day))}
+                    {date.format(new Date(2026, 2, file.day))}
                   </span>
                 </span>
-                <span className="text-body-lg text-on-surface tabular-digits">
-                  {currency.format(transaction.amount)}
+                <span className="text-body-md text-on-surface-variant tabular-digits">
+                  {size.format(file.size)}
                 </span>
               </li>
             ))}
@@ -65,7 +57,7 @@ export default function DialogScrollable() {
           <Button slot="close" variant="text">
             Cancel
           </Button>
-          <Button slot="close">Import 24</Button>
+          <Button slot="close">Upload 24</Button>
         </DialogFooter>
       </Dialog>
     </DialogTrigger>

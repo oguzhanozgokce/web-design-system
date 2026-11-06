@@ -14,11 +14,11 @@ description: Material 3 Expressive toggle button whose shape morphs between a ca
 ```tsx
 import { ToggleButton, ToggleButtonGroup } from '@/components/ds/toggle-button';
 
-<ToggleButton isSelected={watching} onChange={setWatching}>
-  Watch invoice
+<ToggleButton isSelected={notify} onChange={setNotify}>
+  Notify me
 </ToggleButton>;
 
-<ToggleButtonGroup aria-label="Period" defaultSelectedKeys={['week']} disallowEmptySelection>
+<ToggleButtonGroup aria-label="Calendar view" defaultSelectedKeys={['week']} disallowEmptySelection>
   <ToggleButton id="day">Day</ToggleButton>
   <ToggleButton id="week">Week</ToggleButton>
   <ToggleButton id="month">Month</ToggleButton>
@@ -69,13 +69,13 @@ uncontrolled.
 ### Single selection group
 
 `ToggleButtonGroup` picks one option by default and renders as a connected group. Add
-`disallowEmptySelection` when one option must always be on, as in a period switch.
+`disallowEmptySelection` when one option must always be on, as in a day, week and month switch.
 
 <ComponentPreview name="toggle-button-group-demo" />
 
 ### Multiple selection
 
-`selectionMode="multiple"` lets people turn on several options, such as status filters.
+`selectionMode="multiple"` lets people turn on several options, such as bold, italic and underline.
 `variant="standard"` spaces them out and lets them wrap.
 
 <ComponentPreview name="toggle-button-group-multiple" />

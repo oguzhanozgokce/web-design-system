@@ -13,19 +13,19 @@ export default function TabsVariants() {
         <section key={variant} className="flex flex-col gap-2">
           <h3 className="text-label-lg text-on-surface-variant">{label}</h3>
           <Tabs variant={variant}>
-            <TabList aria-label={`Project, ${label.toLowerCase()} tabs`}>
-              <Tab id="activity">Activity</Tab>
-              <Tab id="files">Files</Tab>
-              <Tab id="members">Members</Tab>
+            <TabList aria-label={`Library, ${label.toLowerCase()} tabs`}>
+              <Tab id="photos">Photos</Tab>
+              <Tab id="videos">Videos</Tab>
+              <Tab id="music">Music</Tab>
             </TabList>
-            <TabPanel id="activity" className="text-body-md text-on-surface-variant">
-              Ayşe Demir approved the Q3 payroll run.
+            <TabPanel id="photos" className="text-body-md text-on-surface-variant">
+              248 photos, newest first.
             </TabPanel>
-            <TabPanel id="files" className="text-body-md text-on-surface-variant">
-              12 files, 48 MB in total.
+            <TabPanel id="videos" className="text-body-md text-on-surface-variant">
+              12 videos, 1.4 GB in total.
             </TabPanel>
-            <TabPanel id="members" className="text-body-md text-on-surface-variant">
-              Five people can edit this project.
+            <TabPanel id="music" className="text-body-md text-on-surface-variant">
+              86 songs in 4 playlists.
             </TabPanel>
           </Tabs>
         </section>

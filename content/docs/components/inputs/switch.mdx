@@ -14,8 +14,8 @@ description: Material 3 switch with a growing handle, optional handle icons, lab
 ```tsx
 import { Switch } from '@/components/ds/switch';
 
-<Switch defaultSelected onChange={setAutoRenew}>
-  Auto-renew subscription
+<Switch defaultSelected onChange={setAirplaneMode}>
+  Airplane mode
 </Switch>;
 ```
 
@@ -62,7 +62,7 @@ Use `isSelected` and `onChange` when the rest of the page reacts to the setting.
 
 ### Disabled
 
-Disabled switches keep their state visible so people can see what a policy has fixed.
+Disabled switches keep their state visible so people can still see how a setting is set.
 
 <ComponentPreview name="switch-disabled" />
 

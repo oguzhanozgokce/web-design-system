@@ -1,10 +1,10 @@
 import { Tag, type TagTone } from '@/registry/ds/ui/tag';
 
 const statuses: { tone: TagTone; label: string }[] = [
-  { tone: 'neutral', label: 'Draft' },
-  { tone: 'success', label: 'Paid' },
+  { tone: 'neutral', label: 'Archived' },
+  { tone: 'success', label: 'Active' },
   { tone: 'warning', label: 'Pending' },
-  { tone: 'error', label: 'Overdue' },
+  { tone: 'error', label: 'Failed' },
 ];
 
 export default function TagVariants() {

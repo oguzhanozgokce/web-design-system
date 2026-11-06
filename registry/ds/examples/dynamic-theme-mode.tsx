@@ -17,11 +17,11 @@ export default function DynamicThemeMode() {
           className="flex flex-col gap-3 rounded-xl bg-surface-container-high p-5 text-on-surface"
         >
           <p className="text-label-md text-primary uppercase">Always {mode}</p>
-          <p className="text-title-lg">Spring collection is live</p>
+          <p className="text-title-lg">New features are here</p>
           <p className="text-body-md text-on-surface-variant">
-            Free returns on every order until 30 April.
+            Dark mode, keyboard shortcuts and faster search.
           </p>
-          <Button className="self-start">Shop now</Button>
+          <Button className="self-start">Learn more</Button>
         </DynamicTheme>
       ))}
     </div>

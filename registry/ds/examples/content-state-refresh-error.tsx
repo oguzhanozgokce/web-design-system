@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/registry/ds/ui/button';
 import { ContentState } from '@/registry/ds/ui/content-state';
 
-const payouts = [
-  { id: 'PO-311', date: '4 November', status: 'Paid' },
-  { id: 'PO-310', date: '28 October', status: 'Paid' },
-  { id: 'PO-309', date: '21 October', status: 'Paid' },
+const activity = [
+  { id: 'photo', title: 'Photo uploaded', date: '4 November' },
+  { id: 'profile', title: 'Profile updated', date: '28 October' },
+  { id: 'password', title: 'Password changed', date: '21 October' },
 ];
 
 export default function ContentStateRefreshError() {
@@ -24,27 +24,25 @@ export default function ContentStateRefreshError() {
         Simulate a failed refresh
       </Button>
       <ContentState
-        data={payouts}
+        data={activity}
         error={error}
         onRetry={async () => {
           await new Promise((resolve) => setTimeout(resolve, 1200));
           setError(undefined);
         }}
-        errorTitle="Couldn’t refresh payouts"
+        errorTitle="Couldn’t refresh activity"
         errorDescription="Showing the list from 09:12. Check your connection and try again."
         className="rounded-lg border border-outline-variant bg-surface p-2"
       >
         {(items) => (
           <ul className="flex flex-col">
-            {items.map((payout) => (
+            {items.map((item) => (
               <li
-                key={payout.id}
+                key={item.id}
                 className="flex items-center justify-between gap-4 px-2 py-3 text-body-md text-on-surface"
               >
-                <span>
-                  {payout.id} · {payout.date}
-                </span>
-                <span className="text-on-surface-variant">{payout.status}</span>
+                <span>{item.title}</span>
+                <span className="text-on-surface-variant">{item.date}</span>
               </li>
             ))}
           </ul>

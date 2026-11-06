@@ -19,14 +19,25 @@ export default function PasswordFieldSignIn() {
       }}
     >
       <TextField
-        label="Work email"
+        label="Email"
         name="email"
         type="email"
         autoComplete="username"
         startAdornment={<MailIcon />}
         isRequired
+        errorMessage={(validation) =>
+          validation.validationDetails.valueMissing
+            ? 'Enter your email.'
+            : 'Enter an address like name@example.com.'
+        }
       />
-      <PasswordField label="Password" name="password" startAdornment={<LockIcon />} isRequired />
+      <PasswordField
+        label="Password"
+        name="password"
+        startAdornment={<LockIcon />}
+        isRequired
+        errorMessage="Enter your password."
+      />
       <Button type="submit">Sign in</Button>
       <p className="text-body-sm text-on-surface-variant" aria-live="polite">
         {status}

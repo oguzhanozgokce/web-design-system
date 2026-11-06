@@ -14,7 +14,7 @@ export default function PasswordFieldVariants() {
         className="sm:col-span-2"
         label="Wi-Fi password"
         size="lg"
-        defaultValue="northwind-guest"
+        defaultValue="sunny-garden-42"
         defaultRevealed
         description="Large, revealed by default for a password people read aloud."
       />

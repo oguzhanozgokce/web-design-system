@@ -29,11 +29,11 @@ describe('Toast', () => {
         provider: { motion: 'disabled' },
       });
       toast('Draft saved', { action: { label: 'Undo', onAction: () => {} } });
-      toast.info('Payout scheduled for Friday', {
+      toast.info('Upload scheduled for Friday', {
         description: 'Funds arrive in one to two business days.',
       });
-      toast.success('Payment received');
-      toast.warning('Card ending 4242 expires in 7 days', { title: 'Update billing' });
+      toast.success('Message received');
+      toast.warning('Card ending 4242 expires in 7 days', { title: 'Update sharing' });
       toast.error('Sync failed', { action: { label: 'Retry', onAction: () => {} } });
       toast.loading('Exporting 240 orders');
 
@@ -47,33 +47,33 @@ describe('Toast', () => {
 
   it('announces a message inside a labelled notifications region', async () => {
     await renderWithDS(<Toaster />);
-    toast('Invoice INV-2048 sent to Acme Corp');
+    toast('Project DOC-2048 sent to Nova Corp');
 
     const item = notifications().getByRole('alertdialog', {
-      name: 'Invoice INV-2048 sent to Acme Corp',
+      name: 'Project DOC-2048 sent to Nova Corp',
     });
     await expect.element(item).toBeVisible();
     await expect.element(item).toHaveAttribute('data-tone', 'default');
     await expect.element(notifications()).toHaveAttribute('data-placement', 'bottom-end');
     await expect
       .element(item.getByRole('alert'))
-      .toHaveTextContent('Invoice INV-2048 sent to Acme Corp');
+      .toHaveTextContent('Project DOC-2048 sent to Nova Corp');
   });
 
   it('gives each tone its container and icon, with a title and description', async () => {
     await renderWithDS(<Toaster isExpanded maxVisibleToasts={5} />);
-    toast.success('Payment received');
+    toast.success('Message received');
     toast.warning('Card ending 4242 expires in 7 days', {
-      title: 'Update billing',
+      title: 'Update sharing',
       description: 'Renewal is on 1 December.',
     });
 
-    const success = page.getByRole('alertdialog', { name: 'Payment received' });
+    const success = page.getByRole('alertdialog', { name: 'Message received' });
     await expect.element(success).toHaveAttribute('data-tone', 'success');
     await expect.element(success).toHaveClass(/bg-success-container/);
     expect(success.element().querySelector('[data-slot="icon"] svg')).not.toBeNull();
 
-    const warning = page.getByRole('alertdialog', { name: 'Update billing' });
+    const warning = page.getByRole('alertdialog', { name: 'Update sharing' });
     await expect.element(warning).toHaveClass(/bg-warning-container/);
     await expect
       .element(warning)
@@ -83,9 +83,9 @@ describe('Toast', () => {
   it('closes from the close button and reports why', async () => {
     const onClose = vi.fn();
     await renderWithDS(<Toaster />);
-    toast.success('Payment received', { onClose });
+    toast.success('Message received', { onClose });
 
-    const item = page.getByRole('alertdialog', { name: 'Payment received' });
+    const item = page.getByRole('alertdialog', { name: 'Message received' });
     await item.getByRole('button', { name: 'Close' }).click();
     await expect.element(item).not.toBeInTheDocument();
     expect(onClose).toHaveBeenCalledWith('close');
@@ -95,11 +95,11 @@ describe('Toast', () => {
     const onClose = vi.fn();
     const screen = await renderWithDS(
       <>
-        <p>Ledger</p>
+        <p>Folder</p>
         <Toaster duration={300} />
       </>,
     );
-    await userEvent.hover(screen.getByText('Ledger'));
+    await userEvent.hover(screen.getByText('Folder'));
     toast('Draft saved', { onClose });
 
     const item = page.getByRole('alertdialog', { name: 'Draft saved' });
@@ -111,16 +111,16 @@ describe('Toast', () => {
   it('fans the stack out and pauses every countdown while hovered', async () => {
     const screen = await renderWithDS(
       <>
-        <p>Ledger</p>
+        <p>Folder</p>
         <Toaster duration={1000} />
       </>,
     );
-    await userEvent.hover(screen.getByText('Ledger'));
-    toast('Receipt uploaded');
-    toast('Invoice approved');
+    await userEvent.hover(screen.getByText('Folder'));
+    toast('Comment uploaded');
+    toast('Project approved');
 
-    const front = page.getByRole('alertdialog', { name: 'Invoice approved' });
-    const behind = page.getByRole('alertdialog', { name: 'Receipt uploaded' });
+    const front = page.getByRole('alertdialog', { name: 'Project approved' });
+    const behind = page.getByRole('alertdialog', { name: 'Comment uploaded' });
     const list = notifications().getByRole('list');
     await expect.element(front).toHaveAttribute('data-front', 'true');
     await expect.element(behind).toHaveAttribute('data-stacked', 'true');
@@ -134,7 +134,7 @@ describe('Toast', () => {
     await expect.element(front).toBeInTheDocument();
     await expect.element(behind).toBeInTheDocument();
 
-    await userEvent.hover(screen.getByText('Ledger'));
+    await userEvent.hover(screen.getByText('Folder'));
     await expect.element(list).not.toHaveAttribute('data-expanded');
     await expect.element(front, { timeout: 2500 }).not.toBeInTheDocument();
   });
@@ -143,16 +143,16 @@ describe('Toast', () => {
     const onClose = vi.fn();
     const screen = await renderWithDS(
       <>
-        <Button>Approve invoice</Button>
+        <Button>Approve project</Button>
         <Toaster />
       </>,
     );
-    toast('Invoice approved');
-    toast('Payment scheduled', { onClose });
+    toast('Project approved');
+    toast('Message scheduled', { onClose });
 
-    const front = page.getByRole('alertdialog', { name: 'Payment scheduled' });
+    const front = page.getByRole('alertdialog', { name: 'Message scheduled' });
     await expect.element(front).toBeVisible();
-    await screen.getByRole('button', { name: 'Approve invoice' }).click();
+    await screen.getByRole('button', { name: 'Approve project' }).click();
     await userEvent.keyboard('{Tab}');
 
     await expect.element(front).toHaveFocus();
@@ -163,21 +163,21 @@ describe('Toast', () => {
     await userEvent.keyboard('{Escape}');
     await expect.element(front).not.toBeInTheDocument();
     expect(onClose).toHaveBeenCalledWith('escape');
-    await expect.element(page.getByRole('alertdialog', { name: 'Invoice approved' })).toHaveFocus();
+    await expect.element(page.getByRole('alertdialog', { name: 'Project approved' })).toHaveFocus();
   });
 
   it('updates one toast in place', async () => {
     await renderWithDS(<Toaster />);
-    const id = toast.loading('Uploading 3 receipts');
+    const id = toast.loading('Uploading 3 comments');
 
-    const loading = page.getByRole('alertdialog', { name: 'Uploading 3 receipts' });
+    const loading = page.getByRole('alertdialog', { name: 'Uploading 3 comments' });
     await expect.element(loading).toHaveAttribute('data-loading', 'true');
     const node = loading.element();
 
     expect(
-      toast.update(id, { message: 'Receipts uploaded', tone: 'success', isLoading: false }),
+      toast.update(id, { message: 'Comments uploaded', tone: 'success', isLoading: false }),
     ).toBe(true);
-    const done = page.getByRole('alertdialog', { name: 'Receipts uploaded' });
+    const done = page.getByRole('alertdialog', { name: 'Comments uploaded' });
     await expect.element(done).toHaveAttribute('data-tone', 'success');
     await expect.element(done).not.toHaveAttribute('data-loading');
     expect(done.element()).toBe(node);
@@ -204,13 +204,13 @@ describe('Toast', () => {
     await expect.element(ready).toHaveAccessibleDescription('orders-november.csv');
     expect(ready.element()).toBe(node);
 
-    toast.promise(Promise.reject(new Error('bank timeout')), {
-      loading: 'Syncing bank feed',
-      success: 'Bank feed synced',
+    toast.promise(Promise.reject(new Error('team timeout')), {
+      loading: 'Syncing team feed',
+      success: 'Team feed synced',
       error: (reason) => `Sync failed: ${(reason as Error).message}`,
     });
     await expect
-      .element(page.getByRole('alertdialog', { name: 'Sync failed: bank timeout' }))
+      .element(page.getByRole('alertdialog', { name: 'Sync failed: team timeout' }))
       .toHaveAttribute('data-tone', 'error');
   });
 
@@ -218,9 +218,9 @@ describe('Toast', () => {
     const onAction = vi.fn();
     const onClose = vi.fn();
     await renderWithDS(<Toaster />);
-    toast('Invoice archived', { action: { label: 'Undo', onAction }, onClose });
+    toast('Project archived', { action: { label: 'Undo', onAction }, onClose });
 
-    const item = page.getByRole('alertdialog', { name: 'Invoice archived' });
+    const item = page.getByRole('alertdialog', { name: 'Project archived' });
     await item.getByRole('button', { name: 'Undo' }).click();
     expect(onAction).toHaveBeenCalledOnce();
     await expect.element(item).not.toBeInTheDocument();
@@ -231,9 +231,9 @@ describe('Toast', () => {
     let finish: () => void = () => {};
     const onAction = vi.fn(() => new Promise<void>((resolve) => (finish = resolve)));
     await renderWithDS(<Toaster duration={200} />);
-    toast('3 invoices archived', { action: { label: 'Undo', onAction } });
+    toast('3 projects archived', { action: { label: 'Undo', onAction } });
 
-    const item = page.getByRole('alertdialog', { name: '3 invoices archived' });
+    const item = page.getByRole('alertdialog', { name: '3 projects archived' });
     await item.getByRole('button', { name: 'Undo' }).click();
     await expect.element(item.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
     await wait(500);
@@ -246,22 +246,22 @@ describe('Toast', () => {
   it('keeps errors with an action open while other toasts time out', async () => {
     const screen = await renderWithDS(
       <>
-        <p>Ledger</p>
+        <p>Folder</p>
         <Toaster duration={200} />
       </>,
     );
-    await userEvent.hover(screen.getByText('Ledger'));
+    await userEvent.hover(screen.getByText('Folder'));
     toast.error('Card ending 4242 was declined', {
-      title: 'Payment failed',
+      title: 'Message failed',
       action: { label: 'Update card', onAction: () => {} },
     });
-    toast.info('Payout scheduled for Friday');
+    toast.info('Upload scheduled for Friday');
 
     await expect
-      .element(page.getByRole('alertdialog', { name: 'Payout scheduled for Friday' }))
+      .element(page.getByRole('alertdialog', { name: 'Upload scheduled for Friday' }))
       .not.toBeInTheDocument();
     await wait(400);
-    await expect.element(page.getByRole('alertdialog', { name: 'Payment failed' })).toBeVisible();
+    await expect.element(page.getByRole('alertdialog', { name: 'Message failed' })).toBeVisible();
   });
 
   it('shows at most maxVisibleToasts and brings queued toasts back', async () => {
@@ -304,17 +304,17 @@ describe('Toast', () => {
       <>
         <Toaster />
         <Toaster />
-        <Toaster toasterId="ledger" placement="top-center" aria-label="Ledger updates" />
+        <Toaster toasterId="folder" placement="top-center" aria-label="Folder updates" />
       </>,
     );
     toast('Draft saved');
-    toast('Ledger closed for October', { toasterId: 'ledger' });
+    toast('Folder closed for October', { toasterId: 'folder' });
 
-    const ledger = page.getByRole('region', { name: 'Ledger updates' });
+    const folder = page.getByRole('region', { name: 'Folder updates' });
     await expect
-      .element(ledger.getByRole('alertdialog', { name: 'Ledger closed for October' }))
+      .element(folder.getByRole('alertdialog', { name: 'Folder closed for October' }))
       .toBeVisible();
-    await expect.element(ledger).toHaveAttribute('data-placement', 'top-center');
+    await expect.element(folder).toHaveAttribute('data-placement', 'top-center');
     await expect
       .element(notifications().getByRole('alertdialog', { name: 'Draft saved' }))
       .toBeVisible();
@@ -325,7 +325,7 @@ describe('Toast', () => {
     await renderWithDS(<Toaster labels={{ close: 'Kapat' }} />, {
       provider: { labels: { toast: { close: 'Gizle', notifications: 'Bildirimler' } } },
     });
-    toast('Fatura gönderildi');
+    toast('Mesaj gönderildi');
 
     const region = page.getByRole('region', { name: 'Bildirimler' });
     await expect.element(region).toBeVisible();
@@ -361,15 +361,15 @@ describe('Toast', () => {
   it('draws the focus ring on a keyboard-focused toast and on its buttons', async () => {
     const screen = await renderWithDS(
       <>
-        <Button>Approve invoice</Button>
+        <Button>Approve project</Button>
         <Toaster />
       </>,
     );
-    toast('Invoice archived', { action: { label: 'Undo', onAction: () => {} } });
+    toast('Project archived', { action: { label: 'Undo', onAction: () => {} } });
 
-    const item = page.getByRole('alertdialog', { name: 'Invoice archived' });
+    const item = page.getByRole('alertdialog', { name: 'Project archived' });
     await expect.element(item).toBeVisible();
-    await screen.getByRole('button', { name: 'Approve invoice' }).click();
+    await screen.getByRole('button', { name: 'Approve project' }).click();
     await userEvent.keyboard('{Tab}');
     await expect.element(item).toHaveFocus();
     expect(getComputedStyle(item.element()).outlineStyle).toBe('solid');
@@ -404,17 +404,17 @@ describe('Toast', () => {
   it('restarts the countdown when a toast is updated', async () => {
     const screen = await renderWithDS(
       <>
-        <p>Ledger</p>
+        <p>Folder</p>
         <Toaster duration={500} />
       </>,
     );
-    await userEvent.hover(screen.getByText('Ledger'));
-    const id = toast('Uploading receipts: 1 of 3');
+    await userEvent.hover(screen.getByText('Folder'));
+    const id = toast('Uploading comments: 1 of 3');
     await wait(300);
-    toast.update(id, { message: 'Uploading receipts: 2 of 3' });
+    toast.update(id, { message: 'Uploading comments: 2 of 3' });
     await wait(300);
 
-    const item = page.getByRole('alertdialog', { name: 'Uploading receipts: 2 of 3' });
+    const item = page.getByRole('alertdialog', { name: 'Uploading comments: 2 of 3' });
     await expect.element(item).toBeInTheDocument();
     await expect.element(item).not.toBeInTheDocument();
   });
@@ -426,8 +426,8 @@ describe('Toast', () => {
         throw new Error('Not signed in');
       },
       {
-        loading: 'Syncing bank feed',
-        success: 'Bank feed synced',
+        loading: 'Syncing team feed',
+        success: 'Team feed synced',
         error: (reason) => `Sync failed: ${(reason as Error).message}`,
       },
     );
@@ -440,12 +440,12 @@ describe('Toast', () => {
   it('stays open when an async action fails', async () => {
     const onClose = vi.fn();
     await renderWithDS(<Toaster />);
-    toast('Invoice archived', {
+    toast('Project archived', {
       action: { label: 'Undo', onAction: () => Promise.reject(new Error('Offline')) },
       onClose,
     });
 
-    const item = page.getByRole('alertdialog', { name: 'Invoice archived' });
+    const item = page.getByRole('alertdialog', { name: 'Project archived' });
     await item.getByRole('button', { name: 'Undo' }).click();
     await wait(300);
     await expect.element(item).toBeInTheDocument();
@@ -458,19 +458,19 @@ describe('Toast', () => {
     await renderWithDS(
       <>
         <Toaster />
-        <Toaster toasterId="ledger" aria-label="Ledger updates" />
+        <Toaster toasterId="folder" aria-label="Folder updates" />
       </>,
     );
-    toast('Closing October', { id: 'ledger-close', onClose });
+    toast('Closing October', { id: 'folder-close', onClose });
     await expect
       .element(notifications().getByRole('alertdialog', { name: 'Closing October' }))
       .toBeVisible();
 
-    toast.success('October closed', { id: 'ledger-close', toasterId: 'ledger' });
+    toast.success('October closed', { id: 'folder-close', toasterId: 'folder' });
     await expect
       .element(
         page
-          .getByRole('region', { name: 'Ledger updates' })
+          .getByRole('region', { name: 'Folder updates' })
           .getByRole('alertdialog', { name: 'October closed' }),
       )
       .toBeVisible();
@@ -481,21 +481,21 @@ describe('Toast', () => {
   it('resumes the countdown when the mouse leaves, even if focus stayed in the stack', async () => {
     const screen = await renderWithDS(
       <>
-        <p>Ledger</p>
+        <p>Folder</p>
         <Toaster duration={1500} />
       </>,
     );
-    await userEvent.hover(screen.getByText('Ledger'));
-    toast('Receipt uploaded');
-    toast('Invoice approved');
+    await userEvent.hover(screen.getByText('Folder'));
+    toast('Comment uploaded');
+    toast('Project approved');
 
-    const front = page.getByRole('alertdialog', { name: 'Invoice approved' });
-    const behind = page.getByRole('alertdialog', { name: 'Receipt uploaded' });
+    const front = page.getByRole('alertdialog', { name: 'Project approved' });
+    const behind = page.getByRole('alertdialog', { name: 'Comment uploaded' });
     await front.getByRole('button', { name: 'Close' }).click();
     await expect.element(front).not.toBeInTheDocument();
     await expect.poll(() => behind.element().contains(document.activeElement)).toBe(true);
 
-    await userEvent.hover(screen.getByText('Ledger'));
+    await userEvent.hover(screen.getByText('Folder'));
     const list = notifications().getByRole('list');
     await expect.element(list).not.toHaveAttribute('data-paused');
     await expect.element(list).not.toHaveAttribute('data-expanded');
@@ -504,34 +504,34 @@ describe('Toast', () => {
 
   it('hides the tone icon with icon null and shows a custom icon', async () => {
     await renderWithDS(<Toaster isExpanded />);
-    toast.success('Payment received', { icon: null });
-    toast('Ledger exported', { icon: <svg data-testid="ledger-icon" aria-hidden="true" /> });
+    toast.success('Message received', { icon: null });
+    toast('Folder exported', { icon: <svg data-testid="folder-icon" aria-hidden="true" /> });
 
-    const plain = page.getByRole('alertdialog', { name: 'Payment received' });
+    const plain = page.getByRole('alertdialog', { name: 'Message received' });
     await expect.element(plain).toHaveAttribute('data-tone', 'success');
     expect(plain.element().querySelector('[data-slot="icon"]')).toBeNull();
     await expect
       .element(
-        page.getByRole('alertdialog', { name: 'Ledger exported' }).getByTestId('ledger-icon'),
+        page.getByRole('alertdialog', { name: 'Folder exported' }).getByTestId('folder-icon'),
       )
       .toBeInTheDocument();
   });
 
   it('clears the title, description and action when an update passes null', async () => {
     await renderWithDS(<Toaster />);
-    const id = toast('3 receipts uploaded', {
-      title: 'Receipts',
-      description: 'Ready to match in the ledger.',
+    const id = toast('3 comments uploaded', {
+      title: 'Comments',
+      description: 'Ready to match in the folder.',
       action: { label: 'Match', onAction: () => {} },
     });
 
-    const item = page.getByRole('alertdialog', { name: 'Receipts' });
+    const item = page.getByRole('alertdialog', { name: 'Comments' });
     await expect
       .element(item)
-      .toHaveAccessibleDescription('3 receipts uploaded Ready to match in the ledger.');
+      .toHaveAccessibleDescription('3 comments uploaded Ready to match in the folder.');
 
     toast.update(id, { title: null, description: null, action: null });
-    const plain = page.getByRole('alertdialog', { name: '3 receipts uploaded' });
+    const plain = page.getByRole('alertdialog', { name: '3 comments uploaded' });
     await expect.element(plain).toHaveAccessibleDescription('');
     await expect.element(plain.getByRole('button', { name: 'Match' })).not.toBeInTheDocument();
   });

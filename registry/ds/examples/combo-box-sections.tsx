@@ -1,41 +1,52 @@
 import { ComboBox } from '@/registry/ds/ui/combo-box';
 import { ListBoxItem, ListBoxSection } from '@/registry/ds/ui/list-box';
 
-const accounts = [
+const continents = [
   {
-    id: 'bank',
-    name: 'Bank accounts',
+    id: 'africa',
+    name: 'Africa',
     children: [
-      { id: 'garanti', name: 'Garanti BBVA', detail: 'TRY · •••• 4821' },
-      { id: 'wise', name: 'Wise Business', detail: 'EUR · •••• 3310' },
+      { id: 'ghana', name: 'Ghana', capital: 'Accra' },
+      { id: 'kenya', name: 'Kenya', capital: 'Nairobi' },
     ],
   },
   {
-    id: 'cards',
-    name: 'Cards',
+    id: 'asia',
+    name: 'Asia',
     children: [
-      { id: 'amex', name: 'Company Amex', detail: 'USD · •••• 1005' },
-      { id: 'bonus', name: 'Bonus Business', detail: 'TRY · •••• 7712' },
+      { id: 'india', name: 'India', capital: 'New Delhi' },
+      { id: 'japan', name: 'Japan', capital: 'Tokyo' },
     ],
   },
   {
-    id: 'cash',
-    name: 'Cash',
-    children: [{ id: 'petty', name: 'Petty cash', detail: 'Istanbul office' }],
+    id: 'europe',
+    name: 'Europe',
+    children: [
+      { id: 'france', name: 'France', capital: 'Paris' },
+      { id: 'spain', name: 'Spain', capital: 'Madrid' },
+    ],
+  },
+  {
+    id: 'americas',
+    name: 'Americas',
+    children: [
+      { id: 'brazil', name: 'Brazil', capital: 'Brasília' },
+      { id: 'canada', name: 'Canada', capital: 'Ottawa' },
+    ],
   },
 ];
 
 export default function ComboBoxSections() {
   return (
     <ComboBox
-      label="Paid from"
-      placeholder="Search accounts"
-      defaultItems={accounts}
+      label="Country"
+      placeholder="Search countries"
+      defaultItems={continents}
       className="w-full max-w-xs"
     >
-      {(group) => (
-        <ListBoxSection id={group.id} title={group.name} items={group.children}>
-          {(account) => <ListBoxItem description={account.detail}>{account.name}</ListBoxItem>}
+      {(continent) => (
+        <ListBoxSection id={continent.id} title={continent.name} items={continent.children}>
+          {(country) => <ListBoxItem description={country.capital}>{country.name}</ListBoxItem>}
         </ListBoxSection>
       )}
     </ComboBox>

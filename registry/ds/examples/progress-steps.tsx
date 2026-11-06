@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/registry/ds/ui/button';
 import { LinearProgress } from '@/registry/ds/ui/progress';
 
-const steps = ['Company details', 'Bank account', 'Tax settings', 'Invite your team'];
+const steps = ['Profile', 'Preferences', 'Notifications', 'Invite your team'];
 
 export default function ProgressSteps() {
   const [done, setDone] = useState(1);

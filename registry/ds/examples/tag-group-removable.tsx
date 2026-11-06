@@ -5,9 +5,9 @@ import { Button } from '@/registry/ds/ui/button';
 import { Tag, TagGroup, type TagTone } from '@/registry/ds/ui/tag';
 
 const initialLabels: { id: string; name: string; tone: TagTone }[] = [
-  { id: 'billing', name: 'Billing', tone: 'primary' },
-  { id: 'enterprise', name: 'Enterprise', tone: 'info' },
-  { id: 'vat-exempt', name: 'VAT exempt', tone: 'success' },
+  { id: 'design', name: 'Design', tone: 'primary' },
+  { id: 'beta', name: 'Beta', tone: 'info' },
+  { id: 'approved', name: 'Approved', tone: 'success' },
   { id: 'needs-review', name: 'Needs review', tone: 'warning' },
 ];
 
@@ -18,7 +18,7 @@ export default function TagGroupRemovable() {
     <div className="flex w-full max-w-sm flex-col items-start gap-3">
       <TagGroup
         label="Labels"
-        description="Shown on the invoice and in CSV exports."
+        description="Shown on the card and used in search."
         items={labels}
         onRemove={(keys) => setLabels((current) => current.filter((label) => !keys.has(label.id)))}
       >

@@ -1,21 +1,21 @@
 'use client';
 
 import { Link } from 'react-aria-components';
-import { ChatIcon, DescriptionIcon, InboxIcon, NotificationsIcon } from '@/registry/ds/lib/icons';
+import { ChatIcon, InboxIcon, NotificationsIcon, TodayIcon } from '@/registry/ds/lib/icons';
 import { Badge } from '@/registry/ds/ui/badge';
 
 const destinations = [
   { href: '#inbox', label: 'Inbox', icon: InboxIcon, badge: <Badge count={12} /> },
   {
-    href: '#invoices',
-    label: 'Invoices',
-    icon: DescriptionIcon,
-    badge: <Badge count={4} tone="warning" label="{count} overdue" />,
+    href: '#tasks',
+    label: 'Tasks',
+    icon: TodayIcon,
+    badge: <Badge count={4} tone="warning" label="{count} due today" />,
   },
   { href: '#messages', label: 'Messages', icon: ChatIcon, badge: <Badge /> },
   {
-    href: '#activity',
-    label: 'Activity',
+    href: '#notifications',
+    label: 'Notifications',
     icon: NotificationsIcon,
     badge: <Badge count={128} tone="neutral" />,
   },
@@ -23,7 +23,7 @@ const destinations = [
 
 export default function BadgeDemo() {
   return (
-    <nav aria-label="Workspace" className="w-full max-w-64 rounded-lg bg-surface-container-low p-2">
+    <nav aria-label="Main" className="w-full max-w-64 rounded-lg bg-surface-container-low p-2">
       <ul className="flex flex-col">
         {destinations.map(({ href, label, icon: Icon, badge }) => (
           <li key={href}>

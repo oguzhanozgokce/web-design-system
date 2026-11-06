@@ -5,12 +5,12 @@ import { ToggleButton } from '@/registry/ds/ui/toggle-button';
 
 export default function ToggleButtonInGroup() {
   return (
-    <ButtonGroup aria-label="Report actions" buttonVariant="tonal" size="sm">
+    <ButtonGroup aria-label="Actions" buttonVariant="tonal" size="sm" className="justify-center">
       <ToggleButton startIcon={<StarIcon />} selectedIcon={<StarFilledIcon />}>
         Star
       </ToggleButton>
       <Button startIcon={<ShareIcon />}>Share</Button>
-      <Button startIcon={<DownloadIcon />}>Export</Button>
+      <Button startIcon={<DownloadIcon />}>Download</Button>
     </ButtonGroup>
   );
 }

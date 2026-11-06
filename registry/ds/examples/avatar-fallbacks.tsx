@@ -6,19 +6,19 @@ const cases = [
     caption: 'Photo',
     avatar: (
       <Avatar
-        name="Harbor Logistics"
+        name="Travel album"
         shape="rounded"
-        src="https://picsum.photos/seed/harbor-logistics/112"
+        src="https://picsum.photos/seed/travel-album/112"
       />
     ),
   },
   {
     caption: 'Photo failed',
-    avatar: <Avatar name="Mehmet Kaya" src="/avatars/deleted-upload.png" />,
+    avatar: <Avatar name="Kenji Watanabe" src="/avatars/deleted-upload.png" />,
   },
-  { caption: 'No photo', avatar: <Avatar name="Elif Şahin" /> },
+  { caption: 'No photo', avatar: <Avatar name="Sofia Rossi" /> },
   { caption: 'No name', avatar: <Avatar alt="Unassigned" /> },
-  { caption: 'Custom icon', avatar: <Avatar alt="Finance team" fallbackIcon={<GroupIcon />} /> },
+  { caption: 'Custom icon', avatar: <Avatar alt="Design team" fallbackIcon={<GroupIcon />} /> },
 ];
 
 export default function AvatarFallbacks() {

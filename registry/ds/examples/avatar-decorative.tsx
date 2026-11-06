@@ -1,9 +1,9 @@
 import { Avatar, type AvatarStatus } from '@/registry/ds/ui/avatar';
 
 const members: { name: string; email: string; role: string; status: AvatarStatus }[] = [
-  { name: 'Ayşe Demir', email: 'ayse@harbor.co', role: 'Owner', status: 'online' },
-  { name: 'Mehmet Kaya', email: 'mehmet@harbor.co', role: 'Accountant', status: 'busy' },
-  { name: 'Elif Şahin', email: 'elif@harbor.co', role: 'Viewer', status: 'offline' },
+  { name: 'Amara Okafor', email: 'amara@example.com', role: 'Owner', status: 'online' },
+  { name: 'Kenji Watanabe', email: 'kenji@example.com', role: 'Editor', status: 'busy' },
+  { name: 'Sofia Rossi', email: 'sofia@example.com', role: 'Viewer', status: 'offline' },
 ];
 
 export default function AvatarDecorative() {

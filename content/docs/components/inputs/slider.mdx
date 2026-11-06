@@ -14,17 +14,11 @@ description: Material 3 Expressive slider with one value or a range, three track
 ```tsx
 import { Slider } from '@/components/ds/slider';
 
-<Slider
-  label="Monthly spending limit"
-  defaultValue={1500}
-  maxValue={5000}
-  step={100}
-  formatOptions={{ style: 'currency', currency: 'USD', maximumFractionDigits: 0 }}
-/>;
+<Slider label="Volume" defaultValue={40} />;
 ```
 
-Use a slider when the rough position matters more than the exact number: limits, thresholds,
-weights and ranges. When people know the exact number they want, a number field is faster.
+Use a slider when the rough position matters more than the exact number: volume, brightness,
+limits and ranges. When people know the exact number they want, a number field is faster.
 
 ## Examples
 
@@ -56,15 +50,15 @@ gets a stop at the end of its track.
 ### Marks
 
 `marks` adds labelled positions under the track. A plain number is formatted like the value, so
-`[7, 30, 60, 90]` with a `day` unit reads "7 days" in English and "7 Tage" in German. Pass
-`{ value, label }` for words instead of numbers.
+`[0, 15, 30, 45, 60]` with a `minute` unit reads "15 min" in English and "15 Min." in German.
+Pass `{ value, label }` for words instead of numbers.
 
 <ComponentPreview name="slider-marks" />
 
 ### Centred
 
 `fillOffset` sets the value the active track grows from. Set it to `0` on a range that crosses zero
-for adjustments that can go either way, such as a markup or a discount.
+for adjustments that can go either way, such as exposure or audio balance.
 
 <ComponentPreview name="slider-centered" />
 
@@ -84,7 +78,7 @@ Use `value` and `onChange` when something else on the page reacts to the value a
 
 ### Disabled
 
-Disabled sliders keep showing their value so people can see what a plan or policy has fixed.
+Disabled sliders keep showing their value, so people can still read the setting.
 
 <ComponentPreview name="slider-disabled" />
 

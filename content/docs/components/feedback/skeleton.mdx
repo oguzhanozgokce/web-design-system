@@ -47,8 +47,8 @@ the medium corner radius. Size both with `className`.
 
 Keep the real table header and put skeletons in the cells, with widths that vary from row to row.
 Admin screens feel faster when the frame of the page is already there. Align each skeleton like the
-value it stands for, so amounts sit at the end under an end-aligned header, and hide the same
-columns on small screens that the loaded table hides.
+value it stands for, so sizes and numbers sit at the end under an end-aligned header, and hide the
+same columns on small screens that the loaded table hides.
 
 <ComponentPreview name="skeleton-table" />
 
@@ -59,8 +59,8 @@ invisible and inert, and the skeleton paints over their box. When `isLoaded` tur
 appear with a short fade. They stay mounted the whole time, so their state survives a reload.
 
 The wrapper is a block `div`. Add `w-fit` to hug content that is narrower than the row, such as a
-name or an amount. A `null`, `undefined` or `false` child counts as no content, so
-`{invoice && <InvoiceRow invoice={invoice} />}` shows a plain placeholder until the data arrives.
+name or a time. A `null`, `undefined` or `false` child counts as no content, so
+`{message && <MessageRow message={message} />}` shows a plain placeholder until the data arrives.
 Without children, a loaded skeleton renders nothing.
 
 <ComponentPreview name="skeleton-loaded" />
@@ -98,8 +98,8 @@ Inside a surface of the same colour, such as a filled card, pass a different con
   children are invisible and `inert` while loading, so they cannot take focus either.
 - Put `aria-busy="true"` on the region, list or table that is loading and set it to `false` when the
   content is in place. Screen readers then wait for the update instead of reading half a page.
-- If the wait can be long, also say so in words: a `role="status"` message such as "Loading
-  transactions", or a named `LinearProgress` with `isIndeterminate`.
+- If the wait can be long, also say so in words: a `role="status"` message such as "Loading files",
+  or a named `LinearProgress` with `isIndeterminate`.
 - The shimmer runs from the start edge to the end edge, so it reverses in right-to-left languages.
   With reduced motion, from the operating system or `DSProvider motion="reduced"`, it becomes a slow
   pulse; `motion="disabled"` keeps the placeholders still.

@@ -15,8 +15,8 @@ description: Searchable select on the shared Field contract that ignores case an
 import { ComboBox } from '@/components/ds/combo-box';
 import { ListBoxItem } from '@/components/ds/list-box';
 
-<ComboBox label="Issuing office" defaultItems={offices}>
-  {(office) => <ListBoxItem description={office.country}>{office.city}</ListBoxItem>}
+<ComboBox label="City" defaultItems={cities}>
+  {(city) => <ListBoxItem description={city.country}>{city.name}</ListBoxItem>}
 </ComboBox>;
 ```
 

@@ -3,20 +3,21 @@
 import { useState } from 'react';
 import { SearchField } from '@/registry/ds/ui/search-field';
 
-const orders = ['ORD-7731', 'ORD-7732', 'ORD-7740', 'ORD-8102'];
+const topics = ['Getting started', 'Installation', 'Themes', 'Dark mode', 'Typography', 'Icons'];
 
 export default function SearchFieldSubmit() {
-  const [result, setResult] = useState('Search by order number, then press Enter.');
+  const [result, setResult] = useState('Type a topic, then press Enter.');
 
-  async function lookUp(query: string) {
+  async function search(query: string) {
     await new Promise((resolve) => setTimeout(resolve, 1200));
-    const match = orders.find((order) => order.toLowerCase() === query.trim().toLowerCase());
-    setResult(match ? `${match} shipped on 4 November.` : `No order matches “${query}”.`);
+    const needle = query.trim().toLowerCase();
+    const matches = needle ? topics.filter((topic) => topic.toLowerCase().includes(needle)) : [];
+    setResult(matches.length > 0 ? `Found ${matches.join(', ')}.` : `Nothing matches “${query}”.`);
   }
 
   return (
     <div className="grid w-full max-w-sm gap-3">
-      <SearchField label="Order lookup" placeholder="ORD-7731" onSubmit={lookUp} />
+      <SearchField label="Documentation" placeholder="Search topics" onSubmit={search} />
       <p className="text-body-md text-on-surface-variant" aria-live="polite">
         {result}
       </p>

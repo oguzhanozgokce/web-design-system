@@ -11,8 +11,10 @@ twin of the Compose Multiplatform [mobile design system](https://github.com/oguz
   owns its copy; `--diff` brings upstream changes.
 - **Accessible.** Interactive components are built on React Aria Components. Every component is
   tested in a real browser with axe, in light, dark and right-to-left.
-- **Localised.** Built-in strings ship in 18 languages; dates, numbers and calendars follow the
-  locale; layout uses logical properties only.
+- **Your words.** The library ships no translations. Every string a component writes on its own
+  is an English default you replace per component (`labels`) or once for the app
+  (`DSProvider labels`). Dates, numbers and calendars follow the locale, and layouts mirror for
+  right-to-left.
 
 ## Why a registry and not an npm package
 
@@ -23,9 +25,9 @@ the classes without `@source` tricks. Only what must never fork (tokens, utiliti
 
 ## Why React Aria
 
-The apps ship 18 locales including Arabic and Thai. React Aria handles right-to-left keyboard
-navigation, 13 calendar systems and localised date entry, which other primitive libraries leave to
-the app. HeroUI v3 and BoardUI, the two closest reference libraries, made the same choice.
+Apps built on it run in many locales, including right-to-left ones. React Aria handles
+right-to-left keyboard navigation, 13 calendar systems and localised date entry, which other
+primitive libraries leave to the app. HeroUI v3 and BoardUI, the two closest reference libraries, made the same choice.
 
 ## Why the theme is generated
 

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { TextField } from '@/registry/ds/ui/text-field';
 
-function toSlug(name: string) {
-  return name
+function toSlug(title: string) {
+  return title
     .toLowerCase()
     .normalize('NFKD')
     .replace(/\p{M}/gu, '')
@@ -13,14 +13,14 @@ function toSlug(name: string) {
 }
 
 export default function TextFieldControlled() {
-  const [name, setName] = useState('Northwind Café');
+  const [title, setTitle] = useState('Crème brûlée');
 
   return (
     <div className="grid w-full max-w-sm gap-2">
-      <TextField label="Workspace name" value={name} onChange={setName} />
+      <TextField label="Page title" value={title} onChange={setTitle} />
       <p className="text-body-sm text-on-surface-variant">
-        Your workspace lives at{' '}
-        <span className="text-on-surface">ledger.app/{toSlug(name) || '…'}</span>
+        The page lives at{' '}
+        <span className="text-on-surface">example.com/{toSlug(title) || '…'}</span>
       </p>
     </div>
   );

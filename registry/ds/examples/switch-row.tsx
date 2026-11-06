@@ -7,25 +7,21 @@ export default function SwitchRow() {
       <Switch
         variant="row"
         icon={<NotificationsIcon />}
-        description="A push notification when a payout fails or is delayed."
+        description="Alerts for messages and mentions."
         defaultSelected
       >
-        Payout alerts
+        Notifications
       </Switch>
-      <Switch
-        variant="row"
-        icon={<MailIcon />}
-        description="A summary of last week's revenue, refunds and fees every Monday."
-      >
-        Weekly summary email
+      <Switch variant="row" icon={<MailIcon />} description="A short recap every Monday.">
+        Email summary
       </Switch>
       <Switch
         variant="row"
         icon={<LockIcon />}
-        description="Sign out members after 30 minutes without activity."
+        description="Lock after 5 minutes away."
         defaultSelected
       >
-        Automatic sign-out
+        App lock
       </Switch>
     </div>
   );

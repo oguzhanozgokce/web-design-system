@@ -22,80 +22,80 @@ import { Switch } from '@/registry/ds/ui/switch';
 import { Tab, TabList, TabPanel, Tabs } from '@/registry/ds/ui/tabs';
 import { TextField } from '@/registry/ds/ui/text-field';
 
-type InvoiceStatus = 'overdue' | 'due' | 'paid' | 'draft';
+type TaskStatus = 'overdue' | 'active' | 'done' | 'draft';
 
-interface Invoice {
+interface Task {
   id: string;
-  customer: string;
-  amount: number;
+  title: string;
+  project: string;
   due: Date;
-  status: InvoiceStatus;
+  status: TaskStatus;
 }
 
-const invoices: Invoice[] = [
+const tasks: Task[] = [
   {
-    id: 'INV-2051',
-    customer: 'Harbor Logistics',
-    amount: 4820,
+    id: 'task-118',
+    title: 'Update the FAQ',
+    project: 'Help center',
     due: new Date(2026, 9, 28),
     status: 'overdue',
   },
   {
-    id: 'INV-2053',
-    customer: 'Kestrel Foods',
-    amount: 1260,
+    id: 'task-121',
+    title: 'Review the new icons',
+    project: 'Mobile app',
     due: new Date(2026, 10, 1),
     status: 'overdue',
   },
   {
-    id: 'INV-2055',
-    customer: 'Pine & Co.',
-    amount: 980,
+    id: 'task-124',
+    title: 'Fix the sign-up form',
+    project: 'Website',
     due: new Date(2026, 10, 3),
     status: 'overdue',
   },
   {
-    id: 'INV-2058',
-    customer: 'Atlas Studio',
-    amount: 3150,
+    id: 'task-127',
+    title: 'Plan the team offsite',
+    project: 'Team',
     due: new Date(2026, 10, 12),
-    status: 'due',
+    status: 'active',
   },
   {
-    id: 'INV-2060',
-    customer: 'Lumen Clinics',
-    amount: 7400,
+    id: 'task-130',
+    title: 'Publish the release notes',
+    project: 'Mobile app',
     due: new Date(2026, 10, 2),
-    status: 'paid',
+    status: 'done',
   },
   {
-    id: 'INV-2061',
-    customer: 'Brightwater Hotels',
-    amount: 2275,
+    id: 'task-133',
+    title: 'Draft the newsletter',
+    project: 'Website',
     due: new Date(2026, 10, 20),
     status: 'draft',
   },
 ];
 
-const customers = [
-  { name: 'Harbor Logistics', contact: 'Deniz Aksoy', open: 4820 },
-  { name: 'Atlas Studio', contact: 'Mira Jansen', open: 3150 },
-  { name: 'Kestrel Foods', contact: 'Tomás Rivera', open: 1260 },
+const members = [
+  { name: 'Amara Okafor', email: 'amara@example.com', role: 'Owner' },
+  { name: 'Kenji Watanabe', email: 'kenji@example.com', role: 'Editor' },
+  { name: 'Sofia Rossi', email: 'sofia@example.com', role: 'Viewer' },
 ];
 
-const statusOrder: InvoiceStatus[] = ['overdue', 'due', 'paid', 'draft'];
+const statusOrder: TaskStatus[] = ['overdue', 'active', 'done', 'draft'];
 
-const statusLabels: Record<InvoiceStatus, string> = {
+const statusLabels: Record<TaskStatus, string> = {
   overdue: 'Overdue',
-  due: 'Due',
-  paid: 'Paid',
+  active: 'In progress',
+  done: 'Done',
   draft: 'Draft',
 };
 
-const statusTones: Record<InvoiceStatus, string> = {
+const statusTones: Record<TaskStatus, string> = {
   overdue: 'bg-error-container text-on-error-container',
-  due: 'bg-secondary-container text-on-secondary-container',
-  paid: 'bg-success-container text-on-success-container',
+  active: 'bg-secondary-container text-on-secondary-container',
+  done: 'bg-success-container text-on-success-container',
   draft: 'bg-surface-container-highest text-on-surface-variant',
 };
 
@@ -103,11 +103,7 @@ function useFormatters() {
   const { locale } = useLocale();
   return useMemo(
     () => ({
-      money: new Intl.NumberFormat(locale, {
-        style: 'currency',
-        currency: 'EUR',
-        maximumFractionDigits: 0,
-      }),
+      count: new Intl.NumberFormat(locale),
       day: new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }),
       days: new Intl.NumberFormat(locale, { style: 'unit', unit: 'day', unitDisplay: 'long' }),
     }),
@@ -115,7 +111,7 @@ function useFormatters() {
   );
 }
 
-function StatusPill({ status }: { status: InvoiceStatus }) {
+function StatusPill({ status }: { status: TaskStatus }) {
   return (
     <span
       className={cn(
@@ -128,31 +124,28 @@ function StatusPill({ status }: { status: InvoiceStatus }) {
   );
 }
 
-function InvoiceList({ items }: { items: Invoice[] }) {
+function TaskList({ items }: { items: Task[] }) {
   const format = useFormatters();
 
   if (items.length === 0) {
     return (
       <p className="py-6 text-center text-body-md text-on-surface-variant">
-        No invoices match these filters.
+        No tasks match these filters.
       </p>
     );
   }
 
   return (
     <ul className="flex flex-col divide-y divide-outline-variant">
-      {items.map((invoice) => (
-        <li key={invoice.id} className="flex items-center gap-3 py-2.5">
+      {items.map((task) => (
+        <li key={task.id} className="flex items-center gap-3 py-2.5">
           <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-body-md text-on-surface">{invoice.customer}</span>
+            <span className="truncate text-body-md text-on-surface">{task.title}</span>
             <span className="truncate text-body-sm text-on-surface-variant">
-              {invoice.id} · due {format.day.format(invoice.due)}
+              {task.project} · due {format.day.format(task.due)}
             </span>
           </span>
-          <span className="text-body-md text-on-surface tabular-digits">
-            {format.money.format(invoice.amount)}
-          </span>
-          <StatusPill status={invoice.status} />
+          <StatusPill status={task.status} />
         </li>
       ))}
     </ul>
@@ -173,8 +166,8 @@ function OverviewPanel() {
   const format = useFormatters();
   const [overdueOnly, setOverdueOnly] = useState(false);
   const recent = overdueOnly
-    ? invoices.filter((invoice) => invoice.status === 'overdue')
-    : invoices.slice(0, 4);
+    ? tasks.filter((task) => task.status === 'overdue')
+    : tasks.slice(0, 4);
 
   return (
     <TabPanel id="overview" className="flex flex-col gap-4 p-4 @2xl:p-6">
@@ -192,25 +185,21 @@ function OverviewPanel() {
 
       <Banner
         tone="warning"
-        title="3 invoices are overdue"
-        description="Harbor Logistics, Kestrel Foods and Pine & Co. have not paid yet. Reminders go out tomorrow at 09:00."
+        title="3 tasks are overdue"
+        description="Help center, Mobile app and Website each have a task past its due date. Reminders go out tomorrow at 09:00."
         actions={<Button variant="text">Send reminders now</Button>}
       />
 
       <div className="grid gap-3 @xl:grid-cols-3">
-        <Metric label="Collected" value={format.money.format(48210)}>
-          <LinearProgress
-            label={`Target ${format.money.format(67000)}`}
-            value={72}
-            showValueLabel
-          />
+        <Metric label="Completed" value={format.count.format(48)}>
+          <LinearProgress label={`Goal ${format.count.format(67)}`} value={72} showValueLabel />
         </Metric>
-        <Metric label="Outstanding" value={format.money.format(12940)}>
-          <p className="text-body-sm text-on-surface-variant">12 open invoices, 3 overdue</p>
+        <Metric label="Open" value={format.count.format(12)}>
+          <p className="text-body-sm text-on-surface-variant">3 overdue, 9 on track</p>
         </Metric>
-        <Metric label="Average days to pay" value={format.days.format(18)}>
+        <Metric label="Average time to finish" value={format.days.format(4)}>
           <p className="flex items-center gap-1 text-body-sm text-success [&_svg]:size-4">
-            <TrendingDownIcon className="rtl:-scale-x-100" />3 days faster than October
+            <TrendingDownIcon className="rtl:-scale-x-100" />1 day faster than October
           </p>
         </Metric>
       </div>
@@ -224,11 +213,11 @@ function OverviewPanel() {
               </FilterChip>
             }
           >
-            <CardTitle level={4}>Recent invoices</CardTitle>
+            <CardTitle level={4}>Recent tasks</CardTitle>
             <CardDescription>Sorted by due date</CardDescription>
           </CardHeader>
           <CardContent>
-            <InvoiceList items={recent} />
+            <TaskList items={recent} />
           </CardContent>
           <CardFooter>
             <Button
@@ -236,26 +225,22 @@ function OverviewPanel() {
               size="sm"
               endIcon={<ArrowForwardIcon className="rtl:-scale-x-100" />}
             >
-              All invoices
+              All tasks
             </Button>
           </CardFooter>
         </Card>
 
         <Card variant="filled">
           <CardHeader>
-            <CardTitle level={4}>Payment reminders</CardTitle>
-            <CardDescription>Applies to every new invoice.</CardDescription>
+            <CardTitle level={4}>Notifications</CardTitle>
+            <CardDescription>Applies to every project you follow.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <Switch defaultSelected description="Three days before the due date, then weekly.">
-              Email customers
+            <Switch defaultSelected description="A daily summary, plus mentions right away.">
+              Email me
             </Switch>
-            <Checkbox defaultSelected>Attach the invoice PDF</Checkbox>
-            <TextField
-              label="Reply-to address"
-              type="email"
-              defaultValue="billing@northwind.example"
-            />
+            <Checkbox defaultSelected>Include the weekly report</Checkbox>
+            <TextField label="Email" type="email" defaultValue="alex@example.com" />
           </CardContent>
           <CardFooter className="justify-end">
             <Button variant="text">Discard</Button>
@@ -267,11 +252,11 @@ function OverviewPanel() {
   );
 }
 
-function InvoicesPanel() {
-  const [statuses, setStatuses] = useState<Set<InvoiceStatus>>(() => new Set(['overdue', 'due']));
-  const visible = invoices.filter((invoice) => statuses.has(invoice.status));
+function TasksPanel() {
+  const [statuses, setStatuses] = useState<Set<TaskStatus>>(() => new Set(['overdue', 'active']));
+  const visible = tasks.filter((task) => statuses.has(task.status));
 
-  function toggle(status: InvoiceStatus, isSelected: boolean) {
+  function toggle(status: TaskStatus, isSelected: boolean) {
     setStatuses((current) => {
       const next = new Set(current);
       if (isSelected) next.add(status);
@@ -281,7 +266,7 @@ function InvoicesPanel() {
   }
 
   return (
-    <TabPanel id="invoices" className="flex flex-col gap-4 p-4 @2xl:p-6">
+    <TabPanel id="tasks" className="flex flex-col gap-4 p-4 @2xl:p-6">
       <div role="group" aria-label="Status" className="flex flex-wrap gap-2">
         {statusOrder.map((status) => (
           <FilterChip
@@ -294,39 +279,33 @@ function InvoicesPanel() {
           </FilterChip>
         ))}
       </div>
-      <InvoiceList items={visible} />
+      <TaskList items={visible} />
     </TabPanel>
   );
 }
 
-function CustomersPanel() {
-  const format = useFormatters();
-
+function MembersPanel() {
   return (
-    <TabPanel id="customers" className="flex flex-col gap-4 p-4 @2xl:p-6">
+    <TabPanel id="members" className="flex flex-col gap-4 p-4 @2xl:p-6">
       <ul className="flex flex-col divide-y divide-outline-variant">
-        {customers.map((customer) => (
-          <li key={customer.name} className="flex items-center gap-3 py-2.5">
+        {members.map((member) => (
+          <li key={member.email} className="flex items-center gap-3 py-2.5">
             <span
               aria-hidden
               className="grid size-9 shrink-0 place-items-center rounded-full bg-tertiary-container text-label-lg text-on-tertiary-container"
             >
-              {customer.name.slice(0, 1)}
+              {member.name.slice(0, 1)}
             </span>
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-body-md text-on-surface">{customer.name}</span>
-              <span className="truncate text-body-sm text-on-surface-variant">
-                {customer.contact}
-              </span>
+              <span className="truncate text-body-md text-on-surface">{member.name}</span>
+              <span className="truncate text-body-sm text-on-surface-variant">{member.email}</span>
             </span>
-            <span className="text-body-md text-on-surface tabular-digits">
-              {format.money.format(customer.open)}
-            </span>
+            <span className="text-body-md text-on-surface-variant">{member.role}</span>
           </li>
         ))}
       </ul>
       <Button variant="outlined" startIcon={<AddIcon />} className="self-start">
-        Invite a customer
+        Invite a member
       </Button>
     </TabPanel>
   );
@@ -340,29 +319,27 @@ export function AdminPreview() {
           aria-hidden
           className="grid size-9 shrink-0 place-items-center rounded-md bg-primary text-title-md text-on-primary"
         >
-          N
+          P
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-title-sm text-on-surface">Northwind Billing</span>
-          <span className="truncate text-body-sm text-on-surface-variant">
-            Acme Freight workspace
-          </span>
+          <span className="truncate text-title-sm text-on-surface">Projects</span>
+          <span className="truncate text-body-sm text-on-surface-variant">Team workspace</span>
         </span>
         <Button size="sm" startIcon={<AddIcon />}>
-          New invoice
+          New project
         </Button>
       </div>
       <Tabs defaultSelectedKey="overview" className="gap-0">
-        <TabList aria-label="Billing">
+        <TabList aria-label="Workspace">
           <Tab id="overview">Overview</Tab>
-          <Tab id="invoices" badge={3}>
-            Invoices
+          <Tab id="tasks" badge={3}>
+            Tasks
           </Tab>
-          <Tab id="customers">Customers</Tab>
+          <Tab id="members">Members</Tab>
         </TabList>
         <OverviewPanel />
-        <InvoicesPanel />
-        <CustomersPanel />
+        <TasksPanel />
+        <MembersPanel />
       </Tabs>
     </div>
   );

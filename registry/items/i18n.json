@@ -1,8 +1,0 @@
-{
-  "name": "i18n",
-  "type": "registry:lib",
-  "title": "Localisation helpers",
-  "description": "The 18 supported locales, per-component message catalogues, locale resolution and direction.",
-  "category": "foundations",
-  "files": ["lib/i18n.ts"]
-}

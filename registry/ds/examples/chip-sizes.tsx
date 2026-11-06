@@ -9,12 +9,12 @@ export default function ChipSizes() {
           label={`Size ${size}`}
           size={size}
           selectionMode="multiple"
-          defaultSelectedKeys={['eur']}
+          defaultSelectedKeys={['travel']}
         >
-          <Chip id="eur">EUR</Chip>
-          <Chip id="usd">USD</Chip>
-          <Chip id="try">TRY</Chip>
-          <Chip id="gbp">GBP</Chip>
+          <Chip id="travel">Travel</Chip>
+          <Chip id="food">Food</Chip>
+          <Chip id="music">Music</Chip>
+          <Chip id="sports">Sports</Chip>
         </ChipGroup>
       ))}
     </div>

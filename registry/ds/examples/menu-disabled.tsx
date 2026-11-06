@@ -13,7 +13,7 @@ export default function MenuDisabled() {
     <div className="flex w-full max-w-md items-center gap-3 rounded-lg bg-surface-container-low py-2 ps-4 pe-2">
       <div className="min-w-0 flex-1">
         <p className="truncate text-title-sm text-on-surface">Mert Kaya</p>
-        <p className="truncate text-body-sm text-on-surface-variant">Accountant, joined 3 Nov</p>
+        <p className="truncate text-body-sm text-on-surface-variant">Editor, joined 3 Nov</p>
       </div>
       <MenuTrigger>
         <IconButton aria-label="Actions for Mert Kaya" icon={<MoreVerticalIcon />} />
@@ -27,13 +27,13 @@ export default function MenuDisabled() {
           <MenuItem
             id="owner"
             startIcon={<VerifiedIcon />}
-            description="Only the workspace owner can do this"
+            description="Only the owner can do this"
           >
             Make owner
           </MenuItem>
           <MenuSeparator />
           <MenuItem id="remove" startIcon={<PersonIcon />} tone="destructive">
-            Remove from team
+            Remove
           </MenuItem>
         </Menu>
       </MenuTrigger>

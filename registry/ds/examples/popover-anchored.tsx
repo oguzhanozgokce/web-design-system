@@ -30,7 +30,7 @@ export default function PopoverAnchored() {
       </div>
       <Popover triggerRef={meter} isOpen={isOpen} onOpenChange={setOpen} showArrow>
         <PopoverDialog title="What uses your storage" showCloseButton>
-          <p>Receipts and invoice PDFs take 36 GB. Archived ledgers take the remaining 5 GB.</p>
+          <p>Photos and videos take 36 GB. Documents take the remaining 5 GB.</p>
         </PopoverDialog>
       </Popover>
     </div>

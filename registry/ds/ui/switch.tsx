@@ -24,7 +24,7 @@ export const switchStyles = tv({
       'absolute inset-y-0 flex w-7 items-center justify-center transition-[inset-inline-start] duration-(--ds-duration-spatial-fast) ease-spatial-fast motion-reduce:transition-none',
     stateLayer: 'state-layer absolute size-10 rounded-full',
     handle:
-      'relative grid shrink-0 place-items-center rounded-full transition-[width,height,background-color] duration-(--ds-duration-spatial-fast) ease-spatial-fast motion-reduce:transition-none',
+      'relative grid shrink-0 place-items-center rounded-full transition-[width,height,background-color] duration-[var(--ds-duration-spatial-fast),var(--ds-duration-spatial-fast),var(--ds-duration-effect-fast)] ease-[var(--ds-ease-spatial-fast),var(--ds-ease-spatial-fast),var(--ds-ease-effect-fast)] motion-reduce:transition-none',
     handleIcon:
       'grid animate-ds-fade-in place-items-center motion-reduce:animate-none [&_svg]:size-4',
     icon: 'grid size-6 shrink-0 place-items-center text-on-surface-variant group-data-[disabled]/switch:text-on-surface/38 [&_svg]:size-6',

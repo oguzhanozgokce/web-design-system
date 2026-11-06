@@ -11,7 +11,7 @@ export default function ToastDuration() {
       <Button
         variant="tonal"
         onPress={() => {
-          toast('Your tax report is being prepared. We will email it when it is ready.', {
+          toast('Your export is being prepared. We will email you when it is ready.', {
             toasterId,
             duration: Infinity,
           });

@@ -14,11 +14,11 @@ description: Selectable list on React Aria ListBox, with sections, start icons o
 ```tsx
 import { ListBox, ListBoxItem } from '@/components/ds/list-box';
 
-<ListBox aria-label="Default view" selectionMode="single" variant="outlined">
-  <ListBoxItem id="table" startIcon={<TableRowsIcon />} description="Every transaction in a row">
-    Table
+<ListBox aria-label="Layout" selectionMode="single" variant="outlined">
+  <ListBoxItem id="list" startIcon={<ListIcon />} description="One item per row">
+    List
   </ListBoxItem>
-  <ListBoxItem id="board">Board</ListBoxItem>
+  <ListBoxItem id="grid">Grid</ListBoxItem>
 </ListBox>;
 ```
 

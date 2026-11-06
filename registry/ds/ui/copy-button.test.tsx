@@ -45,14 +45,14 @@ describe('CopyButton', () => {
 
   it('copies a synchronous function value without going pending', async () => {
     const { writeText, write } = mockClipboard();
-    const value = vi.fn(() => 'INV-2041');
-    const screen = await renderWithDS(<CopyButton value={value} aria-label="Copy invoice" />);
-    const button = screen.getByRole('button', { name: 'Copy invoice' });
+    const value = vi.fn(() => 'DOC-2041');
+    const screen = await renderWithDS(<CopyButton value={value} aria-label="Copy project" />);
+    const button = screen.getByRole('button', { name: 'Copy project' });
     await button.click();
     await expect.element(button).toHaveAttribute('data-status', 'copied');
     await expect.element(button).not.toHaveAttribute('data-pending');
     expect(value).toHaveBeenCalledOnce();
-    expect(writeText).toHaveBeenCalledWith('INV-2041');
+    expect(writeText).toHaveBeenCalledWith('DOC-2041');
     expect(write).not.toHaveBeenCalled();
   });
 
@@ -97,7 +97,7 @@ describe('CopyButton', () => {
     const onCopyError = vi.fn();
     let outcome: Promise<unknown> = Promise.resolve();
 
-    function CopyInvoice() {
+    function CopyProject() {
       const { status, copy } = useCopyToClipboard({
         onCopy: () => {
           throw new Error('Analytics offline');
@@ -109,16 +109,16 @@ describe('CopyButton', () => {
           type="button"
           data-status={status}
           onClick={() => {
-            outcome = copy('INV-2041').catch((error: Error) => error.message);
+            outcome = copy('DOC-2041').catch((error: Error) => error.message);
           }}
         >
-          Copy invoice
+          Copy project
         </button>
       );
     }
 
-    const screen = await renderWithDS(<CopyInvoice />);
-    const button = screen.getByRole('button', { name: 'Copy invoice' });
+    const screen = await renderWithDS(<CopyProject />);
+    const button = screen.getByRole('button', { name: 'Copy project' });
     await button.click();
     expect(await outcome).toBe('Analytics offline');
     await expect.element(button).toHaveAttribute('data-status', 'copied');
@@ -127,7 +127,7 @@ describe('CopyButton', () => {
 
   it('returns to idle after the timeout', async () => {
     mockClipboard();
-    const screen = await renderWithDS(<CopyButton value="INV-2041" timeout={150} />);
+    const screen = await renderWithDS(<CopyButton value="DOC-2041" timeout={150} />);
     const button = screen.getByRole('button', { name: 'Copy' });
     await button.click();
     await expect.element(button).toHaveAttribute('data-status', 'copied');
@@ -184,12 +184,12 @@ describe('CopyButton', () => {
     const { writeText, write } = mockClipboard();
     write.mockRejectedValue(new DOMException('Unsupported', 'NotAllowedError'));
     const screen = await renderWithDS(
-      <CopyButton value={async () => 'INV-2041'} aria-label="Copy invoice number" />,
+      <CopyButton value={async () => 'DOC-2041'} aria-label="Copy project number" />,
     );
-    const button = screen.getByRole('button', { name: 'Copy invoice number' });
+    const button = screen.getByRole('button', { name: 'Copy project number' });
     await button.click();
     await expect.element(button).toHaveAttribute('data-status', 'copied');
-    expect(writeText).toHaveBeenCalledWith('INV-2041');
+    expect(writeText).toHaveBeenCalledWith('DOC-2041');
   });
 
   it('falls back to writeText when clipboard items are unsupported', async () => {
@@ -210,18 +210,18 @@ describe('CopyButton', () => {
           aria-label="Copy expired link"
           onCopyError={onCopyError}
         />
-        <CopyButton value={async () => 'INV-2041'} aria-label="Copy invoice" />
+        <CopyButton value={async () => 'DOC-2041'} aria-label="Copy project" />
       </>,
     );
     await screen.getByRole('button', { name: 'Copy expired link' }).click();
     await expect.poll(() => onCopyError.mock.calls.length).toBe(1);
     expect(onCopyError.mock.calls[0][0]).toEqual(new Error('Link expired'));
 
-    const invoice = screen.getByRole('button', { name: 'Copy invoice' });
-    await invoice.click();
-    await expect.element(invoice).toHaveAttribute('data-status', 'copied');
+    const project = screen.getByRole('button', { name: 'Copy project' });
+    await project.click();
+    await expect.element(project).toHaveAttribute('data-status', 'copied');
     expect(write).not.toHaveBeenCalled();
-    expect(writeText).toHaveBeenCalledWith('INV-2041');
+    expect(writeText).toHaveBeenCalledWith('DOC-2041');
   });
 
   it('reports a failure', async () => {
@@ -246,10 +246,10 @@ describe('CopyButton', () => {
 
   it('copies with the keyboard', async () => {
     const { writeText } = mockClipboard();
-    const screen = await renderWithDS(<CopyButton value="LEDGER-7Q4M" />);
+    const screen = await renderWithDS(<CopyButton value="FOLDER-7Q4M" />);
     await userEvent.keyboard('{Tab}');
     await userEvent.keyboard('{Enter}');
-    expect(writeText).toHaveBeenCalledWith('LEDGER-7Q4M');
+    expect(writeText).toHaveBeenCalledWith('FOLDER-7Q4M');
     await expect
       .element(screen.getByRole('button', { name: 'Copy' }))
       .toHaveAttribute('data-status', 'copied');
@@ -333,11 +333,11 @@ describe('CopyButton', () => {
     mockClipboard();
     const screen = await renderWithDS(
       <ButtonGroup variant="connected" buttonVariant="tonal">
-        <Button>Open invoice</Button>
-        <CopyButton value="INV-2041" aria-label="Copy invoice number" />
+        <Button>Open project</Button>
+        <CopyButton value="DOC-2041" aria-label="Copy project number" />
       </ButtonGroup>,
     );
-    const button = screen.getByRole('button', { name: 'Copy invoice number' });
+    const button = screen.getByRole('button', { name: 'Copy project number' });
     await expect.element(button).toHaveAttribute('data-variant', 'tonal');
     expect(button.element().nextElementSibling).toBeNull();
     const end = getComputedStyle(button.element()).borderTopRightRadius;

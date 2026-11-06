@@ -15,7 +15,7 @@ description: Compact status labels for tables and lists in six tones and three v
 import { Tag, TagGroup } from '@/components/ds/tag';
 
 <Tag tone="success" dot>
-  Paid
+  Active
 </Tag>;
 
 <TagGroup label="Labels" items={labels} onRemove={removeLabels}>
@@ -27,25 +27,25 @@ import { Tag, TagGroup } from '@/components/ds/tag';
 
 A tag describes something. A [Chip](/docs/components/feedback/chip) is something people act on.
 
-|                | Tag                                                         | Chip                                                   |
-| -------------- | ----------------------------------------------------------- | ------------------------------------------------------ |
-| Job            | Show a status or category: "Paid", "Overdue", "Draft"       | Filter, choose, enter a value or run a small action    |
-| Size           | 20 or 24px, 4px corners, `label-sm`                         | 28 or 32px, 8px corners, `label-lg` (Material 3 chips) |
-| Colour         | Six tones that carry meaning (success, warning, error...)   | Neutral; selection fills it with the secondary colour  |
-| On its own     | A plain `<span>`. Nothing happens when you click it         | Always a button, toggle or grid row                    |
-| In a group     | `TagGroup`: removable or selectable labels inside a form    | `ChipGroup`: filter bars and choice sets               |
-| Typical places | Table cells, list rows, card headers, invoice and order IDs | Toolbars above a table, search refinements, pickers    |
+|                | Tag                                                       | Chip                                                   |
+| -------------- | --------------------------------------------------------- | ------------------------------------------------------ |
+| Job            | Show a status or category: "Active", "Pending", "Draft"   | Filter, choose, enter a value or run a small action    |
+| Size           | 20 or 24px, 4px corners, `label-sm`                       | 28 or 32px, 8px corners, `label-lg` (Material 3 chips) |
+| Colour         | Six tones that carry meaning (success, warning, error...) | Neutral; selection fills it with the secondary colour  |
+| On its own     | A plain `<span>`. Nothing happens when you click it       | Always a button, toggle or grid row                    |
+| In a group     | `TagGroup`: removable or selectable labels inside a form  | `ChipGroup`: filter bars and choice sets               |
+| Typical places | Table cells, list rows, card headers, next to titles      | Toolbars above a table, search refinements, pickers    |
 
 If the colour of the label means something, use a Tag. If the label is the control, use a Chip. A
 `TagGroup` sits between the two: it is the right choice when a form edits a set of labels that are
-shown as tags everywhere else, such as the labels on an invoice or the categories of a vendor.
+shown as tags everywhere else, such as the labels on a task or the categories of a post.
 
 ## Examples
 
 ### Tones
 
 `neutral` is the default and suits states that need no attention, such as "Draft". `success`,
-`warning` and `error` map to the outcome of a payment, a job or a check. `info` marks something
+`warning` and `error` map to the outcome of a task, a sync or a check. `info` marks something
 scheduled or informational. `primary` highlights something new or featured. Every tone uses its
 Material 3 container and on-container roles, so text contrast holds in both themes.
 
@@ -55,7 +55,7 @@ Material 3 container and on-container roles, so text contrast holds in both them
 
 `tonal` fills the tag with the tone's container colour and works best in dense tables. `outlined`
 keeps the surface behind it and suits busy cards. `filled` uses the tone's main colour for the one
-status that must stand out, such as "Overdue", so use it sparingly.
+status that must stand out, such as "Failed", so use it sparingly.
 
 <ComponentPreview name="tag-variants" />
 
@@ -77,14 +77,16 @@ the tag; it replaces the dot. Both are decorative, so the text must say the stat
 
 ### In a table
 
-Tags stay one line high and truncate inside narrow cells. Keep the label to one or two words.
+Tags stay one line high, so rows keep an even height. Keep the label to one or two words, and let a
+text column take the spare width and truncate instead: here the member cell has
+`w-full max-w-0`, so the table fits a phone screen without scrolling.
 
 <ComponentPreview name="tag-table" align="stretch" />
 
 ### Removable tags
 
 Pass `onRemove` to a `TagGroup` and every tag gets a remove button named after it, such as "Remove
-Billing". Keyboard users press Delete or Backspace on a focused tag. When the last tag goes, the
+Design". Keyboard users press Delete or Backspace on a focused tag. When the last tag goes, the
 group shows "None", and focus moves to the group so it is not lost.
 
 <ComponentPreview name="tag-group-removable" align="start" />
@@ -189,7 +191,7 @@ tag without a text label. React Aria translates both for the `DSProvider` locale
 ## Accessibility
 
 - A standalone `Tag` is plain text. The dot and icon are hidden from screen readers, so the label
-  must name the status: write "Overdue", not a red dot alone.
+  must name the status: write "Failed", not a red dot alone.
 - `TagGroup` is built on React Aria `TagGroup`: a grid with one row per tag, arrow keys move between
   tags (mirrored in right-to-left languages), Home and End jump to the ends, and Delete or
   Backspace removes the focused tag.

@@ -1,34 +1,25 @@
-import {
-  BarChartIcon,
-  CalendarMonthIcon,
-  GridViewIcon,
-  TableRowsIcon,
-} from '@/registry/ds/lib/icons';
+import { CalendarMonthIcon, GridViewIcon, ListIcon, ViewColumnIcon } from '@/registry/ds/lib/icons';
 import { ListBox, ListBoxItem } from '@/registry/ds/ui/list-box';
 
 export default function ListBoxDemo() {
   return (
     <ListBox
-      aria-label="Default ledger view"
+      aria-label="Layout"
       selectionMode="single"
-      defaultSelectedKeys={['table']}
+      defaultSelectedKeys={['list']}
       variant="outlined"
       className="w-full max-w-xs"
     >
-      <ListBoxItem
-        id="table"
-        startIcon={<TableRowsIcon />}
-        description="Every transaction in a row"
-      >
-        Table
+      <ListBoxItem id="list" startIcon={<ListIcon />} description="One item per row">
+        List
       </ListBoxItem>
-      <ListBoxItem id="board" startIcon={<GridViewIcon />} description="Grouped by category">
+      <ListBoxItem id="grid" startIcon={<GridViewIcon />} description="Large previews">
+        Grid
+      </ListBoxItem>
+      <ListBoxItem id="board" startIcon={<ViewColumnIcon />} description="Grouped into columns">
         Board
       </ListBoxItem>
-      <ListBoxItem id="chart" startIcon={<BarChartIcon />} description="Monthly totals">
-        Chart
-      </ListBoxItem>
-      <ListBoxItem id="calendar" startIcon={<CalendarMonthIcon />} description="By due date">
+      <ListBoxItem id="calendar" startIcon={<CalendarMonthIcon />} description="Placed by date">
         Calendar
       </ListBoxItem>
     </ListBox>

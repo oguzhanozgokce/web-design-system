@@ -4,21 +4,21 @@ import { useState } from 'react';
 import { Radio, RadioGroup } from '@/registry/ds/ui/radio-group';
 
 export default function RadioGroupInvalid() {
-  const [reason, setReason] = useState<string | null>(null);
+  const [source, setSource] = useState<string | null>(null);
 
   return (
     <RadioGroup
-      label="Why are you closing this account?"
+      label="How did you hear about us?"
       isRequired
-      value={reason}
-      onChange={setReason}
-      isInvalid={reason === null}
-      errorMessage="Choose a reason so we can route the request to the right team."
+      value={source}
+      onChange={setSource}
+      isInvalid={source === null}
+      errorMessage="Choose an option to continue."
       className="max-w-md"
     >
-      <Radio value="duplicate">It is a duplicate account</Radio>
-      <Radio value="business-closed">The business has closed</Radio>
-      <Radio value="switching">We are moving to another tool</Radio>
+      <Radio value="search">Search engine</Radio>
+      <Radio value="social">Social media</Radio>
+      <Radio value="friend">A friend</Radio>
     </RadioGroup>
   );
 }

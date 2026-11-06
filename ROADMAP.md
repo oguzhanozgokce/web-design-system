@@ -49,29 +49,31 @@ Status: ✅ built and reviewed · 🚧 in progress · ⬜ planned
 
 ## Wave 2 — Dates, data and navigation
 
-| Component(s)                                      | Category     | Built on                               |
-| ------------------------------------------------- | ------------ | -------------------------------------- |
-| Calendar, RangeCalendar                           | date-time    | Calendar, RangeCalendar                |
-| DateField, TimeField, DatePicker, DateRangePicker | date-time    | DatePicker, DateRangePicker, DateField |
-| OtpField                                          | inputs       | own, single hidden input (Bencho idea) |
-| TagField / MultiSelect                            | inputs       | ComboBox + TagGroup                    |
-| CommandPalette                                    | navigation   | Autocomplete, Dialog                   |
-| ColorPicker, ColorArea, ColorSlider, ColorSwatch  | inputs       | Color* components                      |
-| FileDropzone, FileList                            | inputs       | DropZone, FileTrigger                  |
-| Rating                                            | inputs       | RadioGroup                             |
-| Table                                             | data-display | Table, ResizableTableContainer         |
-| DataTable (sorting, filters, pagination, columns) | data-display | TanStack Table + Table                 |
-| Pagination, Breadcrumbs                           | navigation   | Breadcrumbs, Button                    |
-| Sidebar, NavigationRail                           | navigation   | Disclosure, Link                       |
-| NavigationBar (bottom), TopAppBar, Toolbar        | navigation   | Toolbar, Link                          |
-| Stepper (wizard steps)                            | navigation   | —                                      |
-| GridList (list with actions), Tree                | data-display | GridList, Tree                         |
-| Carousel                                          | layout       | scroll-snap                            |
-| Timeline, DescriptionList                         | data-display | —                                      |
-| StatCard, AnimatedNumber                          | data-display | NumberFlow                             |
-| Meter, StatusDot                                  | feedback     | Meter                                  |
-| SplitButton                                       | actions      | Button + Menu                          |
-| Form (validation, sections, actions)              | inputs       | Form                                   |
+| Component(s)                                                                                                                                                                              | Category     | Built on                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------ |
+| Calendar, RangeCalendar                                                                                                                                                                   | date-time    | Calendar, RangeCalendar                          |
+| DateField, TimeField, DatePicker, DateRangePicker                                                                                                                                         | date-time    | DatePicker, DateRangePicker, DateField           |
+| OtpField                                                                                                                                                                                  | inputs       | own, single hidden input (Bencho idea)           |
+| TagField / MultiSelect                                                                                                                                                                    | inputs       | ComboBox + TagGroup                              |
+| CommandPalette                                                                                                                                                                            | navigation   | Autocomplete, Dialog                             |
+| ColorPicker, ColorArea, ColorSlider, ColorSwatch                                                                                                                                          | inputs       | Color* components                                |
+| FileDropzone, FileList (variants after Bencho's upload dropzone, requested 2026-11-06)                                                                                                    | inputs       | DropZone, FileTrigger                            |
+| Rating                                                                                                                                                                                    | inputs       | RadioGroup                                       |
+| Table                                                                                                                                                                                     | data-display | Table, ResizableTableContainer                   |
+| DataTable: column definitions, sorting, filters, pagination, selection, row actions, status cells from a status→tone map, extra labels (after BoardUI's data table, requested 2026-11-06) | data-display | Table, TanStack Table                            |
+| Pagination, Breadcrumbs                                                                                                                                                                   | navigation   | Breadcrumbs, Button                              |
+| Sidebar, NavigationRail                                                                                                                                                                   | navigation   | Disclosure, Link                                 |
+| NavigationBar (bottom), TopAppBar, Toolbar                                                                                                                                                | navigation   | Toolbar, Link                                    |
+| Stepper (wizard steps)                                                                                                                                                                    | navigation   | —                                                |
+| GridList (list with actions), Tree                                                                                                                                                        | data-display | GridList, Tree                                   |
+| Carousel                                                                                                                                                                                  | layout       | scroll-snap                                      |
+| Timeline, DescriptionList                                                                                                                                                                 | data-display | —                                                |
+| StatCard, AnimatedNumber                                                                                                                                                                  | data-display | NumberFlow                                       |
+| ChartCard, BarChart, LineChart, AreaChart (after BoardUI's earnings chart card, requested 2026-11-06)                                                                                     | data-display | to be chosen in docs/research/wave-2-requests.md |
+| DynamicIsland with a stacked-bars mode (after Bencho's dynamic island, requested 2026-11-06)                                                                                              | feedback     | motion layout                                    |
+| Meter, StatusDot                                                                                                                                                                          | feedback     | Meter                                            |
+| SplitButton                                                                                                                                                                               | actions      | Button + Menu                                    |
+| Form (validation, sections, actions)                                                                                                                                                      | inputs       | Form                                             |
 
 ## Wave 3 — Expressive
 

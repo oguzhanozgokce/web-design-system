@@ -5,10 +5,10 @@ import { Form } from 'react-aria-components';
 import { Button } from '@/registry/ds/ui/button';
 import { TextField } from '@/registry/ds/ui/text-field';
 
-const takenSlugs = ['acme', 'northwind', 'globex'];
+const takenUsernames = ['admin', 'support', 'alex'];
 
 export default function FieldValidation() {
-  const [saved, setSaved] = useState<string | null>(null);
+  const [created, setCreated] = useState<string | null>(null);
 
   return (
     <Form
@@ -16,41 +16,42 @@ export default function FieldValidation() {
       onSubmit={(event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        setSaved(String(data.get('slug')));
+        setCreated(String(data.get('username')));
       }}
     >
       <TextField
         name="email"
-        label="Billing email"
+        label="Email"
         type="email"
         autoComplete="email"
         isRequired
-        description="Invoices are sent here."
+        description="We send a confirmation link here."
         errorMessage={(validation) =>
           validation.validationDetails.valueMissing
-            ? 'Enter the address that should receive invoices.'
-            : 'Enter an address like finance@company.com.'
+            ? 'Enter your email address.'
+            : 'Enter an address like name@example.com.'
         }
       />
       <TextField
-        name="slug"
-        label="Workspace URL"
-        startAdornment="ledger.app/"
+        name="username"
+        label="Username"
+        startAdornment="@"
+        autoComplete="username"
         isRequired
         validate={(value) =>
-          takenSlugs.includes(value.trim().toLowerCase()) ? `${value} is already taken.` : null
+          takenUsernames.includes(value.trim().toLowerCase()) ? `@${value} is already taken.` : null
         }
         errorMessage={(validation) =>
           validation.validationDetails.valueMissing
-            ? 'Choose the address your team will use.'
+            ? 'Choose a username.'
             : validation.validationErrors.join(' ')
         }
       />
       <Button type="submit" className="justify-self-start">
-        Create workspace
+        Create account
       </Button>
       <p className="text-body-sm text-on-surface-variant" aria-live="polite">
-        {saved ? `Workspace ledger.app/${saved} created.` : null}
+        {created ? `Account @${created} created.` : null}
       </p>
     </Form>
   );

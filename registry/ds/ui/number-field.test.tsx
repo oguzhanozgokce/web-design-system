@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Form } from 'react-aria-components';
-import { userEvent } from 'vitest/browser';
+import { cdp, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { Button } from '@/registry/ds/ui/button';
 import { NumberField } from '@/registry/ds/ui/number-field';
@@ -95,7 +95,7 @@ describe('NumberField', () => {
     const screen = await renderWithDS(
       <div>
         <NumberField
-          label="Invoice total"
+          label="Project total"
           defaultValue={1250.5}
           formatOptions={{ style: 'currency', currency: 'EUR' }}
         />
@@ -108,7 +108,7 @@ describe('NumberField', () => {
       </div>,
     );
     await expect
-      .element(screen.getByRole('textbox', { name: 'Invoice total' }))
+      .element(screen.getByRole('textbox', { name: 'Project total' }))
       .toHaveValue('€1,250.50');
     await expect.element(screen.getByRole('textbox', { name: 'Discount' })).toHaveValue('15%');
     await expect
@@ -282,6 +282,89 @@ describe('NumberField', () => {
     expect(onChange).toHaveBeenLastCalledWith(4);
   });
 
+  it('draws a compact pill with the buttons against the value', async () => {
+    const screen = await renderWithDS(
+      <div className="w-96">
+        <NumberField
+          label="Quantity"
+          shape="pill"
+          layout="inline"
+          variant="filled"
+          defaultValue={5}
+        />
+      </div>,
+    );
+    const root = screen.container.querySelector('[data-slot="number-field"]')!;
+    expect(root.getAttribute('data-shape')).toBe('pill');
+    expect(root.getAttribute('data-layout')).toBe('stepper');
+    expect(root.hasAttribute('data-variant')).toBe(false);
+    const container = root.querySelector<HTMLElement>('[data-slot="container"]')!;
+    expect([...container.children].map((child) => child.getAttribute('data-slot'))).toEqual([
+      'decrement',
+      'value',
+      'increment',
+    ]);
+    const box = container.getBoundingClientRect();
+    const style = getComputedStyle(container);
+    expect(box.height).toBe(40);
+    expect(style.borderTopWidth).toBe('0px');
+    expect(parseFloat(style.borderTopLeftRadius)).toBeGreaterThanOrEqual(box.height / 2);
+    expect(box.width).toBeLessThan(120);
+    await expect
+      .element(screen.getByRole('button', { name: 'Increase Quantity' }))
+      .toBeInTheDocument();
+  });
+
+  it('sizes the pill at 36, 40 and 48 pixels and widens it as the number gains digits', async () => {
+    const screen = await renderWithDS(
+      <div className="w-96">
+        <NumberField label="Small" shape="pill" size="sm" defaultValue={9} />
+        <NumberField label="Medium" shape="pill" defaultValue={9} />
+        <NumberField label="Large" shape="pill" size="lg" defaultValue={9} />
+      </div>,
+    );
+    const containers = [...screen.container.querySelectorAll('[data-slot="container"]')];
+    expect(containers.map((element) => element.getBoundingClientRect().height)).toEqual([
+      36, 40, 48,
+    ]);
+    const small = containers[0];
+    const narrow = small.getBoundingClientRect().width;
+    await screen.getByRole('button', { name: 'Increase Small' }).click();
+    await expect.element(screen.getByRole('textbox', { name: 'Small' })).toHaveValue('10');
+    await expect.poll(() => small.getBoundingClientRect().width).toBeGreaterThan(narrow);
+  });
+
+  it('rolls the digits in a pill', async () => {
+    const screen = await renderWithDS(
+      <NumberField label="Quantity" shape="pill" defaultValue={3} isAnimated />,
+    );
+    const input = screen.getByRole('textbox', { name: 'Quantity' });
+    await expect.element(input).toHaveAttribute('data-rolling', 'true');
+    expect(screen.container.querySelector('[data-slot="roller"] number-flow-react')).not.toBeNull();
+    await screen.getByRole('button', { name: 'Increase Quantity' }).click();
+    await expect.element(input).toHaveValue('4');
+  });
+
+  it('keeps the pill outlined in forced colours mode', async () => {
+    const screen = await renderWithDS(
+      <NumberField label="Quantity" shape="pill" defaultValue={1} />,
+    );
+    const pill = screen.container.querySelector('[data-slot="container"]')!;
+    expect(getComputedStyle(pill).borderTopWidth).toBe('0px');
+    await cdp().send('Emulation.setEmulatedMedia', {
+      features: [{ name: 'forced-colors', value: 'active' }],
+    });
+    try {
+      const canvas = getComputedStyle(document.body).backgroundColor;
+      const style = getComputedStyle(pill);
+      expect(style.borderTopStyle).toBe('solid');
+      expect(style.borderTopWidth).toBe('1px');
+      expect(style.borderTopColor).not.toBe(canvas);
+    } finally {
+      await cdp().send('Emulation.setEmulatedMedia', { features: [] });
+    }
+  });
+
   it('blocks stepping when disabled or read only', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
@@ -436,7 +519,7 @@ describe('NumberField', () => {
           <NumberField label="Seats" defaultValue={5} minValue={1} description="Billed monthly." />
           <NumberField label="Seats" defaultValue={5} variant="filled" isAnimated />
           <NumberField
-            label="Invoice total"
+            label="Project total"
             layout="inline"
             defaultValue={1250.5}
             formatOptions={{ style: 'currency', currency: 'EUR' }}
@@ -461,6 +544,9 @@ describe('NumberField', () => {
             isInvalid
             errorMessage="Enter at least one guest."
           />
+          <NumberField label="Quantity" shape="pill" size="sm" defaultValue={1} minValue={1} />
+          <NumberField label="Copies" shape="pill" defaultValue={12} isAnimated />
+          <NumberField label="Tickets" shape="pill" size="lg" defaultValue={2} isReadOnly />
         </div>,
         options,
       );

@@ -1,8 +1,6 @@
 import { existsSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { dsLocales } from '../registry/ds/lib/i18n.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
 const registryRoot = path.join(root, 'registry/ds');
@@ -71,28 +69,16 @@ for (const file of files) {
 }
 
 for (const file of files.filter((candidate) => candidate.endsWith('.messages.ts'))) {
-  const relative = path.relative(root, file);
-  const catalogModule = await import(pathToFileURL(file).href);
-  for (const definition of Object.values(catalogModule) as {
-    namespace?: string;
-    catalog?: Record<string, Record<string, string>>;
-  }[]) {
-    if (!definition?.catalog) continue;
-    const reference = Object.keys(definition.catalog.en ?? {}).sort();
-    for (const locale of dsLocales) {
-      const messages = definition.catalog[locale];
-      if (!messages) {
-        problems.push(`${relative} ${definition.namespace}: missing locale ${locale}`);
-        continue;
-      }
-      const keys = Object.keys(messages).sort();
-      if (keys.join() !== reference.join()) {
-        problems.push(`${relative} ${definition.namespace}.${locale}: keys differ from en`);
-      }
-      for (const [key, value] of Object.entries(messages)) {
-        if (!value.trim())
-          problems.push(`${relative} ${definition.namespace}.${locale}.${key} is empty`);
-      }
+  problems.push(
+    `${path.relative(root, file)}: the library ships no translations; put built-in text in labels`,
+  );
+}
+
+for (const file of files.filter((candidate) => /ui\/[^/]+\.tsx$/.test(candidate))) {
+  const code = await readFile(file, 'utf8');
+  for (const match of code.matchAll(/useLabels\(\s*'[^']+',\s*(default\w+Labels)/g)) {
+    if (!new RegExp(`export const ${match[1]}\\b`).test(code)) {
+      problems.push(`${path.relative(root, file)}: ${match[1]} is used but not exported`);
     }
   }
 }

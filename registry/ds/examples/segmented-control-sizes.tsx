@@ -11,14 +11,14 @@ export default function SegmentedControlSizes() {
         (['sm', 'md'] as const).map((size) => (
           <SegmentedControl
             key={`${variant}-${size}`}
-            aria-label={`Currency, ${variant} ${size}`}
+            aria-label={`Calendar view, ${variant} ${size}`}
             variant={variant}
             size={size}
-            defaultSelectedKeys={['eur']}
+            defaultSelectedKeys={['week']}
           >
-            <SegmentedControlItem id="eur">EUR</SegmentedControlItem>
-            <SegmentedControlItem id="usd">USD</SegmentedControlItem>
-            <SegmentedControlItem id="try">TRY</SegmentedControlItem>
+            <SegmentedControlItem id="day">Day</SegmentedControlItem>
+            <SegmentedControlItem id="week">Week</SegmentedControlItem>
+            <SegmentedControlItem id="month">Month</SegmentedControlItem>
           </SegmentedControl>
         )),
       )}

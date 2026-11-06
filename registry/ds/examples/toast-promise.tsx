@@ -6,23 +6,23 @@ import { Toaster, toast } from '@/registry/ds/ui/toast';
 
 const toasterId = 'toast-promise';
 
-function exportOrders() {
-  return new Promise<string>((resolve) => setTimeout(() => resolve('orders-november.csv'), 1800));
+function exportPhotos() {
+  return new Promise<string>((resolve) => setTimeout(() => resolve('photos.zip'), 1800));
 }
 
-function syncBankFeed() {
+function syncFiles() {
   return new Promise<void>((_, reject) =>
-    setTimeout(() => reject(new Error('The bank did not answer within 30 seconds.')), 1800),
+    setTimeout(() => reject(new Error('The server did not answer within 30 seconds.')), 1800),
   );
 }
 
 function startSync() {
-  toast.promise(syncBankFeed, {
+  toast.promise(syncFiles, {
     toasterId,
-    loading: 'Syncing bank feed',
-    success: 'Bank feed synced',
+    loading: 'Syncing files',
+    success: 'Files synced',
     error: (reason) => ({
-      message: 'Bank feed could not sync',
+      message: 'Files could not sync',
       description: reason instanceof Error ? reason.message : undefined,
       action: { label: 'Retry', onAction: startSync },
     }),
@@ -35,18 +35,18 @@ export default function ToastPromise() {
       <Button
         startIcon={<DownloadIcon />}
         onPress={() => {
-          toast.promise(exportOrders(), {
+          toast.promise(exportPhotos(), {
             toasterId,
-            loading: 'Exporting 240 orders',
+            loading: 'Exporting 240 photos',
             success: (file) => ({ message: 'Export ready', description: file }),
             error: 'Export failed',
           });
         }}
       >
-        Export orders
+        Export photos
       </Button>
       <Button variant="outlined" startIcon={<SyncIcon />} onPress={startSync}>
-        Sync bank feed
+        Sync files
       </Button>
       <Toaster toasterId={toasterId} />
     </div>

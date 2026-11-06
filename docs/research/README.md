@@ -27,7 +27,7 @@ Code adapted from an MIT source is recorded in the item's `credits` field in `re
 
 | Topic       | Choice                                                    | Why                                                                                  |
 | ----------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Primitives  | React Aria Components 1.22                                 | 18 locales with Arabic and Thai calendars; the closest references (HeroUI, BoardUI) use it |
+| Primitives  | React Aria Components 1.22                                 | Right-to-left, locale-aware dates and numbers, 13 calendar systems; the closest references (HeroUI, BoardUI) use it |
 | Variants    | tailwind-variants 4                                       | Slots, zero dependencies; class-variance-authority has not released since 2024       |
 | Colour      | @material/material-color-utilities 0.4, spec 2025, phone  | Same engine and spec as MaterialKolor 6 on mobile                                     |
 | Distribution| shadcn registry, `@ds` namespace                          | Source in the project, `--diff` upgrades, shadcn MCP for agents                       |

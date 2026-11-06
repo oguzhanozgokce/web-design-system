@@ -15,13 +15,13 @@ export default function ChipDisabled() {
       </ChipGroup>
       <ChipGroup
         label="Teams"
-        description="Only workspace owners can change teams."
+        description="Only admins can change teams."
         selectionMode="multiple"
-        defaultSelectedKeys={['finance']}
+        defaultSelectedKeys={['design']}
         isDisabled
       >
-        <Chip id="finance">Finance</Chip>
-        <Chip id="sales">Sales</Chip>
+        <Chip id="design">Design</Chip>
+        <Chip id="marketing">Marketing</Chip>
         <Chip id="support">Support</Chip>
       </ChipGroup>
     </div>

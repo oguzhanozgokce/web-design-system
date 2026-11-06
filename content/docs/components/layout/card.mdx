@@ -16,10 +16,10 @@ import { Button } from '@/components/ds/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ds/card';
 
 <Card>
-  <CardHeader title="Invoice INV-2048" description="Harbor Logistics · due 14 Nov" />
-  <CardContent>4,820.00 USD</CardContent>
+  <CardHeader title="Website redesign" description="Due 14 Nov" />
+  <CardContent>12 of 18 tasks done</CardContent>
   <CardFooter>
-    <Button>Send reminder</Button>
+    <Button>Open</Button>
   </CardFooter>
 </Card>;
 ```
@@ -48,9 +48,9 @@ and an `action` slot at the end. Anything passed as children goes under the desc
 
 ### Padding
 
-`padding` sets the inner spacing and the gap between parts: `sm` 12px, `md` 16px (the default),
-`lg` 24px. The title steps from `title-sm` to `title-lg` with it. `none` removes both, for cards
-that hold their own rows, such as a list with dividers.
+`padding` sets the inner spacing and the gap between parts: `sm` 12px and 8px, `md` 16px and 12px
+(the default), `lg` 24px and 16px. The title steps from `title-sm` to `title-lg` with it. `none`
+removes both, for cards that hold their own rows, such as a list with dividers.
 
 <ComponentPreview name="card-padding" align="stretch" />
 
@@ -294,9 +294,9 @@ Text `ClickableCard` writes on its own. Pass `labels`, or set it app-wide with
 - In a button card or a selectable card, every part renders as a `span`, because a `button` and a
   `label` only accept phrasing content.
 - `SelectableCard` is a native checkbox or radio input. Its name is the `CardTitle` and its
-  description is the `CardDescription`, so a card reads as "Team, radio button, 2 of 3" followed
-  by its details. Without a `CardTitle` or an `aria-label`, the card is named by all of its text
-  and the description is not repeated. The check indicator is decorative and hidden from
+  description is the `CardDescription`, so a card reads as "Personal, radio button, 2 of 3"
+  followed by its details. Without a `CardTitle` or an `aria-label`, the card is named by all of
+  its text and the description is not repeated. The check indicator is decorative and hidden from
   assistive technology.
 - The selection check scales in with the spatial spring and appears instantly with reduced motion
   or when `DSProvider` disables motion. Hover elevation and colour changes have no transition with

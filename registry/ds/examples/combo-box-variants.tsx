@@ -1,7 +1,7 @@
 import { ComboBox } from '@/registry/ds/ui/combo-box';
 import { ListBoxItem } from '@/registry/ds/ui/list-box';
 
-const projects = ['Website redesign', 'Mobile app', 'Payroll migration', 'Q4 audit'];
+const fruits = ['Apple', 'Banana', 'Cherry', 'Mango'];
 
 export default function ComboBoxVariants() {
   return (
@@ -9,27 +9,22 @@ export default function ComboBoxVariants() {
       {(['outlined', 'filled'] as const).map((variant) => (
         <ComboBox
           key={variant}
-          label={`Project, ${variant}`}
-          placeholder="Search projects"
+          label={`Fruit, ${variant}`}
+          placeholder="Search fruits"
           variant={variant}
         >
-          {projects.map((project) => (
-            <ListBoxItem key={project} id={project}>
-              {project}
+          {fruits.map((fruit) => (
+            <ListBoxItem key={fruit} id={fruit}>
+              {fruit}
             </ListBoxItem>
           ))}
         </ComboBox>
       ))}
       {(['sm', 'lg'] as const).map((size) => (
-        <ComboBox
-          key={size}
-          label={`Project, size ${size}`}
-          placeholder="Search projects"
-          size={size}
-        >
-          {projects.map((project) => (
-            <ListBoxItem key={project} id={project}>
-              {project}
+        <ComboBox key={size} label={`Fruit, size ${size}`} placeholder="Search fruits" size={size}>
+          {fruits.map((fruit) => (
+            <ListBoxItem key={fruit} id={fruit}>
+              {fruit}
             </ListBoxItem>
           ))}
         </ComboBox>

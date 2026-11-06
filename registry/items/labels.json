@@ -1,0 +1,8 @@
+{
+  "name": "labels",
+  "type": "registry:lib",
+  "title": "Labels",
+  "description": "The labels contract: English defaults that components write on their own, replaced per component or app-wide, with templates that take a string or a function for plurals.",
+  "category": "foundations",
+  "files": ["lib/labels.ts"]
+}

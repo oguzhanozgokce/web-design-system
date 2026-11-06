@@ -6,26 +6,26 @@ export default function BannerVariants() {
       <Banner
         variant="tonal"
         tone="success"
-        title="Export ready"
-        description="orders-october.csv has 1,284 rows."
+        title="File uploaded"
+        description="report.pdf is ready to share."
       />
       <Banner
         variant="outlined"
         tone="success"
-        title="Export ready"
-        description="orders-october.csv has 1,284 rows."
+        title="File uploaded"
+        description="report.pdf is ready to share."
       />
       <Banner
         variant="tonal"
         tone="error"
-        title="Webhook failing"
-        description="The last 12 deliveries to your endpoint returned 500."
+        title="Upload failed"
+        description="photo.jpg is larger than the 20 MB limit."
       />
       <Banner
         variant="outlined"
         tone="error"
-        title="Webhook failing"
-        description="The last 12 deliveries to your endpoint returned 500."
+        title="Upload failed"
+        description="photo.jpg is larger than the 20 MB limit."
       />
     </div>
   );

@@ -2,23 +2,23 @@
 
 import { Chip, ChipGroup } from '@/registry/ds/ui/chip';
 
-const statuses = [
-  { id: 'draft', name: 'Draft' },
-  { id: 'sent', name: 'Sent' },
-  { id: 'paid', name: 'Paid' },
-  { id: 'overdue', name: 'Overdue' },
-  { id: 'void', name: 'Void' },
+const types = [
+  { id: 'photos', name: 'Photos' },
+  { id: 'videos', name: 'Videos' },
+  { id: 'music', name: 'Music' },
+  { id: 'documents', name: 'Documents' },
+  { id: 'archives', name: 'Archives' },
 ];
 
 export default function ChipDemo() {
   return (
     <ChipGroup
-      label="Invoice status"
+      label="File type"
       selectionMode="multiple"
-      defaultSelectedKeys={['sent', 'overdue']}
-      items={statuses}
+      defaultSelectedKeys={['photos', 'music']}
+      items={types}
     >
-      {(status) => <Chip id={status.id}>{status.name}</Chip>}
+      {(type) => <Chip id={type.id}>{type.name}</Chip>}
     </ChipGroup>
   );
 }

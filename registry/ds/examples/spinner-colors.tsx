@@ -13,7 +13,7 @@ export default function SpinnerColors() {
       </span>
       <span className="flex items-center gap-2 rounded-full bg-error-container px-4 py-2 text-label-lg text-on-error-container">
         <Spinner />
-        Revoking keys
+        Deleting files
       </span>
     </div>
   );

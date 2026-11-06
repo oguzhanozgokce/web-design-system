@@ -16,7 +16,12 @@ export default function PasswordFieldConfirm() {
         setStatus('Password updated. Other sessions were signed out.');
       }}
     >
-      <PasswordField label="Current password" name="current-password" isRequired />
+      <PasswordField
+        label="Current password"
+        name="current-password"
+        isRequired
+        errorMessage="Enter your current password."
+      />
       <PasswordField
         label="New password"
         name="new-password"
@@ -26,6 +31,11 @@ export default function PasswordFieldConfirm() {
         value={newPassword}
         onChange={setNewPassword}
         isRequired
+        errorMessage={(validation) =>
+          validation.validationDetails.valueMissing
+            ? 'Enter a new password.'
+            : 'Use at least 12 characters.'
+        }
       />
       <PasswordField
         label="Confirm new password"
@@ -34,6 +44,11 @@ export default function PasswordFieldConfirm() {
         isRequired
         validate={(value) =>
           value && value !== newPassword ? 'The passwords do not match.' : null
+        }
+        errorMessage={(validation) =>
+          validation.validationDetails.valueMissing
+            ? 'Enter the new password again.'
+            : validation.validationErrors.join(' ')
         }
       />
       <Button type="submit">Update password</Button>

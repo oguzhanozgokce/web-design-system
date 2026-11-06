@@ -19,8 +19,8 @@ system, so a decision reads the same on Android, iOS and the web.
 - **Accessible by construction.** Interactive components are built on React Aria Components:
   keyboard support, focus management, screen reader announcements, 13 calendar systems and
   right-to-left layout come with them.
-- **Every string localised.** Built-in labels ship in all 18 languages the apps support, and
-  every one can be overridden.
+- **Your words.** The library ships no translations. Every string a component writes on its own
+  is an English default you replace per component or once for the app.
 - **Motion with manners.** Springs match the Compose library, and every animated component
   honours reduced motion.
 
@@ -28,7 +28,7 @@ system, so a decision reads the same on Android, iOS and the web.
 
 | Layer       | What lives there                                                               |
 | ----------- | ------------------------------------------------------------------------------ |
-| Foundations | Tokens, theme, `DSProvider`, icons, localisation, motion                       |
+| Foundations | Tokens, theme, dynamic colour, `DSProvider`, icons, text and direction, motion |
 | Components  | Accessible primitives and composites: buttons, inputs, overlays, tables, dates |
 | Expressive  | Opt-in motion and micro-interactions: rolling counters, hold to confirm        |
 | Blocks      | Whole sections: app shell, settings page, sign-in, data table page             |

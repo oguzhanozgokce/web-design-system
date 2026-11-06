@@ -3,11 +3,11 @@ import { Divider } from '@/registry/ds/ui/divider';
 const days = [
   {
     label: 'Today',
-    events: ['Ayşe approved INV-2048', 'Payout of 2,400.00 USD reached Garanti BBVA'],
+    events: ['Ayşe commented on your photo', 'You uploaded 12 photos'],
   },
   {
     label: 'Yesterday',
-    events: ['Mehmet imported 128 transactions', 'Lena joined as a viewer'],
+    events: ['Kenji joined the team', 'You changed your password'],
   },
 ];
 

@@ -1,10 +1,10 @@
 import {
   CopyIcon,
   EditIcon,
+  FolderIcon,
   LinkIcon,
   MailIcon,
   MoreHorizontalIcon,
-  PersonIcon,
 } from '@/registry/ds/lib/icons';
 import { IconButton } from '@/registry/ds/ui/icon-button';
 import {
@@ -19,23 +19,19 @@ import {
 export default function MenuSections() {
   return (
     <MenuTrigger>
-      <IconButton
-        aria-label="Quote Q-1182 actions"
-        variant="outlined"
-        icon={<MoreHorizontalIcon />}
-      />
+      <IconButton aria-label="More actions" variant="outlined" icon={<MoreHorizontalIcon />} />
       <Menu>
         <MenuSection>
-          <MenuHeader>Quote</MenuHeader>
-          <MenuItem startIcon={<EditIcon />}>Edit line items</MenuItem>
-          <MenuItem startIcon={<CopyIcon />}>Duplicate as invoice</MenuItem>
-          <MenuItem startIcon={<PersonIcon />}>Change client</MenuItem>
+          <MenuHeader>Edit</MenuHeader>
+          <MenuItem startIcon={<EditIcon />}>Rename</MenuItem>
+          <MenuItem startIcon={<CopyIcon />}>Duplicate</MenuItem>
+          <MenuItem startIcon={<FolderIcon />}>Move</MenuItem>
         </MenuSection>
         <MenuSeparator />
         <MenuSection>
           <MenuHeader>Share</MenuHeader>
-          <MenuItem startIcon={<LinkIcon />}>Copy client link</MenuItem>
-          <MenuItem startIcon={<MailIcon />}>Email to Northwind Traders</MenuItem>
+          <MenuItem startIcon={<LinkIcon />}>Copy link</MenuItem>
+          <MenuItem startIcon={<MailIcon />}>Send by email</MenuItem>
         </MenuSection>
       </Menu>
     </MenuTrigger>

@@ -3,7 +3,7 @@ import { KbdCombo, type KbdKey } from '@/registry/ds/ui/kbd';
 const shortcuts: { label: string; keys: KbdKey[] }[] = [
   { label: 'Search', keys: ['mod', 'K'] },
   { label: 'Command menu', keys: ['mod', 'shift', 'P'] },
-  { label: 'Approve and next', keys: ['alt', 'enter'] },
+  { label: 'Move line up', keys: ['alt', 'up'] },
 ];
 
 export default function KbdPlatforms() {

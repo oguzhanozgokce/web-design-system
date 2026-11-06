@@ -81,7 +81,7 @@ describe('Spinner', () => {
           </ProgressBar>
           <p role="status" className="flex items-center gap-2 text-body-md text-on-surface">
             <Spinner />
-            Syncing ledger
+            Syncing folder
           </p>
         </div>,
         options,

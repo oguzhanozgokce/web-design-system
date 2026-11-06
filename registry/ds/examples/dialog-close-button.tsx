@@ -4,10 +4,10 @@ import { Dialog, DialogBody, DialogHeader, DialogTrigger } from '@/registry/ds/u
 import { KbdCombo } from '@/registry/ds/ui/kbd';
 
 const shortcuts = [
-  { keys: ['N'], action: 'New entry' },
-  { keys: ['mod', 'K'], action: 'Search ledgers' },
-  { keys: ['mod', 'enter'], action: 'Save entry' },
-  { keys: ['shift', 'E'], action: 'Export current view' },
+  { keys: ['N'], action: 'New file' },
+  { keys: ['mod', 'K'], action: 'Search' },
+  { keys: ['mod', 'S'], action: 'Save' },
+  { keys: ['shift', 'E'], action: 'Export' },
   { keys: ['?'], action: 'Show this list' },
 ];
 

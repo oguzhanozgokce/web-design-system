@@ -9,7 +9,7 @@ export default function IconButtonSizes() {
           key={size}
           size={size}
           variant="tonal"
-          aria-label={`Add entry, size ${size}`}
+          aria-label={`Add, size ${size}`}
           icon={<AddIcon />}
         />
       ))}

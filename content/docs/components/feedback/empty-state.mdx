@@ -14,13 +14,13 @@ description: Centred placeholder for empty tables, lists and whole pages, with a
 ```tsx
 import { Button } from '@/components/ds/button';
 import { EmptyState } from '@/components/ds/empty-state';
-import { DescriptionIcon } from '@/lib/ds/icons';
+import { FolderIcon } from '@/lib/ds/icons';
 
 <EmptyState
-  icon={<DescriptionIcon />}
-  title="No invoices yet"
-  description="Create your first invoice to get paid."
-  primaryAction={<Button onPress={create}>New invoice</Button>}
+  icon={<FolderIcon />}
+  title="No files yet"
+  description="Upload a file to get started."
+  primaryAction={<Button onPress={upload}>Upload files</Button>}
 />;
 ```
 
@@ -57,8 +57,8 @@ extra hint.
 
 ## Writing empty states
 
-- Say what will be here and how to get it: "No invoices yet", then "Create your first invoice".
-- Give one primary action. A second action is for an alternative route, such as importing.
+- Say what will be here and how to get it: "No files yet", then "Upload your first file".
+- Give one primary action. A second action is for an alternative route, such as creating a folder.
 - Do not invent numbers, reviews or people to fill the space.
 
 ## API

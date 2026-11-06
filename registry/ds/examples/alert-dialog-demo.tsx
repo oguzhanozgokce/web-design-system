@@ -9,13 +9,13 @@ export default function AlertDialogDemo() {
   return (
     <DialogTrigger>
       <Button tone="destructive" variant="tonal" startIcon={<DeleteIcon />}>
-        Delete ledger
+        Delete file
       </Button>
       <AlertDialog
         tone="destructive"
-        title="Delete “Operating account”?"
-        description="All 1,284 entries and their attachments are removed for everyone in the workspace. This cannot be undone."
-        confirmLabel="Delete ledger"
+        title="Delete “Notes.txt”?"
+        description="The file is deleted for everyone it is shared with. This cannot be undone."
+        confirmLabel="Delete"
         onConfirm={() => new Promise((resolve) => setTimeout(resolve, 1500))}
       />
     </DialogTrigger>

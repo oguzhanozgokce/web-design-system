@@ -110,7 +110,7 @@ describe('Select', () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-4">
         <CurrencySelect
-          label="Payout currencies"
+          label="Upload currencies"
           selectionMode="multiple"
           valueDisplay="count"
           onChange={onChange}
@@ -123,8 +123,8 @@ describe('Select', () => {
         />
       </div>,
     );
-    const payout = screen.getByRole('button', { name: /Payout currencies/ });
-    await payout.click();
+    const upload = screen.getByRole('button', { name: /Upload currencies/ });
+    await upload.click();
     const listbox = page.getByRole('listbox');
     await expect.element(listbox).toHaveAttribute('aria-multiselectable', 'true');
     await page.getByRole('option', { name: /^Euro/ }).click();
@@ -132,7 +132,7 @@ describe('Select', () => {
     await expect.element(listbox).toBeVisible();
     expect(onChange).toHaveBeenLastCalledWith(['eur', 'usd']);
     await userEvent.keyboard('{Escape}');
-    await expect.element(payout).toMatchTextContent(/^2 selected /);
+    await expect.element(upload).toMatchTextContent(/^2 selected /);
 
     const wallets = screen.getByRole('button', { name: /Wallets/ });
     const chips = wallets.element().querySelectorAll('[data-slot="chip"]');
@@ -144,17 +144,17 @@ describe('Select', () => {
   it('names the trigger with every selected label when it shows a count', async () => {
     const screen = await renderWithDS(
       <CurrencySelect
-        label="Payout currencies"
+        label="Upload currencies"
         selectionMode="multiple"
         valueDisplay="count"
         defaultValue={['eur', 'gbp']}
       />,
     );
-    const button = screen.getByRole('button', { name: /Payout currencies/ });
+    const button = screen.getByRole('button', { name: /Upload currencies/ });
     await expect.element(button).toMatchTextContent(/^2 selected /);
     await expect
       .element(button)
-      .toHaveAccessibleName('2 selected Euro and Pound sterling Payout currencies');
+      .toHaveAccessibleName('2 selected Euro and Pound sterling Upload currencies');
   });
 
   it('keeps disabled options out of reach', async () => {
@@ -224,8 +224,8 @@ describe('Select', () => {
         <CurrencySelect
           name="currency"
           isRequired
-          description="Invoices are issued in this currency."
-          errorMessage="Choose a currency to issue invoices."
+          description="Projects are issued in this currency."
+          errorMessage="Choose a currency to issue projects."
         />
         <CurrencySelect label="Locked" isDisabled defaultValue="eur" />
         <button type="submit">Save</button>
@@ -233,16 +233,16 @@ describe('Select', () => {
     );
     await expect
       .element(trigger())
-      .toHaveAccessibleDescription('Invoices are issued in this currency.');
+      .toHaveAccessibleDescription('Projects are issued in this currency.');
     await expect.element(screen.getByText('*')).toBeInTheDocument();
 
     await screen.getByRole('button', { name: 'Save' }).click();
     expect(onSubmit).not.toHaveBeenCalled();
-    await expect.element(screen.getByText('Choose a currency to issue invoices.')).toBeVisible();
+    await expect.element(screen.getByText('Choose a currency to issue projects.')).toBeVisible();
     await expect.element(trigger()).toHaveAttribute('data-invalid', 'true');
     await expect
       .element(trigger())
-      .toHaveAccessibleDescription('Choose a currency to issue invoices.');
+      .toHaveAccessibleDescription('Choose a currency to issue projects.');
 
     await trigger().click();
     await page.getByRole('option', { name: /^Euro/ }).click();
@@ -267,7 +267,7 @@ describe('Select', () => {
           <ListBoxSection title="Income">
             <ListBoxItem id="salary">Salary</ListBoxItem>
           </ListBoxSection>
-          <ListBoxSection title="Expenses">
+          <ListBoxSection title="Sessions">
             <ListBoxItem id="rent">Rent</ListBoxItem>
             <ListBoxItem id="travel" isDisabled>
               Travel
@@ -278,7 +278,7 @@ describe('Select', () => {
     );
     const button = page.getByRole('button', { name: /Category/ });
     await button.click();
-    await expect.element(page.getByRole('group', { name: 'Expenses' })).toBeVisible();
+    await expect.element(page.getByRole('group', { name: 'Sessions' })).toBeVisible();
     const popover = document.querySelector<HTMLElement>('[data-slot="popover"]');
     const width = button.element().getBoundingClientRect().width;
     await expect
@@ -305,9 +305,9 @@ describe('Select', () => {
   it('takes its text from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-4">
-        <CurrencySelect label="Payout currency" items={[]} />
+        <CurrencySelect label="Upload currency" items={[]} />
         <CurrencySelect
-          label="Invoice currency"
+          label="Project currency"
           items={[]}
           labels={{ placeholder: 'Pick a currency', empty: 'No currencies yet' }}
         />
@@ -319,7 +319,7 @@ describe('Select', () => {
           labels={{ moreCount: (values) => `and ${values.count} more` }}
         />
         <CurrencySelect
-          label="Payout currencies"
+          label="Upload currencies"
           selectionMode="multiple"
           valueDisplay="count"
           defaultValue={['eur', 'gbp']}
@@ -344,24 +344,24 @@ describe('Select', () => {
         },
       },
     );
-    const payout = screen.getByRole('button', { name: /Payout currency/ });
-    await expect.element(payout).toHaveTextContent('Choose');
+    const upload = screen.getByRole('button', { name: /Upload currency/ });
+    await expect.element(upload).toHaveTextContent('Choose');
     await expect
-      .element(screen.getByRole('button', { name: /Invoice currency/ }))
+      .element(screen.getByRole('button', { name: /Project currency/ }))
       .toHaveTextContent('Pick a currency');
     const wallets = screen.getByRole('button', { name: /Wallets/ }).element();
     expect(wallets.querySelector('[data-slot="more"]')?.textContent).toBe('and 1 more');
     await expect
-      .element(screen.getByRole('button', { name: /Payout currencies/ }))
+      .element(screen.getByRole('button', { name: /Upload currencies/ }))
       .toMatchTextContent(/^2 chosen /);
     await expect.element(screen.getByText('(if any)')).toBeVisible();
 
-    await payout.click();
+    await upload.click();
     await expect.element(page.getByText('Nothing to choose')).toBeVisible();
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('listbox')).not.toBeInTheDocument();
 
-    await screen.getByRole('button', { name: /Invoice currency/ }).click();
+    await screen.getByRole('button', { name: /Project currency/ }).click();
     await expect.element(page.getByText('No currencies yet')).toBeVisible();
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('listbox')).not.toBeInTheDocument();
@@ -382,7 +382,7 @@ describe('Select', () => {
       document.documentElement.classList.toggle('dark', 'dark' in options);
       const screen = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          <CurrencySelect defaultValue="eur" description="Used on new invoices." />
+          <CurrencySelect defaultValue="eur" description="Used on new projects." />
           <CurrencySelect label="Filled" variant="filled" isInvalid errorMessage="Required" />
           <CurrencySelect
             label="Wallets"

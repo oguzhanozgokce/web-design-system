@@ -319,13 +319,13 @@ describe('AvatarGroup', () => {
 
   it('shows max avatars and a labelled overflow avatar', async () => {
     const screen = await renderWithDS(
-      <AvatarGroup aria-label="Invoice approvers" max={3}>
+      <AvatarGroup aria-label="Project approvers" max={3}>
         {team.map((name) => (
           <Avatar key={name} name={name} />
         ))}
       </AvatarGroup>,
     );
-    const group = screen.getByRole('group', { name: 'Invoice approvers' });
+    const group = screen.getByRole('group', { name: 'Project approvers' });
     await expect.element(group).toBeVisible();
     expect(group.element().querySelectorAll('[data-slot="avatar-group-item"]')).toHaveLength(4);
     await expect.element(screen.getByRole('img', { name: 'Ayşe Demir' })).toBeVisible();
@@ -431,7 +431,7 @@ describe('AvatarGroup', () => {
     const screen = await renderWithDS(
       <>
         <AvatarGroup
-          aria-label="Invoice approvers"
+          aria-label="Project approvers"
           max={1}
           labels={{ more: ({ count }) => `${count} more approvers` }}
         >
@@ -476,7 +476,7 @@ describe('AvatarGroup', () => {
             <AvatarButton name="Ayşe Demir" status="online" />
             <AvatarButton name="Burak Öztürk" isDisabled />
           </div>
-          <AvatarGroup aria-label="Invoice approvers" max={3} size="md">
+          <AvatarGroup aria-label="Project approvers" max={3} size="md">
             {team.map((name) => (
               <Avatar key={name} name={name} />
             ))}

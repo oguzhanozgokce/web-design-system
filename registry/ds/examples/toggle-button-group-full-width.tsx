@@ -4,13 +4,14 @@ export default function ToggleButtonGroupFullWidth() {
   return (
     <div className="w-full max-w-sm">
       <ToggleButtonGroup
-        aria-label="Billing cycle"
+        aria-label="Theme"
         fullWidth
         disallowEmptySelection
-        defaultSelectedKeys={['yearly']}
+        defaultSelectedKeys={['system']}
       >
-        <ToggleButton id="monthly">Monthly</ToggleButton>
-        <ToggleButton id="yearly">Yearly</ToggleButton>
+        <ToggleButton id="light">Light</ToggleButton>
+        <ToggleButton id="dark">Dark</ToggleButton>
+        <ToggleButton id="system">System</ToggleButton>
       </ToggleButtonGroup>
     </div>
   );

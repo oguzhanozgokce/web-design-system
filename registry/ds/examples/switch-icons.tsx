@@ -4,15 +4,15 @@ import { Switch } from '@/registry/ds/ui/switch';
 export default function SwitchIcons() {
   return (
     <div className="flex flex-col gap-6">
-      <Switch defaultSelected>Email receipts</Switch>
+      <Switch defaultSelected>Notifications</Switch>
       <Switch defaultSelected unselectedIcon={<CloseIcon />}>
-        Public profile
+        Location
       </Switch>
       <Switch selectedIcon={<DarkModeIcon />} unselectedIcon={<LightModeIcon />}>
-        Dark theme
+        Dark mode
       </Switch>
       <Switch defaultSelected selectedIcon={null}>
-        Compact tables
+        Compact view
       </Switch>
     </div>
   );

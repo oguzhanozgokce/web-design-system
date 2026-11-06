@@ -1,9 +1,9 @@
 import { CardHeader, SelectableCard, SelectableCardGroup } from '@/registry/ds/ui/card';
 
 const topics = [
-  { value: 'overdue', title: 'Overdue invoices', description: 'The morning after the due date.' },
-  { value: 'payouts', title: 'Payouts', description: 'When money reaches your bank.' },
-  { value: 'members', title: 'New members', description: 'When someone joins the workspace.' },
+  { value: 'comments', title: 'Comments', description: 'When someone replies to you.' },
+  { value: 'mentions', title: 'Mentions', description: 'When someone tags you by name.' },
+  { value: 'members', title: 'New members', description: 'When someone joins your team.' },
   { value: 'digest', title: 'Weekly digest', description: 'Monday at 09:00, your time zone.' },
 ];
 
@@ -13,7 +13,7 @@ export default function CardSelectableMultiple() {
       selectionMode="multiple"
       label="Email me about"
       orientation="horizontal"
-      defaultValue={['overdue', 'digest']}
+      defaultValue={['comments', 'digest']}
       padding="sm"
       className="w-full"
     >

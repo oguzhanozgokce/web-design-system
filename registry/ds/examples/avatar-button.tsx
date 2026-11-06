@@ -3,25 +3,25 @@
 import { useState } from 'react';
 import { AvatarButton, AvatarGroup } from '@/registry/ds/ui/avatar';
 
-const reviewers = ['Ayşe Demir', 'Mehmet Kaya', 'Elif Şahin', 'Can Yılmaz'];
+const people = ['Amara Okafor', 'Kenji Watanabe', 'Sofia Rossi', 'Mateo García'];
 
 export default function AvatarButtonExample() {
-  const [reviewer, setReviewer] = useState<string | null>(null);
+  const [assignee, setAssignee] = useState<string | null>(null);
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <AvatarGroup aria-label="Suggested reviewers" size="md" max={reviewers.length}>
-        {reviewers.map((name) => (
+      <AvatarGroup aria-label="Assign to" size="md" max={people.length}>
+        {people.map((name) => (
           <AvatarButton
             key={name}
             name={name}
-            aria-label={`Assign ${name}`}
-            onPress={() => setReviewer(name)}
+            aria-label={`Assign to ${name}`}
+            onPress={() => setAssignee(name)}
           />
         ))}
       </AvatarGroup>
       <p className="text-body-sm text-on-surface-variant" aria-live="polite">
-        {reviewer ? `Reviewer: ${reviewer}` : 'Pick a reviewer for INV-2048'}
+        {assignee ? `Assigned to ${assignee}` : 'Pick someone to assign'}
       </p>
     </div>
   );

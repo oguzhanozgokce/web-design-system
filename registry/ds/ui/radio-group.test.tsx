@@ -14,7 +14,7 @@ describe('RadioGroup', () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <RadioGroup
-        label="Invoice delivery"
+        label="Project delivery"
         description="Sent on the issue date."
         onChange={onChange}
       >
@@ -22,7 +22,7 @@ describe('RadioGroup', () => {
         <Radio value="post">Postal mail</Radio>
       </RadioGroup>,
     );
-    const group = screen.getByRole('radiogroup', { name: 'Invoice delivery' });
+    const group = screen.getByRole('radiogroup', { name: 'Project delivery' });
     await expect.element(group).toHaveAccessibleDescription('Sent on the issue date.');
     await expect.element(group).toHaveAttribute('data-variant', 'default');
 
@@ -34,7 +34,7 @@ describe('RadioGroup', () => {
 
   it('moves the selection with arrow keys', async () => {
     const screen = await renderWithDS(
-      <RadioGroup label="Billing cycle" defaultValue="monthly">
+      <RadioGroup label="Sharing cycle" defaultValue="monthly">
         <Radio value="monthly">Monthly</Radio>
         <Radio value="yearly">Yearly</Radio>
       </RadioGroup>,
@@ -63,7 +63,7 @@ describe('RadioGroup', () => {
       const [value, setValue] = useState('weekly');
       return (
         <>
-          <RadioGroup label="Payout schedule" value={value} onChange={setValue}>
+          <RadioGroup label="Upload schedule" value={value} onChange={setValue}>
             <Radio value="daily">Daily</Radio>
             <Radio value="weekly">Weekly</Radio>
           </RadioGroup>
@@ -80,21 +80,21 @@ describe('RadioGroup', () => {
   it('keeps option descriptions out of the name and selects from anywhere on a card', async () => {
     const screen = await renderWithDS(
       <RadioGroup label="Plan" variant="card" orientation="horizontal">
-        <Radio value="starter" icon={<PersonIcon />} description="One ledger and one member.">
+        <Radio value="starter" icon={<PersonIcon />} description="One folder and one member.">
           Starter
         </Radio>
-        <Radio value="team" icon={<GroupIcon />} description="Unlimited ledgers.">
+        <Radio value="team" icon={<GroupIcon />} description="Unlimited folders.">
           Team
         </Radio>
       </RadioGroup>,
     );
     const team = screen.getByRole('radio', { name: 'Team' });
-    await expect.element(team).toHaveAccessibleDescription('Unlimited ledgers.');
+    await expect.element(team).toHaveAccessibleDescription('Unlimited folders.');
     await expect
       .element(screen.getByRole('radiogroup', { name: 'Plan' }))
       .toHaveAttribute('data-variant', 'card');
 
-    await screen.getByText('Unlimited ledgers.').click();
+    await screen.getByText('Unlimited folders.').click();
     await expect.element(team).toBeChecked();
     expect(team.element().closest('[data-slot="radio"]')?.getAttribute('data-variant')).toBe(
       'card',
@@ -145,7 +145,7 @@ describe('RadioGroup', () => {
         <Radio
           value="team"
           aria-label="Team plan, 12 USD a member"
-          description="Unlimited ledgers."
+          description="Unlimited folders."
         >
           Team
         </Radio>
@@ -159,7 +159,7 @@ describe('RadioGroup', () => {
   it('draws the focus ring around the whole card', async () => {
     await renderWithDS(
       <RadioGroup label="Plan" variant="card" defaultValue="starter">
-        <Radio value="starter" description="One ledger.">
+        <Radio value="starter" description="One folder.">
           Starter
         </Radio>
       </RadioGroup>,
@@ -188,7 +188,7 @@ describe('RadioGroup', () => {
     const onChange = vi.fn();
     await renderWithDS(
       <div style={{ width: 600 }}>
-        <RadioGroup label="Invoice delivery" onChange={onChange}>
+        <RadioGroup label="Project delivery" onChange={onChange}>
           <Radio value="email">Email</Radio>
         </RadioGroup>
       </div>,
@@ -205,7 +205,7 @@ describe('RadioGroup', () => {
     await renderWithDS(
       <div className="flex flex-col gap-4">
         <RadioGroup label="Plan" variant="card" defaultValue="team">
-          <Radio value="team" description="Unlimited ledgers.">
+          <Radio value="team" description="Unlimited folders.">
             Team
           </Radio>
         </RadioGroup>
@@ -232,7 +232,7 @@ describe('RadioGroup', () => {
     ['reduced', 'none'],
   ] as const)('scales the dot in with motion %s', async (motion, transitionProperty) => {
     await renderWithDS(
-      <RadioGroup label="Billing cycle" defaultValue="monthly">
+      <RadioGroup label="Sharing cycle" defaultValue="monthly">
         <Radio value="monthly">Monthly</Radio>
       </RadioGroup>,
       { provider: { motion } },
@@ -250,7 +250,7 @@ describe('RadioGroup', () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-8 p-6">
         <RadioGroup
-          label="Payout schedule"
+          label="Upload schedule"
           description="From the next business day."
           defaultValue="weekly"
         >
@@ -263,7 +263,7 @@ describe('RadioGroup', () => {
           </Radio>
         </RadioGroup>
         <RadioGroup
-          label="Billing cycle"
+          label="Sharing cycle"
           orientation="horizontal"
           isInvalid
           errorMessage="Choose a cycle."
@@ -272,10 +272,10 @@ describe('RadioGroup', () => {
           <Radio value="yearly">Yearly</Radio>
         </RadioGroup>
         <RadioGroup label="Plan" variant="card" orientation="horizontal" defaultValue="team">
-          <Radio value="starter" icon={<PersonIcon />} description="One ledger.">
+          <Radio value="starter" icon={<PersonIcon />} description="One folder.">
             Starter
           </Radio>
-          <Radio value="team" icon={<GroupIcon />} description="Unlimited ledgers.">
+          <Radio value="team" icon={<GroupIcon />} description="Unlimited folders.">
             Team
           </Radio>
           <Radio value="business" isDisabled description="Approvals and audit log.">

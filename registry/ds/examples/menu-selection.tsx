@@ -14,14 +14,14 @@ import {
 } from '@/registry/ds/ui/menu';
 
 const sortLabels: Record<string, string> = {
-  'sort-issued': 'Issue date',
-  'sort-due': 'Due date',
-  'sort-amount': 'Amount',
+  'sort-name': 'Name',
+  'sort-modified': 'Date modified',
+  'sort-size': 'Size',
 };
 
 export default function MenuSelection() {
-  const [sort, setSort] = useState<Selection>(new Set(['sort-due']));
-  const [columns, setColumns] = useState<Selection>(new Set(['client', 'status', 'amount']));
+  const [sort, setSort] = useState<Selection>(new Set(['sort-modified']));
+  const [columns, setColumns] = useState<Selection>(new Set(['owner', 'modified', 'size']));
   const sortKey = [...sort][0];
   const columnCount = columns === 'all' ? 4 : columns.size;
 
@@ -52,10 +52,10 @@ export default function MenuSelection() {
             onSelectionChange={setColumns}
           >
             <MenuHeader>Columns</MenuHeader>
-            <MenuItem id="client">Client</MenuItem>
-            <MenuItem id="status">Status</MenuItem>
-            <MenuItem id="due">Due date</MenuItem>
-            <MenuItem id="amount">Amount</MenuItem>
+            <MenuItem id="owner">Owner</MenuItem>
+            <MenuItem id="modified">Date modified</MenuItem>
+            <MenuItem id="size">Size</MenuItem>
+            <MenuItem id="type">Type</MenuItem>
           </MenuSection>
         </Menu>
       </MenuTrigger>

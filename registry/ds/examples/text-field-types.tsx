@@ -9,14 +9,14 @@ export default function TextFieldTypes() {
         type="email"
         autoComplete="email"
         startAdornment={<MailIcon />}
-        placeholder="dana@northwind.com"
+        placeholder="name@example.com"
       />
       <TextField
         label="Website"
         type="url"
         autoComplete="url"
         startAdornment={<LanguageIcon />}
-        placeholder="https://northwind.com"
+        placeholder="https://example.com"
       />
       <TextField
         label="Phone"

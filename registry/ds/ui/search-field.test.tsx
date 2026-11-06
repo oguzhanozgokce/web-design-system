@@ -40,16 +40,16 @@ describe('SearchField', () => {
       const [query, setQuery] = useState('inv');
       return (
         <>
-          <SearchField label="Invoices" value={query} onChange={setQuery} />
+          <SearchField label="Projects" value={query} onChange={setQuery} />
           <output>{query.toUpperCase()}</output>
         </>
       );
     }
     const screen = await renderWithDS(<Example />);
-    const input = screen.getByRole('searchbox', { name: 'Invoices' });
+    const input = screen.getByRole('searchbox', { name: 'Projects' });
     await expect.element(input).toHaveValue('inv');
-    await input.fill('INV-2041');
-    await expect.element(screen.getByText('INV-2041', { exact: true })).toBeInTheDocument();
+    await input.fill('DOC-2041');
+    await expect.element(screen.getByText('DOC-2041', { exact: true })).toBeInTheDocument();
   });
 
   it('clears from the clear button, keeps focus in the input and calls onClear', async () => {
@@ -216,7 +216,7 @@ describe('SearchField', () => {
       <div>
         <div role="listbox" tabIndex={0} aria-label="Accounts">
           <div role="option" aria-selected="false">
-            Payroll
+            Backups
           </div>
         </div>
         <input type="checkbox" aria-label="Show archived" />
@@ -407,7 +407,7 @@ describe('SearchField', () => {
           <SearchField label="Find a member" description="Search by name or email." />
           <SearchField label="Payees" variant="filled" size="sm" defaultValue="Lisbon" />
           <SearchField shape="pill" shortcut="/" />
-          <SearchField shape="pill" size="lg" isPending defaultValue="Q3 invoices" />
+          <SearchField shape="pill" size="lg" isPending defaultValue="Q3 projects" />
           <SearchField label="Order number" isInvalid errorMessage="Use the ORD- prefix." />
           <SearchField label="Region" isDisabled defaultValue="eu-west-1" />
         </div>,

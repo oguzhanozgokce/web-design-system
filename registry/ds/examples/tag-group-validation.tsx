@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/registry/ds/ui/button';
 import { Tag, TagGroup } from '@/registry/ds/ui/tag';
 
-const initialCategories = [{ id: 'software', name: 'Software' }];
+const initialCategories = [{ id: 'travel', name: 'Travel' }];
 
 export default function TagGroupValidation() {
   const [categories, setCategories] = useState(initialCategories);
@@ -13,8 +13,8 @@ export default function TagGroupValidation() {
   return (
     <div className="flex w-full max-w-sm flex-col items-start gap-3">
       <TagGroup
-        label="Expense categories"
-        description="Used to group this vendor in reports."
+        label="Categories"
+        description="Helps people find this post."
         errorMessage="Add at least one category."
         isInvalid={isEmpty}
         items={categories}
@@ -33,7 +33,7 @@ export default function TagGroupValidation() {
         isDisabled={!isEmpty}
         onPress={() => setCategories(initialCategories)}
       >
-        Add “Software” back
+        Add “Travel” back
       </Button>
     </div>
   );

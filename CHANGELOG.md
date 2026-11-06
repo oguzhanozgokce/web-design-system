@@ -26,6 +26,22 @@
 - `check-ds`: no hex, palette colours, physical directions or `dark:`; message parity across 18
   locales; every item has a test, an example and a docs page.
 
+### Text
+
+- The library ships no translations. Every string a component writes on its own has an English
+  default exported as `default<Name>Labels` and is replaced with the component's `labels` prop or
+  app-wide with `DSProvider labels`. Templates take `{placeholders}` or a function, so an i18n
+  library with plurals plugs in. The per-component `*.messages.ts` catalogues are gone.
+- Example and docs copy is neutral, so nothing hints at one product.
+
+### Catalogue
+
+- Home page rebuilt as a showcase: a live hero that re-themes a set of components from a colour or a
+  photo, feature tiles with working demos, and a gallery of every component with category filters,
+  search and a preview colour picker.
+- An All components page grouped by category, and a preview colour picker on every example.
+- The site's surfaces come from a monochrome scheme so only accents carry the seed colour.
+
 ### Components
 
 - Actions: `IconButton`, `IconToggleButton`, `Fab`, `ExtendedFab`, `FabMenu`, `ButtonGroup`,

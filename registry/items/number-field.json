@@ -2,7 +2,7 @@
   "name": "number-field",
   "type": "registry:ui",
   "title": "Number field",
-  "description": "Counter and quantity stepper on the shared Field contract, with minus and plus or stacked chevrons, locale-aware currency, percent and unit formats, a checkout-sized display size and an optional rolling odometer.",
+  "description": "Counter and quantity stepper on the shared Field contract, with minus and plus or stacked chevrons, locale-aware currency, percent and unit formats, a large display size, a compact pill and an optional rolling odometer.",
   "category": "inputs",
   "files": ["ui/number-field.tsx"]
 }

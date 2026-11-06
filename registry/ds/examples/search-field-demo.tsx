@@ -6,7 +6,7 @@ export default function SearchFieldDemo() {
       className="w-full max-w-md"
       shape="pill"
       shortcut="/"
-      placeholder="Search invoices and orders"
+      placeholder="Search documentation"
     />
   );
 }

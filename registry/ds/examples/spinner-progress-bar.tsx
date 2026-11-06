@@ -6,13 +6,13 @@ export default function SpinnerProgressBar() {
     <div className="flex w-full max-w-sm items-center gap-3 rounded-lg bg-surface-container-low p-4 text-on-surface">
       <ProgressBar
         isIndeterminate
-        aria-label="Loading recent orders"
+        aria-label="Loading recent messages"
         className="text-2xl text-primary"
       >
         <Spinner />
       </ProgressBar>
       <div>
-        <p className="text-title-sm">Recent orders</p>
+        <p className="text-title-sm">Recent messages</p>
         <p className="text-body-sm text-on-surface-variant">Fetching the last 30 days</p>
       </div>
     </div>

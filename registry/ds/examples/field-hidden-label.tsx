@@ -7,13 +7,13 @@ export default function FieldHiddenLabel() {
     <div className="flex w-full max-w-xl flex-wrap items-center gap-3">
       <TextField
         className="min-w-48 flex-1"
-        label="Search transactions"
+        label="Search photos"
         isLabelHidden
-        placeholder="Search transactions"
+        placeholder="Search photos"
         startAdornment={<SearchIcon />}
         isClearable
       />
-      <Button variant="tonal">Export</Button>
+      <Button variant="tonal">Upload</Button>
     </div>
   );
 }

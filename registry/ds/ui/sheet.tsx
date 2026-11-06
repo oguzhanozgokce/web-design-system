@@ -46,6 +46,7 @@ import {
 import { useControllableState } from '@/registry/ds/hooks/use-controllable-state';
 import { spatialSpring } from '@/registry/ds/lib/motion';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
+import { ButtonGroupContext } from '@/registry/ds/ui/button';
 import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
@@ -866,8 +867,12 @@ function SheetSurface({
         {(renderProps) => (
           <SheetContext value={context}>
             <SurfaceContext value="surface-container-low">
-              {hasHandle ? <SheetHandle styles={styles} drag={drag} label={t.dragHandle} /> : null}
-              {typeof children === 'function' ? children(renderProps) : children}
+              <ButtonGroupContext value={null}>
+                {hasHandle ? (
+                  <SheetHandle styles={styles} drag={drag} label={t.dragHandle} />
+                ) : null}
+                {typeof children === 'function' ? children(renderProps) : children}
+              </ButtonGroupContext>
             </SurfaceContext>
           </SheetContext>
         )}

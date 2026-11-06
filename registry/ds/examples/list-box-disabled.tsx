@@ -3,21 +3,21 @@ import { ListBox, ListBoxItem } from '@/registry/ds/ui/list-box';
 export default function ListBoxDisabled() {
   return (
     <ListBox
-      aria-label="Plan"
+      aria-label="Save to"
       selectionMode="single"
-      defaultSelectedKeys={['team']}
-      disabledKeys={['enterprise']}
+      defaultSelectedKeys={['cloud']}
+      disabledKeys={['drive']}
       variant="outlined"
       className="w-full max-w-xs"
     >
-      <ListBoxItem id="starter" description="Up to 3 ledgers">
-        Starter
+      <ListBoxItem id="device" description="Available offline">
+        This device
       </ListBoxItem>
-      <ListBoxItem id="team" description="Unlimited ledgers, 10 members">
-        Team
+      <ListBoxItem id="cloud" description="Synced across your devices">
+        Cloud
       </ListBoxItem>
-      <ListBoxItem id="enterprise" description="Contact sales to enable">
-        Enterprise
+      <ListBoxItem id="drive" description="Connect a drive to use it">
+        External drive
       </ListBoxItem>
     </ListBox>
   );

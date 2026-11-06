@@ -14,10 +14,10 @@ export default function TooltipRichAction() {
   return (
     <TooltipTrigger>
       <ButtonLink href="#rich-tooltip-with-an-action" variant="outlined" startIcon={<SyncIcon />}>
-        Bank feed
+        Sync
       </ButtonLink>
       <RichTooltip
-        title="Bank feed connected"
+        title="Sync is on"
         placement="bottom"
         action={
           <Button
@@ -32,8 +32,7 @@ export default function TooltipRichAction() {
           </Button>
         }
       >
-        Last synced at {time}. New transactions arrive every hour and match open invoices
-        automatically.
+        Last synced at {time}. Changes reach your other devices within a few minutes.
       </RichTooltip>
     </TooltipTrigger>
   );

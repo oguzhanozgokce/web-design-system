@@ -3,15 +3,15 @@ import { Chip, ChipGroup } from '@/registry/ds/ui/chip';
 export default function ChipSingle() {
   return (
     <ChipGroup
-      label="Period"
+      label="View"
       selectionMode="single"
       disallowEmptySelection
-      defaultSelectedKeys={['30d']}
+      defaultSelectedKeys={['week']}
     >
-      <Chip id="7d">Last 7 days</Chip>
-      <Chip id="30d">Last 30 days</Chip>
-      <Chip id="quarter">This quarter</Chip>
-      <Chip id="year">This year</Chip>
+      <Chip id="day">Day</Chip>
+      <Chip id="week">Week</Chip>
+      <Chip id="month">Month</Chip>
+      <Chip id="year">Year</Chip>
     </ChipGroup>
   );
 }

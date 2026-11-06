@@ -61,7 +61,7 @@ function Tile({
     <Reveal
       delay={delay}
       className={cn(
-        'flex flex-col gap-5 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low p-6',
+        'flex min-w-0 flex-col gap-5 overflow-clip rounded-xl border border-outline-variant bg-surface-container-low p-6',
         className,
       )}
     >
@@ -198,16 +198,16 @@ function LabelsDemo() {
     <div className="flex w-full flex-col gap-3">
       <pre className="overflow-x-auto rounded-md bg-inverse-surface p-3 text-body-sm text-inverse-on-surface">
         <code>{`<DSProvider labels={{
-  divider: { or: 'veya' },
+  divider: { or: 'o' },
 }}>`}</code>
       </pre>
-      <DSProvider labels={{ divider: { or: 'veya' } }}>
-        <div className="flex flex-col gap-2">
+      <DSProvider labels={{ divider: { or: 'o' } }}>
+        <div lang="es" className="flex flex-col gap-2">
           <Button variant="outlined" fullWidth>
-            Google ile devam et
+            Continuar con una llave de acceso
           </Button>
           <OrDivider />
-          <Button fullWidth>E-posta ile devam et</Button>
+          <Button fullWidth>Continuar con correo</Button>
         </div>
       </DSProvider>
     </div>
@@ -217,10 +217,10 @@ function LabelsDemo() {
 function InstallDemo({ files }: { files: string[] }) {
   const command = 'npx shadcn@latest add @ds/button';
   return (
-    <div className="grid w-full gap-4 md:grid-cols-2">
-      <div className="flex flex-col gap-3 rounded-lg bg-inverse-surface p-4 text-inverse-on-surface">
+    <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="flex min-w-0 flex-col gap-3 rounded-lg bg-inverse-surface p-4 text-inverse-on-surface">
         <div className="flex items-center justify-between gap-3">
-          <code className="truncate font-mono text-body-md">
+          <code className="min-w-0 truncate font-mono text-body-md">
             <span className="opacity-60">$ </span>
             {command}
           </code>
@@ -276,7 +276,7 @@ export function Features({ installFiles }: { installFiles: string[] }) {
           and in a browser.
         </p>
       </Reveal>
-      <div className="mt-10 grid gap-4 md:grid-cols-6">
+      <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-6">
         <Tile
           className="md:col-span-4"
           title="One seed, every role"

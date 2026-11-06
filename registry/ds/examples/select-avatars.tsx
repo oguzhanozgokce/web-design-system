@@ -1,11 +1,11 @@
 import { ListBoxItem } from '@/registry/ds/ui/list-box';
 import { Select } from '@/registry/ds/ui/select';
 
-const members = [
-  { id: 'ayse', name: 'Ayşe Demir', role: 'Owner' },
-  { id: 'mehmet', name: 'Mehmet Kaya', role: 'Accountant' },
-  { id: 'elif', name: 'Elif Şahin', role: 'Viewer' },
-  { id: 'jonas', name: 'Jonas Weber', role: 'Accountant' },
+const people = [
+  { id: 'amara', name: 'Amara Okafor', role: 'Owner' },
+  { id: 'hiroshi', name: 'Hiroshi Tanaka', role: 'Editor' },
+  { id: 'sofia', name: 'Sofia Rossi', role: 'Viewer' },
+  { id: 'mateo', name: 'Mateo García', role: 'Editor' },
 ];
 
 const tones = [
@@ -32,17 +32,18 @@ function Initials({ name, index }: { name: string; index: number }) {
 export default function SelectAvatars() {
   return (
     <Select
-      label="Approver"
-      placeholder="Choose a teammate"
-      items={members}
+      label="Assignee"
+      placeholder="Choose a person"
+      items={people}
+      defaultValue="hiroshi"
       className="w-full max-w-xs"
     >
-      {(member) => (
+      {(person) => (
         <ListBoxItem
-          avatar={<Initials name={member.name} index={members.indexOf(member)} />}
-          description={member.role}
+          avatar={<Initials name={person.name} index={people.indexOf(person)} />}
+          description={person.role}
         >
-          {member.name}
+          {person.name}
         </ListBoxItem>
       )}
     </Select>

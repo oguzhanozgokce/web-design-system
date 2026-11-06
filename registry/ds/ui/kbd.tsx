@@ -160,7 +160,7 @@ interface KeyLabel {
 
 function describeKey(key: KbdNamedKey, platform: KbdPlatform | undefined, t: KbdLabels) {
   const apple = platform === 'apple';
-  const labels: Record<KbdNamedKey, KeyLabel> = {
+  const keyLabels: Record<KbdNamedKey, KeyLabel> = {
     mod: apple ? { glyph: '⌘', spoken: t.command } : { glyph: t.controlShort, spoken: t.control },
     command: { glyph: '⌘', spoken: t.command },
     control: { glyph: apple ? '⌃' : t.controlShort, spoken: t.control },
@@ -178,7 +178,7 @@ function describeKey(key: KbdNamedKey, platform: KbdPlatform | undefined, t: Kbd
     left: { glyph: '←', spoken: t.left },
     right: { glyph: '→', spoken: t.right },
   };
-  return labels[key];
+  return keyLabels[key];
 }
 
 export const kbdStyles = tv({

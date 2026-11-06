@@ -14,11 +14,11 @@ description: Material 3 checkbox with an animated check mark, indeterminate stat
 ```tsx
 import { Checkbox, CheckboxGroup } from '@/components/ds/checkbox';
 
-<Checkbox defaultSelected>Email me when an invoice is overdue</Checkbox>;
+<Checkbox defaultSelected>Remember me</Checkbox>;
 
-<CheckboxGroup label="Weekly digest" defaultValue={['payouts']}>
-  <Checkbox value="payouts">Payouts</Checkbox>
-  <Checkbox value="refunds">Refunds</Checkbox>
+<CheckboxGroup label="Interests" defaultValue={['music']}>
+  <Checkbox value="music">Music</Checkbox>
+  <Checkbox value="movies">Movies</Checkbox>
 </CheckboxGroup>;
 ```
 

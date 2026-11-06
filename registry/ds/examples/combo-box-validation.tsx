@@ -2,11 +2,13 @@ import { Button } from '@/registry/ds/ui/button';
 import { ComboBox } from '@/registry/ds/ui/combo-box';
 import { ListBoxItem } from '@/registry/ds/ui/list-box';
 
-const vatRates = [
-  { id: 'tr-20', name: 'Standard 20%', country: 'Türkiye' },
-  { id: 'tr-10', name: 'Reduced 10%', country: 'Türkiye' },
-  { id: 'de-19', name: 'Standard 19%', country: 'Germany' },
-  { id: 'de-7', name: 'Reduced 7%', country: 'Germany' },
+const countries = [
+  { id: 'AR', name: 'Argentina' },
+  { id: 'EG', name: 'Egypt' },
+  { id: 'FR', name: 'France' },
+  { id: 'ID', name: 'Indonesia' },
+  { id: 'MX', name: 'Mexico' },
+  { id: 'VN', name: 'Vietnam' },
 ];
 
 export default function ComboBoxValidation() {
@@ -16,21 +18,17 @@ export default function ComboBoxValidation() {
       onSubmit={(event) => event.preventDefault()}
     >
       <ComboBox
-        name="vatRate"
-        label="VAT rate"
-        description="Applied to every line on this invoice."
-        errorMessage="Choose a VAT rate from the list."
-        defaultItems={vatRates}
+        name="country"
+        label="Country"
+        description="Where you live now."
+        errorMessage="Choose a country from the list."
+        defaultItems={countries}
         isRequired
         className="w-full"
       >
-        {(rate) => (
-          <ListBoxItem description={rate.country} keywords={[rate.country]}>
-            {rate.name}
-          </ListBoxItem>
-        )}
+        {(country) => <ListBoxItem>{country.name}</ListBoxItem>}
       </ComboBox>
-      <Button type="submit">Issue invoice</Button>
+      <Button type="submit">Continue</Button>
     </form>
   );
 }

@@ -6,7 +6,7 @@ describe('Divider', () => {
   it('renders a horizontal hr separator by default', async () => {
     const screen = await renderWithDS(
       <div className="flex w-80 flex-col">
-        <span>Billing</span>
+        <span>Sharing</span>
         <Divider />
         <span>Members</span>
       </div>,
@@ -73,9 +73,9 @@ describe('Divider', () => {
   it('names a vertical labelled divider and keeps it vertical', async () => {
     const screen = await renderWithDS(
       <div className="flex h-32 items-stretch gap-4">
-        <span>Card payment</span>
+        <span>Card message</span>
         <OrDivider orientation="vertical" />
-        <span>Bank transfer</span>
+        <span>Team transfer</span>
       </div>,
     );
     const separator = screen.getByRole('separator', { name: 'or' });
@@ -99,10 +99,10 @@ describe('Divider', () => {
   it('names a labelled divider by its label', async () => {
     const screen = await renderWithDS(
       <div className="flex w-80 flex-col">
-        <Divider labelPosition="start">Archived ledgers</Divider>
+        <Divider labelPosition="start">Archived folders</Divider>
       </div>,
     );
-    const separator = screen.getByRole('separator', { name: 'Archived ledgers' });
+    const separator = screen.getByRole('separator', { name: 'Archived folders' });
     await expect.element(separator).toHaveAttribute('data-label-position', 'start');
     expect(separator.element().querySelectorAll('[data-slot=divider-line]')).toHaveLength(1);
   });

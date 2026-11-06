@@ -14,9 +14,10 @@ description: Material 3 radio group with per-option descriptions, vertical or ho
 ```tsx
 import { Radio, RadioGroup } from '@/components/ds/radio-group';
 
-<RadioGroup label="Invoice delivery" defaultValue="email">
-  <Radio value="email">Email</Radio>
-  <Radio value="post">Postal mail</Radio>
+<RadioGroup label="Theme" defaultValue="system">
+  <Radio value="light">Light</Radio>
+  <Radio value="dark">Dark</Radio>
+  <Radio value="system">System</Radio>
 </RadioGroup>;
 ```
 
@@ -40,7 +41,7 @@ reading direction, so they swap in RTL.
 
 `variant="card"` turns each option into a bordered tile with a title, description and optional
 `icon`. The selected tile fills with `secondary-container`. Use it when options need explanation,
-such as sharing or delivery settings.
+such as visibility or sharing settings.
 
 <ComponentPreview name="radio-group-card" />
 

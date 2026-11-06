@@ -20,18 +20,18 @@ import {
 } from '@/components/ds/disclosure';
 
 <Disclosure>
-  <DisclosureTrigger>Billing address</DisclosureTrigger>
-  <DisclosurePanel>14 Harbour Street, Leeds</DisclosurePanel>
+  <DisclosureTrigger>System requirements</DisclosureTrigger>
+  <DisclosurePanel>Any current desktop or mobile browser.</DisclosurePanel>
 </Disclosure>;
 
-<Accordion defaultExpandedKeys={['fees']}>
-  <Disclosure id="fees">
-    <DisclosureTrigger>Which fees are deducted?</DisclosureTrigger>
-    <DisclosurePanel>Card processing fees and refunds.</DisclosurePanel>
+<Accordion defaultExpandedKeys={['password']}>
+  <Disclosure id="password">
+    <DisclosureTrigger>How do I reset my password?</DisclosureTrigger>
+    <DisclosurePanel>Select Forgot password on the sign-in page.</DisclosurePanel>
   </Disclosure>
-  <Disclosure id="schedule">
-    <DisclosureTrigger>When are payouts sent?</DisclosureTrigger>
-    <DisclosurePanel>Every Monday at 09:00.</DisclosurePanel>
+  <Disclosure id="username">
+    <DisclosureTrigger>Can I change my username?</DisclosureTrigger>
+    <DisclosurePanel>Yes, in Settings under Profile.</DisclosurePanel>
   </Disclosure>
 </Accordion>;
 ```
@@ -71,7 +71,7 @@ Give the section its own heading and keep the questions one level below it.
 
 ### Settings groups
 
-`variant="outlined"` puts the items in one bordered container. `allowsMultipleExpanded` lets an admin
+`variant="outlined"` puts the items in one bordered container. `allowsMultipleExpanded` lets people
 keep several groups open while comparing settings. Pass `className` to `DisclosurePanel` to adjust
 its padding for full-width rows such as switches.
 
@@ -178,7 +178,9 @@ Disclosure: `data-slot="disclosure"`, `data-variant`, `data-size`, `data-expande
 `"disclosure-start-icon"`, `"disclosure-text"`, `"disclosure-title"`, `"disclosure-description"`,
 `"disclosure-indicator"`, `"disclosure-panel"`, `"disclosure-content"`.
 
-The component has no built-in strings, so it has no messages catalogue.
+### Labels
+
+Disclosure writes no text of its own, so it takes no `labels`.
 
 ## Accessibility
 

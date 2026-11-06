@@ -3,15 +3,14 @@ import { Slider } from '@/registry/ds/ui/slider';
 export default function SliderCentered() {
   return (
     <Slider
-      label="Price adjustment"
-      description="Applied to every item in the Spring catalogue."
-      defaultValue={0.08}
-      minValue={-0.2}
-      maxValue={0.2}
-      step={0.01}
+      label="Exposure"
+      defaultValue={0.8}
+      minValue={-2}
+      maxValue={2}
+      step={0.1}
       fillOffset={0}
-      marks={[-0.2, 0, 0.2]}
-      formatOptions={{ style: 'percent', signDisplay: 'exceptZero' }}
+      marks={[-2, 0, 2]}
+      formatOptions={{ signDisplay: 'exceptZero', maximumFractionDigits: 1 }}
       className="max-w-sm"
     />
   );

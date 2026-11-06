@@ -15,12 +15,12 @@ description: Material 3 primary and secondary tabs plus a pill variant, with a s
 import { Tab, TabList, TabPanel, Tabs } from '@/components/ds/tabs';
 
 <Tabs>
-  <TabList aria-label="Customer">
+  <TabList aria-label="Project">
     <Tab id="overview">Overview</Tab>
-    <Tab id="invoices">Invoices</Tab>
+    <Tab id="activity">Activity</Tab>
   </TabList>
   <TabPanel id="overview">…</TabPanel>
-  <TabPanel id="invoices">…</TabPanel>
+  <TabPanel id="activity">…</TabPanel>
 </Tabs>;
 ```
 
@@ -161,9 +161,11 @@ scroller carries `data-overflow-start` and `data-overflow-end` while tabs are hi
 Badges are Badge's own parts: `data-slot="badge"`, and `"badge-anchor"` when the badge sits on the
 icon.
 
-### Messages
+### Labels
 
-Tabs has no built-in strings. Badge labels come from Badge's `badge` namespace.
+Tabs writes no text of its own, so it takes no `labels`. A badge on a tab reads its hidden label
+from Badge's [labels](/docs/components/feedback/badge#labels), which you set app-wide with
+`<DSProvider labels={{ badge: { … } }}>`.
 
 ## Accessibility
 

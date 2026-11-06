@@ -4,10 +4,10 @@ export default function CheckboxDescription() {
   return (
     <Checkbox
       defaultSelected
-      description="Customers get a reminder three days before the due date and again on the day."
+      description="Get an email when a new feature ships or something important changes."
       className="max-w-sm"
     >
-      Send payment reminders
+      Product updates
     </Checkbox>
   );
 }

@@ -6,7 +6,7 @@ export default function DividerLabel() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
       <Button variant="outlined" startIcon={<LockIcon />} fullWidth>
-        Continue with company SSO
+        Sign in with a passkey
       </Button>
       <OrDivider />
       <Button startIcon={<MailIcon />} fullWidth>

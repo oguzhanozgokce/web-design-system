@@ -5,17 +5,17 @@ export default function LinkArrow() {
     <ul className="flex flex-col items-start gap-3">
       <li>
         <Link href="#api" variant="standalone" showArrow>
-          Manage billing
+          Account settings
         </Link>
       </li>
       <li>
         <Link href="#accessibility" variant="standalone" showArrow>
-          See all transactions
+          See all photos
         </Link>
       </li>
       <li>
         <Link href="#usage" variant="standalone">
-          Download receipts
+          Download files
         </Link>
       </li>
     </ul>

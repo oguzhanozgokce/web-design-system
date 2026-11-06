@@ -14,7 +14,7 @@ description: Copies a string or an async value to the clipboard, confirms with a
 ```tsx
 import { CopyButton } from '@/components/ds/copy-button';
 
-<CopyButton value={workspace.id} aria-label="Copy workspace ID" />;
+<CopyButton value={shareLink} aria-label="Copy share link" />;
 ```
 
 ## Examples
@@ -51,10 +51,10 @@ still loading.
 
 <ComponentPreview name="copy-button-async" />
 
-### In a table
+### In a list
 
-Give each icon-only button a specific `aria-label`, such as "Copy invoice number INV-2041", when
-several sit on one screen. `onCopy` receives the copied text.
+Give each icon-only button a specific `aria-label`, such as "Copy link to Photos", when several sit
+on one screen. `onCopy` receives the copied text.
 
 <ComponentPreview name="copy-button-table" align="stretch" />
 

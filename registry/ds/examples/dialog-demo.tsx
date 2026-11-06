@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MailIcon } from '@/registry/ds/lib/icons';
+import { EditIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import {
   Dialog,
@@ -12,42 +12,36 @@ import {
 } from '@/registry/ds/ui/dialog';
 import { TextField } from '@/registry/ds/ui/text-field';
 
+const savedName = 'Alex Morgan';
+
 export default function DialogDemo() {
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState(savedName);
 
   return (
-    <DialogTrigger onOpenChange={(isOpen) => isOpen && setEmail('')}>
-      <Button startIcon={<MailIcon />}>Invite teammate</Button>
+    <DialogTrigger onOpenChange={(isOpen) => isOpen && setName(savedName)}>
+      <Button startIcon={<EditIcon />}>Edit profile</Button>
       <Dialog>
         {({ close }) => (
           <>
             <DialogHeader
-              title="Invite a teammate"
-              description="They join the Finance workspace and see every ledger you share with them."
+              title="Edit profile"
+              description="Your name appears on your profile and next to your comments."
             />
             <DialogBody>
-              <TextField
-                type="email"
-                label="Work email"
-                placeholder="name@company.com"
-                description="Invites expire after 7 days."
-                value={email}
-                onChange={setEmail}
-                autoFocus
-              />
+              <TextField label="Name" value={name} onChange={setName} autoFocus />
             </DialogBody>
             <DialogFooter>
               <Button slot="close" variant="text">
                 Cancel
               </Button>
               <Button
-                isDisabled={!email.includes('@')}
+                isDisabled={!name.trim()}
                 onPress={async () => {
                   await new Promise((resolve) => setTimeout(resolve, 1200));
                   close();
                 }}
               >
-                Send invite
+                Save
               </Button>
             </DialogFooter>
           </>

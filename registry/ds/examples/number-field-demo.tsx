@@ -3,11 +3,11 @@ import { NumberField } from '@/registry/ds/ui/number-field';
 export default function NumberFieldDemo() {
   return (
     <NumberField
-      label="Seats"
-      description="Billed at $12 per seat each month."
+      label="Quantity"
+      description="Choose from 1 to 99."
       defaultValue={5}
       minValue={1}
-      maxValue={200}
+      maxValue={99}
       isAnimated
     />
   );

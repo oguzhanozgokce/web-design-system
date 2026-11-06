@@ -14,9 +14,9 @@ export default function BannerDismissable() {
         isDismissable
         isOpen={isOpen}
         onOpenChange={setOpen}
-        title="New: recurring invoices"
-        description="Bill retainers and subscriptions on a schedule. Each invoice is sent on its due date."
-        actions={<Button>Set up a schedule</Button>}
+        title="New: dark mode"
+        description="Switch themes in Settings, or let the app follow your system setting."
+        actions={<Button>Open settings</Button>}
       />
       <Button variant="outlined" size="sm" isDisabled={isOpen} onPress={() => setOpen(true)}>
         Show announcement again

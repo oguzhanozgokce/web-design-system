@@ -3,11 +3,12 @@ import { Slider } from '@/registry/ds/ui/slider';
 export default function SliderStops() {
   return (
     <Slider
-      label="Payment retries"
-      description="How many times a failed invoice is charged again before it is marked unpaid."
-      defaultValue={3}
-      minValue={0}
-      maxValue={8}
+      label="Font size"
+      description="Larger text is easier to read on small screens."
+      defaultValue={16}
+      minValue={12}
+      maxValue={24}
+      step={2}
       className="max-w-sm"
     />
   );

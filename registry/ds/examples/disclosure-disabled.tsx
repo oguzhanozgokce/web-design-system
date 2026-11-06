@@ -9,20 +9,16 @@ export default function DisclosureDisabled() {
   return (
     <Accordion className="w-full max-w-xl">
       <Disclosure id="password">
-        <DisclosureTrigger description="Members sign in with email and password">
-          Password sign-in
-        </DisclosureTrigger>
+        <DisclosureTrigger description="Last changed 3 months ago">Password</DisclosureTrigger>
         <DisclosurePanel>
-          Passwords need at least 12 characters. Members are asked to change a password that appears
-          in a known breach.
+          Use at least 12 characters. We ask you to change a password that appears in a known data
+          breach.
         </DisclosurePanel>
       </Disclosure>
-      <Disclosure id="sso" isDisabled>
-        <DisclosureTrigger description="Available on the Business plan">
-          Single sign-on
-        </DisclosureTrigger>
+      <Disclosure id="passkeys" isDisabled>
+        <DisclosureTrigger description="Not supported on this device">Passkeys</DisclosureTrigger>
         <DisclosurePanel>
-          Connect your identity provider with SAML or OpenID Connect.
+          Sign in with your fingerprint, face or screen lock instead of a password.
         </DisclosurePanel>
       </Disclosure>
     </Accordion>

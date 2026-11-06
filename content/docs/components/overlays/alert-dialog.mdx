@@ -1,6 +1,6 @@
 ---
 title: Alert Dialog
-description: Confirmation dialog with localised Confirm and Cancel, a destructive tone, an async onConfirm that stays open while pending and shows failures inline, and an optional type-to-confirm phrase.
+description: Confirmation dialog with confirm and cancel actions, a destructive tone, an async onConfirm that stays open while pending and shows failures inline, and an optional type-to-confirm phrase.
 ---
 
 <ComponentPreview name="alert-dialog-demo" />
@@ -17,21 +17,21 @@ import { Button } from '@/components/ds/button';
 import { DialogTrigger } from '@/components/ds/dialog';
 
 <DialogTrigger>
-  <Button tone="destructive">Delete ledger</Button>
+  <Button tone="destructive">Delete file</Button>
   <AlertDialog
     tone="destructive"
-    title="Delete “Operating account”?"
-    description="All entries and attachments are removed. This cannot be undone."
-    confirmLabel="Delete ledger"
-    onConfirm={() => deleteLedger(id)}
+    title="Delete “Notes.txt”?"
+    description="The file is deleted for everyone it is shared with. This cannot be undone."
+    confirmLabel="Delete"
+    onConfirm={() => deleteFile(id)}
   />
 </DialogTrigger>;
 ```
 
 An alert dialog asks one question and offers two answers. It is built on
 [Dialog](/docs/components/overlays/dialog) with the `alertdialog` role, so it installs Dialog too
-and opens from the same `DialogTrigger`. Name the confirm button after the action ("Delete
-ledger", "Publish"), not "OK", so the choice reads on its own.
+and opens from the same `DialogTrigger`. Name the confirm button after the action ("Delete",
+"Publish"), not "OK", so the choice reads on its own.
 
 When `onConfirm` returns a promise, as in the preview above, the confirm button shows a spinner,
 Cancel is disabled, and Escape and the scrim do nothing until the promise settles. The dialog
@@ -43,8 +43,8 @@ closes when it resolves. A synchronous `onConfirm` closes the dialog right away.
 
 When the promise rejects, the dialog stays open and shows the error above the actions, where
 screen readers announce it. Both buttons work again, so the person can retry or cancel. The
-message is `error.message` when there is one, otherwise the localised `error` message. Pass
-`errorMessage` as a node or as `(error) => node` to write your own.
+message is `error.message` when there is one, otherwise the `error` label. Pass `errorMessage` as a
+node or as `(error) => node` to write your own.
 
 <ComponentPreview name="alert-dialog-error" />
 
@@ -61,7 +61,7 @@ while `isConfirmDisabled` is set, focus starts on Cancel instead.
 `requireConfirmation` adds a field and keeps the confirm button disabled until the phrase is typed
 exactly. Focus starts in the field and Enter confirms once it matches, but not while an input
 method is still composing. Escape and Tab work from the field as from any other control. Keep it
-for actions that destroy a lot of data at once, such as a whole workspace.
+for actions that destroy a lot of data at once, such as a whole account.
 
 <ComponentPreview name="alert-dialog-type-to-confirm" />
 
@@ -91,13 +91,14 @@ that opened the dialog is removed, focus has nowhere to return, so move it yours
 | `children`                  | `ReactNode`                                    |                    |
 | `icon`                      | `ReactNode`                                    |                    |
 | `tone`                      | `'default' \| 'destructive'`                   | `'default'`        |
-| `confirmLabel`              | `ReactNode`                                    | `confirm` message  |
-| `cancelLabel`               | `ReactNode`                                    | `cancel` message   |
+| `confirmLabel`              | `ReactNode`                                    | `'Confirm'`        |
+| `cancelLabel`               | `ReactNode`                                    | `'Cancel'`         |
 | `onConfirm`                 | `() => void \| Promise<unknown>`               |                    |
 | `onCancel`                  | `() => void`                                   |                    |
 | `isConfirmDisabled`         | `boolean`                                      | `false`            |
 | `requireConfirmation`       | `string`                                       |                    |
 | `errorMessage`              | `ReactNode \| ((error: unknown) => ReactNode)` | from the rejection |
+| `labels`                    | `Partial<AlertDialogLabels>`                   |                    |
 | `size`                      | `'sm' \| 'md' \| 'lg'`                         | `'sm'`             |
 | `isDismissable`             | `boolean`                                      | `false`            |
 | `isKeyboardDismissDisabled` | `boolean`                                      | `false`            |
@@ -126,17 +127,21 @@ own attributes. Parts: `data-slot="alert-dialog-icon"`, `"alert-dialog-content"`
 `"alert-dialog-confirmation"`, `"alert-dialog-label"`, `"alert-dialog-phrase"`,
 `"alert-dialog-input"`, `"alert-dialog-error"`, plus the Dialog parts.
 
-### Messages
+### Labels
 
-| Key             | English                            |
-| --------------- | ---------------------------------- |
-| `cancel`        | `Cancel`                           |
-| `confirm`       | `Confirm`                          |
-| `typeToConfirm` | `Type {phrase} to confirm`         |
-| `error`         | `Something went wrong. Try again.` |
+Text the alert dialog writes on its own. The button text is content, so it stays in `confirmLabel`
+and `cancelLabel`. Pass `labels` to one alert dialog, or set them for every alert dialog with
+`<DSProvider labels={{ alertDialog: { … } }}>`.
 
-Namespace `alertDialog`. Keep `{phrase}` in an override of `typeToConfirm`; the phrase is shown in
-a monospace chip in its place. The pending label comes from Button's `button` namespace.
+| Key             | Default                            | Used for                                     |
+| --------------- | ---------------------------------- | -------------------------------------------- |
+| `typeToConfirm` | `Type {phrase} to confirm`         | the label of the type-to-confirm field       |
+| `error`         | `Something went wrong. Try again.` | a failure whose rejection carries no message |
+
+`typeToConfirm` is a template: a string with `{phrase}`, or a function that receives `{ phrase }`
+and returns a string. The phrase is shown in a monospace chip where it appears; a template that
+changes the phrase, for example by putting it in capitals, is shown as plain text without the
+chip. The pending spinner takes its name from Button's labels (`button`).
 
 ## Accessibility
 

@@ -5,29 +5,29 @@ import { FilterIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { EmptyState } from '@/registry/ds/ui/empty-state';
 
-const orders = [
-  { id: 'ORD-7781', customer: 'Acme Corp', status: 'Paid' },
-  { id: 'ORD-7782', customer: 'Globex', status: 'Refunded' },
-  { id: 'ORD-7783', customer: 'Initech', status: 'Paid' },
+const tasks = [
+  { id: 'review', name: 'Design review', owner: 'Ayşe Demir', status: 'Done' },
+  { id: 'docs', name: 'Update the docs', owner: 'Jonas Weber', status: 'In progress' },
+  { id: 'launch', name: 'Plan the launch', owner: 'Priya Natarajan', status: 'To do' },
 ];
 
 export default function EmptyStateTable() {
   const [isFiltered, setFiltered] = useState(true);
-  const rows = isFiltered ? [] : orders;
+  const rows = isFiltered ? [] : tasks;
 
   return (
     <div className="w-full overflow-x-auto rounded-lg border border-outline-variant bg-surface">
       <table className="w-full text-start text-body-md text-on-surface">
         <caption className="px-4 pt-3 text-start text-title-sm">
-          Orders {isFiltered ? '· Status: Disputed' : ''}
+          Tasks {isFiltered ? '· Status: Blocked' : ''}
         </caption>
         <thead className="text-label-lg text-on-surface-variant">
           <tr className="border-b border-outline-variant">
             <th scope="col" className="px-4 py-3 text-start font-medium">
-              Order
+              Task
             </th>
             <th scope="col" className="px-4 py-3 text-start font-medium">
-              Customer
+              Owner
             </th>
             <th scope="col" className="px-4 py-3 text-start font-medium">
               Status
@@ -36,11 +36,11 @@ export default function EmptyStateTable() {
         </thead>
         <tbody>
           {rows.length ? (
-            rows.map((order) => (
-              <tr key={order.id} className="border-b border-outline-variant last:border-0">
-                <td className="px-4 py-3">{order.id}</td>
-                <td className="px-4 py-3">{order.customer}</td>
-                <td className="px-4 py-3">{order.status}</td>
+            rows.map((task) => (
+              <tr key={task.id} className="border-b border-outline-variant last:border-0">
+                <td className="px-4 py-3">{task.name}</td>
+                <td className="px-4 py-3">{task.owner}</td>
+                <td className="px-4 py-3">{task.status}</td>
               </tr>
             ))
           ) : (
@@ -50,8 +50,8 @@ export default function EmptyStateTable() {
                   size="compact"
                   headingLevel={3}
                   icon={<FilterIcon />}
-                  title="No disputed orders"
-                  description="No order in the last 90 days has an open dispute."
+                  title="No blocked tasks"
+                  description="Tasks that wait on someone else show up here."
                   primaryAction={<Button onPress={() => setFiltered(false)}>Clear filter</Button>}
                 />
               </td>
@@ -62,7 +62,7 @@ export default function EmptyStateTable() {
       {isFiltered ? null : (
         <div className="flex justify-end p-2">
           <Button variant="text" size="sm" onPress={() => setFiltered(true)}>
-            Show disputed only
+            Show blocked only
           </Button>
         </div>
       )}

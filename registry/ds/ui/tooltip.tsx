@@ -5,6 +5,7 @@ import {
   createContext,
   isValidElement,
   use,
+  useEffect,
   useId,
   useLayoutEffect,
   useMemo,
@@ -28,6 +29,7 @@ import {
 } from 'react-aria-components';
 import { useControllableState } from '@/registry/ds/hooks/use-controllable-state';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
+import { ButtonGroupContext } from '@/registry/ds/ui/button';
 import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useDirection } from '@/registry/ds/ui/ds-provider';
 import { Kbd, type KbdKey } from '@/registry/ds/ui/kbd';
@@ -123,6 +125,10 @@ function PreviewTooltipTrigger({
   ...props
 }: PreviewTriggerProps) {
   const [isOpen, setOpen] = useControllableState(isOpenProp, defaultOpen, onOpenChange);
+
+  useEffect(() => {
+    if (isDisabled && isOpen) setOpen(false);
+  }, [isDisabled, isOpen, setOpen]);
 
   return (
     <PreviewTrigger
@@ -312,22 +318,24 @@ export function RichTooltip({
 
   const content = (
     <SurfaceContext value="surface-container">
-      {showArrow ? <PopoverArrow className={styles.arrow()} /> : null}
-      {title != null ? (
-        <div id={titleId} data-slot="title" className={styles.title()}>
-          {title}
-        </div>
-      ) : null}
-      {children != null ? (
-        <div id={bodyId} data-slot="body" className={styles.body()}>
-          {children}
-        </div>
-      ) : null}
-      {action != null ? (
-        <div data-slot="actions" className={styles.actions()}>
-          {action}
-        </div>
-      ) : null}
+      <ButtonGroupContext value={null}>
+        {showArrow ? <PopoverArrow className={styles.arrow()} /> : null}
+        {title != null ? (
+          <div id={titleId} data-slot="title" className={styles.title()}>
+            {title}
+          </div>
+        ) : null}
+        {children != null ? (
+          <div id={bodyId} data-slot="body" className={styles.body()}>
+            {children}
+          </div>
+        ) : null}
+        {action != null ? (
+          <div data-slot="actions" className={styles.actions()}>
+            {action}
+          </div>
+        ) : null}
+      </ButtonGroupContext>
     </SurfaceContext>
   );
 

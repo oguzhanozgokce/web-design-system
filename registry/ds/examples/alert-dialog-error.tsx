@@ -12,18 +12,18 @@ export default function AlertDialogError() {
   return (
     <DialogTrigger onOpenChange={(isOpen) => isOpen && (attempts.current = 0)}>
       <Button variant="tonal" startIcon={<ArchiveIcon />}>
-        Archive workspace
+        Archive project
       </Button>
       <AlertDialog
         tone="destructive"
-        title="Archive “Acme Finance”?"
-        description="Members lose access and scheduled exports stop. You can restore it within 30 days."
+        title="Archive this project?"
+        description="Members lose access until it is restored. You can restore it within 30 days."
         confirmLabel="Archive"
         onConfirm={async () => {
           attempts.current += 1;
           await new Promise((resolve) => setTimeout(resolve, 1000));
           if (attempts.current === 1) {
-            throw new Error('2 invoices are still unpaid. Settle them, then try again.');
+            throw new Error('The connection was lost. Check your network and try again.');
           }
         }}
       />

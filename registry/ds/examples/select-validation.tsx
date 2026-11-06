@@ -9,25 +9,20 @@ export default function SelectValidation() {
       onSubmit={(event) => event.preventDefault()}
     >
       <Select
-        name="payoutAccount"
-        label="Payout account"
-        description="Settlements arrive here every Friday."
-        errorMessage="Choose where payouts should go."
-        placeholder="Choose an account"
+        name="language"
+        label="Language"
+        description="Used for menus and emails."
+        errorMessage="Choose a language to continue."
+        placeholder="Choose a language"
         isRequired
         className="w-full"
       >
-        <ListBoxItem id="garanti" description="TR•• •••• 4821">
-          Garanti BBVA
-        </ListBoxItem>
-        <ListBoxItem id="isbank" description="TR•• •••• 1907">
-          İş Bankası
-        </ListBoxItem>
-        <ListBoxItem id="wise" description="BE•• •••• 3310">
-          Wise Business
-        </ListBoxItem>
+        <ListBoxItem id="en">English</ListBoxItem>
+        <ListBoxItem id="es">Español</ListBoxItem>
+        <ListBoxItem id="fr">Français</ListBoxItem>
+        <ListBoxItem id="ja">日本語</ListBoxItem>
       </Select>
-      <Button type="submit">Save payout settings</Button>
+      <Button type="submit">Continue</Button>
     </form>
   );
 }

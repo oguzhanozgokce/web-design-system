@@ -5,28 +5,28 @@ export default function BannerTones() {
     <div className="flex w-full max-w-xl flex-col gap-3">
       <Banner
         tone="info"
-        title="Invoices now sync every 15 minutes"
-        description="Changes you make in your accounting app appear here without a manual refresh."
+        title="Update available"
+        description="A new version is ready. It installs the next time you restart the app."
       />
       <Banner
         tone="success"
-        title="Payout sent"
-        description="The money reaches the account ending 0193 within one business day."
+        title="Changes saved"
+        description="Your profile is up to date on every device."
       />
       <Banner
         tone="warning"
-        title="Your trial ends in 3 days"
-        description="Add a payment method to keep your invoices, clients and reports."
+        title="Connection is unstable"
+        description="Changes are kept on this device and sync when you are back online."
       />
       <Banner
         tone="error"
-        title="Payment for INV-2051 failed"
-        description="The customer’s bank declined the card. We emailed them a new payment link."
+        title="Something went wrong"
+        description="We could not save your changes. Try again in a moment."
       />
       <Banner
         tone="neutral"
-        title="This workspace is read-only"
-        description="An owner archived it on 2 November. Ask them to restore it to make changes."
+        title="This folder is read-only"
+        description="Ask the owner for edit access to make changes."
       />
     </div>
   );

@@ -7,35 +7,35 @@ import {
 
 const questions = [
   {
-    id: 'trial',
-    question: 'How does the 14-day trial work?',
+    id: 'mobile',
+    question: 'Is there a mobile app?',
     answer:
-      'You get every feature on the Growth plan for 14 days. We do not ask for a card up front, and nothing is charged unless you choose a plan before the trial ends.',
+      'Yes, for iOS and Android. Sign in with the same account and everything stays in sync across your devices.',
   },
   {
-    id: 'plans',
-    question: 'Can I change plans later?',
+    id: 'offline',
+    question: 'Can I use it offline?',
     answer:
-      'Yes. Upgrades apply immediately and are prorated to the day. Downgrades take effect at the start of your next billing period.',
+      'Yes. Changes you make offline are saved on your device and sync as soon as you are back online.',
   },
   {
-    id: 'payment',
-    question: 'Which payment methods do you accept?',
+    id: 'export',
+    question: 'How do I export my data?',
     answer:
-      'Visa, Mastercard, American Express and SEPA Direct Debit. Annual plans can also be paid by bank transfer against an invoice.',
+      'Go to Settings, then Account, and select Export. You get a ZIP file with everything you created.',
   },
   {
-    id: 'cancel',
-    question: 'What happens to my data if I cancel?',
+    id: 'profile',
+    question: 'Who can see my profile?',
     answer:
-      'Your workspace stays readable for 30 days so you can export ledgers and invoices as CSV or PDF. After that it is deleted permanently.',
+      'Only people you share something with. You can make your profile public in Settings, under Privacy.',
   },
 ];
 
 export default function DisclosureFaq() {
   return (
-    <section aria-labelledby="pricing-faq" className="flex w-full max-w-2xl flex-col gap-6">
-      <h2 id="pricing-faq" className="text-headline-sm text-on-surface">
+    <section aria-labelledby="faq-heading" className="flex w-full max-w-2xl flex-col gap-6">
+      <h2 id="faq-heading" className="text-headline-sm text-on-surface">
         Frequently asked questions
       </h2>
       <Accordion variant="plain" size="lg">

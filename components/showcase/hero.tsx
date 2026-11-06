@@ -3,11 +3,12 @@
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { Radio, RadioGroup, useLocale } from 'react-aria-components';
+import { Radio, RadioGroup } from 'react-aria-components';
 import { useImageSeed } from '@/registry/ds/hooks/use-image-seed';
 import {
   ArrowForwardIcon,
   CheckIcon,
+  DescriptionIcon,
   DownloadIcon,
   MoreVerticalIcon,
 } from '@/registry/ds/lib/icons';
@@ -37,7 +38,7 @@ const photos = [
   { name: 'Dusk photo', src: '/samples/dusk.jpg' },
 ];
 
-const approvers = ['Ayşe Demir', 'Mehmet Kaya', 'Elif Şahin', 'Can Yılmaz', 'Zeynep Arslan'];
+const team = ['Alex Kim', 'Sam Rivera', 'Mia Chen', 'Leo Okafor', 'Nora Ali'];
 
 const ring =
   'focus-ring cursor-pointer outline-offset-2 data-[selected]:ring-2 data-[selected]:ring-on-surface data-[selected]:ring-offset-2 data-[selected]:ring-offset-surface';
@@ -71,86 +72,78 @@ function Panel({
 }
 
 function ThemedWorkspace() {
-  const { locale } = useLocale();
-  const money = new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  });
-
   return (
     <div className="grid grid-cols-6 gap-3">
       <Panel index={0} className="col-span-6 flex flex-col gap-4 sm:col-span-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-label-lg text-on-surface-variant">Payouts this month</p>
+            <p className="text-label-lg text-on-surface-variant">Storage</p>
             <p className="mt-1 text-display-sm text-on-surface tabular-digits">
-              {money.format(48210)}
+              72 GB <span className="text-title-md text-on-surface-variant">of 100 GB</span>
             </p>
           </div>
           <Tag tone="success" dot>
-            On track
+            Synced
           </Tag>
         </div>
-        <LinearProgress label="Monthly goal" value={73} showValueLabel />
+        <LinearProgress aria-label="Storage used" value={72} />
         <ChipGroup
-          aria-label="Period"
+          aria-label="File types"
           selectionMode="single"
           disallowEmptySelection
-          defaultSelectedKeys={['month']}
+          defaultSelectedKeys={['photos']}
         >
-          <Chip id="week">This week</Chip>
-          <Chip id="month">This month</Chip>
-          <Chip id="quarter">Quarter</Chip>
+          <Chip id="photos">Photos</Chip>
+          <Chip id="videos">Videos</Chip>
+          <Chip id="documents">Documents</Chip>
         </ChipGroup>
       </Panel>
       <Panel
         index={1}
-        className="col-span-6 flex flex-col justify-between gap-4 bg-primary-container text-on-primary-container sm:col-span-2"
+        className="col-span-6 flex flex-col justify-between gap-4 bg-primary text-on-primary sm:col-span-2"
       >
         <div>
-          <p className="text-title-sm">Approvers</p>
-          <p className="text-body-sm opacity-80">Two signatures on every payout</p>
+          <p className="text-title-sm">Team</p>
+          <p className="text-body-sm opacity-80">5 members</p>
         </div>
-        <AvatarGroup aria-label="Payout approvers" max={3} size="sm">
-          {approvers.map((name) => (
+        <AvatarGroup aria-label="Team members" max={3} size="sm">
+          {team.map((name) => (
             <Avatar key={name} name={name} />
           ))}
         </AvatarGroup>
-        <Button size="sm" variant="filled" className="self-start">
+        <Button size="sm" variant="elevated" className="self-start">
           Invite
         </Button>
       </Panel>
       <Panel index={2} className="col-span-6 flex flex-col gap-1 p-2 sm:col-span-3">
         <Switch variant="row" defaultSelected>
-          Instant payouts
+          Notifications
         </Switch>
-        <Switch variant="row">Weekly summary</Switch>
+        <Switch variant="row">Auto-update</Switch>
       </Panel>
       <Panel index={3} className="col-span-6 flex flex-col justify-center sm:col-span-3">
         <Slider
-          label="Approval threshold"
-          defaultValue={2500}
+          label="Volume"
+          defaultValue={0.6}
+          formatOptions={{ style: 'percent' }}
           minValue={0}
-          maxValue={10000}
-          step={500}
-          formatOptions={{ style: 'currency', currency: 'USD', maximumFractionDigits: 0 }}
+          maxValue={1}
+          step={0.01}
+          showStops={false}
         />
       </Panel>
       <Panel index={4} className="col-span-6 flex items-center gap-3 py-3">
         <span
           aria-hidden
-          className="grid size-10 shrink-0 place-items-center rounded-md bg-tertiary-container text-title-md text-on-tertiary-container"
+          className="grid size-10 shrink-0 place-items-center rounded-md bg-tertiary-container text-on-tertiary-container"
         >
-          N
+          <DescriptionIcon className="text-xl" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-title-sm">Northwind Traders</p>
-          <p className="truncate text-body-sm text-on-surface-variant">
-            Invoice INV-2048 · {money.format(1250)}
-          </p>
+          <p className="truncate text-title-sm">Project brief.pdf</p>
+          <p className="truncate text-body-sm text-on-surface-variant">2.4 MB · Edited today</p>
         </div>
-        <IconButton aria-label="Download invoice" icon={<DownloadIcon />} />
+        <IconButton aria-label="Download" icon={<DownloadIcon />} />
         <IconButton aria-label="More actions" icon={<MoreVerticalIcon />} />
       </Panel>
     </div>
@@ -169,10 +162,10 @@ export function Hero({ componentCount }: { componentCount: number }) {
   if (!photo && choice !== lastSeed) setLastSeed(choice);
 
   return (
-    <section className="relative isolate overflow-hidden">
+    <section className="relative isolate overflow-clip">
       <div
         aria-hidden
-        className="absolute inset-x-0 -top-40 -z-10 h-[36rem] bg-[radial-gradient(50%_60%_at_20%_30%,color-mix(in_srgb,var(--primary-container)_70%,transparent),transparent),radial-gradient(40%_50%_at_85%_20%,color-mix(in_srgb,var(--tertiary-container)_60%,transparent),transparent)] blur-2xl"
+        className="absolute inset-x-0 -top-40 -z-10 h-[32rem] bg-[radial-gradient(45%_55%_at_70%_35%,color-mix(in_srgb,var(--primary)_10%,transparent),transparent)] blur-2xl"
       />
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pt-14 pb-20 sm:pt-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-10 lg:pt-24">
         <motion.div
@@ -204,12 +197,9 @@ export function Hero({ componentCount }: { componentCount: number }) {
             <ButtonLink href="#components" size="lg" variant="tonal">
               Browse components
             </ButtonLink>
-            <ButtonLink href="/theme" size="lg" variant="text">
-              Theme builder
-            </ButtonLink>
           </div>
           <div className="flex max-w-full items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low py-1 ps-4 pe-1">
-            <code className="truncate font-mono text-body-sm text-on-surface">
+            <code className="min-w-0 truncate font-mono text-body-sm text-on-surface">
               npx shadcn@latest add @ds/button
             </code>
             <CopyButton
@@ -271,7 +261,7 @@ export function Hero({ componentCount }: { componentCount: number }) {
           <DynamicTheme seed={seed} paletteStyle="vibrant" className="relative">
             <div
               aria-hidden
-              className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-[radial-gradient(60%_60%_at_30%_25%,var(--primary-container),transparent),radial-gradient(50%_50%_at_85%_85%,var(--tertiary-container),transparent)] opacity-80 blur-2xl"
+              className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-[radial-gradient(60%_60%_at_30%_25%,var(--primary-container),transparent),radial-gradient(50%_50%_at_85%_85%,var(--tertiary-container),transparent)] opacity-35 blur-2xl"
             />
             <ThemedWorkspace />
           </DynamicTheme>

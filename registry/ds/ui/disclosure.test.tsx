@@ -30,13 +30,13 @@ function BillingAccordion(props: {
         <DisclosureTrigger>Refunds</DisclosureTrigger>
         <DisclosurePanel>Refunds settle in five to ten business days.</DisclosurePanel>
       </Disclosure>
-      <Disclosure id="payouts">
-        <DisclosureTrigger>Payouts</DisclosureTrigger>
-        <DisclosurePanel>Payouts run every Monday at 09:00.</DisclosurePanel>
+      <Disclosure id="uploads">
+        <DisclosureTrigger>Uploads</DisclosureTrigger>
+        <DisclosurePanel>Uploads run every Monday at 09:00.</DisclosurePanel>
       </Disclosure>
-      <Disclosure id="invoices" isDisabled>
-        <DisclosureTrigger>Invoices</DisclosureTrigger>
-        <DisclosurePanel>Invoices are emailed on the first of the month.</DisclosurePanel>
+      <Disclosure id="projects" isDisabled>
+        <DisclosureTrigger>Projects</DisclosureTrigger>
+        <DisclosurePanel>Projects are emailed on the first of the month.</DisclosurePanel>
       </Disclosure>
     </Accordion>
   );
@@ -129,7 +129,7 @@ describe('Disclosure', () => {
         <DisclosureTrigger
           level={2}
           startIcon={<NotificationsIcon />}
-          description="Payout alerts and the weekly summary"
+          description="Upload alerts and the weekly summary"
         >
           Notifications
         </DisclosureTrigger>
@@ -137,7 +137,7 @@ describe('Disclosure', () => {
       </Disclosure>,
     );
     const trigger = screen.getByRole('button', {
-      name: 'Notifications Payout alerts and the weekly summary',
+      name: 'Notifications Upload alerts and the weekly summary',
       exact: true,
     });
     await expect.element(trigger).toBeInTheDocument();
@@ -187,12 +187,12 @@ describe('Disclosure', () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-4">
         <Disclosure variant="outlined">
-          <DisclosureTrigger>Billing address</DisclosureTrigger>
+          <DisclosureTrigger>Sharing address</DisclosureTrigger>
           <DisclosurePanel>14 Harbour Street, Leeds</DisclosurePanel>
         </Disclosure>
         <Disclosure variant="filled">
-          <DisclosureTrigger>Payment terms</DisclosureTrigger>
-          <DisclosurePanel>Invoices are due 30 days after issue.</DisclosurePanel>
+          <DisclosureTrigger>Message terms</DisclosureTrigger>
+          <DisclosurePanel>Projects are due 30 days after issue.</DisclosurePanel>
         </Disclosure>
       </div>,
     );
@@ -204,7 +204,7 @@ describe('Disclosure', () => {
     expect(getComputedStyle(filled).borderTopRightRadius).toBe('12px');
     expect(getComputedStyle(filled).borderBottomLeftRadius).toBe('12px');
 
-    await screen.getByRole('button', { name: 'Billing address' }).click();
+    await screen.getByRole('button', { name: 'Sharing address' }).click();
     await expect.element(outlined).toHaveAttribute('aria-expanded', 'true');
     expect(getComputedStyle(outlined).borderTopLeftRadius).toBe('11px');
     expect(getComputedStyle(outlined).borderBottomLeftRadius).toBe('0px');
@@ -213,16 +213,16 @@ describe('Disclosure', () => {
   it('leaves room above the panel content for a focus ring', async () => {
     const screen = await renderWithDS(
       <Disclosure defaultExpanded>
-        <DisclosureTrigger>Payout ledger</DisclosureTrigger>
+        <DisclosureTrigger>Upload folder</DisclosureTrigger>
         <DisclosurePanel>
           <button type="button" className="focus-ring">
-            Open the ledger
+            Open the folder
           </button>
         </DisclosurePanel>
       </Disclosure>,
     );
     await userEvent.keyboard('{Tab}{Tab}');
-    const inner = screen.getByRole('button', { name: 'Open the ledger' });
+    const inner = screen.getByRole('button', { name: 'Open the folder' });
     await expect.element(inner).toHaveFocus();
     const panel = part(screen.container, '[data-slot="disclosure-panel"]');
     const style = getComputedStyle(inner.element());
@@ -270,12 +270,12 @@ describe('Accordion', () => {
   it('keeps one item open at a time by default', async () => {
     const screen = await renderWithDS(<BillingAccordion />);
     const refunds = screen.getByRole('button', { name: 'Refunds' });
-    const payouts = screen.getByRole('button', { name: 'Payouts' });
+    const uploads = screen.getByRole('button', { name: 'Uploads' });
 
     await refunds.click();
     await expect.element(refunds).toHaveAttribute('aria-expanded', 'true');
-    await payouts.click();
-    await expect.element(payouts).toHaveAttribute('aria-expanded', 'true');
+    await uploads.click();
+    await expect.element(uploads).toHaveAttribute('aria-expanded', 'true');
     await expect.element(refunds).toHaveAttribute('aria-expanded', 'false');
   });
 
@@ -285,21 +285,21 @@ describe('Accordion', () => {
       <BillingAccordion allowsMultipleExpanded onExpandedChange={onExpandedChange} />,
     );
     const refunds = screen.getByRole('button', { name: 'Refunds' });
-    const payouts = screen.getByRole('button', { name: 'Payouts' });
+    const uploads = screen.getByRole('button', { name: 'Uploads' });
 
     await refunds.click();
-    await payouts.click();
+    await uploads.click();
     await expect.element(refunds).toHaveAttribute('aria-expanded', 'true');
-    await expect.element(payouts).toHaveAttribute('aria-expanded', 'true');
-    expect([...onExpandedChange.mock.lastCall![0]].sort()).toEqual(['payouts', 'refunds']);
+    await expect.element(uploads).toHaveAttribute('aria-expanded', 'true');
+    expect([...onExpandedChange.mock.lastCall![0]].sort()).toEqual(['refunds', 'uploads']);
   });
 
   it('opens defaultExpandedKeys and supports controlled expandedKeys', async () => {
     function Controlled() {
-      const [keys, setKeys] = useState<Set<Key>>(new Set(['payouts']));
+      const [keys, setKeys] = useState<Set<Key>>(new Set(['uploads']));
       return (
         <>
-          <button type="button" onClick={() => setKeys(new Set(['refunds', 'payouts']))}>
+          <button type="button" onClick={() => setKeys(new Set(['refunds', 'uploads']))}>
             Expand all
           </button>
           <Accordion allowsMultipleExpanded expandedKeys={keys} onExpandedChange={setKeys}>
@@ -307,9 +307,9 @@ describe('Accordion', () => {
               <DisclosureTrigger>Refunds</DisclosureTrigger>
               <DisclosurePanel>Refunds settle in five to ten business days.</DisclosurePanel>
             </Disclosure>
-            <Disclosure id="payouts">
-              <DisclosureTrigger>Payouts</DisclosureTrigger>
-              <DisclosurePanel>Payouts run every Monday at 09:00.</DisclosurePanel>
+            <Disclosure id="uploads">
+              <DisclosureTrigger>Uploads</DisclosureTrigger>
+              <DisclosurePanel>Uploads run every Monday at 09:00.</DisclosurePanel>
             </Disclosure>
           </Accordion>
         </>
@@ -317,16 +317,16 @@ describe('Accordion', () => {
     }
     const screen = await renderWithDS(<Controlled />);
     const refunds = screen.getByRole('button', { name: 'Refunds' });
-    const payouts = screen.getByRole('button', { name: 'Payouts' });
-    await expect.element(payouts).toHaveAttribute('aria-expanded', 'true');
+    const uploads = screen.getByRole('button', { name: 'Uploads' });
+    await expect.element(uploads).toHaveAttribute('aria-expanded', 'true');
     await expect.element(refunds).toHaveAttribute('aria-expanded', 'false');
 
     await screen.getByRole('button', { name: 'Expand all' }).click();
     await expect.element(refunds).toHaveAttribute('aria-expanded', 'true');
-    await expect.element(payouts).toHaveAttribute('aria-expanded', 'true');
+    await expect.element(uploads).toHaveAttribute('aria-expanded', 'true');
 
-    await payouts.click();
-    await expect.element(payouts).toHaveAttribute('aria-expanded', 'false');
+    await uploads.click();
+    await expect.element(uploads).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('moves focus between triggers with Tab and skips disabled items', async () => {
@@ -339,10 +339,10 @@ describe('Accordion', () => {
     await userEvent.keyboard('{Tab}');
     await expect.element(screen.getByRole('button', { name: 'Refunds' })).toHaveFocus();
     await userEvent.keyboard('{Tab}');
-    const payouts = screen.getByRole('button', { name: 'Payouts' });
-    await expect.element(payouts).toHaveFocus();
+    const uploads = screen.getByRole('button', { name: 'Uploads' });
+    await expect.element(uploads).toHaveFocus();
     await userEvent.keyboard('{Enter}');
-    await expect.element(payouts).toHaveAttribute('aria-expanded', 'true');
+    await expect.element(uploads).toHaveAttribute('aria-expanded', 'true');
     await userEvent.keyboard('{Tab}');
     await expect.element(screen.getByRole('button', { name: 'Contact support' })).toHaveFocus();
   });
@@ -367,31 +367,31 @@ describe('Accordion', () => {
           <DisclosureTrigger>Refunds</DisclosureTrigger>
           <DisclosurePanel>Refunds settle in five to ten business days.</DisclosurePanel>
         </Disclosure>
-        <Disclosure id="payouts" variant="outlined" size="sm">
-          <DisclosureTrigger>Payouts</DisclosureTrigger>
-          <DisclosurePanel>Payouts run every Monday at 09:00.</DisclosurePanel>
+        <Disclosure id="uploads" variant="outlined" size="sm">
+          <DisclosureTrigger>Uploads</DisclosureTrigger>
+          <DisclosurePanel>Uploads run every Monday at 09:00.</DisclosurePanel>
         </Disclosure>
       </Accordion>,
     );
     const accordion = part(sized.container, '[data-slot="accordion"]');
     expect(accordion.getAttribute('data-variant')).toBe('separated');
     expect(accordion.getAttribute('data-size')).toBe('lg');
-    const [refunds, payouts] = sized.container.querySelectorAll('[data-slot="disclosure"]');
+    const [refunds, uploads] = sized.container.querySelectorAll('[data-slot="disclosure"]');
     expect(refunds.getAttribute('data-variant')).toBe('filled');
     expect(refunds.getAttribute('data-size')).toBe('lg');
-    expect(payouts.getAttribute('data-variant')).toBe('outlined');
-    expect(payouts.getAttribute('data-size')).toBe('sm');
+    expect(uploads.getAttribute('data-variant')).toBe('outlined');
+    expect(uploads.getAttribute('data-size')).toBe('sm');
   });
 
   it('skips disabled items and disables every item when the group is disabled', async () => {
     const first = await renderWithDS(<BillingAccordion />);
-    await expect.element(first.getByRole('button', { name: 'Invoices' })).toBeDisabled();
+    await expect.element(first.getByRole('button', { name: 'Projects' })).toBeDisabled();
     await expect.element(first.getByRole('button', { name: 'Refunds' })).toBeEnabled();
     await first.unmount();
 
     const second = await renderWithDS(<BillingAccordion isDisabled />);
     await expect.element(second.getByRole('button', { name: 'Refunds' })).toBeDisabled();
-    await expect.element(second.getByRole('button', { name: 'Payouts' })).toBeDisabled();
+    await expect.element(second.getByRole('button', { name: 'Uploads' })).toBeDisabled();
   });
 
   it('sets the item look from the accordion variant', async () => {
@@ -420,9 +420,9 @@ describe('Accordion', () => {
             </Disclosure>
           </DisclosurePanel>
         </Disclosure>
-        <Disclosure id="billing">
-          <DisclosureTrigger>Billing</DisclosureTrigger>
-          <DisclosurePanel>Plan and invoices.</DisclosurePanel>
+        <Disclosure id="sharing">
+          <DisclosureTrigger>Sharing</DisclosureTrigger>
+          <DisclosurePanel>Plan and projects.</DisclosurePanel>
         </Disclosure>
       </Accordion>,
     );

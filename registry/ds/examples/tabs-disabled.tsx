@@ -2,20 +2,20 @@ import { Tab, TabList, TabPanel, Tabs } from '@/registry/ds/ui/tabs';
 
 export default function TabsDisabled() {
   return (
-    <Tabs variant="secondary" disabledKeys={['payouts']} className="w-full max-w-xl">
-      <TabList aria-label="Balance">
-        <Tab id="balance">Balance</Tab>
-        <Tab id="statements">Statements</Tab>
-        <Tab id="payouts">Payouts</Tab>
+    <Tabs variant="secondary" disabledKeys={['settings']} className="w-full max-w-xl">
+      <TabList aria-label="Project">
+        <Tab id="overview">Overview</Tab>
+        <Tab id="members">Members</Tab>
+        <Tab id="settings">Settings</Tab>
       </TabList>
-      <TabPanel id="balance" className="text-body-md text-on-surface-variant">
-        €12,480.00 available. Payouts open after you verify your bank account.
+      <TabPanel id="overview" className="text-body-md text-on-surface-variant">
+        You can view this project. Only owners can open its settings.
       </TabPanel>
-      <TabPanel id="statements" className="text-body-md text-on-surface-variant">
-        Monthly statements are ready on the first working day of each month.
+      <TabPanel id="members" className="text-body-md text-on-surface-variant">
+        Five people have access to this project.
       </TabPanel>
-      <TabPanel id="payouts" className="text-body-md text-on-surface-variant">
-        No payouts yet.
+      <TabPanel id="settings" className="text-body-md text-on-surface-variant">
+        Rename, archive or delete the project.
       </TabPanel>
     </Tabs>
   );

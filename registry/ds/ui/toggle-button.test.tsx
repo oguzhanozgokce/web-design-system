@@ -16,9 +16,9 @@ describe('ToggleButton', () => {
   it('renders a pressed-state button that toggles on press', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
-      <ToggleButton onChange={onChange}>Watch ledger</ToggleButton>,
+      <ToggleButton onChange={onChange}>Watch folder</ToggleButton>,
     );
-    const toggle = screen.getByRole('button', { name: 'Watch ledger' });
+    const toggle = screen.getByRole('button', { name: 'Watch folder' });
     await expect.element(toggle).toHaveAttribute('aria-pressed', 'false');
     await expect.element(toggle).toHaveAttribute('data-variant', 'filled');
     await expect.element(toggle).toHaveAttribute('data-shape', 'round');
@@ -189,7 +189,7 @@ describe('ToggleButtonGroup', () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
       <ToggleButtonGroup
-        aria-label="Revenue period"
+        aria-label="Traffic period"
         defaultSelectedKeys={['week']}
         disallowEmptySelection
         onSelectionChange={onSelectionChange}
@@ -199,7 +199,7 @@ describe('ToggleButtonGroup', () => {
         <ToggleButton id="month">Month</ToggleButton>
       </ToggleButtonGroup>,
     );
-    const group = screen.getByRole('radiogroup', { name: 'Revenue period' });
+    const group = screen.getByRole('radiogroup', { name: 'Traffic period' });
     await expect.element(group).toHaveAttribute('data-variant', 'connected');
     await expect
       .element(screen.getByRole('radio', { name: 'Week' }))

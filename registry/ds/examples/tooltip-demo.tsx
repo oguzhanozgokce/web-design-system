@@ -6,7 +6,7 @@ export default function TooltipDemo() {
   return (
     <TooltipTrigger>
       <IconButton aria-label="Archive" icon={<ArchiveIcon />} />
-      <Tooltip>Archive invoice</Tooltip>
+      <Tooltip>Move to archive</Tooltip>
     </TooltipTrigger>
   );
 }

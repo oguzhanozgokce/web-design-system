@@ -61,14 +61,14 @@ describe('Switch', () => {
       return (
         <>
           <Switch isSelected={selected} onChange={setSelected}>
-            Payout alerts
+            Upload alerts
           </Switch>
           <output>{selected ? 'on' : 'off'}</output>
         </>
       );
     }
     const screen = await renderWithDS(<Controlled />);
-    await screen.getByText('Payout alerts').click();
+    await screen.getByText('Upload alerts').click();
     await expect.element(screen.getByRole('status')).toHaveTextContent('off');
   });
 
@@ -131,7 +131,7 @@ describe('Switch', () => {
       <Switch
         variant="row"
         icon={<MailIcon />}
-        description="A summary of last week's revenue every Monday."
+        description="A summary of last week's traffic every Monday."
       >
         Weekly summary email
       </Switch>,
@@ -140,8 +140,8 @@ describe('Switch', () => {
     await expect.element(control).toHaveAccessibleName('Weekly summary email');
     await expect
       .element(control)
-      .toHaveAccessibleDescription("A summary of last week's revenue every Monday.");
-    await screen.getByText("A summary of last week's revenue every Monday.").click();
+      .toHaveAccessibleDescription("A summary of last week's traffic every Monday.");
+    await screen.getByText("A summary of last week's traffic every Monday.").click();
     await expect.element(control).toBeChecked();
     expect(part('state-layer')).toBeNull();
     expect(part('icon')).not.toBeNull();
@@ -174,6 +174,24 @@ describe('Switch', () => {
   ] as const)('slides the handle with motion %s', async (motion, transitionProperty) => {
     await renderWithDS(<Switch defaultSelected>Dark theme</Switch>, { provider: { motion } });
     expect(getComputedStyle(part('thumb')!).transitionProperty).toBe(transitionProperty);
+  });
+
+  it('grows the handle with the spatial spring and fades its colour with the effect spring', async () => {
+    await renderWithDS(<Switch defaultSelected>Dark theme</Switch>);
+    const handle = getComputedStyle(part('handle')!);
+    const root = getComputedStyle(document.documentElement);
+    expect(handle.transitionProperty).toBe('width, height, background-color');
+    const [width, height, colour] =
+      handle.transitionTimingFunction.split(/,\s*(?=linear|ease|cubic)/);
+    expect(width).toBe(height);
+    expect(colour).not.toBe(width);
+    expect(handle.transitionDuration.split(', ').map(parseFloat)).toEqual(
+      [
+        root.getPropertyValue('--ds-duration-spatial-fast'),
+        root.getPropertyValue('--ds-duration-spatial-fast'),
+        root.getPropertyValue('--ds-duration-effect-fast'),
+      ].map((value) => parseFloat(value) / 1000),
+    );
   });
 
   it('draws the focus ring inside a settings row', async () => {
@@ -277,7 +295,7 @@ describe('Switch', () => {
     ['light', {}],
     ['dark', { dark: true }],
   ])('draws the selected check so it stands out from the handle in %s', async (_, options) => {
-    await renderWithDS(<Switch defaultSelected>Email receipts</Switch>, {
+    await renderWithDS(<Switch defaultSelected>Email comments</Switch>, {
       ...options,
       provider: { motion: 'disabled' },
     });

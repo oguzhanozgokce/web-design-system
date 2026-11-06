@@ -4,24 +4,22 @@ export default function DisclosureVariants() {
   return (
     <div className="flex w-full max-w-xl flex-col gap-4">
       <Disclosure variant="plain">
-        <DisclosureTrigger>Advanced export options</DisclosureTrigger>
+        <DisclosureTrigger>Advanced options</DisclosureTrigger>
         <DisclosurePanel>
-          Exports use a comma delimiter, ISO 8601 dates and the workspace currency. Change them in
-          Settings, then Data.
+          Include hidden files and keep the original folder structure in the download.
         </DisclosurePanel>
       </Disclosure>
       <Disclosure variant="outlined">
-        <DisclosureTrigger>Billing address</DisclosureTrigger>
+        <DisclosureTrigger>System requirements</DisclosureTrigger>
         <DisclosurePanel>
-          Northwind Supplies Ltd, 14 Harbour Street, Leeds LS1 4DY, United Kingdom. VAT number GB
-          284 1937 06.
+          Any current desktop or mobile browser with JavaScript turned on, and a screen at least
+          320px wide.
         </DisclosurePanel>
       </Disclosure>
       <Disclosure variant="filled">
-        <DisclosureTrigger>Payment terms</DisclosureTrigger>
+        <DisclosureTrigger>Keyboard shortcuts</DisclosureTrigger>
         <DisclosurePanel>
-          Invoices are due 30 days after issue. A reminder goes out 3 days before the due date and
-          again on the day it becomes overdue.
+          Press / to search, N to create something new and ? to see every shortcut.
         </DisclosurePanel>
       </Disclosure>
     </div>

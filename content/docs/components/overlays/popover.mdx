@@ -16,10 +16,10 @@ import { Button } from '@/components/ds/button';
 import { Popover, PopoverDialog, PopoverTrigger } from '@/components/ds/popover';
 
 <PopoverTrigger>
-  <Button>Billing cycle</Button>
+  <Button>Next meeting</Button>
   <Popover>
-    <PopoverDialog title="Next invoice" showCloseButton>
-      Your Team plan renews on 1 December.
+    <PopoverDialog title="Weekly sync" showCloseButton>
+      Mondays at 10:00, by video call.
     </PopoverDialog>
   </Popover>
 </PopoverTrigger>;
@@ -84,7 +84,11 @@ pressable component such as `Button`.
 | `isOpen`           | `boolean`                                                  | from the trigger   |
 | `onOpenChange`     | `(isOpen: boolean) => void`                                |                    |
 
-Every other [React Aria Popover](https://react-aria.adobe.com/Popover) prop is passed through.
+Every other [React Aria Popover](https://react-aria.adobe.com/Popover) prop is passed through. The
+surface is `surface-container-high`, and the popover says so through `SurfaceContext`, so a
+[Card](/docs/components/layout/card) inside it steps up from the popover rather than from the page.
+Buttons inside it keep their own size and variant even when the trigger sits in a [Button
+Group](/docs/components/actions/button-group).
 
 ### PopoverDialog
 
@@ -92,6 +96,7 @@ Every other [React Aria Popover](https://react-aria.adobe.com/Popover) prop is p
 | ----------------- | ------------------------------------------------------------------ | ------- |
 | `title`           | `ReactNode`                                                        |         |
 | `showCloseButton` | `boolean`                                                          | `false` |
+| `labels`          | `Partial<PopoverLabels>`                                           |         |
 | `children`        | `ReactNode \| ((renderProps: { close: () => void }) => ReactNode)` |         |
 | `aria-label`      | `string`                                                           |         |
 | `className`       | `string`                                                           |         |
@@ -118,13 +123,14 @@ Popover: `data-slot="popover"`, `data-placement`, `data-arrow`, `data-entering`,
 `data-trigger`. Parts: `data-slot="arrow"`, `"popover-dialog"`, `"header"`, `"title"`, `"close"`,
 `"body"`.
 
-### Messages
+### Labels
 
-| Key     | English |
-| ------- | ------- |
-| `close` | `Close` |
+Text the popover writes on its own. Pass `labels` to one `PopoverDialog`, or set them for every
+popover with `<DSProvider labels={{ popover: { … } }}>`.
 
-Namespace `popover`.
+| Key     | Default | Used for                                                      |
+| ------- | ------- | ------------------------------------------------------------- |
+| `close` | `Close` | the accessible name of the button that `showCloseButton` adds |
 
 ## Accessibility
 

@@ -3,14 +3,14 @@ import { NumberField } from '@/registry/ds/ui/number-field';
 export default function NumberFieldAnimated() {
   return (
     <div className="grid w-full max-w-md gap-6 sm:grid-cols-2">
-      <NumberField label="Seats" defaultValue={9} minValue={1} maxValue={500} isAnimated />
+      <NumberField label="Copies" defaultValue={9} minValue={1} maxValue={99} isAnimated />
       <NumberField
-        label="Monthly budget"
+        label="Distance"
         layout="inline"
-        defaultValue={1950}
+        defaultValue={12.5}
         minValue={0}
-        step={50}
-        formatOptions={{ style: 'currency', currency: 'USD', maximumFractionDigits: 0 }}
+        step={0.5}
+        formatOptions={{ style: 'unit', unit: 'kilometer' }}
         isAnimated
       />
     </div>

@@ -41,7 +41,7 @@ export async function getGalleryEntries(): Promise<GalleryEntry[]> {
     .filter((item) => item.type === 'registry:ui' && order.includes(item.category))
     .map((item) => ({
       name: item.name,
-      title: item.title,
+      title: item.title.replace(/\b[a-z]/g, (letter) => letter.toUpperCase()),
       description: item.description,
       category: item.category,
       href: pages.get(item.name) ?? `/docs/components/${item.category}/${item.name}`,

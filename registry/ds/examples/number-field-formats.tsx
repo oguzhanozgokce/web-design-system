@@ -4,7 +4,7 @@ export default function NumberFieldFormats() {
   return (
     <div className="grid w-full max-w-sm gap-5">
       <NumberField
-        label="Invoice total"
+        label="Amount"
         layout="inline"
         defaultValue={1250}
         minValue={0}
@@ -12,7 +12,7 @@ export default function NumberFieldFormats() {
         formatOptions={{ style: 'currency', currency: 'EUR' }}
       />
       <NumberField
-        label="Early payment discount"
+        label="Discount"
         layout="inline"
         defaultValue={0.05}
         minValue={0}
@@ -21,7 +21,7 @@ export default function NumberFieldFormats() {
         formatOptions={{ style: 'percent' }}
       />
       <NumberField
-        label="Parcel weight"
+        label="Weight"
         layout="inline"
         defaultValue={2.5}
         minValue={0.1}

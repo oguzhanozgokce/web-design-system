@@ -16,15 +16,15 @@ import { Button } from '@/components/ds/button';
 import { Sheet, SheetBody, SheetFooter, SheetHeader, SheetTrigger } from '@/components/ds/sheet';
 
 <SheetTrigger>
-  <Button>View invoice</Button>
+  <Button>View details</Button>
   <Sheet side="end">
-    <SheetHeader title="Invoice INV-2048" description="Northwind Traders, due 14 November" />
-    <SheetBody>Three line items, paid by bank transfer.</SheetBody>
+    <SheetHeader title="Photo details" description="IMG_2048.jpg" />
+    <SheetBody>JPEG image, 4032 × 3024.</SheetBody>
     <SheetFooter>
       <Button variant="text" slot="close">
         Cancel
       </Button>
-      <Button onPress={markAsPaid}>Mark as paid</Button>
+      <Button onPress={download}>Download</Button>
     </SheetFooter>
   </Sheet>
 </SheetTrigger>;
@@ -125,6 +125,7 @@ pressable component such as `Button`.
 | `isKeyboardDismissDisabled`    | `boolean`                                              | `false`          |
 | `shouldCloseOnInteractOutside` | `(element: Element) => boolean`                        |                  |
 | `showDragHandle`               | `boolean`                                              | `true`           |
+| `labels`                       | `Partial<SheetLabels>`                                 |                  |
 | `snapPoints`                   | `SheetSnapPoint[]`                                     |                  |
 | `snapPoint`                    | `SheetSnapPoint`                                       |                  |
 | `defaultSnapPoint`             | `SheetSnapPoint`                                       | first snap point |
@@ -142,7 +143,11 @@ pressable component such as `Button`.
 
 `SheetSnapPoint` is `number | '${number}%' | '${number}px'`. Snap points, the drag handle and drag
 to dismiss apply to `side="bottom"` only. `isDismissable` covers a press on the scrim and a drag
-down; Escape follows `isKeyboardDismissDisabled`. `className` styles the sheet surface.
+down; Escape follows `isKeyboardDismissDisabled`. `className` styles the sheet surface. The surface
+is `surface-container-low`, and the sheet says so through `SurfaceContext`, so a
+[Card](/docs/components/layout/card) inside it steps up from the sheet rather than from the page.
+Buttons inside it keep their own size and variant even when the trigger sits in a [Button
+Group](/docs/components/actions/button-group).
 
 ### SheetHeader
 
@@ -166,7 +171,7 @@ stays at the bottom with a divider and aligns its actions to the end.
 
 ### SheetClose
 
-The icon button in the header, labelled with the localised `close` message. It accepts every
+The icon button in the header, named by the `close` label. It accepts every
 [React Aria Button](https://react-aria.adobe.com/Button) prop except `slot` and `children`.
 
 ### Styles
@@ -184,14 +189,15 @@ Root: `data-slot="sheet"`, `data-side`, `data-size`, `data-variant`, `data-enter
 `"sheet-header"`, `"sheet-heading"`, `"sheet-title"`, `"sheet-description"`, `"sheet-close"`,
 `"sheet-body"` (with `data-scrollable` when its content overflows), `"sheet-footer"`.
 
-### Messages
+### Labels
 
-| Key          | English        |
-| ------------ | -------------- |
-| `close`      | `Close`        |
-| `dragHandle` | `Resize sheet` |
+Text the sheet writes on its own. Pass `labels` to one `Sheet`, which hands them to its close
+button and drag handle, or set them for every sheet with `<DSProvider labels={{ sheet: { … } }}>`.
 
-Namespace `sheet`.
+| Key          | Default        | Used for                                                       |
+| ------------ | -------------- | -------------------------------------------------------------- |
+| `close`      | `Close`        | the accessible name of `SheetClose`                            |
+| `dragHandle` | `Resize sheet` | the accessible name of the drag handle when it has snap points |
 
 ## Accessibility
 

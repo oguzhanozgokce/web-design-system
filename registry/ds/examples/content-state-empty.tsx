@@ -16,7 +16,7 @@ export default function ContentStateEmpty() {
       headingLevel={3}
       emptyIcon={<GroupIcon />}
       emptyTitle="No team members yet"
-      emptyDescription="Invite your accountant or a colleague. They get access to invoices, not billing."
+      emptyDescription="Invite people to share files and work on projects together."
       emptyAction={<Button startIcon={<MailIcon />}>Invite people</Button>}
       className="max-w-lg rounded-lg border border-outline-variant bg-surface"
     >

@@ -4,10 +4,10 @@ export default function ProgressValueLabel() {
   return (
     <div className="flex w-full max-w-md flex-col gap-6">
       <LinearProgress
-        label="Fundraising goal"
-        value={32400}
-        maxValue={50000}
-        formatOptions={{ style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }}
+        label="Distance this week"
+        value={32.4}
+        maxValue={50}
+        formatOptions={{ style: 'unit', unit: 'kilometer', maximumFractionDigits: 1 }}
         showValueLabel
       />
       <LinearProgress
@@ -18,10 +18,10 @@ export default function ProgressValueLabel() {
         showValueLabel
       />
       <LinearProgress
-        label="Importing receipts"
+        label="Importing photos"
         value={128}
         maxValue={300}
-        valueLabel="128 of 300 files"
+        valueLabel="128 of 300 photos"
         showValueLabel
       />
     </div>

@@ -17,14 +17,14 @@ export default function ProgressWavy() {
   return (
     <div className="flex w-full max-w-md flex-col gap-6">
       <LinearProgress
-        label="Exporting 2,400 orders"
+        label="Exporting 2,400 photos"
         value={exported}
         variant="wavy"
         showValueLabel
       />
-      <LinearProgress label="Generating annual report" variant="wavy" isIndeterminate />
+      <LinearProgress label="Generating preview" variant="wavy" isIndeterminate />
       <LinearProgress
-        label="Backing up workspace"
+        label="Backing up your files"
         value={58}
         variant="wavy"
         thickness={8}

@@ -2,28 +2,28 @@ import { FilterIcon } from '@/registry/ds/lib/icons';
 import { ComboBox } from '@/registry/ds/ui/combo-box';
 import { ListBoxItem } from '@/registry/ds/ui/list-box';
 
-const categories = [
+const topics = [
+  { id: 'art', name: 'Art', keywords: ['painting', 'drawing'] },
+  { id: 'music', name: 'Music', keywords: ['songs', 'concerts'] },
+  { id: 'science', name: 'Science', keywords: ['physics', 'biology'] },
+  { id: 'sports', name: 'Sports', keywords: ['football', 'tennis'] },
   { id: 'travel', name: 'Travel', keywords: ['flights', 'hotels'] },
-  { id: 'meals', name: 'Meals', keywords: ['restaurants', 'lunch'] },
-  { id: 'software', name: 'Software', keywords: ['SaaS', 'subscriptions'] },
-  { id: 'hardware', name: 'Hardware', keywords: ['laptops', 'phones'] },
-  { id: 'office', name: 'Office supplies', keywords: ['stationery'] },
-  { id: 'training', name: 'Training', keywords: ['courses', 'conferences'] },
+  { id: 'food', name: 'Food', keywords: ['recipes', 'cooking'] },
 ];
 
 export default function ComboBoxMultiple() {
   return (
     <ComboBox
-      label="Categories"
+      label="Topics"
       placeholder="Search"
-      description="The report includes transactions in any of these."
+      description="Results match any of these topics."
       selectionMode="multiple"
-      defaultItems={categories}
-      defaultValue={['travel', 'meals']}
+      defaultItems={topics}
+      defaultValue={['art', 'music']}
       startAdornment={<FilterIcon />}
       className="w-full max-w-xs"
     >
-      {(category) => <ListBoxItem keywords={category.keywords}>{category.name}</ListBoxItem>}
+      {(topic) => <ListBoxItem keywords={topic.keywords}>{topic.name}</ListBoxItem>}
     </ComboBox>
   );
 }

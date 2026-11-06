@@ -1,9 +1,9 @@
 import { ContentState } from '@/registry/ds/ui/content-state';
 
 const panels = [
-  { title: 'Revenue this month', status: 'loading' },
-  { title: 'Failed payments', status: 'error' },
-  { title: 'Upcoming renewals', status: 'empty' },
+  { title: 'Recent files', status: 'loading' },
+  { title: 'Messages', status: 'error' },
+  { title: 'Upcoming events', status: 'empty' },
 ] as const;
 
 export default function ContentStateSizes() {

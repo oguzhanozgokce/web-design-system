@@ -7,26 +7,26 @@ import {
 
 export default function DisclosureDemo() {
   return (
-    <Accordion className="w-full max-w-xl" defaultExpandedKeys={['schedule']}>
-      <Disclosure id="schedule">
-        <DisclosureTrigger>When are payouts sent?</DisclosureTrigger>
+    <Accordion className="w-full max-w-xl" defaultExpandedKeys={['password']}>
+      <Disclosure id="password">
+        <DisclosureTrigger>How do I reset my password?</DisclosureTrigger>
         <DisclosurePanel>
-          Payouts leave every Monday at 09:00 in your workspace time zone and usually arrive within
-          two business days.
+          Select Forgot password on the sign-in page and we will email you a link. The link works
+          for one hour.
         </DisclosurePanel>
       </Disclosure>
-      <Disclosure id="fees">
-        <DisclosureTrigger>Which fees are deducted?</DisclosureTrigger>
+      <Disclosure id="username">
+        <DisclosureTrigger>Can I change my username?</DisclosureTrigger>
         <DisclosurePanel>
-          Card processing fees and refunds issued since the last payout are deducted before the
-          transfer. Each deduction is its own line in the payout ledger.
+          Yes, in Settings under Profile. Your old username stays reserved for 14 days in case you
+          change your mind.
         </DisclosurePanel>
       </Disclosure>
-      <Disclosure id="failed">
-        <DisclosureTrigger>What happens when a payout fails?</DisclosureTrigger>
+      <Disclosure id="delete">
+        <DisclosureTrigger>How do I delete my account?</DisclosureTrigger>
         <DisclosurePanel>
-          We retry on the next business day and email the workspace owners. After a second failure
-          the balance stays in your account until the bank details are updated.
+          Go to Settings, then Account, and select Delete account. Your data is removed for good
+          after 30 days.
         </DisclosurePanel>
       </Disclosure>
     </Accordion>

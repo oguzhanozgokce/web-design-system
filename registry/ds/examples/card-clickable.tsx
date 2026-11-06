@@ -1,24 +1,24 @@
-import { ArrowForwardIcon, DescriptionIcon } from '@/registry/ds/lib/icons';
+import { ArrowForwardIcon, FolderIcon } from '@/registry/ds/lib/icons';
 import { CardContent, CardHeader, ClickableCard } from '@/registry/ds/ui/card';
 
-const reports = [
-  { slug: 'q3-revenue', title: 'Q3 revenue', updated: 'Updated 2 hours ago', total: '128,400 USD' },
-  { slug: 'payroll', title: 'Payroll summary', updated: 'Updated yesterday', total: '86,250 USD' },
-  { slug: 'vendors', title: 'Vendor spend', updated: 'Updated 3 days ago', total: '41,780 USD' },
+const folders = [
+  { slug: 'photos', title: 'Photos', updated: 'Updated 2 hours ago', count: '1,204 items' },
+  { slug: 'videos', title: 'Videos', updated: 'Updated yesterday', count: '86 items' },
+  { slug: 'music', title: 'Music', updated: 'Updated 3 days ago', count: '342 items' },
 ];
 
 export default function CardClickable() {
   return (
     <div className="grid w-full gap-4 sm:grid-cols-3">
-      {reports.map((report) => (
-        <ClickableCard key={report.slug} href={`#${report.slug}`} variant="outlined">
+      {folders.map((folder) => (
+        <ClickableCard key={folder.slug} href={`#${folder.slug}`} variant="outlined">
           <CardHeader
-            leading={<DescriptionIcon className="size-6 text-primary" />}
-            title={report.title}
-            description={report.updated}
+            leading={<FolderIcon className="size-6 text-primary" />}
+            title={folder.title}
+            description={folder.updated}
           />
           <CardContent className="mt-auto flex items-center justify-between gap-2">
-            <span className="text-title-md tabular-digits">{report.total}</span>
+            <span className="text-title-md tabular-digits">{folder.count}</span>
             <ArrowForwardIcon className="size-5 text-on-surface-variant rtl:-scale-x-100" />
           </CardContent>
         </ClickableCard>

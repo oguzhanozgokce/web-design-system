@@ -16,7 +16,7 @@ export default function PopoverPlacement() {
           <Button variant="outlined">{label}</Button>
           <Popover placement={placement} showArrow>
             <PopoverDialog>
-              <p className="max-w-48">Paid invoices sync to your accounting tool every hour.</p>
+              <p className="max-w-48">Your changes are saved and synced every few minutes.</p>
             </PopoverDialog>
           </Popover>
         </PopoverTrigger>

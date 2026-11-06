@@ -10,7 +10,7 @@ import { SegmentedControl, SegmentedControlItem } from '@/registry/ds/ui/segment
 export default function SegmentedControlIcons() {
   return (
     <div className="flex flex-col items-center gap-4">
-      <SegmentedControl aria-label="Task view" defaultSelectedKeys={['board']}>
+      <SegmentedControl aria-label="View" defaultSelectedKeys={['board']}>
         <SegmentedControlItem id="list" icon={<ListIcon />}>
           List
         </SegmentedControlItem>
@@ -21,7 +21,7 @@ export default function SegmentedControlIcons() {
           Calendar
         </SegmentedControlItem>
       </SegmentedControl>
-      <SegmentedControl aria-label="Invoice layout" variant="thumb" defaultSelectedKeys={['rows']}>
+      <SegmentedControl aria-label="Layout" variant="thumb" defaultSelectedKeys={['rows']}>
         <SegmentedControlItem id="rows" icon={<TableRowsIcon />} aria-label="Rows" />
         <SegmentedControlItem id="grid" icon={<GridViewIcon />} aria-label="Grid" />
       </SegmentedControl>

@@ -12,32 +12,32 @@ import {
 
 const sections = [
   {
-    id: 'items',
-    title: 'Items',
-    body: 'Linen shirt (M) × 1, canvas tote × 2, gift wrap × 1. Subtotal £96.00.',
+    id: 'new',
+    title: 'New',
+    body: 'A dark theme, offline mode and a faster search.',
   },
   {
-    id: 'shipping',
-    title: 'Shipping',
-    body: 'Tracked delivery to 14 Harbour Street, Leeds. Dispatched on 4 November, arriving Thursday.',
+    id: 'improved',
+    title: 'Improved',
+    body: 'Pages load twice as fast on slow connections, and lists remember where you scrolled to.',
   },
   {
-    id: 'payment',
-    title: 'Payment',
-    body: 'Paid by Visa ending 4242 on 3 November. Receipt sent to the customer.',
+    id: 'fixed',
+    title: 'Fixed',
+    body: 'Signing in no longer fails right after a password change.',
   },
 ];
 
 const allKeys = sections.map((section) => section.id);
 
 export default function DisclosureControlled() {
-  const [expanded, setExpanded] = useState<Set<Key>>(new Set(['items']));
+  const [expanded, setExpanded] = useState<Set<Key>>(new Set(['new']));
   const allOpen = expanded.size === allKeys.length;
 
   return (
     <div className="flex w-full max-w-xl flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-title-md text-on-surface">Order ORD-10482</h2>
+        <h2 className="text-title-md text-on-surface">What’s new in 2.4</h2>
         <Button
           variant="text"
           size="sm"

@@ -15,24 +15,24 @@ description: Material 3 chips for filtering, choosing and entering values, as a 
 import { AssistChip, Chip, ChipGroup, FilterChip } from '@/components/ds/chip';
 
 <ChipGroup
-  label="Status"
+  label="File type"
   selectionMode="multiple"
-  selectedKeys={statuses}
-  onSelectionChange={setStatuses}
+  selectedKeys={types}
+  onSelectionChange={setTypes}
 >
-  <Chip id="paid">Paid</Chip>
-  <Chip id="overdue">Overdue</Chip>
+  <Chip id="photos">Photos</Chip>
+  <Chip id="videos">Videos</Chip>
 </ChipGroup>;
 
-<FilterChip isSelected={overdueOnly} onChange={setOverdueOnly}>
-  Overdue only
+<FilterChip isSelected={unreadOnly} onChange={setUnreadOnly}>
+  Unread only
 </FilterChip>;
 ```
 
 ### Chip or Tag
 
 A chip is something people act on: they press it, select it or remove it. A
-[Tag](/docs/components/data-display/tag) is a compact status label such as "Paid" or "Draft",
+[Tag](/docs/components/data-display/tag) is a compact status label such as "Active" or "Draft",
 20 or 24px high, whose colour carries meaning. If the label is the control, use a Chip; if it
 describes a row in a table or list, use a Tag.
 
@@ -85,8 +85,8 @@ the chip is selected.
 ### Input chips
 
 Pass `onRemove` to the group to make chips removable. Each chip gets a trailing close button
-labelled "Remove Ayşe Demir", and Delete or Backspace removes the focused chip. `avatar` shows a person or an image at the start, and `renderEmptyState` fills the space when
-the last chip is gone.
+labelled "Remove Ayşe Demir", and Delete or Backspace removes the focused chip. `avatar` shows a
+person or an image at the start, and `renderEmptyState` fills the space when the last chip is gone.
 
 <ComponentPreview name="chip-input" align="start" />
 
@@ -219,7 +219,7 @@ chip's own `labels` win over its group's.
 
 | Key       | Default          | Used for                                                        |
 | --------- | ---------------- | --------------------------------------------------------------- |
-| `remove`  | `Remove {label}` | the close button of an input chip; `{label}` is its `textValue` |
+| `remove`  | `Remove {label}` | the close button of an input chip; `{label}` is the chip's text |
 | `pending` | `Loading`        | the accessible name of an assist chip's pending spinner         |
 
 ## Accessibility
@@ -232,8 +232,8 @@ chip's own `labels` win over its group's.
   is shown by the check glyph as well as colour.
 - Delete or Backspace removes the focused chip when the group has `onRemove`, or every selected
   chip when the focused one is selected. The close button is named by the `remove` label, "Remove"
-  plus the chip's text by default. Focus moves to the next chip; when the last chip goes, it moves to the
-  group, which shows the empty state and a focus ring.
+  plus the chip's text by default. Focus moves to the next chip; when the last chip goes, it moves
+  to the group, which shows the empty state and a focus ring.
 - `FilterChip` is a `button` with `aria-pressed`; `AssistChip` is a plain `button` that stays
   focusable and announces a progress bar while pending.
 - The check and padding change use the fast spatial spring and are instant under reduced motion.

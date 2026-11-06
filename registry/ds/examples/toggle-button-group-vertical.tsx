@@ -4,17 +4,17 @@ import { ToggleButton, ToggleButtonGroup } from '@/registry/ds/ui/toggle-button'
 export default function ToggleButtonGroupVertical() {
   return (
     <ToggleButtonGroup
-      aria-label="Project view"
+      aria-label="Layout"
       orientation="vertical"
       buttonVariant="tonal"
-      defaultSelectedKeys={['board']}
+      defaultSelectedKeys={['grid']}
       disallowEmptySelection
     >
       <ToggleButton id="list" startIcon={<ListIcon />}>
         List
       </ToggleButton>
-      <ToggleButton id="board" startIcon={<GridViewIcon />}>
-        Board
+      <ToggleButton id="grid" startIcon={<GridViewIcon />}>
+        Grid
       </ToggleButton>
       <ToggleButton id="table" startIcon={<TableRowsIcon />}>
         Table

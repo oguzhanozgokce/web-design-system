@@ -6,7 +6,7 @@ import { Button } from '@/registry/ds/ui/button';
 
 const initialMembers = [
   { id: 'ayse', name: 'Ayşe Demir', role: 'Admin' },
-  { id: 'jonas', name: 'Jonas Weber', role: 'Accountant' },
+  { id: 'jonas', name: 'Jonas Weber', role: 'Editor' },
   { id: 'mei', name: 'Mei Tanaka', role: 'Viewer' },
 ];
 
@@ -35,7 +35,7 @@ export default function AlertDialogControlled() {
         tabIndex={-1}
         className="rounded-xs px-1 text-title-sm text-on-surface-variant focus-ring"
       >
-        Finance members
+        Members
       </h3>
       <ul className="divide-y divide-outline-variant rounded-lg bg-surface-container-low px-4">
         {members.map((member) => (
@@ -67,7 +67,7 @@ export default function AlertDialogControlled() {
         onOpenChange={setOpen}
         tone="destructive"
         title={`Remove ${pending.name}?`}
-        description="They lose access to every ledger in Finance. You can invite them again later."
+        description="They lose access to everything shared with this team. You can invite them again later."
         confirmLabel="Remove"
         onConfirm={async () => {
           await new Promise((resolve) => setTimeout(resolve, 800));

@@ -1,21 +1,21 @@
-import { CopyIcon, DownloadIcon, MailIcon, ShareIcon } from '@/registry/ds/lib/icons';
+import { DownloadIcon, LinkIcon, MailIcon, ShareIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { Sheet, SheetBody, SheetHeader, SheetTrigger } from '@/registry/ds/ui/sheet';
 
 const actions = [
-  { label: 'Copy payment link', icon: <CopyIcon /> },
-  { label: 'Email to Northwind Traders', icon: <MailIcon /> },
-  { label: 'Download PDF', icon: <DownloadIcon /> },
+  { label: 'Copy link', icon: <LinkIcon /> },
+  { label: 'Send by email', icon: <MailIcon /> },
+  { label: 'Download', icon: <DownloadIcon /> },
 ];
 
 export default function SheetBottom() {
   return (
     <SheetTrigger>
       <Button variant="tonal" startIcon={<ShareIcon />}>
-        Share invoice
+        Share
       </Button>
       <Sheet side="bottom" size="sm">
-        <SheetHeader title="Share INV-2048" showCloseButton={false} />
+        <SheetHeader title="Share photo" showCloseButton={false} />
         <SheetBody className="px-3">
           <ul className="flex flex-col">
             {actions.map((action) => (

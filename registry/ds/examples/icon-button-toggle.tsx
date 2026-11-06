@@ -14,28 +14,32 @@ export default function IconButtonToggle() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
       <IconToggleButton
-        aria-label="Favourite"
+        aria-label="Like"
         icon={<FavoriteIcon />}
         selectedIcon={<FavoriteFilledIcon />}
         defaultSelected
       />
       <IconToggleButton
         variant="filled"
-        aria-label="Star ledger"
+        aria-label="Star"
         icon={<StarIcon />}
         selectedIcon={<StarFilledIcon />}
       />
       <IconToggleButton
         variant="tonal"
-        aria-label="Show balances"
+        aria-label="Show password"
         icon={<VisibilityOffIcon />}
         selectedIcon={<VisibilityIcon />}
         defaultSelected
       />
-      <IconToggleButton variant="outlined" aria-label="Watch thread" icon={<NotificationsIcon />} />
       <IconToggleButton
         variant="outlined"
-        aria-label="Save for later"
+        aria-label="Notifications"
+        icon={<NotificationsIcon />}
+      />
+      <IconToggleButton
+        variant="outlined"
+        aria-label="Bookmark"
         icon={<BookmarkIcon />}
         defaultSelected
       />

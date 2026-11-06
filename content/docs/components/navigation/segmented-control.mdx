@@ -14,7 +14,7 @@ description: Material 3 segmented button for one or several choices, with a chec
 ```tsx
 import { SegmentedControl, SegmentedControlItem } from '@/components/ds/segmented-control';
 
-<SegmentedControl aria-label="Report period" defaultSelectedKeys={['week']}>
+<SegmentedControl aria-label="Calendar view" defaultSelectedKeys={['week']}>
   <SegmentedControlItem id="day">Day</SegmentedControlItem>
   <SegmentedControlItem id="week">Week</SegmentedControlItem>
   <SegmentedControlItem id="month">Month</SegmentedControlItem>
@@ -31,8 +31,8 @@ between sections of content, use [Tabs](/docs/components/navigation/tabs).
 `variant="thumb"` puts the options on a tinted track and slides a filled thumb under the selected
 one on the spatial spring. The thumb is measured from the selected segment, so it fits any label
 length, translation or right-to-left layout, and it re-measures when a label, the width or the
-page direction changes.
-It suits the period switch in a dashboard card. Under reduced motion it moves without animation.
+page direction changes. It is quieter than the outlined style, which suits a toolbar or a card
+header. Under reduced motion it moves without animation.
 
 <ComponentPreview name="segmented-control-thumb" />
 

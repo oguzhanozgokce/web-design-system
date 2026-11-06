@@ -17,8 +17,8 @@ import { ToggleButtonGroup } from '@/registry/ds/ui/toggle-button';
 
 describe('IconButton', () => {
   it('renders an accessible button named by aria-label', async () => {
-    const screen = await renderWithDS(<IconButton aria-label="Edit invoice" icon={<EditIcon />} />);
-    const button = screen.getByRole('button', { name: 'Edit invoice' });
+    const screen = await renderWithDS(<IconButton aria-label="Edit project" icon={<EditIcon />} />);
+    const button = screen.getByRole('button', { name: 'Edit project' });
     await expect.element(button).toBeVisible();
     await expect.element(button).toHaveAttribute('data-variant', 'standard');
     await expect.element(button).toHaveAttribute('data-size', 'md');
@@ -46,9 +46,9 @@ describe('IconButton', () => {
   it('calls onPress from mouse and keyboard', async () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
-      <IconButton aria-label="Edit invoice" icon={<EditIcon />} onPress={onPress} />,
+      <IconButton aria-label="Edit project" icon={<EditIcon />} onPress={onPress} />,
     );
-    await screen.getByRole('button', { name: 'Edit invoice' }).click();
+    await screen.getByRole('button', { name: 'Edit project' }).click();
     expect(onPress).toHaveBeenCalledTimes(1);
 
     await userEvent.keyboard('{Enter}');
@@ -83,7 +83,7 @@ describe('IconButton', () => {
 
   it('says Loading by default', async () => {
     const screen = await renderWithDS(
-      <IconButton aria-label="Refresh balances" icon={<RefreshIcon />} isPending />,
+      <IconButton aria-label="Refresh" icon={<RefreshIcon />} isPending />,
     );
     await expect.element(screen.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
   });
@@ -91,9 +91,9 @@ describe('IconButton', () => {
   it('takes its pending label from labels, then DSProvider, then the English default', async () => {
     const screen = await renderWithDS(
       <>
-        <IconButton aria-label="Bakiyeleri yenile" icon={<RefreshIcon />} isPending />
+        <IconButton aria-label="Yenile" icon={<RefreshIcon />} isPending />
         <IconButton
-          aria-label="Kur bilgisini yenile"
+          aria-label="Listeyi yenile"
           icon={<RefreshIcon />}
           isPending
           labels={{ pending: 'Yenileniyor' }}
@@ -152,19 +152,19 @@ describe('IconButton', () => {
   });
 
   it('runs the press morph on the spatial spring and drops it for reduced motion', async () => {
-    const screen = await renderWithDS(<IconButton aria-label="Edit invoice" icon={<EditIcon />} />);
-    const button = screen.getByRole('button', { name: 'Edit invoice' });
+    const screen = await renderWithDS(<IconButton aria-label="Edit project" icon={<EditIcon />} />);
+    const button = screen.getByRole('button', { name: 'Edit project' });
     await expect.element(button).not.toHaveAttribute('data-reduced-motion');
     expect(getComputedStyle(button.element()).transitionDuration.split(', ').at(-1)).not.toBe('0s');
     await screen.unmount();
 
     const reduced = await renderWithDS(
-      <IconButton aria-label="Edit invoice" icon={<EditIcon />} />,
+      <IconButton aria-label="Edit project" icon={<EditIcon />} />,
       {
         provider: { motion: 'reduced' },
       },
     );
-    const still = reduced.getByRole('button', { name: 'Edit invoice' });
+    const still = reduced.getByRole('button', { name: 'Edit project' });
     await expect.element(still).toHaveAttribute('data-reduced-motion', 'true');
     expect(getComputedStyle(still.element()).transitionDuration.split(', ').at(-1)).toBe('0s');
   });
@@ -178,7 +178,7 @@ describe('IconButton', () => {
           <IconToggleButton aria-label="Pin row" icon={<FavoriteIcon />} />
         </ButtonGroup>
         <ButtonGroup aria-label="Toolbar" buttonVariant="text" isDisabled>
-          <IconButton aria-label="Edit invoice" icon={<EditIcon />} onPress={onPress} />
+          <IconButton aria-label="Edit project" icon={<EditIcon />} onPress={onPress} />
           <IconButtonLink href="#status" aria-label="Status" icon={<OpenInNewIcon />} />
         </ButtonGroup>
       </>,
@@ -192,7 +192,7 @@ describe('IconButton', () => {
       .element(screen.getByRole('button', { name: 'Pin row' }))
       .toHaveAttribute('data-size', 'sm');
 
-    const edit = screen.getByRole('button', { name: 'Edit invoice' });
+    const edit = screen.getByRole('button', { name: 'Edit project' });
     await expect.element(edit).toHaveAttribute('data-variant', 'standard');
     await expect.element(edit).toBeDisabled();
     await edit.click({ force: true });
@@ -205,9 +205,9 @@ describe('IconButton', () => {
   it('forwards its ref to the button element', async () => {
     const ref = createRef<HTMLButtonElement>();
     const screen = await renderWithDS(
-      <IconButton ref={ref} aria-label="Edit invoice" icon={<EditIcon />} />,
+      <IconButton ref={ref} aria-label="Edit project" icon={<EditIcon />} />,
     );
-    expect(ref.current).toBe(screen.getByRole('button', { name: 'Edit invoice' }).element());
+    expect(ref.current).toBe(screen.getByRole('button', { name: 'Edit project' }).element());
   });
 
   it('renders IconButtonLink as a named link', async () => {
@@ -273,7 +273,7 @@ describe('IconToggleButton', () => {
       return (
         <>
           <IconToggleButton
-            aria-label="Pin ledger"
+            aria-label="Pin folder"
             variant="filled"
             icon={<FavoriteIcon />}
             isSelected={pinned}
@@ -287,7 +287,7 @@ describe('IconToggleButton', () => {
     }
 
     const screen = await renderWithDS(<Controlled />);
-    const toggle = screen.getByRole('button', { name: 'Pin ledger' });
+    const toggle = screen.getByRole('button', { name: 'Pin folder' });
 
     await toggle.click();
     expect(onChange).toHaveBeenCalledWith(true);
@@ -352,7 +352,7 @@ describe('IconToggleButton', () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
       <ToggleButtonGroup
-        aria-label="Ledger layout"
+        aria-label="Folder layout"
         variant="standard"
         size="sm"
         buttonVariant="outlined"

@@ -1,6 +1,6 @@
 ---
 title: Number field
-description: Counter and quantity stepper on the shared Field contract, with minus and plus or stacked chevrons, locale-aware currency, percent and unit formats, a checkout-sized display size and an optional rolling odometer.
+description: Counter and quantity stepper on the shared Field contract, with minus and plus or stacked chevrons, locale-aware currency, percent and unit formats, a large display size, a compact pill and an optional rolling odometer.
 ---
 
 <ComponentPreview name="number-field-demo" />
@@ -14,7 +14,7 @@ description: Counter and quantity stepper on the shared Field contract, with min
 ```tsx
 import { NumberField } from '@/components/ds/number-field';
 
-<NumberField label="Seats" defaultValue={5} minValue={1} maxValue={200} />;
+<NumberField label="Quantity" defaultValue={5} minValue={1} maxValue={99} />;
 ```
 
 Label, description, errors, variants and the required indicator follow the
@@ -30,7 +30,7 @@ more, a [slider](/docs/components/inputs/slider) is faster.
 ### Layouts
 
 `layout="stepper"` (the default) puts minus and plus on either side of the value. It suits
-quantities, guests and seats, where most changes are one or two steps and the buttons are the main
+quantities and guest counts, where most changes are one or two steps and the buttons are the main
 input. `layout="inline"` stacks small chevrons at the end and leaves the value where a text field
 would put it, so it lines up with the other fields in a form. Its buttons are small, so prefer the
 stepper layout on touch-first screens.
@@ -59,18 +59,29 @@ scroll wheel steps while the field has focus. Holding a button repeats the step 
 ### Sizes
 
 `md` (40 px) is the default. `sm` (36 px) suits table rows and filter bars, `lg` (48 px) suits
-sign-up and checkout forms. Each size has a minimum width that fits about eight characters; set a
+sign-up forms and touch screens. Each size has a minimum width that fits about eight characters; set a
 width with `className` for longer values.
 
 <ComponentPreview name="number-field-sizes" />
 
 ### Display
 
-`size="display"` is a 56 px quantity picker for carts, checkouts and booking flows. The value is set
-large, the buttons are 44 px tonal circles, and the outlined control is a pill. Pair it with the
-running total next to it.
+`size="display"` is a 56 px picker for screens where the number is the main choice, such as a
+quantity or a number of guests. The value is set large, the buttons are 44 px tonal circles, and the
+outlined control is a pill.
 
 <ComponentPreview name="number-field-display" />
+
+### Pill
+
+`shape="pill"` is a compact stepper for list rows, table cells and other tight spaces. Minus and
+plus sit inside a fully rounded `surface-container-high` capsule, right against the value, and the
+capsule grows and shrinks with the number instead of keeping a minimum width. It takes the `sm`,
+`md` and `lg` heights (36, 40 and 48 px). A pill always puts the buttons on either side of the
+value, so `layout` and `variant` have no effect on it. Add `isAnimated` to roll the digits; under
+reduced motion the digits and the width change without animation.
+
+<ComponentPreview name="number-field-pill" />
 
 ### Animated
 
@@ -103,8 +114,8 @@ then has `stepMismatch`, `rangeOverflow` and `rangeUnderflow` for a precise `err
 
 ### Controlled
 
-Pass `value` and `onChange` when something else on the page depends on the number, such as a
-total.
+Pass `value` and `onChange` when something else on the page depends on the number, such as the
+preview text here.
 
 <ComponentPreview name="number-field-controlled" />
 
@@ -123,6 +134,7 @@ total.
 | `formatOptions`      | `Intl.NumberFormatOptions`                 |              |
 | `commitBehavior`     | `'snap' \| 'validate'`                     | `'snap'`     |
 | `layout`             | `'stepper' \| 'inline'`                    | `'stepper'`  |
+| `shape`              | `'field' \| 'pill'`                        | `'field'`    |
 | `size`               | `'sm' \| 'md' \| 'lg' \| 'display'`        | `'md'`       |
 | `variant`            | `'outlined' \| 'filled'`                   | `'outlined'` |
 | `isAnimated`         | `boolean`                                  | `false`      |
@@ -142,12 +154,13 @@ prop, such as `name`, `validate`, `onBlur` and `isDisabled`. `className` styles 
 
 `numberFieldStyles(variants)` returns one class function per slot: `container`, `value`, `input`,
 `roller`, `steppers` and `stepper`. They add to the [Field](/docs/components/inputs/field#fieldstyles)
-slots. Variants: `layout`, `size`, `variant` and `isRolling`.
+slots. Variants: `layout`, `size`, `variant`, `shape` and `isRolling`.
 
 ### Data attributes
 
-The root has `data-slot="number-field"`, `data-layout`, `data-size`, `data-variant`,
-`data-animated`, `data-invalid`, `data-disabled`, `data-readonly` and `data-required`. The buttons
+The root has `data-slot="number-field"`, `data-layout`, `data-size`, `data-shape`, `data-variant`
+(not on a pill), `data-animated`, `data-invalid`, `data-disabled`, `data-readonly` and
+`data-required`. A pill always has `data-layout="stepper"`. The buttons
 are `data-slot="decrement"` and `"increment"` with `data-pressed` and `data-disabled`; in the inline
 layout they sit in `data-slot="steppers"`. The input and the animated number sit in
 `data-slot="value"`; the animated number is `data-slot="roller"`, and the input has `data-rolling`
@@ -163,12 +176,12 @@ with `<DSProvider labels={{ numberField: { … } }}>`.
 | `increase` | `Increase {label}` | the accessible name of the plus or up button    |
 | `decrease` | `Decrease {label}` | the accessible name of the minus or down button |
 
-`{label}` is the field's label or `aria-label`, so screen readers hear "Increase Seats". Put
-`{label}` where your language puts the object: `'{label} erhöhen'` names the German button "Seats
-erhöhen". When the label is not plain text, the button is named by reference to the label element
-in the same order. `incrementAriaLabel` and `decrementAriaLabel` replace the whole name for one
-field. `labels` also takes the [Field labels](/docs/components/inputs/field#labels), which
-`DSProvider` sets under `field`.
+`{label}` is the field's label or `aria-label`, so screen readers hear "Increase Quantity". Put
+`{label}` where your language puts the object: a German app passes `'{label} erhöhen'`, so a field
+labelled "Menge" names its button "Menge erhöhen". When the label is not plain text, the button is
+named by reference to the label element in the same order. `incrementAriaLabel` and
+`decrementAriaLabel` replace the whole name for one field. `labels` also takes the
+[Field labels](/docs/components/inputs/field#labels), which `DSProvider` sets under `field`.
 
 ## Accessibility
 
@@ -181,7 +194,7 @@ field. `labels` also takes the [Field labels](/docs/components/inputs/field#labe
   `decrease` labels, and turns off at the limits.
 - The animated number is hidden from assistive technology; the input it covers keeps the value,
   the caret and the selection.
-- Stepper buttons are at least 28 px and display buttons 44 px. The inline chevrons are smaller,
+- Stepper and pill buttons are at least 28 px and display buttons 44 px. The inline chevrons are smaller,
   which is why that layout suits forms used with a keyboard; the input itself takes typing and the
   arrow keys.
 - Contrast is checked with axe in light, dark and RTL by `number-field.test.tsx`.

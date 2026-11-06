@@ -23,8 +23,8 @@ describe('Card', () => {
     const screen = await renderWithDS(
       <Card data-testid="card">
         <CardHeader
-          title="Invoice INV-2048"
-          description="Harbor Logistics, due 14 November"
+          title="Project DOC-2048"
+          description="Garden Logistics, due 14 November"
           action={<Button variant="text">Download</Button>}
         />
         <CardContent>4,820.00 USD</CardContent>
@@ -39,9 +39,9 @@ describe('Card', () => {
     await expect.element(card).toHaveAttribute('data-padding', 'md');
     await expect.element(card).toHaveAttribute('data-surface', 'surface-container-highest');
     await expect
-      .element(screen.getByRole('heading', { level: 3, name: 'Invoice INV-2048' }))
+      .element(screen.getByRole('heading', { level: 3, name: 'Project DOC-2048' }))
       .toBeVisible();
-    await expect.element(screen.getByText('Harbor Logistics, due 14 November')).toBeVisible();
+    await expect.element(screen.getByText('Garden Logistics, due 14 November')).toBeVisible();
     await expect.element(screen.getByRole('button', { name: 'Download' })).toBeVisible();
     expect(card.element().querySelector('[data-slot=card-footer]')).not.toBeNull();
   });
@@ -71,7 +71,7 @@ describe('Card', () => {
           <Card data-testid="inner" variant="outlined">
             <Card data-testid="deep" variant="elevated">
               <Card data-testid="deepest" variant="elevated">
-                Ledger
+                Folder
               </Card>
             </Card>
           </Card>
@@ -145,27 +145,27 @@ describe('ClickableCard', () => {
   it('renders a link named by all of its visible text, keeping the title a heading', async () => {
     const screen = await renderWithDS(
       <ClickableCard href="/reports/q3" variant="outlined">
-        <CardHeader title="Q3 revenue" description="Updated 2 hours ago" />
+        <CardHeader title="Q3 traffic" description="Updated 2 hours ago" />
         <CardContent>128,400 USD</CardContent>
       </ClickableCard>,
     );
     const link = screen.getByRole('link', {
-      name: /^Q3 revenue\s*Updated 2 hours ago\s*128,400 USD$/,
+      name: /^Q3 traffic\s*Updated 2 hours ago\s*128,400 USD$/,
     });
     await expect.element(link).toHaveAttribute('href', '/reports/q3');
     await expect.element(link).toHaveAttribute('data-slot', 'clickable-card');
     await expect.element(link).not.toHaveAttribute('aria-labelledby');
-    await expect.element(screen.getByRole('heading', { name: 'Q3 revenue' })).toBeVisible();
+    await expect.element(screen.getByRole('heading', { name: 'Q3 traffic' })).toBeVisible();
   });
 
   it('renders a button with phrasing content that fires onPress from mouse and keyboard', async () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
       <ClickableCard onPress={onPress}>
-        <CardHeader title="Blank ledger" description="Start with no accounts" />
+        <CardHeader title="Blank folder" description="Start with no accounts" />
       </ClickableCard>,
     );
-    const button = screen.getByRole('button', { name: /^Blank ledger\s*Start with no accounts$/ });
+    const button = screen.getByRole('button', { name: /^Blank folder\s*Start with no accounts$/ });
     expect(button.element().querySelector('h3, div, p')).toBeNull();
 
     await button.click();
@@ -241,15 +241,15 @@ describe('ClickableCard', () => {
     const onPress = vi.fn(() => new Promise<void>((_, reject) => (fail = reject)));
     const screen = await renderWithDS(
       <ClickableCard onPress={onPress}>
-        <CardTitle>Sync bank feed</CardTitle>
+        <CardTitle>Sync team feed</CardTitle>
       </ClickableCard>,
     );
-    const button = screen.getByRole('button', { name: 'Sync bank feed' });
+    const button = screen.getByRole('button', { name: 'Sync team feed' });
 
     await button.click();
     await expect.element(button).toHaveAttribute('data-pending', 'true');
 
-    fail(new Error('Bank unavailable'));
+    fail(new Error('Team unavailable'));
     await expect.element(button).not.toHaveAttribute('data-pending');
     await expect.element(screen.getByRole('progressbar')).not.toBeInTheDocument();
   });
@@ -258,14 +258,14 @@ describe('ClickableCard', () => {
     const screen = await renderWithDS(
       <>
         <Button>Back</Button>
-        <ClickableCard href="#payroll">
-          <CardTitle>Payroll summary</CardTitle>
+        <ClickableCard href="#backups">
+          <CardTitle>Backups summary</CardTitle>
         </ClickableCard>
       </>,
     );
     await screen.getByRole('button', { name: 'Back' }).click();
     await userEvent.keyboard('{Tab}');
-    const link = screen.getByRole('link', { name: 'Payroll summary' });
+    const link = screen.getByRole('link', { name: 'Backups summary' });
     await expect.element(link).toHaveFocus();
     await expect.element(link).toHaveAttribute('data-focus-visible', 'true');
   });
@@ -274,7 +274,7 @@ describe('ClickableCard', () => {
     const screen = await renderWithDS(
       <div className="flex w-96 flex-col items-start gap-2">
         <ClickableCard data-testid="narrow" className="w-40" onPress={() => {}}>
-          <CardTitle>Blank ledger</CardTitle>
+          <CardTitle>Blank folder</CardTitle>
         </ClickableCard>
         <ClickableCard
           data-testid="link"
@@ -295,10 +295,10 @@ describe('ClickableCard', () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
       <ClickableCard isDisabled onPress={onPress}>
-        <CardTitle>Archived ledger</CardTitle>
+        <CardTitle>Archived folder</CardTitle>
       </ClickableCard>,
     );
-    const button = screen.getByRole('button', { name: 'Archived ledger' });
+    const button = screen.getByRole('button', { name: 'Archived folder' });
     await expect.element(button).toBeDisabled();
     await button.click({ force: true });
     expect(onPress).not.toHaveBeenCalled();
@@ -371,11 +371,11 @@ describe('SelectableCard', () => {
   it('is named by all of its text, without repeating it as a description, when it has no title', async () => {
     const screen = await renderWithDS(
       <SelectableCard>
-        <CardDescription>Send a copy of every invoice to the accountant</CardDescription>
+        <CardDescription>Send a copy of every project to the translator</CardDescription>
       </SelectableCard>,
     );
     const checkbox = screen.getByRole('checkbox', {
-      name: 'Send a copy of every invoice to the accountant',
+      name: 'Send a copy of every project to the translator',
     });
     await expect.element(checkbox).not.toHaveAttribute('aria-describedby');
   });
@@ -383,11 +383,11 @@ describe('SelectableCard', () => {
   it('gives selectable elevated and filled cards the border width their media needs', async () => {
     const screen = await renderWithDS(
       <SelectableCard variant="filled">
-        <CardTitle>Annual billing</CardTitle>
+        <CardTitle>Annual sharing</CardTitle>
       </SelectableCard>,
     );
     const target = screen
-      .getByRole('checkbox', { name: 'Annual billing' })
+      .getByRole('checkbox', { name: 'Annual sharing' })
       .element()
       .closest('[data-slot=selectable-card-target]') as HTMLElement;
     expect(getComputedStyle(target).getPropertyValue('--card-border').trim()).toBe('1px');
@@ -445,10 +445,10 @@ describe('SelectableCard', () => {
     const screen = await renderWithDS(
       <SelectableCardGroup label="Plan" defaultValue="team" onChange={onChange}>
         <SelectableCard value="starter">
-          <CardHeader title="Starter" description="One ledger and one member" />
+          <CardHeader title="Starter" description="One folder and one member" />
         </SelectableCard>
         <SelectableCard value="team">
-          <CardHeader title="Team" description="Unlimited ledgers and shared reports" />
+          <CardHeader title="Team" description="Unlimited folders and shared reports" />
         </SelectableCard>
         <SelectableCard value="business" isDisabled>
           <CardHeader title="Business" description="Approvals, audit log and SSO" />
@@ -458,9 +458,9 @@ describe('SelectableCard', () => {
     await expect.element(screen.getByRole('radiogroup', { name: 'Plan' })).toBeVisible();
     const team = screen.getByRole('radio', { name: 'Team', exact: true });
     await expect.element(team).toBeChecked();
-    await expect.element(team).toHaveAccessibleDescription('Unlimited ledgers and shared reports');
+    await expect.element(team).toHaveAccessibleDescription('Unlimited folders and shared reports');
 
-    await screen.getByText('One ledger and one member').click();
+    await screen.getByText('One folder and one member').click();
     expect(onChange).toHaveBeenLastCalledWith('starter');
     await expect.element(screen.getByRole('radio', { name: 'Starter' })).toBeChecked();
 
@@ -550,22 +550,22 @@ describe('SelectableCard', () => {
       <SelectableCardGroup
         selectionMode="multiple"
         label="Notify me about"
-        defaultValue={['invoices']}
+        defaultValue={['projects']}
         onChange={onChange}
         orientation="horizontal"
       >
-        <SelectableCard value="invoices">
-          <CardTitle>Overdue invoices</CardTitle>
+        <SelectableCard value="projects">
+          <CardTitle>Overdue projects</CardTitle>
         </SelectableCard>
-        <SelectableCard value="payouts">
-          <CardTitle>Payouts</CardTitle>
+        <SelectableCard value="uploads">
+          <CardTitle>Uploads</CardTitle>
         </SelectableCard>
       </SelectableCardGroup>,
     );
     await expect.element(screen.getByRole('group', { name: 'Notify me about' })).toBeVisible();
-    await screen.getByText('Payouts').click();
-    expect(onChange).toHaveBeenLastCalledWith(['invoices', 'payouts']);
-    await expect.element(screen.getByRole('checkbox', { name: 'Payouts' })).toBeChecked();
+    await screen.getByText('Uploads').click();
+    expect(onChange).toHaveBeenLastCalledWith(['projects', 'uploads']);
+    await expect.element(screen.getByRole('checkbox', { name: 'Uploads' })).toBeChecked();
   });
 
   it('shows the group error and marks every card invalid', async () => {
@@ -621,14 +621,14 @@ describe('Card accessibility', () => {
             </Card>
           ))}
           <ClickableCard href="/reports/q3">
-            <CardHeader title="Q3 revenue" description="Updated 2 hours ago" />
+            <CardHeader title="Q3 traffic" description="Updated 2 hours ago" />
           </ClickableCard>
           <ClickableCard onPress={() => {}} isDisabled>
             <CardHeader title="Archived" description="Read only" />
           </ClickableCard>
           <SelectableCardGroup label="Plan" defaultValue="team" orientation="horizontal">
             <SelectableCard value="starter">
-              <CardHeader title="Starter" description="One ledger" />
+              <CardHeader title="Starter" description="One folder" />
             </SelectableCard>
             <SelectableCard value="team" variant="elevated">
               <CardHeader title="Team" description="Shared reports" />

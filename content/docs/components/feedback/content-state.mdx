@@ -16,10 +16,10 @@ Pass what your data hook returns. Children can be a function that receives the l
 ```tsx
 import { ContentState } from '@/components/ds/content-state';
 
-const invoices = useQuery({ queryKey: ['invoices'], queryFn: fetchInvoices });
+const files = useQuery({ queryKey: ['files'], queryFn: fetchFiles });
 
-<ContentState data={invoices.data} error={invoices.error} onRetry={() => invoices.refetch()}>
-  {(rows) => <InvoiceTable rows={rows} />}
+<ContentState data={files.data} error={files.error} onRetry={() => files.refetch()}>
+  {(rows) => <FileList files={rows} />}
 </ContentState>;
 ```
 
@@ -27,7 +27,7 @@ Or set the status yourself:
 
 ```tsx
 <ContentState status={status} onRetry={reload}>
-  <InvoiceTable rows={rows} />
+  <FileList files={files} />
 </ContentState>
 ```
 
@@ -58,7 +58,7 @@ Replace any part with the props below.
 
 `loadingContent` replaces the spinner. Draw the skeleton in the shape of the real rows so nothing
 jumps when they arrive. It sits inside a progress bar labelled by `loadingLabel`, so screen readers
-hear "Loading customers" instead of empty shapes.
+hear "Loading contacts" instead of empty shapes.
 
 <ComponentPreview name="content-state-skeleton" />
 

@@ -47,7 +47,7 @@ function FileActions(props: Omit<MenuProps, 'children'>) {
 
 export default function MenuContext() {
   const [status, setStatus] = useState('Nothing done yet');
-  const run = (key: Key) => setStatus(`${labels[String(key)]} Q3 payroll.xlsx`);
+  const run = (key: Key) => setStatus(`${labels[String(key)]} Notes.txt`);
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-3">
@@ -59,16 +59,16 @@ export default function MenuContext() {
           >
             <FileIcon className="size-6 shrink-0 text-on-surface-variant" />
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-title-sm">Q3 payroll.xlsx</span>
+              <span className="block truncate text-title-sm">Notes.txt</span>
               <span className="block truncate text-body-sm text-on-surface-variant">
-                Edited 2 hours ago by Ayşe
+                Edited 2 hours ago
               </span>
             </span>
           </AriaButton>
           <FileActions onAction={run} />
         </MenuTrigger>
         <MenuTrigger>
-          <IconButton aria-label="Actions for Q3 payroll.xlsx" icon={<MoreVerticalIcon />} />
+          <IconButton aria-label="Actions for Notes.txt" icon={<MoreVerticalIcon />} />
           <FileActions placement="bottom end" onAction={run} />
         </MenuTrigger>
       </div>

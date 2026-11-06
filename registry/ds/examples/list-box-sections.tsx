@@ -4,25 +4,25 @@ import { ListBox, ListBoxItem, ListBoxSection } from '@/registry/ds/ui/list-box'
 export default function ListBoxSections() {
   return (
     <ListBox
-      aria-label="Move receipt to"
+      aria-label="Move to"
       selectionMode="single"
       variant="outlined"
       className="w-full max-w-xs"
     >
       <ListBoxSection title="Recent">
-        <ListBoxItem id="receipts-2026" startIcon={<FolderIcon />}>
-          Receipts 2026
+        <ListBoxItem id="photos" startIcon={<FolderIcon />}>
+          Photos
         </ListBoxItem>
-        <ListBoxItem id="travel" startIcon={<FolderIcon />}>
-          Travel
+        <ListBoxItem id="documents" startIcon={<FolderIcon />}>
+          Documents
         </ListBoxItem>
       </ListBoxSection>
       <ListBoxSection title="Shared with you">
-        <ListBoxItem id="household" startIcon={<GroupIcon />} description="Ayşe Demir">
-          Household
+        <ListBoxItem id="family" startIcon={<GroupIcon />} description="Amara Okafor">
+          Family
         </ListBoxItem>
-        <ListBoxItem id="office" startIcon={<GroupIcon />} description="Northwind finance team">
-          Office lunches
+        <ListBoxItem id="book-club" startIcon={<GroupIcon />} description="Lucas Martin">
+          Book club
         </ListBoxItem>
       </ListBoxSection>
     </ListBox>

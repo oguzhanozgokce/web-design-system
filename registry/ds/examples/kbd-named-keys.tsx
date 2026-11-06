@@ -1,7 +1,7 @@
 import { Kbd } from '@/registry/ds/ui/kbd';
 
 const keys = [
-  { key: 'enter', action: 'Open the selected invoice' },
+  { key: 'enter', action: 'Open the selected item' },
   { key: 'escape', action: 'Close the panel' },
   { key: 'tab', action: 'Next field' },
   { key: 'space', action: 'Select the row' },

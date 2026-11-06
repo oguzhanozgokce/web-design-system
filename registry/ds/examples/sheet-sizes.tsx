@@ -16,7 +16,7 @@ export default function SheetSizes() {
         <SheetTrigger key={size}>
           <Button variant="outlined">Size {size}</Button>
           <Sheet size={size}>
-            <SheetHeader title="Audit log" description={`Size ${size}`} />
+            <SheetHeader title="Activity" description={`Size ${size}`} />
             <SheetBody>
               <p className="text-on-surface-variant">This sheet is {widths[size]}</p>
             </SheetBody>

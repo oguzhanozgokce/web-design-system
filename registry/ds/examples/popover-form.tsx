@@ -8,7 +8,7 @@ import { Popover, PopoverDialog, PopoverTrigger } from '@/registry/ds/ui/popover
 import { TextField } from '@/registry/ds/ui/text-field';
 
 export default function PopoverForm() {
-  const [name, setName] = useState('Operating account');
+  const [name, setName] = useState('Untitled document');
   const [isSaving, setSaving] = useState(false);
 
   return (
@@ -19,7 +19,7 @@ export default function PopoverForm() {
           Rename
         </Button>
         <Popover placement="bottom start">
-          <PopoverDialog title="Rename ledger" className="w-80">
+          <PopoverDialog title="Rename" className="w-80">
             {({ close }) => (
               <Form
                 className="flex flex-col gap-4 pt-2"
@@ -33,13 +33,7 @@ export default function PopoverForm() {
                   close();
                 }}
               >
-                <TextField
-                  name="name"
-                  label="Ledger name"
-                  defaultValue={name}
-                  isRequired
-                  autoFocus
-                />
+                <TextField name="name" label="Name" defaultValue={name} isRequired autoFocus />
                 <div className="flex justify-end gap-2">
                   <Button variant="text" onPress={close}>
                     Cancel

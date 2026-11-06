@@ -3,20 +3,22 @@ import { TextField } from '@/registry/ds/ui/text-field';
 export default function FieldStates() {
   return (
     <div className="grid w-full max-w-xl gap-6 sm:grid-cols-2">
-      <TextField label="Workspace ID" defaultValue="ws_48213" isReadOnly description="Read only" />
-      <TextField label="Region" defaultValue="eu-west-1" isDisabled description="Disabled" />
+      <TextField label="User ID" defaultValue="48213" isReadOnly description="Read only" />
+      <TextField label="Country" defaultValue="United Kingdom" isDisabled description="Disabled" />
       <TextField
-        label="IBAN"
-        defaultValue="DE89 3704 0044 0532 0130"
+        label="Email"
+        type="email"
+        defaultValue="alex.morgan@"
         isInvalid
-        errorMessage="This IBAN has 2 digits too few."
+        errorMessage="Enter a complete email address."
       />
       <TextField
-        label="IBAN"
+        label="Email"
+        type="email"
         variant="filled"
-        defaultValue="DE89 3704 0044 0532 0130"
+        defaultValue="alex.morgan@"
         isInvalid
-        errorMessage="This IBAN has 2 digits too few."
+        errorMessage="Enter a complete email address."
       />
     </div>
   );

@@ -1,56 +1,67 @@
-'use client';
-
-import { useLocale } from 'react-aria-components';
 import { Tag, type TagTone } from '@/registry/ds/ui/tag';
 
-const invoices: { id: string; customer: string; amount: number; status: string; tone: TagTone }[] =
-  [
-    { id: 'INV-2041', customer: 'Acme Logistics', amount: 1240, status: 'Paid', tone: 'success' },
-    {
-      id: 'INV-2042',
-      customer: 'Northwind Foods',
-      amount: 980.5,
-      status: 'Overdue',
-      tone: 'error',
-    },
-    { id: 'INV-2043', customer: 'Globex Studio', amount: 3400, status: 'Pending', tone: 'warning' },
-    { id: 'INV-2044', customer: 'Initech', amount: 610, status: 'Draft', tone: 'neutral' },
-  ];
+const members: { name: string; email: string; role: string; status: string; tone: TagTone }[] = [
+  {
+    name: 'Amara Okafor',
+    email: 'amara@example.com',
+    role: 'Owner',
+    status: 'Active',
+    tone: 'success',
+  },
+  {
+    name: 'Kenji Watanabe',
+    email: 'kenji@example.com',
+    role: 'Editor',
+    status: 'Pending',
+    tone: 'warning',
+  },
+  {
+    name: 'Sofia Rossi',
+    email: 'sofia@example.com',
+    role: 'Editor',
+    status: 'Blocked',
+    tone: 'error',
+  },
+  {
+    name: 'Mateo García',
+    email: 'mateo@example.com',
+    role: 'Viewer',
+    status: 'Inactive',
+    tone: 'neutral',
+  },
+];
 
 export default function TagTable() {
-  const { locale } = useLocale();
-  const currency = new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' });
-
   return (
     <div className="w-full max-w-xl overflow-x-auto rounded-md border border-outline-variant">
       <table className="w-full text-start text-body-md text-on-surface">
-        <caption className="sr-only">Recent invoices</caption>
+        <caption className="sr-only">Members</caption>
         <thead className="bg-surface-container-low text-label-lg text-on-surface-variant">
           <tr>
-            <th scope="col" className="px-4 py-2 text-start font-medium">
-              Invoice
+            <th scope="col" className="px-3 py-2 text-start font-medium sm:px-4">
+              Member
             </th>
-            <th scope="col" className="px-4 py-2 text-end font-medium">
-              Amount
+            <th scope="col" className="px-3 py-2 text-start font-medium sm:px-4">
+              Role
             </th>
-            <th scope="col" className="px-4 py-2 text-start font-medium">
+            <th scope="col" className="px-3 py-2 text-start font-medium sm:px-4">
               Status
             </th>
           </tr>
         </thead>
         <tbody>
-          {invoices.map((invoice) => (
-            <tr key={invoice.id} className="border-t border-outline-variant">
-              <td className="px-4 py-2.5">
-                <div className="text-label-lg whitespace-nowrap">{invoice.id}</div>
-                <div className="text-body-sm text-on-surface-variant">{invoice.customer}</div>
+          {members.map((member) => (
+            <tr key={member.email} className="border-t border-outline-variant">
+              <td className="w-full max-w-0 px-3 py-2.5 sm:px-4">
+                <div className="truncate text-label-lg">{member.name}</div>
+                <div className="truncate text-body-sm text-on-surface-variant">{member.email}</div>
               </td>
-              <td className="px-4 py-2.5 text-end whitespace-nowrap tabular-digits">
-                {currency.format(invoice.amount)}
+              <td className="px-3 py-2.5 whitespace-nowrap text-on-surface-variant sm:px-4">
+                {member.role}
               </td>
-              <td className="px-4 py-2.5">
-                <Tag tone={invoice.tone} dot>
-                  {invoice.status}
+              <td className="px-3 py-2.5 sm:px-4">
+                <Tag tone={member.tone} dot>
+                  {member.status}
                 </Tag>
               </td>
             </tr>

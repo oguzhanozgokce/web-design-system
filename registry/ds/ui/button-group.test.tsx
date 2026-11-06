@@ -19,12 +19,12 @@ const still = { provider: { motion: 'disabled' as const } };
 describe('ButtonGroup', () => {
   it('renders a labelled group with its variant on the root', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Invoice actions" variant="connected">
+      <ButtonGroup aria-label="Project actions" variant="connected">
         <Button>Approve</Button>
         <Button>Reject</Button>
       </ButtonGroup>,
     );
-    const group = screen.getByRole('group', { name: 'Invoice actions' });
+    const group = screen.getByRole('group', { name: 'Project actions' });
     await expect.element(group).toBeVisible();
     await expect.element(group).toHaveAttribute('data-slot', 'button-group');
     await expect.element(group).toHaveAttribute('data-variant', 'connected');
@@ -77,7 +77,7 @@ describe('ButtonGroup', () => {
   it('lets a nested group inherit the outer defaults and override them', async () => {
     const screen = await renderWithDS(
       <ButtonGroup
-        aria-label="Ledger toolbar"
+        aria-label="Folder toolbar"
         size="sm"
         buttonVariant="tonal"
         tone="destructive"
@@ -284,7 +284,7 @@ describe('ButtonGroup', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          <ButtonGroup aria-label="Invoice">
+          <ButtonGroup aria-label="Project">
             <Button>Approve</Button>
             <Button variant="outlined">Request changes</Button>
             <Button variant="text" tone="destructive">

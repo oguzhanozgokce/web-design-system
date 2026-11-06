@@ -50,7 +50,7 @@ describe('LinearProgress', () => {
   it('uses a custom valueLabel for screen readers and the header', async () => {
     const screen = await renderWithDS(
       <LinearProgress
-        label="Importing receipts"
+        label="Importing comments"
         value={128}
         maxValue={300}
         valueLabel="128 of 300 files"
@@ -58,7 +58,7 @@ describe('LinearProgress', () => {
       />,
     );
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Importing receipts' }))
+      .element(screen.getByRole('progressbar', { name: 'Importing comments' }))
       .toHaveAttribute('aria-valuetext', '128 of 300 files');
     await expect.element(screen.getByText('128 of 300 files')).toBeVisible();
   });
@@ -155,8 +155,8 @@ describe('LinearProgress', () => {
   });
 
   it('leaves out the value and the stop dot when indeterminate', async () => {
-    const screen = await renderWithDS(<LinearProgress label="Syncing bank feed" isIndeterminate />);
-    const bar = screen.getByRole('progressbar', { name: 'Syncing bank feed' });
+    const screen = await renderWithDS(<LinearProgress label="Syncing team feed" isIndeterminate />);
+    const bar = screen.getByRole('progressbar', { name: 'Syncing team feed' });
     await expect.element(bar).not.toHaveAttribute('aria-valuenow');
     await expect.element(bar).toHaveAttribute('data-indeterminate', 'true');
     expect(slot(screen.container, 'stop')).toBeNull();
@@ -216,7 +216,7 @@ describe('LinearProgress', () => {
       <div className="flex w-80 flex-col gap-4">
         <LinearProgress isIndeterminate />
         <LinearProgress value={30} labels={{ progress: 'Depolama' }} />
-        <CircularProgress isIndeterminate labels={{ loading: 'Faturalar yükleniyor' }} />
+        <CircularProgress isIndeterminate labels={{ loading: 'Mesajlar yükleniyor' }} />
         <CircularProgress value={30} />
       </div>,
       { provider: { labels: { progress: { loading: 'Yükleniyor', progress: 'İlerleme' } } } },
@@ -224,7 +224,7 @@ describe('LinearProgress', () => {
     await expect.element(screen.getByRole('progressbar', { name: 'Yükleniyor' })).toBeVisible();
     await expect.element(screen.getByRole('progressbar', { name: 'Depolama' })).toBeVisible();
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Faturalar yükleniyor' }))
+      .element(screen.getByRole('progressbar', { name: 'Mesajlar yükleniyor' }))
       .toBeVisible();
     await expect.element(screen.getByRole('progressbar', { name: 'İlerleme' })).toBeVisible();
   });

@@ -7,10 +7,10 @@ const toasterId = 'toast-tones';
 
 const samples: { tone: ToastTone; label: string; message: string }[] = [
   { tone: 'default', label: 'Default', message: 'Draft saved' },
-  { tone: 'info', label: 'Info', message: 'Payout to Globex is scheduled for Friday' },
-  { tone: 'success', label: 'Success', message: 'Payment from Acme Corp received' },
-  { tone: 'warning', label: 'Warning', message: 'Card ending 4242 expires in 7 days' },
-  { tone: 'error', label: 'Error', message: 'Bank feed could not sync' },
+  { tone: 'info', label: 'Info', message: 'Update available' },
+  { tone: 'success', label: 'Success', message: 'Changes saved' },
+  { tone: 'warning', label: 'Warning', message: 'Storage almost full' },
+  { tone: 'error', label: 'Error', message: 'Something went wrong' },
 ];
 
 export default function ToastTones() {

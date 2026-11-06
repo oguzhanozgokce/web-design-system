@@ -9,7 +9,7 @@ export default function TagSizes() {
             Active
           </Tag>
           <Tag size={size} tone="info">
-            Trial ends May 30
+            Beta
           </Tag>
           <Tag size={size}>Read only</Tag>
         </div>

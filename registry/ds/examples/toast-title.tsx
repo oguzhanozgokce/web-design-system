@@ -11,27 +11,26 @@ export default function ToastTitle() {
       <Button
         variant="tonal"
         onPress={() => {
-          toast.success('Ayşe Demir can now approve invoices up to the team limit.', {
+          toast.success('Ayşe Demir can now manage members and settings.', {
             toasterId,
             title: 'Role updated',
             description: 'The change applies from her next sign-in.',
           });
         }}
       >
-        Make approver
+        Make admin
       </Button>
       <Button
         variant="outlined"
-        tone="destructive"
         onPress={() => {
-          toast.error('Card ending 4242 was declined. Update it to keep the Team plan active.', {
+          toast.error('photo.jpg is larger than the 20 MB limit.', {
             toasterId,
-            title: 'Payment failed',
-            action: { label: 'Update card', onAction: () => {} },
+            title: 'Upload failed',
+            action: { label: 'Choose another', onAction: () => {} },
           });
         }}
       >
-        Renew plan
+        Upload photo
       </Button>
       <Toaster toasterId={toasterId} />
     </div>

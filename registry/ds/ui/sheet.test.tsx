@@ -14,14 +14,14 @@ import {
   type SheetSnapPoint,
 } from '@/registry/ds/ui/sheet';
 
-function InvoiceSheet(props: Omit<SheetProps, 'children'>) {
+function ProjectSheet(props: Omit<SheetProps, 'children'>) {
   return (
     <SheetTrigger>
-      <Button>Open invoice</Button>
+      <Button>Open project</Button>
       <Sheet {...props}>
-        <SheetHeader title="Invoice INV-2048" description="Northwind Traders, due 14 November" />
+        <SheetHeader title="Project DOC-2048" description="Riverside Studios, due 14 November" />
         <SheetBody>
-          <p>Three line items, paid by bank transfer.</p>
+          <p>Three line items, paid by team transfer.</p>
         </SheetBody>
         <SheetFooter>
           <Button variant="text" slot="close">
@@ -109,13 +109,13 @@ async function drag(element: Element, deltaY: number, steps: number, interval: n
 
 describe('Sheet', () => {
   it('opens a modal dialog named by its title and closes from the close button', async () => {
-    const screen = await renderWithDS(<InvoiceSheet />);
-    const trigger = screen.getByRole('button', { name: 'Open invoice' });
+    const screen = await renderWithDS(<ProjectSheet />);
+    const trigger = screen.getByRole('button', { name: 'Open project' });
 
     await trigger.click();
-    const dialog = page.getByRole('dialog', { name: 'Invoice INV-2048' });
+    const dialog = page.getByRole('dialog', { name: 'Project DOC-2048' });
     await expect.element(dialog).toBeVisible();
-    await expect.element(dialog).toHaveAccessibleDescription('Northwind Traders, due 14 November');
+    await expect.element(dialog).toHaveAccessibleDescription('Riverside Studios, due 14 November');
     await expect.element(trigger).toHaveAttribute('aria-expanded', 'true');
 
     const root = part('sheet');
@@ -134,8 +134,8 @@ describe('Sheet', () => {
   });
 
   it('closes on Escape and from a footer button with slot="close"', async () => {
-    const screen = await renderWithDS(<InvoiceSheet />);
-    const trigger = screen.getByRole('button', { name: 'Open invoice' });
+    const screen = await renderWithDS(<ProjectSheet />);
+    const trigger = screen.getByRole('button', { name: 'Open project' });
 
     await trigger.click();
     await expect.element(page.getByRole('dialog')).toHaveFocus();
@@ -149,8 +149,8 @@ describe('Sheet', () => {
   });
 
   it('keeps focus inside while open', async () => {
-    const screen = await renderWithDS(<InvoiceSheet />);
-    await screen.getByRole('button', { name: 'Open invoice' }).click();
+    const screen = await renderWithDS(<ProjectSheet />);
+    await screen.getByRole('button', { name: 'Open project' }).click();
     const dialog = page.getByRole('dialog');
     await expect.element(dialog).toHaveFocus();
 
@@ -164,15 +164,15 @@ describe('Sheet', () => {
   });
 
   it('closes when the scrim is pressed unless it is not dismissable', async () => {
-    const screen = await renderWithDS(<InvoiceSheet size="sm" />);
-    await screen.getByRole('button', { name: 'Open invoice' }).click();
+    const screen = await renderWithDS(<ProjectSheet size="sm" />);
+    await screen.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     await page.elementLocator(part('sheet-overlay')).click({ position: { x: 8, y: 8 } });
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await screen.unmount();
 
-    const locked = await renderWithDS(<InvoiceSheet size="sm" isDismissable={false} />);
-    await locked.getByRole('button', { name: 'Open invoice' }).click();
+    const locked = await renderWithDS(<ProjectSheet size="sm" isDismissable={false} />);
+    await locked.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     await page.elementLocator(part('sheet-overlay')).click({ position: { x: 8, y: 8 } });
     await wait(100);
@@ -221,16 +221,16 @@ describe('Sheet', () => {
   });
 
   it('sizes side sheets by width and rounds only the exposed corners', async () => {
-    const screen = await renderWithDS(<InvoiceSheet side="end" size="sm" />);
-    await screen.getByRole('button', { name: 'Open invoice' }).click();
+    const screen = await renderWithDS(<ProjectSheet side="end" size="sm" />);
+    await screen.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     await expect.poll(() => part('sheet').getBoundingClientRect().width).toBe(320);
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await screen.unmount();
 
-    const top = await renderWithDS(<InvoiceSheet side="top" size="full" />);
-    await top.getByRole('button', { name: 'Open invoice' }).click();
+    const top = await renderWithDS(<ProjectSheet side="top" size="full" />);
+    await top.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(part('sheet-surface')).toHaveClass('rounded-none');
     expect(part('sheet-surface')).not.toHaveClass('rounded-b-xl');
@@ -241,17 +241,17 @@ describe('Sheet', () => {
     const onOpenChange = vi.fn();
     const screen = await renderWithDS(
       <SheetTrigger onOpenChange={onOpenChange}>
-        <Button>Share invoice</Button>
+        <Button>Share project</Button>
         <Sheet side="bottom">
-          <SheetHeader title="Share invoice" showCloseButton={false} />
-          <SheetBody>Send INV-2048 to the customer.</SheetBody>
+          <SheetHeader title="Share project" showCloseButton={false} />
+          <SheetBody>Send DOC-2048 to the follower.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
     );
 
-    await screen.getByRole('button', { name: 'Share invoice' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Share invoice' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Share project' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Share project' })).toBeVisible();
     const zone = part('sheet-handle-zone');
     expect(part('sheet-handle')).toHaveAttribute('aria-hidden', 'true');
     expect(part('sheet-surface')).toHaveClass('rounded-t-xl');
@@ -271,7 +271,7 @@ describe('Sheet', () => {
         <Button>Filters</Button>
         <Sheet side="bottom">
           <SheetHeader title="Filters" />
-          <SheetBody>Paid, overdue and draft invoices.</SheetBody>
+          <SheetBody>Paid, overdue and draft projects.</SheetBody>
         </Sheet>
       </SheetTrigger>,
     );
@@ -286,16 +286,16 @@ describe('Sheet', () => {
   it('keeps a bottom sheet open when it is not dismissable', async () => {
     const screen = await renderWithDS(
       <SheetTrigger>
-        <Button>Review payout</Button>
+        <Button>Review upload</Button>
         <Sheet side="bottom" isDismissable={false}>
-          <SheetHeader title="Review payout" />
-          <SheetBody>Confirm the bank account before you continue.</SheetBody>
+          <SheetHeader title="Review upload" />
+          <SheetBody>Confirm the team account before you continue.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
     );
 
-    await screen.getByRole('button', { name: 'Review payout' }).click();
+    await screen.getByRole('button', { name: 'Review upload' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     await drag(part('sheet-handle-zone'), 200, 10, 40);
     await expect.element(page.getByRole('dialog')).toBeVisible();
@@ -372,7 +372,7 @@ describe('Sheet', () => {
               <Chip id="overdue">Overdue</Chip>
             </ChipGroup>
           </SheetHeader>
-          <SheetBody>Paid, overdue and draft invoices.</SheetBody>
+          <SheetBody>Paid, overdue and draft projects.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
@@ -487,7 +487,7 @@ describe('Sheet', () => {
           <SheetHeader title="Audit log" />
           <SheetBody>
             {Array.from({ length: 60 }, (_, index) => (
-              <p key={index}>Invoice INV-{2000 + index} exported by Ayşe Demir.</p>
+              <p key={index}>Project INV-{2000 + index} exported by Ayşe Demir.</p>
             ))}
           </SheetBody>
         </Sheet>
@@ -512,7 +512,7 @@ describe('Sheet', () => {
           <SheetHeader title="Transactions" />
           <SheetBody>
             {Array.from({ length: 60 }, (_, index) => (
-              <p key={index}>Card payment {index + 1}, Operating account.</p>
+              <p key={index}>Card message {index + 1}, Operating account.</p>
             ))}
           </SheetBody>
           <SheetFooter>
@@ -545,10 +545,10 @@ describe('Sheet', () => {
   });
 
   it('only drags bottom sheets, with or without the handle', async () => {
-    const top = await renderWithDS(<InvoiceSheet side="top" />, {
+    const top = await renderWithDS(<ProjectSheet side="top" />, {
       provider: { motion: 'reduced' },
     });
-    await top.getByRole('button', { name: 'Open invoice' }).click();
+    await top.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(document.querySelector('[data-slot="sheet-handle-zone"]')).toBeNull();
     await drag(part('sheet-header'), -200, 10, 40);
@@ -558,10 +558,10 @@ describe('Sheet', () => {
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await top.unmount();
 
-    const bottom = await renderWithDS(<InvoiceSheet side="bottom" showDragHandle={false} />, {
+    const bottom = await renderWithDS(<ProjectSheet side="bottom" showDragHandle={false} />, {
       provider: { motion: 'reduced' },
     });
-    await bottom.getByRole('button', { name: 'Open invoice' }).click();
+    await bottom.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(document.querySelector('[data-slot="sheet-handle-zone"]')).toBeNull();
     await drag(part('sheet-header'), 160, 10, 40);
@@ -643,22 +643,22 @@ describe('Sheet', () => {
   });
 
   it('names the close button and the drag handle in English by default', async () => {
-    const screen = await renderWithDS(<InvoiceSheet side="bottom" snapPoints={['50%', '90%']} />, {
+    const screen = await renderWithDS(<ProjectSheet side="bottom" snapPoints={['50%', '90%']} />, {
       locale: 'tr',
     });
-    await screen.getByRole('button', { name: 'Open invoice' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Invoice INV-2048' });
+    await screen.getByRole('button', { name: 'Open project' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Project DOC-2048' });
     await expect.element(dialog.getByRole('button', { name: 'Close' })).toBeVisible();
     await expect.element(dialog.getByRole('button', { name: 'Resize sheet' })).toBeVisible();
   });
 
   it('takes its labels from DSProvider, and from its labels prop first', async () => {
     const provider = { labels: { sheet: { close: 'Kapat', dragHandle: 'Boyutlandır' } } };
-    const screen = await renderWithDS(<InvoiceSheet side="bottom" snapPoints={['50%', '90%']} />, {
+    const screen = await renderWithDS(<ProjectSheet side="bottom" snapPoints={['50%', '90%']} />, {
       provider,
     });
-    await screen.getByRole('button', { name: 'Open invoice' }).click();
-    let dialog = page.getByRole('dialog', { name: 'Invoice INV-2048' });
+    await screen.getByRole('button', { name: 'Open project' }).click();
+    let dialog = page.getByRole('dialog', { name: 'Project DOC-2048' });
     await expect.element(dialog.getByRole('button', { name: 'Kapat' })).toBeVisible();
     await expect.element(dialog.getByRole('button', { name: 'Boyutlandır' })).toBeVisible();
     await userEvent.keyboard('{Escape}');
@@ -666,15 +666,15 @@ describe('Sheet', () => {
     await screen.unmount();
 
     const own = await renderWithDS(
-      <InvoiceSheet
+      <ProjectSheet
         side="bottom"
         snapPoints={['50%', '90%']}
         labels={{ close: 'Paneli kapat', dragHandle: 'Paneli yeniden boyutlandır' }}
       />,
       { provider },
     );
-    await own.getByRole('button', { name: 'Open invoice' }).click();
-    dialog = page.getByRole('dialog', { name: 'Invoice INV-2048' });
+    await own.getByRole('button', { name: 'Open project' }).click();
+    dialog = page.getByRole('dialog', { name: 'Project DOC-2048' });
     await expect.element(dialog.getByRole('button', { name: 'Paneli kapat' })).toBeVisible();
     await expect
       .element(dialog.getByRole('button', { name: 'Paneli yeniden boyutlandır' }))
@@ -684,15 +684,15 @@ describe('Sheet', () => {
   it('raises cards inside it above its own surface', async () => {
     const screen = await renderWithDS(
       <SheetTrigger>
-        <Button>Open invoice</Button>
-        <Sheet aria-label="Invoice INV-2048">
+        <Button>Open project</Button>
+        <Sheet aria-label="Project DOC-2048">
           <SheetBody>
-            <Card variant="outlined">Paid by bank transfer</Card>
+            <Card variant="outlined">Paid by team transfer</Card>
           </SheetBody>
         </Sheet>
       </SheetTrigger>,
     );
-    await screen.getByRole('button', { name: 'Open invoice' }).click();
+    await screen.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(part('sheet-body').querySelector('[data-slot="card"]')).toHaveAttribute(
       'data-surface',
@@ -701,8 +701,8 @@ describe('Sheet', () => {
   });
 
   it('takes its direction from the locale so end sheets open on the left in Arabic', async () => {
-    const screen = await renderWithDS(<InvoiceSheet size="sm" />, { locale: 'ar' });
-    await screen.getByRole('button', { name: 'Open invoice' }).click();
+    const screen = await renderWithDS(<ProjectSheet size="sm" />, { locale: 'ar' });
+    await screen.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(part('sheet-overlay')).toHaveAttribute('dir', 'rtl');
     await expect.poll(() => Math.round(part('sheet').getBoundingClientRect().left)).toBe(0);
@@ -710,8 +710,8 @@ describe('Sheet', () => {
   });
 
   it('fades with reduced motion and skips animation when motion is disabled', async () => {
-    const reduced = await renderWithDS(<InvoiceSheet />, { provider: { motion: 'reduced' } });
-    await reduced.getByRole('button', { name: 'Open invoice' }).click();
+    const reduced = await renderWithDS(<ProjectSheet />, { provider: { motion: 'reduced' } });
+    await reduced.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(part('sheet').className).toContain('data-[entering]:animate-ds-fade-in');
     expect(part('sheet').className).not.toContain('animate-ds-sheet-in-end');
@@ -719,8 +719,8 @@ describe('Sheet', () => {
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await reduced.unmount();
 
-    const disabled = await renderWithDS(<InvoiceSheet />, { provider: { motion: 'disabled' } });
-    await disabled.getByRole('button', { name: 'Open invoice' }).click();
+    const disabled = await renderWithDS(<ProjectSheet />, { provider: { motion: 'disabled' } });
+    await disabled.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(part('sheet').className).not.toContain('animate-ds');
     expect(part('sheet-overlay').className).not.toContain('animate-ds');
@@ -730,8 +730,8 @@ describe('Sheet', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       document.documentElement.classList.toggle('dark', 'dark' in options);
       for (const [sheet, trigger] of [
-        [<InvoiceSheet key="end" />, 'Open invoice'],
-        [<InvoiceSheet key="bottom" side="bottom" snapPoints={['50%', '90%']} />, 'Open invoice'],
+        [<ProjectSheet key="end" />, 'Open project'],
+        [<ProjectSheet key="bottom" side="bottom" snapPoints={['50%', '90%']} />, 'Open project'],
         [<OrderTracker key="standard" />, 'Track order'],
       ] as const) {
         const screen = await renderWithDS(sheet, options);

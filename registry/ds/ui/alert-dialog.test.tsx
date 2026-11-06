@@ -16,15 +16,15 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
-function DeleteLedger(props: Partial<AlertDialogProps>) {
+function DeleteFolder(props: Partial<AlertDialogProps>) {
   return (
     <DialogTrigger>
-      <Button tone="destructive">Delete ledger</Button>
+      <Button tone="destructive">Delete folder</Button>
       <AlertDialog
         title="Delete “Operating account”?"
         description="All 1,284 entries and their attachments are removed. This cannot be undone."
         tone="destructive"
-        confirmLabel="Delete ledger"
+        confirmLabel="Delete folder"
         {...props}
       />
     </DialogTrigger>
@@ -38,7 +38,7 @@ function removeStaleLiveAnnouncements() {
 }
 
 async function openDialog(screen: Awaited<ReturnType<typeof renderWithDS>>) {
-  await screen.getByRole('button', { name: 'Delete ledger' }).click();
+  await screen.getByRole('button', { name: 'Delete folder' }).click();
   const dialog = page.getByRole('alertdialog');
   await expect.element(dialog).toBeVisible();
   return dialog;
@@ -46,7 +46,7 @@ async function openDialog(screen: Awaited<ReturnType<typeof renderWithDS>>) {
 
 describe('AlertDialog', () => {
   it('renders an alertdialog named by its title and described by its description', async () => {
-    const screen = await renderWithDS(<DeleteLedger />);
+    const screen = await renderWithDS(<DeleteFolder />);
     const dialog = await openDialog(screen);
 
     await expect.element(dialog).toHaveAccessibleName('Delete “Operating account”?');
@@ -57,7 +57,7 @@ describe('AlertDialog', () => {
       );
     await expect.element(dialog).toHaveAttribute('data-tone', 'destructive');
     await expect
-      .element(dialog.getByRole('button', { name: 'Delete ledger' }))
+      .element(dialog.getByRole('button', { name: 'Delete folder' }))
       .toHaveAttribute('data-tone', 'destructive');
   });
 
@@ -116,7 +116,7 @@ describe('AlertDialog', () => {
   });
 
   it('takes its labels from DSProvider and accepts a template function', async () => {
-    const screen = await renderWithDS(<DeleteLedger requireConfirmation="BORRAR" />, {
+    const screen = await renderWithDS(<DeleteFolder requireConfirmation="BORRAR" />, {
       provider: {
         labels: {
           alertDialog: {
@@ -134,7 +134,7 @@ describe('AlertDialog', () => {
 
   it('labels the field in plain text when a template does not keep the phrase as given', async () => {
     const screen = await renderWithDS(
-      <DeleteLedger
+      <DeleteFolder
         requireConfirmation="delete"
         labels={{ typeToConfirm: ({ phrase }) => `Type “${phrase.toUpperCase()}” to confirm` }}
       />,
@@ -147,7 +147,7 @@ describe('AlertDialog', () => {
   });
 
   it('focuses Cancel first for destructive actions and Confirm otherwise', async () => {
-    const screen = await renderWithDS(<DeleteLedger />);
+    const screen = await renderWithDS(<DeleteFolder />);
     const dialog = await openDialog(screen);
     await expect.element(dialog.getByRole('button', { name: 'Cancel' })).toHaveFocus();
     await userEvent.keyboard('{Escape}');
@@ -169,22 +169,22 @@ describe('AlertDialog', () => {
   it('cancels, calls onCancel and returns focus to the trigger', async () => {
     const onCancel = vi.fn();
     const onConfirm = vi.fn();
-    const screen = await renderWithDS(<DeleteLedger onCancel={onCancel} onConfirm={onConfirm} />);
+    const screen = await renderWithDS(<DeleteFolder onCancel={onCancel} onConfirm={onConfirm} />);
     const dialog = await openDialog(screen);
 
     await dialog.getByRole('button', { name: 'Cancel' }).click();
     await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
     expect(onCancel).toHaveBeenCalledOnce();
     expect(onConfirm).not.toHaveBeenCalled();
-    await expect.element(screen.getByRole('button', { name: 'Delete ledger' })).toHaveFocus();
+    await expect.element(screen.getByRole('button', { name: 'Delete folder' })).toHaveFocus();
   });
 
   it('closes right away when onConfirm is synchronous', async () => {
     const onConfirm = vi.fn();
-    const screen = await renderWithDS(<DeleteLedger onConfirm={onConfirm} />);
+    const screen = await renderWithDS(<DeleteFolder onConfirm={onConfirm} />);
     const dialog = await openDialog(screen);
 
-    await dialog.getByRole('button', { name: 'Delete ledger' }).click();
+    await dialog.getByRole('button', { name: 'Delete folder' }).click();
     expect(onConfirm).toHaveBeenCalledOnce();
     await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -192,9 +192,9 @@ describe('AlertDialog', () => {
   it('stays open and locked while an async onConfirm runs, then closes', async () => {
     const work = deferred();
     const onConfirm = vi.fn(() => work.promise);
-    const screen = await renderWithDS(<DeleteLedger onConfirm={onConfirm} />);
+    const screen = await renderWithDS(<DeleteFolder onConfirm={onConfirm} />);
     const dialog = await openDialog(screen);
-    const confirm = dialog.getByRole('button', { name: 'Delete ledger' });
+    const confirm = dialog.getByRole('button', { name: 'Delete folder' });
     const cancel = dialog.getByRole('button', { name: 'Cancel' });
 
     await confirm.click();
@@ -219,15 +219,15 @@ describe('AlertDialog', () => {
     const onConfirm = vi.fn(async () => {
       attempt += 1;
       await new Promise((resolve) => setTimeout(resolve, 20));
-      if (attempt === 1) throw new Error('The ledger has 3 unpaid invoices.');
+      if (attempt === 1) throw new Error('The folder has 3 unpaid projects.');
     });
-    const screen = await renderWithDS(<DeleteLedger onConfirm={onConfirm} />);
+    const screen = await renderWithDS(<DeleteFolder onConfirm={onConfirm} />);
     const dialog = await openDialog(screen);
-    const confirm = dialog.getByRole('button', { name: 'Delete ledger' });
+    const confirm = dialog.getByRole('button', { name: 'Delete folder' });
 
     await confirm.click();
     const alert = dialog.getByRole('alert');
-    await expect.element(alert).toHaveTextContent('The ledger has 3 unpaid invoices.');
+    await expect.element(alert).toHaveTextContent('The folder has 3 unpaid projects.');
     await expect.element(confirm).not.toHaveAttribute('data-pending');
     await expect.element(dialog.getByRole('button', { name: 'Cancel' })).toBeEnabled();
     await expect.element(page.getByRole('alertdialog')).toBeVisible();
@@ -238,33 +238,33 @@ describe('AlertDialog', () => {
   });
 
   it('falls back to the error label or a custom errorMessage', async () => {
-    const screen = await renderWithDS(<DeleteLedger onConfirm={() => Promise.reject()} />);
+    const screen = await renderWithDS(<DeleteFolder onConfirm={() => Promise.reject()} />);
     let dialog = await openDialog(screen);
-    await dialog.getByRole('button', { name: 'Delete ledger' }).click();
+    await dialog.getByRole('button', { name: 'Delete folder' }).click();
     await expect
       .element(dialog.getByRole('alert'))
       .toHaveTextContent('Something went wrong. Try again.');
     await screen.unmount();
 
     const custom = await renderWithDS(
-      <DeleteLedger
+      <DeleteFolder
         onConfirm={() => Promise.reject(new Error('409'))}
         errorMessage={(error) => `Server answered ${(error as Error).message}.`}
       />,
     );
     dialog = await openDialog(custom);
-    await dialog.getByRole('button', { name: 'Delete ledger' }).click();
+    await dialog.getByRole('button', { name: 'Delete folder' }).click();
     await expect.element(dialog.getByRole('alert')).toHaveTextContent('Server answered 409.');
   });
 
   it('requires the confirmation phrase before confirming', async () => {
     const onConfirm = vi.fn();
     const screen = await renderWithDS(
-      <DeleteLedger requireConfirmation="DELETE" onConfirm={onConfirm} />,
+      <DeleteFolder requireConfirmation="DELETE" onConfirm={onConfirm} />,
     );
     const dialog = await openDialog(screen);
     const input = dialog.getByRole('textbox', { name: 'Type DELETE to confirm' });
-    const confirm = dialog.getByRole('button', { name: 'Delete ledger' });
+    const confirm = dialog.getByRole('button', { name: 'Delete folder' });
 
     await expect.element(input).toHaveFocus();
     await expect.element(confirm).toBeDisabled();
@@ -283,7 +283,7 @@ describe('AlertDialog', () => {
   });
 
   it('lets Escape and Tab leave the phrase field as from any other control', async () => {
-    const screen = await renderWithDS(<DeleteLedger requireConfirmation="DELETE" />);
+    const screen = await renderWithDS(<DeleteFolder requireConfirmation="DELETE" />);
     const dialog = await openDialog(screen);
     const input = dialog.getByRole('textbox', { name: 'Type DELETE to confirm' });
     const cancel = dialog.getByRole('button', { name: 'Cancel' });
@@ -296,14 +296,14 @@ describe('AlertDialog', () => {
 
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
-    await expect.element(screen.getByRole('button', { name: 'Delete ledger' })).toHaveFocus();
+    await expect.element(screen.getByRole('button', { name: 'Delete folder' })).toHaveFocus();
   });
 
   it('ignores Enter while an input method is composing and repeat Enter while pending', async () => {
     const work = deferred();
     const onConfirm = vi.fn(() => work.promise);
     const screen = await renderWithDS(
-      <DeleteLedger requireConfirmation="DELETE" onConfirm={onConfirm} />,
+      <DeleteFolder requireConfirmation="DELETE" onConfirm={onConfirm} />,
     );
     const dialog = await openDialog(screen);
     const input = dialog.getByRole('textbox', { name: 'Type DELETE to confirm' });
@@ -322,13 +322,13 @@ describe('AlertDialog', () => {
 
     work.resolve();
     await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
-    await expect.element(screen.getByRole('button', { name: 'Delete ledger' })).toHaveFocus();
+    await expect.element(screen.getByRole('button', { name: 'Delete folder' })).toHaveFocus();
   });
 
   it('keeps the confirm button disabled while isConfirmDisabled is set', async () => {
-    const screen = await renderWithDS(<DeleteLedger isConfirmDisabled />);
+    const screen = await renderWithDS(<DeleteFolder isConfirmDisabled />);
     const dialog = await openDialog(screen);
-    await expect.element(dialog.getByRole('button', { name: 'Delete ledger' })).toBeDisabled();
+    await expect.element(dialog.getByRole('button', { name: 'Delete folder' })).toBeDisabled();
     await screen.unmount();
 
     const publish = await renderWithDS(
@@ -345,27 +345,27 @@ describe('AlertDialog', () => {
 
   it('shows a synchronous throw inline and stays open', async () => {
     const screen = await renderWithDS(
-      <DeleteLedger
+      <DeleteFolder
         onConfirm={() => {
-          throw new Error('You need the Owner role to delete ledgers.');
+          throw new Error('You need the Owner role to delete folders.');
         }}
       />,
     );
     const dialog = await openDialog(screen);
-    await dialog.getByRole('button', { name: 'Delete ledger' }).click();
+    await dialog.getByRole('button', { name: 'Delete folder' }).click();
     await expect
       .element(dialog.getByRole('alert'))
-      .toHaveTextContent('You need the Owner role to delete ledgers.');
+      .toHaveTextContent('You need the Owner role to delete folders.');
     await expect.element(page.getByRole('alertdialog')).toBeVisible();
   });
 
   it('keeps the scrim inert while pending even when dismissable', async () => {
     const work = deferred();
     const screen = await renderWithDS(
-      <DeleteLedger isDismissable onConfirm={() => work.promise} />,
+      <DeleteFolder isDismissable onConfirm={() => work.promise} />,
     );
     const dialog = await openDialog(screen);
-    await dialog.getByRole('button', { name: 'Delete ledger' }).click();
+    await dialog.getByRole('button', { name: 'Delete folder' }).click();
     await expect.element(dialog).toHaveAttribute('data-pending', 'true');
 
     const overlay = document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
@@ -380,7 +380,7 @@ describe('AlertDialog', () => {
   it('skips the body for empty children and an empty icon', async () => {
     const hasIcon = false;
     const screen = await renderWithDS(
-      <DeleteLedger icon={hasIcon && <DeleteIcon />}>{hasIcon && 'Unused note'}</DeleteLedger>,
+      <DeleteFolder icon={hasIcon && <DeleteIcon />}>{hasIcon && 'Unused note'}</DeleteFolder>,
     );
     await openDialog(screen);
     expect(document.querySelector('[data-slot="dialog-body"]')).toBeNull();
@@ -389,7 +389,7 @@ describe('AlertDialog', () => {
   });
 
   it('ignores the scrim by default and can opt in to dismissal', async () => {
-    const screen = await renderWithDS(<DeleteLedger />);
+    const screen = await renderWithDS(<DeleteFolder />);
     await openDialog(screen);
     const overlay = document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
     await userEvent.click(page.elementLocator(overlay), { position: { x: 4, y: 4 } });
@@ -399,7 +399,7 @@ describe('AlertDialog', () => {
     await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
     await screen.unmount();
 
-    const dismissable = await renderWithDS(<DeleteLedger isDismissable />);
+    const dismissable = await renderWithDS(<DeleteFolder isDismissable />);
     await openDialog(dismissable);
     const nextOverlay = document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
     await userEvent.click(page.elementLocator(nextOverlay), { position: { x: 4, y: 4 } });
@@ -441,7 +441,7 @@ describe('AlertDialog', () => {
   });
 
   it('colours the hero icon by tone', async () => {
-    const screen = await renderWithDS(<DeleteLedger icon={<DeleteIcon />} />);
+    const screen = await renderWithDS(<DeleteFolder icon={<DeleteIcon />} />);
     await openDialog(screen);
     const icon = document.querySelector('[data-slot="alert-dialog-icon"]');
     expect(icon).toHaveClass('text-error');
@@ -452,16 +452,16 @@ describe('AlertDialog', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       document.documentElement.classList.toggle('dark', 'dark' in options);
       const screen = await renderWithDS(
-        <DeleteLedger
+        <DeleteFolder
           icon={<DeleteIcon />}
           requireConfirmation="DELETE"
-          onConfirm={() => Promise.reject(new Error('The ledger has 3 unpaid invoices.'))}
+          onConfirm={() => Promise.reject(new Error('The folder has 3 unpaid projects.'))}
         />,
         options,
       );
       const dialog = await openDialog(screen);
       await userEvent.type(dialog.getByRole('textbox'), 'DELETE');
-      await dialog.getByRole('button', { name: 'Delete ledger' }).click();
+      await dialog.getByRole('button', { name: 'Delete folder' }).click();
       await expect.element(dialog.getByRole('alert')).toBeVisible();
       await new Promise((resolve) => setTimeout(resolve, 350));
       removeStaleLiveAnnouncements();

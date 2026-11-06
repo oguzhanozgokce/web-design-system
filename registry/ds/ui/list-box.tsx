@@ -30,7 +30,7 @@ export const listBoxStyles = tv({
     ],
     header: 'px-(--list-box-item-px) pt-2 pb-1 text-label-md text-on-surface-variant select-none',
     item: [
-      'group/item state-layer focus-ring-inset relative flex min-h-(--list-box-item-height) cursor-default items-center gap-(--list-box-item-gap) rounded-sm px-(--list-box-item-px) py-(--list-box-item-py)',
+      'group/item state-layer focus-ring-inset relative flex min-h-(--list-box-item-height) shrink-0 cursor-default items-center gap-(--list-box-item-gap) rounded-sm px-(--list-box-item-px) py-(--list-box-item-py)',
       'text-start text-on-surface no-underline select-none not-data-[focus-visible]:outline-none',
       'transition-colors duration-150 ease-standard motion-reduce:transition-none',
       'data-[selected]:bg-secondary-container data-[selected]:text-on-secondary-container',

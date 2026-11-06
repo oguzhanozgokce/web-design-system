@@ -20,12 +20,12 @@ export function Reveal({
     <Element
       data-reveal
       className={className}
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '0px 0px -10% 0px' }}
       transition={{
-        y: { ...spatialSpring('slow'), delay },
-        opacity: { ...effectSpring('slow'), delay },
+        y: { ...spatialSpring('medium'), delay },
+        opacity: { ...effectSpring('medium'), delay },
       }}
     >
       {children}

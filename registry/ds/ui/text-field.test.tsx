@@ -8,9 +8,9 @@ describe('TextField', () => {
   it('renders a labelled textbox and reports typed text', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
-      <TextField label="Ledger name" placeholder="Household" onChange={onChange} />,
+      <TextField label="Folder name" placeholder="Household" onChange={onChange} />,
     );
-    const input = screen.getByRole('textbox', { name: 'Ledger name' });
+    const input = screen.getByRole('textbox', { name: 'Folder name' });
     await expect.element(input).toHaveAttribute('placeholder', 'Household');
     await input.fill('Trip to Lisbon');
     expect(onChange).toHaveBeenLastCalledWith('Trip to Lisbon');
@@ -18,7 +18,7 @@ describe('TextField', () => {
 
   it('follows a controlled value', async () => {
     function Example() {
-      const [value, setValue] = useState('acme');
+      const [value, setValue] = useState('nova');
       return (
         <>
           <TextField label="Workspace URL" value={value} onChange={setValue} />
@@ -28,9 +28,9 @@ describe('TextField', () => {
     }
     const screen = await renderWithDS(<Example />);
     const input = screen.getByRole('textbox', { name: 'Workspace URL' });
-    await expect.element(input).toHaveValue('acme');
-    await input.fill('northwind');
-    await expect.element(screen.getByText('NORTHWIND')).toBeInTheDocument();
+    await expect.element(input).toHaveValue('nova');
+    await input.fill('riverside');
+    await expect.element(screen.getByText('RIVERSIDE')).toBeInTheDocument();
   });
 
   it('renders prefixes, suffixes and icons around the input', async () => {
@@ -75,7 +75,7 @@ describe('TextField', () => {
     const screen = await renderWithDS(
       <TextField
         label="Reference"
-        defaultValue="INV-2041"
+        defaultValue="DOC-2041"
         isClearable
         onClear={onClear}
         onChange={onChange}
@@ -96,7 +96,7 @@ describe('TextField', () => {
     const onParentKeyDown = vi.fn();
     const screen = await renderWithDS(
       <div onKeyDown={(event) => onParentKeyDown(event.key)}>
-        <TextField label="Reference" defaultValue="INV-2041" isClearable />
+        <TextField label="Reference" defaultValue="DOC-2041" isClearable />
       </div>,
     );
     const input = screen.getByRole('textbox', { name: 'Reference' });
@@ -141,7 +141,7 @@ describe('TextField', () => {
   it('keeps email, URL and phone controls left to right in RTL', async () => {
     const screen = await renderWithDS(
       <div className="w-96">
-        <TextField label="الموقع" type="url" startAdornment="https://" defaultValue="acme.com" />
+        <TextField label="الموقع" type="url" startAdornment="https://" defaultValue="nova.com" />
         <TextField label="الهاتف" type="tel" defaultValue="+44 20 7946 0958" />
         <TextField label="الاسم" defaultValue="شركة نورثويند" />
       </div>,
@@ -163,21 +163,21 @@ describe('TextField', () => {
   it('restores the default value and counter when its form resets', async () => {
     const screen = await renderWithDS(
       <form>
-        <TextField label="Display name" name="displayName" defaultValue="Acme" maxLength={20} />
+        <TextField label="Display name" name="displayName" defaultValue="Nova" maxLength={20} />
         <button type="reset">Reset</button>
       </form>,
     );
     const input = screen.getByRole('textbox', { name: 'Display name' });
-    await input.fill('Acme Finance');
+    await input.fill('Nova Finance');
     await expect.element(screen.getByText('12/20')).toBeInTheDocument();
     await screen.getByRole('button', { name: 'Reset' }).click();
-    await expect.element(input).toHaveValue('Acme');
+    await expect.element(input).toHaveValue('Nova');
     await expect.element(screen.getByText('4/20')).toBeInTheDocument();
   });
 
   it('names the clear button Clear by default', async () => {
     const screen = await renderWithDS(
-      <TextField label="Reference" defaultValue="INV-2041" isClearable />,
+      <TextField label="Reference" defaultValue="DOC-2041" isClearable />,
     );
     await expect.element(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
   });
@@ -185,7 +185,7 @@ describe('TextField', () => {
   it('takes its text and the Field text from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div>
-        <TextField label="Reference" defaultValue="INV-2041" isClearable />
+        <TextField label="Reference" defaultValue="DOC-2041" isClearable />
         <TextField
           label="Order note"
           defaultValue="Leave at reception"
@@ -227,13 +227,13 @@ describe('TextField', () => {
 
   it('shows a character counter tied to the input when maxLength is set', async () => {
     const screen = await renderWithDS(
-      <TextField label="Display name" maxLength={20} defaultValue="Acme" />,
+      <TextField label="Display name" maxLength={20} defaultValue="Nova" />,
     );
     const input = screen.getByRole('textbox', { name: 'Display name' });
     await expect.element(input).toHaveAttribute('maxlength', '20');
     await expect.element(screen.getByText('4/20')).toBeInTheDocument();
     await expect.element(input).toHaveAccessibleDescription('Character count: 4 of 20');
-    await input.fill('Acme Finance');
+    await input.fill('Nova Finance');
     await expect.element(screen.getByText('12/20')).toBeInTheDocument();
   });
 
@@ -270,11 +270,11 @@ describe('TextField', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="grid w-96 gap-4 p-4">
-          <TextField label="Website" startAdornment="https://" placeholder="acme.com" />
+          <TextField label="Website" startAdornment="https://" placeholder="nova.com" />
           <TextField label="Parcel weight" endAdornment="kg" variant="filled" size="sm" />
           <TextField
             label="Reference"
-            defaultValue="INV-2041"
+            defaultValue="DOC-2041"
             isClearable
             startAdornment={<SearchIcon />}
             size="lg"

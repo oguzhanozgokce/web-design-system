@@ -13,7 +13,7 @@ const countries = [
 export default function ComboBoxKeywords() {
   return (
     <ComboBox
-      label="Tax residency"
+      label="Country"
       placeholder="Country, code or local name"
       description="Try “uk”, “Deutschland” or “日本”."
       defaultItems={countries}

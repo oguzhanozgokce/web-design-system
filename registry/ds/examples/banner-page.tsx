@@ -15,13 +15,13 @@ export default function BannerPage() {
         isDismissable
         isOpen={isOpen}
         onOpenChange={setOpen}
-        description="Scheduled maintenance on Sunday 10 November from 02:00 to 04:00 UTC. Invoices can’t be sent during this window."
+        description="Scheduled maintenance on Sunday from 02:00 to 04:00 UTC. Some features may be unavailable during this window."
         actions={<Button>View status page</Button>}
       />
       <div className="flex flex-col items-start gap-2 p-6">
-        <p className="text-title-lg text-on-surface">Invoices</p>
+        <p className="text-title-lg text-on-surface">Projects</p>
         <p className="text-body-md text-on-surface-variant">
-          38 open · 4 overdue · 212 paid this year
+          12 active · 3 shared with you · 28 archived
         </p>
         {isOpen ? null : (
           <Button variant="text" size="sm" className="-ms-3.5" onPress={() => setOpen(true)}>

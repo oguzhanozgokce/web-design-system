@@ -5,28 +5,24 @@ export default function RadioGroupPlans() {
   return (
     <RadioGroup
       label="Plan"
-      description="You can switch plans at any time. We prorate the difference."
+      description="You can change plans at any time."
       variant="card"
       orientation="horizontal"
-      defaultValue="team"
+      defaultValue="pro"
       className="w-full"
     >
-      <Radio value="starter" icon={<PersonIcon />} description="Free. One ledger and one member.">
-        Starter
+      <Radio value="basic" icon={<PersonIcon />} description="3 projects and 1 GB of storage.">
+        Basic
       </Radio>
       <Radio
-        value="team"
-        icon={<GroupIcon />}
-        description="12 USD per member a month. Unlimited ledgers and shared reports."
-      >
-        Team
-      </Radio>
-      <Radio
-        value="business"
+        value="pro"
         icon={<VerifiedIcon />}
-        description="29 USD per member a month. Approvals, audit log and SSO."
+        description="Unlimited projects and 100 GB of storage."
       >
-        Business
+        Pro
+      </Radio>
+      <Radio value="team" icon={<GroupIcon />} description="Everything in Pro, plus shared spaces.">
+        Team
       </Radio>
     </RadioGroup>
   );

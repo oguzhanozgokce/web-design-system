@@ -136,7 +136,7 @@ describe('PasswordField', () => {
   });
 
   it('never writes the password into the DOM outside the input value', async () => {
-    const secret = 'Ledger-Vault-2026';
+    const secret = 'Folder-Vault-2026';
     function Controlled() {
       const [value, setValue] = useState('');
       return <PasswordField label="Controlled" value={value} onChange={setValue} rules={rules} />;
@@ -181,7 +181,7 @@ describe('PasswordField', () => {
 
   it('keeps the input in step when a controlled onChange rejects a keystroke', async () => {
     function Example() {
-      const [value, setValue] = useState('Ledger');
+      const [value, setValue] = useState('Folder');
       return (
         <PasswordField
           label="Password"
@@ -194,9 +194,9 @@ describe('PasswordField', () => {
     const input = screen.getByLabelText('Password', { exact: true });
     await input.click();
     await userEvent.keyboard('{End} ');
-    await expect.element(input).toHaveValue('Ledger');
+    await expect.element(input).toHaveValue('Folder');
     await userEvent.keyboard('2026');
-    await expect.element(input).toHaveValue('Ledger2026');
+    await expect.element(input).toHaveValue('Folder2026');
   });
 
   it('checks the rules again when they change without a keystroke', async () => {
@@ -208,21 +208,21 @@ describe('PasswordField', () => {
       return (
         <>
           <PasswordField label="Password" rules={nameRules} />
-          <button type="button" onClick={() => setName('Ledger')}>
+          <button type="button" onClick={() => setName('Folder')}>
             Rename account
           </button>
         </>
       );
     }
     const screen = await renderWithDS(<Example />);
-    await screen.getByLabelText('Password', { exact: true }).fill('Ledger-Vault-2026');
+    await screen.getByLabelText('Password', { exact: true }).fill('Folder-Vault-2026');
     const rule = screen.container.querySelector('[data-slot="rule"]')!;
     expect(rule.hasAttribute('data-met')).toBe(true);
     await screen.getByRole('button', { name: 'Rename account' }).click();
     await expect.poll(() => rule.hasAttribute('data-met')).toBe(false);
     await expect
       .element(screen.getByLabelText('Password', { exact: true }))
-      .toHaveValue('Ledger-Vault-2026');
+      .toHaveValue('Folder-Vault-2026');
   });
 
   it('restores the default value and checklist when its form resets', async () => {
@@ -233,7 +233,7 @@ describe('PasswordField', () => {
       </form>,
     );
     const input = screen.getByLabelText('Password', { exact: true });
-    await input.fill('Ledger-Vault-2026');
+    await input.fill('Folder-Vault-2026');
     expect(screen.container.querySelectorAll('[data-slot="rule"][data-met]')).toHaveLength(3);
     await screen.getByRole('button', { name: 'Reset' }).click();
     await expect.element(input).toHaveValue('');
@@ -265,14 +265,14 @@ describe('PasswordField', () => {
     const screen = await renderWithDS(<Example />);
     const password = screen.getByLabelText('New password', { exact: true });
     const confirmation = screen.getByLabelText('Confirm new password', { exact: true });
-    await password.fill('Ledger-2026-spring');
-    await confirmation.fill('Ledger-2026-spring');
-    await password.fill('Ledger-2026-autumn');
+    await password.fill('Folder-2026-spring');
+    await confirmation.fill('Folder-2026-spring');
+    await password.fill('Folder-2026-autumn');
     await screen.getByRole('button', { name: 'Update password' }).click();
     expect(onSubmit).not.toHaveBeenCalled();
     await expect.element(confirmation).toHaveAttribute('aria-invalid', 'true');
     await expect.element(confirmation).toHaveAccessibleDescription('The passwords do not match.');
-    await password.fill('Ledger-2026-spring');
+    await password.fill('Folder-2026-spring');
     await screen.getByRole('button', { name: 'Update password' }).click();
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
@@ -333,7 +333,7 @@ describe('PasswordField', () => {
     const value = screen.container.querySelector('[data-slot="strength-value"]')!;
     expect(getComputedStyle(value).visibility).toBe('hidden');
 
-    await input.fill('Ledger-Vault-2026');
+    await input.fill('Folder-Vault-2026');
     await expect.element(meter).toHaveAttribute('aria-valuenow', '3');
     await expect.element(meter).toHaveAttribute('aria-valuetext', 'Good');
     expect(getComputedStyle(value).visibility).toBe('visible');
@@ -350,7 +350,7 @@ describe('PasswordField', () => {
       .toHaveAccessibleDescription(
         'At least 12 characters: not met. One number: not met. One uppercase letter: not met.',
       );
-    await input.fill('Ledger2026');
+    await input.fill('Folder2026');
     await expect
       .element(input)
       .toHaveAccessibleDescription(
@@ -371,11 +371,11 @@ describe('PasswordField', () => {
     const input = screen.getByLabelText('New password', { exact: true });
     const announcer = screen.container.querySelector('[data-slot="announcer"]')!;
     expect(announcer.getAttribute('aria-live')).toBe('polite');
-    await input.fill('Ledger');
+    await input.fill('Folder');
     await expect
       .poll(() => announcer.textContent, { timeout: 3000 })
       .toBe('One uppercase letter: met. Password strength: Weak.');
-    await input.fill('Ledger-Vault-2026');
+    await input.fill('Folder-Vault-2026');
     await expect
       .poll(() => announcer.textContent, { timeout: 3000 })
       .toBe('At least 12 characters: met. One number: met. Password strength: Strong.');
@@ -388,7 +388,7 @@ describe('PasswordField', () => {
         <button type="button">Continue</button>
       </div>,
     );
-    await screen.getByLabelText('New password', { exact: true }).fill('Ledger');
+    await screen.getByLabelText('New password', { exact: true }).fill('Folder');
     await screen.getByRole('button', { name: 'Continue' }).click();
     await new Promise((resolve) => setTimeout(resolve, 1000));
     expect(screen.container.querySelector('[data-slot="announcer"]')!.textContent).toBe('');
@@ -424,7 +424,7 @@ describe('PasswordField', () => {
           label="Vault key"
           necessityIndicator="label"
           strength={4}
-          defaultValue="Ledger-Vault-2026"
+          defaultValue="Folder-Vault-2026"
           labels={{
             showPassword: 'Show vault key',
             hidePassword: 'Hide vault key',
@@ -457,7 +457,7 @@ describe('PasswordField', () => {
       <PasswordField
         label="New password"
         rules={rules}
-        defaultValue="Ledger2026"
+        defaultValue="Folder2026"
         labels={{
           requirements: 'Your password needs',
           ruleMet: ({ rule }) => `${rule}, done.`,
@@ -513,7 +513,7 @@ describe('PasswordField', () => {
       const screen = await renderWithDS(
         <div className="grid w-96 gap-4 p-4">
           <PasswordField label="Password" startAdornment={<LockIcon />} />
-          <PasswordField label="New password" rules={rules} defaultValue="Ledger2026" />
+          <PasswordField label="New password" rules={rules} defaultValue="Folder2026" />
           <PasswordField label="Passphrase" strength={2} defaultValue="horse" variant="filled" />
           <PasswordField label="API secret" defaultRevealed defaultValue="sk_live_51" size="lg" />
           <PasswordField label="Current password" isInvalid errorMessage="Try again." />
@@ -538,7 +538,7 @@ describe('PasswordField', () => {
       document.documentElement.classList.toggle('dark', 'dark' in options);
       const screen = await renderWithDS(
         <div className="w-96 p-16">
-          <PasswordField label="Password" defaultRevealed defaultValue="Ledger-Vault-2026" />
+          <PasswordField label="Password" defaultRevealed defaultValue="Folder-Vault-2026" />
         </div>,
         options,
       );

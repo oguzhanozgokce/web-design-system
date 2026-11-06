@@ -6,15 +6,11 @@ export default function CardMediaExample() {
   return (
     <div className="grid w-full gap-4 sm:grid-cols-2">
       <Card variant="elevated">
-        <CardMedia
-          src="https://picsum.photos/seed/lisbon-offsite/800/450"
-          alt=""
-          className="aspect-video"
-        />
-        <CardHeader title="Lisbon offsite" description="12–14 March · 18 people going" />
+        <CardMedia src="/samples/dune.jpg" alt="" className="aspect-video" />
+        <CardHeader title="Landscape photography basics" description="Article · 6 min read" />
         <CardFooter>
-          <Button variant="text">Itinerary</Button>
-          <Button variant="tonal">Book travel</Button>
+          <Button variant="text">Save</Button>
+          <Button variant="tonal">Read</Button>
         </CardFooter>
       </Card>
       <Card variant="outlined">
@@ -23,9 +19,9 @@ export default function CardMediaExample() {
             <BarChartIcon className="size-12" />
           </span>
         </CardMedia>
-        <CardHeader title="Monthly cash flow" description="Generated on the 1st of every month" />
+        <CardHeader title="Weekly summary" description="Sent every Monday morning" />
         <CardContent className="text-on-surface-variant">
-          Inflows, outflows and runway for every ledger in the workspace.
+          A short recap of what changed last week, with the busiest days first.
         </CardContent>
       </Card>
     </div>

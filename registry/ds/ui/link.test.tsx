@@ -6,19 +6,19 @@ describe('Link', () => {
   it('renders an inline link with its label', async () => {
     const screen = await renderWithDS(
       <p>
-        Payouts settle in two business days. <Link href="/settings/payouts">Change schedule</Link>
+        Uploads settle in two business days. <Link href="/settings/uploads">Change schedule</Link>
       </p>,
     );
     const link = screen.getByRole('link', { name: 'Change schedule' });
-    await expect.element(link).toHaveAttribute('href', '/settings/payouts');
+    await expect.element(link).toHaveAttribute('href', '/settings/uploads');
     await expect.element(link).toHaveAttribute('data-variant', 'inline');
     await expect.element(link).not.toHaveAttribute('target');
     expect(getComputedStyle(link.element()).textDecorationLine).toBe('underline');
   });
 
   it('thickens the underline on hover', async () => {
-    const screen = await renderWithDS(<Link href="/invoices">Invoices</Link>);
-    const link = screen.getByRole('link', { name: 'Invoices' });
+    const screen = await renderWithDS(<Link href="/projects">Projects</Link>);
+    const link = screen.getByRole('link', { name: 'Projects' });
     expect(getComputedStyle(link.element()).textDecorationThickness).toBe('1px');
     await link.hover();
     await expect.element(link).toHaveAttribute('data-hovered', 'true');
@@ -27,11 +27,11 @@ describe('Link', () => {
 
   it('shows a standalone link with a trailing arrow', async () => {
     const screen = await renderWithDS(
-      <Link href="/invoices" variant="standalone" showArrow>
-        View all invoices
+      <Link href="/projects" variant="standalone" showArrow>
+        View all projects
       </Link>,
     );
-    const link = screen.getByRole('link', { name: 'View all invoices' });
+    const link = screen.getByRole('link', { name: 'View all projects' });
     await expect.element(link).toHaveAttribute('data-variant', 'standalone');
     expect(link.element().querySelector('[data-slot="arrow"] svg')).not.toBeNull();
   });
@@ -57,12 +57,12 @@ describe('Link', () => {
       ['ar', -1],
     ] as const) {
       const screen = await renderWithDS(
-        <Link href="/invoices" variant="standalone" showArrow>
-          View all invoices
+        <Link href="/projects" variant="standalone" showArrow>
+          View all projects
         </Link>,
         { locale },
       );
-      const link = screen.getByRole('link', { name: 'View all invoices' });
+      const link = screen.getByRole('link', { name: 'View all projects' });
       const icon = link.element().querySelector('[data-slot="arrow"] svg')!;
       expect(getComputedStyle(icon).scale).toBe(direction === 1 ? 'none' : '-1 1');
       expect(getComputedStyle(icon).translate).toBe('none');
@@ -76,12 +76,12 @@ describe('Link', () => {
 
   it('keeps the arrow still when motion is reduced', async () => {
     const screen = await renderWithDS(
-      <Link href="/invoices" variant="standalone" showArrow>
-        View all invoices
+      <Link href="/projects" variant="standalone" showArrow>
+        View all projects
       </Link>,
       { provider: { motion: 'reduced' } },
     );
-    const link = screen.getByRole('link', { name: 'View all invoices' });
+    const link = screen.getByRole('link', { name: 'View all projects' });
     await link.hover();
     await expect.element(link).toHaveAttribute('data-hovered', 'true');
     const icon = link.element().querySelector('[data-slot="arrow"] svg')!;
@@ -97,6 +97,32 @@ describe('Link', () => {
     const link = screen.getByRole('link', { name: 'Status page (opens in a new tab)' });
     expect(link.element().querySelector('[data-slot="arrow"]')).toBeNull();
     expect(link.element().querySelector('[data-slot="external-icon"]')).not.toBeNull();
+  });
+
+  it('keeps the inline external glyph apart from its label in either direction', async () => {
+    const cases = [
+      { locale: 'en', before: 'Read the ', label: 'documentation', after: ', then continue.' },
+      { locale: 'ar', before: 'Read the ', label: 'documentation', after: ', then continue.' },
+      { locale: 'ar', before: 'اقرأ ', label: 'التوثيق', after: ' ثم تابع.' },
+    ];
+    for (const { locale, before, label, after } of cases) {
+      const screen = await renderWithDS(
+        <p className="text-body-lg">
+          {before}
+          <Link href="https://example.com/docs" isExternal>
+            {label}
+          </Link>
+          {after}
+        </p>,
+        { locale },
+      );
+      const link = screen.getByRole('link', { name: new RegExp(label) }).element();
+      const text = link.querySelector('[data-slot="label"]')!.getBoundingClientRect();
+      const glyph = link.querySelector('[data-slot="external-icon"] svg')!.getBoundingClientRect();
+      const gap = Math.max(glyph.left - text.right, text.left - glyph.right);
+      expect(gap, `${locale} ${label}`).toBeGreaterThan(2);
+      await screen.unmount();
+    }
   });
 
   it('passes target and rel through on internal links', async () => {
@@ -203,11 +229,11 @@ describe('Link', () => {
 
   it('reveals the standalone underline only on hover', async () => {
     const screen = await renderWithDS(
-      <Link href="/invoices" variant="standalone">
-        View all invoices
+      <Link href="/projects" variant="standalone">
+        View all projects
       </Link>,
     );
-    const link = screen.getByRole('link', { name: 'View all invoices' });
+    const link = screen.getByRole('link', { name: 'View all projects' });
     const style = getComputedStyle(link.element());
     expect(style.textDecorationLine).toBe('underline');
     expect(style.textDecorationColor).toBe('rgba(0, 0, 0, 0)');
@@ -229,19 +255,19 @@ describe('Link', () => {
             </Link>{' '}
             for incidents.
           </p>
-          <Link href="/invoices" variant="standalone" showArrow>
-            View all invoices
+          <Link href="/projects" variant="standalone" showArrow>
+            View all projects
           </Link>
           <Link href="https://example.com/docs" variant="standalone" isExternal>
             API docs
           </Link>
           <Link href="/export" variant="standalone" isDisabled>
-            Export ledger
+            Export folder
           </Link>
         </div>,
         options,
       );
-      await expect.element(screen.getByRole('link', { name: 'View all invoices' })).toBeVisible();
+      await expect.element(screen.getByRole('link', { name: 'View all projects' })).toBeVisible();
       await expectNoA11yViolations(screen.container);
       await screen.unmount();
     }

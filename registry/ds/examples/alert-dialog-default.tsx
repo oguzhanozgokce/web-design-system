@@ -7,10 +7,10 @@ import { DialogTrigger } from '@/registry/ds/ui/dialog';
 export default function AlertDialogDefault() {
   return (
     <DialogTrigger>
-      <Button>Publish report</Button>
+      <Button>Publish</Button>
       <AlertDialog
-        title="Publish the March report?"
-        description="Everyone with access to the Finance workspace is notified and can download it."
+        title="Publish this post?"
+        description="Everyone who follows you is notified and can see it right away."
         confirmLabel="Publish"
         cancelLabel="Not yet"
         onConfirm={() => new Promise((resolve) => setTimeout(resolve, 800))}

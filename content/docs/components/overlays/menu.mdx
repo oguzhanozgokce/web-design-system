@@ -17,8 +17,8 @@ import { Menu, MenuItem, MenuSeparator, MenuTrigger } from '@/components/ds/menu
 import { DeleteIcon, EditIcon, MoreVerticalIcon } from '@/lib/ds/icons';
 
 <MenuTrigger>
-  <IconButton aria-label="More actions for INV-2048" icon={<MoreVerticalIcon />} />
-  <Menu onAction={(key) => runInvoiceAction(key)}>
+  <IconButton aria-label="More actions" icon={<MoreVerticalIcon />} />
+  <Menu onAction={(key) => runAction(key)}>
     <MenuItem id="edit" startIcon={<EditIcon />} shortcut={['mod', 'E']}>
       Edit
     </MenuItem>
@@ -47,12 +47,13 @@ part of what screen readers announce for the item.
 
 ### Keyboard shortcuts
 
-`shortcut` shows the key combination that also runs the action. `'mod'` is ⌘ on Apple platforms
-and Ctrl elsewhere. On Apple platforms the menu shows symbols in Apple's modifier order (⌃ ⌥ ⇧ ⌘)
-with no separator; elsewhere it joins localised key names with `+`, so German shows `Strg+Umschalt+S`.
-Named keys are `mod`, `command`, `control`, `option`, `alt`, `shift`, `enter`, `backspace`,
-`delete`, `escape`, `tab`, `space` and the four arrows; any other string, such as `'Z'` or `'F2'`,
-renders as written. The menu only shows the hint: register the shortcut yourself.
+`shortcut` shows the key combination that also runs the action. `'mod'` is ⌘ on Apple platforms and
+Ctrl elsewhere. On Apple platforms the menu shows symbols in Apple's modifier order (⌃ ⌥ ⇧ ⌘) with
+no separator; elsewhere it joins key names from its [labels](#labels) with `+`, such as
+`Ctrl+Shift+S`, which a German app turns into `Strg+Umschalt+S`. Named keys are `mod`, `command`,
+`control`, `option`, `alt`, `shift`, `enter`, `backspace`, `delete`, `escape`, `tab`, `space` and
+the four arrows; any other string, such as `'Z'` or `'F2'`, renders as written. The menu only shows
+the hint: register the shortcut yourself.
 
 <ComponentPreview name="menu-shortcuts" />
 
@@ -82,10 +83,11 @@ Pass `items` and a function as children to render a menu from data. Each item ne
 ### Submenus
 
 `SubmenuTrigger` takes a `MenuItem` and a `Menu`. The submenu opens on hover after 200 ms, with
-the arrow key that points into it, or with Enter, and it inherits the parent's `size`. Keep nesting
-to two levels; deeper paths are easier as a dialog. A submenu opens beside its parent and is never
-moved on top of it, so on a phone-width screen a menu in the middle of the page has no room for one.
-There, use a `MenuSection` with its own selection instead, as the account menu below does.
+the arrow key that points into it, or with Enter, and it inherits the parent's `size` and
+`labels`. Keep nesting to two levels; deeper paths are easier as a dialog. A submenu opens beside
+its parent and is never moved on top of it, so on a phone-width screen a menu in the middle of the
+page has no room for one. There, use a `MenuSection` with its own selection instead, as the
+account menu below does.
 
 <ComponentPreview name="menu-submenu" />
 
@@ -155,17 +157,20 @@ component.
 | `disabledKeys`        | `Iterable<Key>`                                      |                                            |
 | `items`               | `Iterable<T>`                                        |                                            |
 | `shouldCloseOnSelect` | `boolean`                                            | `true`, `false` for multiple selection     |
-| `renderEmptyState`    | `() => ReactNode`                                    | the localised `empty` message              |
+| `renderEmptyState`    | `() => ReactNode`                                    | the `empty` label                          |
 | `placement`           | `'bottom start' \| 'bottom end' \| 'top start' \| …` | `'bottom start'`, submenus `'end top'`     |
 | `offset`              | `number`                                             | `8`, `0` for context menus, submenus `-4`  |
 | `crossOffset`         | `number`                                             | `0`, submenus `-8` (`-4` when `size="sm"`) |
 | `shouldFlip`          | `boolean`                                            | `true`                                     |
 | `maxHeight`           | `number`                                             | the space left in the viewport             |
 | `containerPadding`    | `number`                                             | `12`                                       |
+| `labels`              | `Partial<MenuLabels>`                                | the parent menu's labels                   |
 
 Every other [React Aria Menu](https://react-aria.adobe.com/Menu) prop is passed through to the list.
 The surface is `surface-container` with `rounded-sm` corners and elevation 2, between 112px and
-280px wide.
+280px wide. The popover says so through `SurfaceContext`, so a [Card](/docs/components/layout/card)
+in custom menu content steps up from the menu. Buttons in that content keep their own size and
+variant even when the trigger sits in a [Button Group](/docs/components/actions/button-group).
 
 ### MenuItem
 
@@ -225,22 +230,24 @@ Menu: `data-slot="menu"`, `data-size`, `data-empty`. Popover: `data-slot="menu-p
 `"label"`, `"description"`, `"shortcut"` (with `data-platform`), `"check"`, `"submenu-indicator"`,
 `"menu-section"`, `"menu-header"`, `"menu-separator"`, `"empty"`.
 
-### Messages
+### Labels
 
-| Key         | English     |
-| ----------- | ----------- |
-| `empty`     | `No items`  |
-| `ctrl`      | `Ctrl`      |
-| `alt`       | `Alt`       |
-| `shift`     | `Shift`     |
-| `enter`     | `Enter`     |
-| `backspace` | `Backspace` |
-| `delete`    | `Del`       |
-| `escape`    | `Esc`       |
-| `tab`       | `Tab`       |
-| `space`     | `Space`     |
+Text the menu writes on its own. Pass `labels` to one `Menu` or `MenuList`, which hands them to its
+items and submenus, or set them for every menu with `<DSProvider labels={{ menu: { … } }}>`. The
+key names are used outside Apple platforms, where keyboards print them.
 
-Namespace `menu`. The key names are used outside Apple platforms, where keyboards print them.
+| Key         | Default     | Used for                                    |
+| ----------- | ----------- | ------------------------------------------- |
+| `empty`     | `No items`  | the empty state of a menu with no items     |
+| `ctrl`      | `Ctrl`      | `mod`, `control` and `ctrl` in a `shortcut` |
+| `alt`       | `Alt`       | `alt` and `option` in a `shortcut`          |
+| `shift`     | `Shift`     | `shift` in a `shortcut`                     |
+| `enter`     | `Enter`     | `enter` in a `shortcut`                     |
+| `backspace` | `Backspace` | `backspace` in a `shortcut`                 |
+| `delete`    | `Del`       | `delete` in a `shortcut`                    |
+| `escape`    | `Esc`       | `escape` in a `shortcut`                    |
+| `tab`       | `Tab`       | `tab` in a `shortcut`                       |
+| `space`     | `Space`     | `space` in a `shortcut`, on every platform  |
 
 ## Accessibility
 

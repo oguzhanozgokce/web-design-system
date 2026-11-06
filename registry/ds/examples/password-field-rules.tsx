@@ -1,6 +1,6 @@
 import { PasswordField, type PasswordRule } from '@/registry/ds/ui/password-field';
 
-const accountEmail = 'dana.whitfield@northwind.com';
+const accountEmail = 'alex.morgan@example.com';
 const emailName = accountEmail.split('@')[0].split('.');
 
 const rules: PasswordRule[] = [

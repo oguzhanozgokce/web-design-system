@@ -10,13 +10,13 @@ import { TextField } from '@/registry/ds/ui/text-field';
 export default function SheetControlled() {
   const [isOpen, setOpen] = useState(false);
   const [isSaving, setSaving] = useState(false);
-  const [name, setName] = useState('Operating account');
+  const [name, setName] = useState('Alex Morgan');
 
   return (
     <div className="flex items-center gap-3">
       <span className="text-title-md text-on-surface">{name}</span>
       <Button variant="text" size="sm" startIcon={<EditIcon />} onPress={() => setOpen(true)}>
-        Edit ledger
+        Edit name
       </Button>
       <Sheet
         isOpen={isOpen}
@@ -39,12 +39,12 @@ export default function SheetControlled() {
             }}
           >
             <SheetHeader
-              title="Edit ledger"
-              description="Every member sees the new name."
+              title="Edit name"
+              description="Shown on your profile and next to your comments."
               showCloseButton={!isSaving}
             />
             <SheetBody>
-              <TextField label="Ledger name" name="name" defaultValue={name} isRequired autoFocus />
+              <TextField label="Name" name="name" defaultValue={name} isRequired autoFocus />
             </SheetBody>
             <SheetFooter>
               <Button variant="text" onPress={close} isDisabled={isSaving}>

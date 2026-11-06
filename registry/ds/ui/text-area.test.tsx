@@ -23,13 +23,13 @@ describe('TextArea', () => {
   it('renders a labelled multi-line textbox', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
-      <TextArea label="Invoice note" placeholder="Thanks for your business" onChange={onChange} />,
+      <TextArea label="Project note" placeholder="Thanks for your business" onChange={onChange} />,
     );
-    const textarea = screen.getByRole('textbox', { name: 'Invoice note' });
+    const textarea = screen.getByRole('textbox', { name: 'Project note' });
     expect(textarea.element().tagName).toBe('TEXTAREA');
     await expect.element(textarea).toHaveAttribute('rows', '3');
-    await textarea.fill('Payment due in 14 days.');
-    expect(onChange).toHaveBeenLastCalledWith('Payment due in 14 days.');
+    await textarea.fill('Message due in 14 days.');
+    expect(onChange).toHaveBeenLastCalledWith('Message due in 14 days.');
   });
 
   it('follows a controlled value and keeps the counter in step', async () => {
@@ -37,7 +37,7 @@ describe('TextArea', () => {
       const [value, setValue] = useState('Net 30');
       return (
         <>
-          <TextArea label="Payment terms" maxLength={80} value={value} onChange={setValue} />
+          <TextArea label="Message terms" maxLength={80} value={value} onChange={setValue} />
           <button type="button" onClick={() => setValue('')}>
             Reset terms
           </button>
@@ -45,10 +45,10 @@ describe('TextArea', () => {
       );
     }
     const screen = await renderWithDS(<Example />);
-    const textarea = screen.getByRole('textbox', { name: 'Payment terms' });
+    const textarea = screen.getByRole('textbox', { name: 'Message terms' });
     await expect.element(textarea).toHaveValue('Net 30');
     await expect.element(screen.getByText('6/80')).toBeInTheDocument();
-    await textarea.fill('Due on receipt');
+    await textarea.fill('Due on comment');
     await expect.element(screen.getByText('14/80')).toBeInTheDocument();
     await screen.getByRole('button', { name: 'Reset terms' }).click();
     await expect.element(textarea).toHaveValue('');
@@ -105,7 +105,7 @@ describe('TextArea', () => {
           label="Release notes"
           minRows={1}
           maxRows={8}
-          defaultValue="Exports now include the payee category and shared ledgers show who added each expense."
+          defaultValue="Exports now include the payee category and shared folders show who added each session."
         />
       </div>,
     );
@@ -133,7 +133,7 @@ describe('TextArea', () => {
 
   it('counts characters against maxLength', async () => {
     const screen = await renderWithDS(
-      <TextArea label="Short bio" maxLength={160} defaultValue="Finance lead at Acme." />,
+      <TextArea label="Short bio" maxLength={160} defaultValue="Finance lead at Nova." />,
     );
     const textarea = screen.getByRole('textbox', { name: 'Short bio' });
     await expect.element(textarea).toHaveAttribute('maxlength', '160');
@@ -191,7 +191,7 @@ describe('TextArea', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="grid w-96 gap-4 p-4">
-          <TextArea label="Invoice note" description="Printed under the totals." />
+          <TextArea label="Project note" description="Printed under the totals." />
           <TextArea label="Short bio" maxLength={160} variant="filled" />
           <TextArea label="Refund reason" isInvalid errorMessage="Add a reason." />
         </div>,

@@ -7,24 +7,23 @@ export default function DisclosureIcons() {
       <Disclosure>
         <DisclosureTrigger
           startIcon={<NotificationsIcon />}
-          description="Payout alerts and the weekly summary"
+          description="Email, push and the weekly summary"
         >
           Notifications
         </DisclosureTrigger>
         <DisclosurePanel>
-          Alerts go to every workspace owner. The weekly summary is sent on Monday mornings.
+          Choose which updates reach you and how. The weekly summary goes out on Monday mornings.
         </DisclosurePanel>
       </Disclosure>
       <Disclosure>
         <DisclosureTrigger
           startIcon={<LockIcon />}
-          description="Two-step sign-in and session length"
+          description="Two-step sign-in and active sessions"
         >
           Security
         </DisclosureTrigger>
         <DisclosurePanel>
-          Two-step sign-in is required for owners. Members are signed out after 30 minutes without
-          activity.
+          Two-step sign-in is on. You are signed in on three devices.
         </DisclosurePanel>
       </Disclosure>
     </div>

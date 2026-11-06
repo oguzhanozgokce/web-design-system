@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react';
 import { examples } from '@/registry/__index__';
 import { DSProvider } from '@/registry/ds/ui/ds-provider';
 import { cn } from '@/lib/cn';
+import { PreviewThemePicker, PreviewThemeScope } from '@/components/showcase/preview-theme';
 
 export function PreviewFrame({
   name,
@@ -22,7 +23,8 @@ export function PreviewFrame({
       data-preview={name}
       className="not-prose overflow-hidden rounded-lg border border-outline-variant"
     >
-      <div className="flex items-center justify-end gap-1 border-b border-outline-variant bg-surface-container-low px-2 py-1.5">
+      <div className="flex items-center justify-between gap-2 border-b border-outline-variant bg-surface-container-low px-2 py-1.5">
+        <PreviewThemePicker size="sm" />
         <div role="group" aria-label="Direction" className="flex gap-0.5">
           {(['ltr', 'rtl'] as const).map((value) => (
             <button
@@ -53,9 +55,11 @@ export function PreviewFrame({
           )}
         >
           {Example ? (
-            <Suspense fallback={null}>
-              <Example />
-            </Suspense>
+            <PreviewThemeScope className="contents">
+              <Suspense fallback={null}>
+                <Example />
+              </Suspense>
+            </PreviewThemeScope>
           ) : (
             <p className="text-body-md text-error">Missing example: {name}</p>
           )}

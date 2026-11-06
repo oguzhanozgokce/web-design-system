@@ -25,6 +25,7 @@ import {
 } from 'react-aria-components';
 import { mergeLabels } from '@/registry/ds/lib/labels';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
+import { ButtonGroupContext } from '@/registry/ds/ui/button';
 import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useIcons, useLabels } from '@/registry/ds/ui/ds-provider';
 import { popoverStyles, usePopoverMotion } from '@/registry/ds/ui/popover';
@@ -197,7 +198,9 @@ export function MenuPopover({
       )}
     >
       {composeRenderProps(children, (children) => (
-        <SurfaceContext value="surface-container">{children}</SurfaceContext>
+        <SurfaceContext value="surface-container">
+          <ButtonGroupContext value={null}>{children}</ButtonGroupContext>
+        </SurfaceContext>
       ))}
     </AriaPopover>
   );

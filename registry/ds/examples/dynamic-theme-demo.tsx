@@ -86,7 +86,7 @@ export default function DynamicThemeDemo() {
 
       <DynamicTheme seed={seed} paletteStyle="vibrant">
         <Card variant="filled">
-          <CardHeader title="Northwind workspace" description="Your accent colour, every role" />
+          <CardHeader title="Design team" description="Your accent colour, every role" />
           <CardContent className="flex flex-wrap gap-2">
             <span className="rounded-full bg-primary-container px-3 py-1 text-label-lg text-on-primary-container">
               primary
@@ -100,7 +100,7 @@ export default function DynamicThemeDemo() {
           </CardContent>
           <CardFooter>
             <Button variant="outlined">Invite</Button>
-            <Button>Open workspace</Button>
+            <Button>Open</Button>
           </CardFooter>
         </Card>
       </DynamicTheme>

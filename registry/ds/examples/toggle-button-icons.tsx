@@ -11,17 +11,17 @@ export default function ToggleButtonIcons() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
       <ToggleButton startIcon={<FavoriteIcon />} selectedIcon={<FavoriteFilledIcon />}>
-        Favourite
+        Like
       </ToggleButton>
       <ToggleButton
         variant="outlined"
         startIcon={<VisibilityOffIcon />}
         selectedIcon={<VisibilityIcon />}
       >
-        Show balances
+        Show hidden
       </ToggleButton>
       <ToggleButton variant="tonal" endIcon={<NotificationsIcon />}>
-        Payout alerts
+        Notifications
       </ToggleButton>
     </div>
   );

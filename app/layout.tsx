@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Provider } from '@/components/provider';
 import { appName } from '@/lib/shared';
+import { siteThemeCss } from '@/lib/site-theme';
 import './global.css';
 
 const inter = Inter({
@@ -20,6 +21,9 @@ export const metadata: Metadata = {
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: siteThemeCss() }} />
+      </head>
       <body className="flex min-h-screen flex-col">
         <Provider>{children}</Provider>
       </body>

@@ -15,8 +15,8 @@ description: Field-styled select on the shared Field contract, with icons and av
 import { ListBoxItem } from '@/components/ds/list-box';
 import { Select } from '@/components/ds/select';
 
-<Select label="Default currency" items={currencies} defaultValue="EUR">
-  {(currency) => <ListBoxItem description={currency.id}>{currency.name}</ListBoxItem>}
+<Select label="Country" items={countries} defaultValue="JP">
+  {(country) => <ListBoxItem description={country.id}>{country.name}</ListBoxItem>}
 </Select>;
 ```
 

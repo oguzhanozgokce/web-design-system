@@ -310,6 +310,7 @@ function SliderBody({
 
   const values = state.values;
   const isRange = values.length > 1;
+  const isCollapsedRange = isRange && values.every((value) => value === values[0]);
   const thumbs = values.map((value) => state.getValuePercent(value));
   const offset = isRange
     ? minValue
@@ -363,7 +364,13 @@ function SliderBody({
               {label}
             </Label>
           ) : null}
-          {showValueLabel ? <SliderOutput data-slot="output" className={styles.output()} /> : null}
+          {showValueLabel ? (
+            <SliderOutput data-slot="output" className={styles.output()}>
+              {({ defaultChildren }) =>
+                isCollapsedRange ? state.getThumbValueLabel(0) : defaultChildren
+              }
+            </SliderOutput>
+          ) : null}
         </div>
       ) : null}
       <div data-slot="control" className={styles.control()}>
@@ -396,6 +403,9 @@ function SliderBody({
               style={{ maskImage: gapMask(orientation, direction, thumbs) }}
             >
               {[...stopValues]
+                .filter(
+                  (value) => seam == null || Math.abs(state.getValuePercent(value) - seam) > 1e-9,
+                )
                 .sort((a, b) => a - b)
                 .map((value) => {
                   const tone: Tone =

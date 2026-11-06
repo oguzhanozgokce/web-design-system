@@ -24,10 +24,10 @@ export default function KbdShortcutHint() {
       }}
     >
       <TextField value={draft} onChange={setDraft} className="flex flex-col gap-1.5">
-        <Label className="text-label-lg text-on-surface">Comment on INV-2048</Label>
+        <Label className="text-label-lg text-on-surface">Comment</Label>
         <TextArea
           rows={3}
-          placeholder="Ask Ayşe to confirm the VAT number"
+          placeholder="Add a comment"
           aria-keyshortcuts={toAriaKeyShortcuts(['mod', 'enter'])}
           onKeyDown={(event) => {
             if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
@@ -47,7 +47,7 @@ export default function KbdShortcutHint() {
         </Button>
       </div>
       <p className="text-body-sm text-on-surface-variant" aria-live="polite">
-        {sent === 1 ? '1 comment sent' : `${sent} comments sent`}
+        {sent === 0 ? null : sent === 1 ? '1 comment sent' : `${sent} comments sent`}
       </p>
     </form>
   );

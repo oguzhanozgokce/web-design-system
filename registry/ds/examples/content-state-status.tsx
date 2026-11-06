@@ -39,7 +39,7 @@ export default function ContentStateStatus() {
         headingLevel={3}
         onRetry={() => setStatus('content')}
         emptyTitle="No members yet"
-        emptyDescription="People you invite to this workspace appear here."
+        emptyDescription="People you invite appear here."
         className="rounded-lg border border-outline-variant bg-surface"
       >
         <ul className="flex flex-col p-2">

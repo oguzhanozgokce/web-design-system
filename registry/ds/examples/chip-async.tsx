@@ -9,7 +9,7 @@ function wait() {
 }
 
 export default function ChipAsync() {
-  const [sent, setSent] = useState(0);
+  const [status, setStatus] = useState('Nothing sent yet');
 
   return (
     <div className="flex flex-col items-center gap-3">
@@ -18,22 +18,22 @@ export default function ChipAsync() {
           startIcon={<SendIcon className="rtl:-scale-x-100" />}
           onPress={async () => {
             await wait();
-            setSent((count) => count + 1);
+            setStatus('Message sent');
           }}
         >
-          Send reminder
+          Send message
         </AssistChip>
         <AssistChip
           onPress={async () => {
             await wait();
-            setSent((count) => count + 1);
+            setStatus('Reminder set');
           }}
         >
-          Nudge approver
+          Remind me tomorrow
         </AssistChip>
       </div>
       <p className="text-body-sm text-on-surface-variant" aria-live="polite">
-        Reminders sent: {sent}
+        {status}
       </p>
     </div>
   );

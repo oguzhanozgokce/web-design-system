@@ -2,8 +2,8 @@ import {
   ContentPasteIcon,
   CopyIcon,
   SearchIcon,
-  TableRowsIcon,
   UndoIcon,
+  VisibilityIcon,
 } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from '@/registry/ds/ui/menu';
@@ -24,17 +24,17 @@ export default function MenuShortcuts() {
         </MenuItem>
         <MenuSeparator />
         <MenuItem startIcon={<CopyIcon />} shortcut={['mod', 'C']}>
-          Copy amount
+          Copy
         </MenuItem>
         <MenuItem startIcon={<ContentPasteIcon />} shortcut={['mod', 'V']}>
           Paste
         </MenuItem>
         <MenuSeparator />
         <MenuItem startIcon={<SearchIcon />} shortcut={['mod', 'F']}>
-          Find in ledger
+          Find
         </MenuItem>
-        <MenuItem startIcon={<TableRowsIcon />} shortcut={['shift', 'space']}>
-          Select row
+        <MenuItem startIcon={<VisibilityIcon />} shortcut={['space']}>
+          Preview
         </MenuItem>
       </Menu>
     </MenuTrigger>

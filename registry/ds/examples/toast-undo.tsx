@@ -5,30 +5,31 @@ import { ArchiveIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { Toaster, toast } from '@/registry/ds/ui/toast';
 
-interface Order {
+interface Conversation {
   id: string;
-  customer: string;
+  subject: string;
+  from: string;
 }
 
-const allOrders: Order[] = [
-  { id: 'ORD-1042', customer: 'Acme Corp' },
-  { id: 'ORD-1043', customer: 'Globex' },
-  { id: 'ORD-1044', customer: 'Initech' },
+const allConversations: Conversation[] = [
+  { id: 'weekly', subject: 'Weekly update', from: 'Ayşe Demir' },
+  { id: 'review', subject: 'Design review notes', from: 'Jonas Weber' },
+  { id: 'trip', subject: 'Trip photos', from: 'Priya Natarajan' },
 ];
 
 export default function ToastUndo() {
-  const [orders, setOrders] = useState(allOrders);
+  const [conversations, setConversations] = useState(allConversations);
 
-  function archive(order: Order) {
-    setOrders((current) => current.filter((item) => item.id !== order.id));
-    toast(`${order.id} archived`, {
+  function archive(conversation: Conversation) {
+    setConversations((current) => current.filter((item) => item.id !== conversation.id));
+    toast('Conversation archived', {
       toasterId: 'toast-undo',
       action: {
         label: 'Undo',
         onAction: () =>
-          setOrders((current) =>
-            allOrders.filter(
-              (item) => item.id === order.id || current.some((kept) => kept.id === item.id),
+          setConversations((current) =>
+            allConversations.filter(
+              (item) => item.id === conversation.id || current.some((kept) => kept.id === item.id),
             ),
           ),
       },
@@ -37,20 +38,20 @@ export default function ToastUndo() {
 
   return (
     <div className="w-full max-w-sm">
-      {orders.length ? (
+      {conversations.length ? (
         <ul className="divide-y divide-outline-variant rounded-lg bg-surface-container-low text-on-surface">
-          {orders.map((order) => (
-            <li key={order.id} className="flex items-center gap-3 py-2 ps-4 pe-2">
+          {conversations.map((conversation) => (
+            <li key={conversation.id} className="flex items-center gap-3 py-2 ps-4 pe-2">
               <div className="min-w-0 flex-1">
-                <p className="text-title-sm">{order.id}</p>
-                <p className="text-body-sm text-on-surface-variant">{order.customer}</p>
+                <p className="text-title-sm">{conversation.subject}</p>
+                <p className="text-body-sm text-on-surface-variant">{conversation.from}</p>
               </div>
               <Button
                 variant="text"
                 size="sm"
                 startIcon={<ArchiveIcon />}
-                aria-label={`Archive ${order.id}`}
-                onPress={() => archive(order)}
+                aria-label={`Archive ${conversation.subject}`}
+                onPress={() => archive(conversation)}
               >
                 Archive
               </Button>
@@ -59,7 +60,7 @@ export default function ToastUndo() {
         </ul>
       ) : (
         <p className="rounded-lg bg-surface-container-low p-4 text-center text-body-md text-on-surface-variant">
-          Every order is archived.
+          Every conversation is archived.
         </p>
       )}
       <Toaster toasterId="toast-undo" />

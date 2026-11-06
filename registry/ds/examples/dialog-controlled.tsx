@@ -5,51 +5,56 @@ import { useLocale } from 'react-aria-components';
 import { Button } from '@/registry/ds/ui/button';
 import { Dialog, DialogBody, DialogFooter, DialogHeader } from '@/registry/ds/ui/dialog';
 
-const receipts = [
-  { id: 'RC-1042', merchant: 'Northwind Supplies', amount: 1250, category: 'Office' },
-  { id: 'RC-1043', merchant: 'Tailspin Travel', amount: 486.4, category: 'Travel' },
-  { id: 'RC-1044', merchant: 'Contoso Cloud', amount: 92, category: 'Software' },
+const files = [
+  { name: 'Notes.txt', kind: 'Plain text', size: 0.1, modified: new Date(2026, 9, 2) },
+  { name: 'Photo.jpg', kind: 'JPEG image', size: 3.2, modified: new Date(2026, 9, 14) },
+  { name: 'Slides.pdf', kind: 'PDF document', size: 8.4, modified: new Date(2026, 9, 21) },
 ];
 
 export default function DialogControlled() {
   const { locale } = useLocale();
-  const currency = new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' });
+  const size = new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit: 'megabyte',
+    maximumFractionDigits: 1,
+  });
+  const date = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
   const [isOpen, setOpen] = useState(false);
-  const [selected, setSelected] = useState(receipts[0]);
+  const [selected, setSelected] = useState(files[0]);
 
   return (
     <>
       <ul className="w-full max-w-md divide-y divide-outline-variant rounded-lg bg-surface-container-low px-4 text-on-surface">
-        {receipts.map((receipt) => (
-          <li key={receipt.id} className="flex items-center justify-between gap-3 py-2">
+        {files.map((file) => (
+          <li key={file.name} className="flex items-center justify-between gap-3 py-2">
             <span className="flex min-w-0 flex-col">
-              <span className="truncate text-body-lg">{receipt.merchant}</span>
-              <span className="text-body-sm text-on-surface-variant">{receipt.id}</span>
+              <span className="truncate text-body-lg">{file.name}</span>
+              <span className="text-body-sm text-on-surface-variant">{file.kind}</span>
             </span>
             <Button
               variant="text"
               size="sm"
-              aria-label={`View ${receipt.id}`}
+              aria-label={`Details for ${file.name}`}
               onPress={() => {
-                setSelected(receipt);
+                setSelected(file);
                 setOpen(true);
               }}
             >
-              View
+              Details
             </Button>
           </li>
         ))}
       </ul>
       <Dialog size="sm" isOpen={isOpen} onOpenChange={setOpen}>
-        <DialogHeader title={`Receipt ${selected.id}`} description={selected.merchant} />
+        <DialogHeader title={selected.name} description={selected.kind} />
         <DialogBody>
           <dl className="grid grid-cols-2 gap-y-2">
-            <dt>Amount</dt>
+            <dt>Size</dt>
             <dd className="text-end text-on-surface tabular-digits">
-              {currency.format(selected.amount)}
+              {size.format(selected.size)}
             </dd>
-            <dt>Category</dt>
-            <dd className="text-end text-on-surface">{selected.category}</dd>
+            <dt>Modified</dt>
+            <dd className="text-end text-on-surface">{date.format(selected.modified)}</dd>
           </dl>
         </DialogBody>
         <DialogFooter>

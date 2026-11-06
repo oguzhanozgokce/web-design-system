@@ -3,6 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { InfoIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
+import { ButtonGroup } from '@/registry/ds/ui/button-group';
 import { Card } from '@/registry/ds/ui/card';
 import {
   Dialog,
@@ -36,7 +37,7 @@ function InviteDialog({
       <Dialog {...dialog}>
         <DialogHeader
           title="Invite teammate"
-          description="They get access to the Operating ledger."
+          description="They get access to the Operating folder."
           {...header}
         />
         <DialogBody>{body}</DialogBody>
@@ -51,12 +52,12 @@ function InviteDialog({
   );
 }
 
-function ledgerEntries(count: number) {
+function folderEntries(count: number) {
   return (
     <ul>
       {Array.from({ length: count }, (_, index) => (
         <li key={index} className="py-2">
-          Entry {index + 1}: card payment to supplier
+          Entry {index + 1}: card message to supplier
         </li>
       ))}
     </ul>
@@ -98,7 +99,7 @@ describe('Dialog', () => {
     await expect.element(dialog).toHaveFocus();
     await expect
       .element(dialog)
-      .toHaveAccessibleDescription('They get access to the Operating ledger.');
+      .toHaveAccessibleDescription('They get access to the Operating folder.');
     await expect
       .element(page.getByRole('heading', { level: 2, name: 'Invite teammate' }))
       .toBeVisible();
@@ -187,7 +188,7 @@ describe('Dialog', () => {
 
   it('shows scroll dividers only while the body overflows', async () => {
     const screen = await renderWithDS(
-      <InviteDialog dialog={{ size: 'sm' }} body={ledgerEntries(60)} />,
+      <InviteDialog dialog={{ size: 'sm' }} body={folderEntries(60)} />,
     );
     await screen.getByRole('button', { name: 'Invite teammate' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
@@ -339,11 +340,11 @@ describe('Dialog', () => {
   it('lists every description and a consumer aria-describedby', async () => {
     const screen = await renderWithDS(
       <>
-        <p id="ledger-owner">Owned by Ayşe Demir.</p>
+        <p id="folder-owner">Owned by Ayşe Demir.</p>
         <DialogTrigger>
-          <Button>Share ledger</Button>
-          <Dialog aria-describedby="ledger-owner">
-            <DialogHeader title="Share ledger" description="Members see every entry." />
+          <Button>Share folder</Button>
+          <Dialog aria-describedby="folder-owner">
+            <DialogHeader title="Share folder" description="Members see every entry." />
             <DialogBody>
               <DialogDescription>Links stay valid for 7 days.</DialogDescription>
             </DialogBody>
@@ -351,9 +352,9 @@ describe('Dialog', () => {
         </DialogTrigger>
       </>,
     );
-    await screen.getByRole('button', { name: 'Share ledger' }).click();
+    await screen.getByRole('button', { name: 'Share folder' }).click();
     await expect
-      .element(page.getByRole('dialog', { name: 'Share ledger' }))
+      .element(page.getByRole('dialog', { name: 'Share folder' }))
       .toHaveAccessibleDescription(
         'Owned by Ayşe Demir. Members see every entry. Links stay valid for 7 days.',
       );
@@ -384,7 +385,7 @@ describe('Dialog', () => {
       const [isOpen, setOpen] = useState(false);
       return (
         <>
-          <Button onPress={() => setOpen(true)}>Rename ledger</Button>
+          <Button onPress={() => setOpen(true)}>Rename folder</Button>
           <p>{isOpen ? 'Open' : 'Closed'}</p>
           <Dialog
             isOpen={isOpen}
@@ -393,7 +394,7 @@ describe('Dialog', () => {
               setOpen(open);
             }}
           >
-            <DialogHeader title="Rename ledger" showCloseButton />
+            <DialogHeader title="Rename folder" showCloseButton />
             <DialogBody>Names show on statements and exports.</DialogBody>
           </Dialog>
         </>
@@ -401,8 +402,8 @@ describe('Dialog', () => {
     }
 
     const screen = await renderWithDS(<Controlled />);
-    await screen.getByRole('button', { name: 'Rename ledger' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Rename ledger' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Rename folder' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Rename folder' })).toBeVisible();
     await expect.element(screen.getByText('Open')).toBeInTheDocument();
 
     await userEvent.keyboard('{Escape}');
@@ -420,7 +421,7 @@ describe('Dialog', () => {
           {({ close }) => (
             <>
               <DialogHeader title="Edit note" />
-              <DialogBody>Reconciled with the bank statement.</DialogBody>
+              <DialogBody>Reconciled with the team statement.</DialogBody>
               <DialogFooter>
                 <Button
                   onPress={async () => {
@@ -447,17 +448,17 @@ describe('Dialog', () => {
   it('labels a dialog without a header through aria-label', async () => {
     const screen = await renderWithDS(
       <DialogTrigger>
-        <Button>Preview receipt</Button>
-        <Dialog aria-label="Receipt RC-1042">
-          <DialogBody>Paid 1,250.00 to Northwind Supplies.</DialogBody>
+        <Button>Preview comment</Button>
+        <Dialog aria-label="Comment RC-1042">
+          <DialogBody>Paid 1,250.00 to Riverside Supplies.</DialogBody>
           <DialogFooter>
             <DialogClose />
           </DialogFooter>
         </Dialog>
       </DialogTrigger>,
     );
-    await screen.getByRole('button', { name: 'Preview receipt' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Receipt RC-1042' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Preview comment' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Comment RC-1042' })).toBeVisible();
     await page.getByRole('button', { name: 'Close' }).click();
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
   });
@@ -506,8 +507,33 @@ describe('Dialog', () => {
     await expect.element(dialog.getByRole('button', { name: 'Kapat' })).not.toBeInTheDocument();
   });
 
+  it('renders its buttons at their own size and variant when opened from a ButtonGroup', async () => {
+    const screen = await renderWithDS(
+      <ButtonGroup aria-label="Profile actions" size="sm" buttonVariant="outlined">
+        <Button>Copy link</Button>
+        <DialogTrigger>
+          <Button>Edit profile</Button>
+          <Dialog>
+            <DialogHeader title="Edit profile" />
+            <DialogFooter>
+              <Button slot="close">Save</Button>
+            </DialogFooter>
+          </Dialog>
+        </DialogTrigger>
+      </ButtonGroup>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Edit profile' });
+    await expect.element(trigger).toHaveAttribute('data-size', 'sm');
+    await expect.element(trigger).toHaveAttribute('data-variant', 'outlined');
+
+    await trigger.click();
+    const save = page.getByRole('dialog').getByRole('button', { name: 'Save' });
+    await expect.element(save).toHaveAttribute('data-size', 'md');
+    await expect.element(save).toHaveAttribute('data-variant', 'filled');
+  });
+
   it('raises cards inside it above its own surface, whatever surrounds the trigger', async () => {
-    const summary = <Card variant="outlined">Ledger summary</Card>;
+    const summary = <Card variant="outlined">Folder summary</Card>;
     const screen = await renderWithDS(<InviteDialog body={summary} />);
     await screen.getByRole('button', { name: 'Invite teammate' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
@@ -579,7 +605,7 @@ describe('Dialog', () => {
         <InviteDialog
           dialog={{ size: 'sm' }}
           header={{ icon: <InfoIcon />, showCloseButton: true }}
-          body={ledgerEntries(30)}
+          body={folderEntries(30)}
         />,
         options,
       );
@@ -603,7 +629,7 @@ describe('Dialog', () => {
         <InviteDialog
           dialog={{ fullScreenOnMobile: true }}
           header={{ action: <Button variant="text">Save</Button> }}
-          body={ledgerEntries(30)}
+          body={folderEntries(30)}
         />,
         options,
       );

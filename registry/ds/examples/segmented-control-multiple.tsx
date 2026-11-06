@@ -9,7 +9,7 @@ export default function SegmentedControlMultiple() {
   return (
     <div className="flex flex-col items-center gap-2">
       <p id={labelId} className="text-label-lg text-on-surface">
-        Send overdue reminders by
+        Notify me by
       </p>
       <SegmentedControl
         aria-labelledby={labelId}
@@ -21,7 +21,7 @@ export default function SegmentedControlMultiple() {
         <SegmentedControlItem id="push">Push</SegmentedControlItem>
       </SegmentedControl>
       <p className="text-body-sm text-on-surface-variant">
-        With none selected, no reminders go out.
+        With none selected, you get no notifications.
       </p>
     </div>
   );

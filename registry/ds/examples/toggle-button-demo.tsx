@@ -4,7 +4,7 @@ import { ToggleButton } from '@/registry/ds/ui/toggle-button';
 export default function ToggleButtonDemo() {
   return (
     <ToggleButton startIcon={<StarIcon />} selectedIcon={<StarFilledIcon />}>
-      Star report
+      Star
     </ToggleButton>
   );
 }

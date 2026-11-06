@@ -6,15 +6,15 @@ const archived: { id: string; name: string }[] = [];
 export default function ListBoxEmpty() {
   return (
     <ListBox
-      aria-label="Archived ledgers"
+      aria-label="Archive"
       items={archived}
       variant="outlined"
       className="w-full max-w-xs"
       renderEmptyState={() => (
-        <ListBoxStatus icon={<ArchiveIcon />}>Archived ledgers show up here</ListBoxStatus>
+        <ListBoxStatus icon={<ArchiveIcon />}>Archived items show up here</ListBoxStatus>
       )}
     >
-      {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+      {(item) => <ListBoxItem>{item.name}</ListBoxItem>}
     </ListBox>
   );
 }

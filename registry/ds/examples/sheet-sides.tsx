@@ -5,26 +5,26 @@ const sides = [
   {
     side: 'start',
     label: 'Start',
-    title: 'Workspaces',
-    body: 'Switch between the Acme Retail, Acme Wholesale and Personal ledgers.',
+    title: 'Navigation',
+    body: 'Move between the main sections of the app.',
   },
   {
     side: 'end',
     label: 'End',
-    title: 'Order filters',
-    body: 'Narrow the order list by status, channel and fulfilment date.',
+    title: 'Filters',
+    body: 'Narrow the list by type, owner and date.',
   },
   {
     side: 'top',
     label: 'Top',
     title: 'Scheduled maintenance',
-    body: 'Payouts pause on Sunday between 02:00 and 03:00 UTC while we upgrade the ledger.',
+    body: 'The service is unavailable on Sunday between 02:00 and 03:00 UTC.',
   },
   {
     side: 'bottom',
     label: 'Bottom',
-    title: 'Share report',
-    body: 'Send the October revenue report to your accountant or copy a read-only link.',
+    title: 'Share',
+    body: 'Copy a link, or invite people by email.',
   },
 ] as const;
 

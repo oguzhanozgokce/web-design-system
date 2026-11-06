@@ -7,7 +7,7 @@ export default function SliderSizes() {
         <Slider
           key={size}
           size={size}
-          label={`Size ${size}`}
+          label={`Brightness, ${size}`}
           defaultValue={64}
           formatOptions={{ style: 'unit', unit: 'percent' }}
         />

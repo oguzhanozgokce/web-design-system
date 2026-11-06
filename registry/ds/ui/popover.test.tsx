@@ -13,7 +13,7 @@ import {
   type PopoverProps,
 } from '@/registry/ds/ui/popover';
 
-function LedgerPopover({
+function FolderPopover({
   popover,
   showCloseButton = true,
   labels,
@@ -24,9 +24,9 @@ function LedgerPopover({
 }) {
   return (
     <PopoverTrigger>
-      <Button>Billing cycle</Button>
+      <Button>Sharing cycle</Button>
       <Popover {...popover}>
-        <PopoverDialog title="Next invoice" showCloseButton={showCloseButton} labels={labels}>
+        <PopoverDialog title="Next project" showCloseButton={showCloseButton} labels={labels}>
           <p>Your Team plan renews on 1 December.</p>
         </PopoverDialog>
       </Popover>
@@ -36,11 +36,11 @@ function LedgerPopover({
 
 describe('Popover', () => {
   it('opens a dialog named by its title and closes from the close button', async () => {
-    const screen = await renderWithDS(<LedgerPopover />);
-    const trigger = screen.getByRole('button', { name: 'Billing cycle' });
+    const screen = await renderWithDS(<FolderPopover />);
+    const trigger = screen.getByRole('button', { name: 'Sharing cycle' });
 
     await trigger.click();
-    const dialog = page.getByRole('dialog', { name: 'Next invoice' });
+    const dialog = page.getByRole('dialog', { name: 'Next project' });
     await expect.element(dialog).toBeVisible();
     await expect.element(trigger).toHaveAttribute('aria-expanded', 'true');
     await expect
@@ -53,22 +53,22 @@ describe('Popover', () => {
   });
 
   it('closes on Escape and returns focus to the trigger', async () => {
-    const screen = await renderWithDS(<LedgerPopover />);
-    const trigger = screen.getByRole('button', { name: 'Billing cycle' });
+    const screen = await renderWithDS(<FolderPopover />);
+    const trigger = screen.getByRole('button', { name: 'Sharing cycle' });
 
     await trigger.click();
-    await expect.element(page.getByRole('dialog', { name: 'Next invoice' })).toHaveFocus();
+    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toHaveFocus();
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await expect.element(trigger).toHaveFocus();
   });
 
   it('opens from the keyboard and moves focus into the popover', async () => {
-    await renderWithDS(<LedgerPopover />);
+    await renderWithDS(<FolderPopover />);
 
     await userEvent.keyboard('{Tab}');
     await userEvent.keyboard('{Enter}');
-    await expect.element(page.getByRole('dialog', { name: 'Next invoice' })).toHaveFocus();
+    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toHaveFocus();
     await userEvent.keyboard('{Tab}');
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Close' }))
@@ -78,11 +78,11 @@ describe('Popover', () => {
   it('renders an arrow, the placement and the surface styles', async () => {
     const screen = await renderWithDS(
       <div className="flex h-96 items-end justify-center">
-        <LedgerPopover popover={{ placement: 'top', showArrow: true }} />
+        <FolderPopover popover={{ placement: 'top', showArrow: true }} />
       </div>,
     );
 
-    await screen.getByRole('button', { name: 'Billing cycle' }).click();
+    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
     const popover = document.querySelector('[data-slot="popover"]');
     expect(popover).not.toBeNull();
     await expect.poll(() => popover?.getAttribute('data-placement')).toBe('top');
@@ -114,9 +114,9 @@ describe('Popover', () => {
               setOpen(open);
             }}
           >
-            <Button>Billing cycle</Button>
+            <Button>Sharing cycle</Button>
             <Popover>
-              <PopoverDialog title="Next invoice" showCloseButton>
+              <PopoverDialog title="Next project" showCloseButton>
                 Renews on 1 December.
               </PopoverDialog>
             </Popover>
@@ -126,7 +126,7 @@ describe('Popover', () => {
     }
 
     const screen = await renderWithDS(<Controlled />);
-    await screen.getByRole('button', { name: 'Billing cycle' }).click();
+    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
     await expect.element(screen.getByText('Open')).toBeInTheDocument();
     expect(onOpenChange).toHaveBeenLastCalledWith(true);
 
@@ -141,7 +141,7 @@ describe('Popover', () => {
       <PopoverTrigger>
         <Button>Rename</Button>
         <Popover>
-          <PopoverDialog title="Rename ledger">
+          <PopoverDialog title="Rename folder">
             {({ close }) => (
               <form
                 onSubmit={(event) => {
@@ -151,7 +151,7 @@ describe('Popover', () => {
                 }}
               >
                 <TextField name="name" defaultValue="Operating account" autoFocus>
-                  <Label>Ledger name</Label>
+                  <Label>Folder name</Label>
                   <Input />
                 </TextField>
                 <Button type="submit">Save</Button>
@@ -163,13 +163,13 @@ describe('Popover', () => {
     );
 
     await screen.getByRole('button', { name: 'Rename' }).click();
-    const input = page.getByRole('textbox', { name: 'Ledger name' });
+    const input = page.getByRole('textbox', { name: 'Folder name' });
     await expect.element(input).toHaveFocus();
     await userEvent.clear(input);
-    await userEvent.type(input, 'Payroll');
+    await userEvent.type(input, 'Backups');
     await page.getByRole('button', { name: 'Save' }).click();
 
-    expect(onSave).toHaveBeenCalledWith('Payroll');
+    expect(onSave).toHaveBeenCalledWith('Backups');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
   });
 
@@ -198,8 +198,8 @@ describe('Popover', () => {
   });
 
   it('names the close button Close by default, whatever the locale', async () => {
-    const screen = await renderWithDS(<LedgerPopover />, { locale: 'tr' });
-    await screen.getByRole('button', { name: 'Billing cycle' }).click();
+    const screen = await renderWithDS(<FolderPopover />, { locale: 'tr' });
+    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Close' }))
       .toBeVisible();
@@ -207,8 +207,8 @@ describe('Popover', () => {
 
   it('takes the close label from DSProvider, and from its labels prop first', async () => {
     const provider = { labels: { popover: { close: 'Kapat' } } };
-    const screen = await renderWithDS(<LedgerPopover />, { provider });
-    await screen.getByRole('button', { name: 'Billing cycle' }).click();
+    const screen = await renderWithDS(<FolderPopover />, { provider });
+    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Kapat' }))
       .toBeVisible();
@@ -216,10 +216,10 @@ describe('Popover', () => {
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await screen.unmount();
 
-    const own = await renderWithDS(<LedgerPopover labels={{ close: 'Pencereyi kapat' }} />, {
+    const own = await renderWithDS(<FolderPopover labels={{ close: 'Pencereyi kapat' }} />, {
       provider,
     });
-    await own.getByRole('button', { name: 'Billing cycle' }).click();
+    await own.getByRole('button', { name: 'Sharing cycle' }).click();
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Pencereyi kapat' }))
       .toBeVisible();
@@ -228,15 +228,15 @@ describe('Popover', () => {
   it('raises cards inside it above its own surface', async () => {
     const screen = await renderWithDS(
       <PopoverTrigger>
-        <Button>Billing cycle</Button>
+        <Button>Sharing cycle</Button>
         <Popover>
-          <PopoverDialog title="Next invoice">
+          <PopoverDialog title="Next project">
             <Card variant="outlined">Team plan, 12 seats</Card>
           </PopoverDialog>
         </Popover>
       </PopoverTrigger>,
     );
-    await screen.getByRole('button', { name: 'Billing cycle' }).click();
+    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(document.querySelector('[data-slot="popover"] [data-slot="card"]')).toHaveAttribute(
       'data-surface',
@@ -245,9 +245,9 @@ describe('Popover', () => {
   });
 
   it('sets the popover direction and language from the locale', async () => {
-    const screen = await renderWithDS(<LedgerPopover />, { locale: 'ar' });
-    await screen.getByRole('button', { name: 'Billing cycle' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Next invoice' })).toBeVisible();
+    const screen = await renderWithDS(<FolderPopover />, { locale: 'ar' });
+    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toBeVisible();
     const popover = document.querySelector('[data-slot="popover"]');
     expect(popover).toHaveAttribute('dir', 'rtl');
     expect(popover).toHaveAttribute('lang', 'ar');
@@ -283,24 +283,24 @@ describe('Popover', () => {
     const onOpenChange = vi.fn();
     const screen = await renderWithDS(
       <PopoverTrigger onOpenChange={onOpenChange}>
-        <Button>Billing cycle</Button>
+        <Button>Sharing cycle</Button>
         <Popover>
-          <PopoverDialog title="Next invoice">Renews on 1 December.</PopoverDialog>
+          <PopoverDialog title="Next project">Renews on 1 December.</PopoverDialog>
         </Popover>
       </PopoverTrigger>,
     );
 
-    await screen.getByRole('button', { name: 'Billing cycle' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Next invoice' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toBeVisible();
     await page.getByTestId('underlay').click({ force: true, position: { x: 400, y: 800 } });
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     expect(onOpenChange).toHaveBeenLastCalledWith(false);
   });
 
   it('skips the scale animation when motion is disabled', async () => {
-    const screen = await renderWithDS(<LedgerPopover />, { provider: { motion: 'disabled' } });
-    await screen.getByRole('button', { name: 'Billing cycle' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Next invoice' })).toBeVisible();
+    const screen = await renderWithDS(<FolderPopover />, { provider: { motion: 'disabled' } });
+    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toBeVisible();
     expect(document.querySelector('[data-slot="popover"]')?.className).not.toContain(
       'animate-ds-popover-in',
     );
@@ -309,8 +309,8 @@ describe('Popover', () => {
   it('has no accessibility violations in light, dark and RTL', async () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       document.documentElement.classList.toggle('dark', 'dark' in options);
-      const screen = await renderWithDS(<LedgerPopover popover={{ showArrow: true }} />, options);
-      await screen.getByRole('button', { name: 'Billing cycle' }).click();
+      const screen = await renderWithDS(<FolderPopover popover={{ showArrow: true }} />, options);
+      await screen.getByRole('button', { name: 'Sharing cycle' }).click();
       await expect.element(page.getByRole('dialog')).toBeVisible();
       await new Promise((resolve) => setTimeout(resolve, 250));
       await expectNoA11yViolations(document.body);

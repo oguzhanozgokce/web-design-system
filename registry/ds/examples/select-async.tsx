@@ -4,54 +4,68 @@ import { useEffect, useState } from 'react';
 import { ListBoxItem } from '@/registry/ds/ui/list-box';
 import { Select } from '@/registry/ds/ui/select';
 
-interface Customer {
+interface City {
   id: string;
   name: string;
-  city: string;
+  country: string;
 }
 
-const brands = [
-  'Northwind',
-  'Harbor',
-  'Anadolu',
-  'Meridian',
-  'Kestrel',
-  'Bosphorus',
-  'Atlas',
-  'Lumen',
-];
-const trades = ['Traders', 'Logistics', 'Foods', 'Studio', 'Labs', 'Partners'];
-const cities = ['İstanbul', 'Lisbon', 'Berlin', 'İzmir', 'Rotterdam', 'Ankara', 'Porto'];
-const total = 48;
+const cities: City[] = [
+  ['Accra', 'Ghana'],
+  ['Amsterdam', 'Netherlands'],
+  ['Auckland', 'New Zealand'],
+  ['Bangkok', 'Thailand'],
+  ['Barcelona', 'Spain'],
+  ['Bogotá', 'Colombia'],
+  ['Buenos Aires', 'Argentina'],
+  ['Cairo', 'Egypt'],
+  ['Cape Town', 'South Africa'],
+  ['Chicago', 'United States'],
+  ['Copenhagen', 'Denmark'],
+  ['Dublin', 'Ireland'],
+  ['Hanoi', 'Vietnam'],
+  ['Helsinki', 'Finland'],
+  ['Istanbul', 'Türkiye'],
+  ['Jakarta', 'Indonesia'],
+  ['Kyoto', 'Japan'],
+  ['Lagos', 'Nigeria'],
+  ['Lima', 'Peru'],
+  ['Lisbon', 'Portugal'],
+  ['London', 'United Kingdom'],
+  ['Manila', 'Philippines'],
+  ['Melbourne', 'Australia'],
+  ['Mexico City', 'Mexico'],
+  ['Montréal', 'Canada'],
+  ['Mumbai', 'India'],
+  ['Nairobi', 'Kenya'],
+  ['Oslo', 'Norway'],
+  ['Paris', 'France'],
+  ['Prague', 'Czechia'],
+  ['Santiago', 'Chile'],
+  ['São Paulo', 'Brazil'],
+  ['Seoul', 'South Korea'],
+  ['Singapore', 'Singapore'],
+  ['Toronto', 'Canada'],
+  ['Vienna', 'Austria'],
+].map(([name, country]) => ({ id: name, name, country }));
 
-function fetchCustomers(offset: number) {
-  return new Promise<Customer[]>((resolve) => {
-    setTimeout(() => {
-      resolve(
-        Array.from({ length: 12 }, (_, index) => {
-          const n = offset + index;
-          const brand = n % brands.length;
-          const trade = (brand + Math.floor(n / brands.length)) % trades.length;
-          return {
-            id: `cus_${n + 1}`,
-            name: `${brands[brand]} ${trades[trade]}`,
-            city: cities[n % cities.length],
-          };
-        }),
-      );
-    }, 1000);
+const pageSize = 12;
+
+function fetchCities(offset: number) {
+  return new Promise<City[]>((resolve) => {
+    setTimeout(() => resolve(cities.slice(offset, offset + pageSize)), 1000);
   });
 }
 
 export default function SelectAsync() {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [items, setItems] = useState<City[]>([]);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    fetchCustomers(0).then((page) => {
+    fetchCities(0).then((page) => {
       if (!active) return;
-      setCustomers(page);
+      setItems(page);
       setLoading(false);
     });
     return () => {
@@ -60,24 +74,24 @@ export default function SelectAsync() {
   }, []);
 
   function loadMore() {
-    if (isLoading || customers.length >= total) return;
+    if (isLoading || items.length >= cities.length) return;
     setLoading(true);
-    fetchCustomers(customers.length).then((page) => {
-      setCustomers((current) => [...current, ...page]);
+    fetchCities(items.length).then((page) => {
+      setItems((current) => [...current, ...page]);
       setLoading(false);
     });
   }
 
   return (
     <Select
-      label="Bill to"
-      placeholder="Choose a customer"
-      items={customers}
+      label="City"
+      placeholder="Choose a city"
+      items={items}
       isLoading={isLoading}
       onLoadMore={loadMore}
       className="w-full max-w-xs"
     >
-      {(customer) => <ListBoxItem description={customer.city}>{customer.name}</ListBoxItem>}
+      {(city) => <ListBoxItem description={city.country}>{city.name}</ListBoxItem>}
     </Select>
   );
 }

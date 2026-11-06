@@ -6,14 +6,14 @@ import { ListBoxItem } from '@/registry/ds/ui/list-box';
 import { Select } from '@/registry/ds/ui/select';
 
 const zones = [
-  { id: 'Europe/Istanbul', name: 'Istanbul (GMT+3)' },
-  { id: 'Europe/Berlin', name: 'Berlin (GMT+1)' },
-  { id: 'America/New_York', name: 'New York (GMT−5)' },
+  { id: 'Europe/London', name: 'London (GMT+0)' },
+  { id: 'Africa/Nairobi', name: 'Nairobi (GMT+3)' },
   { id: 'Asia/Tokyo', name: 'Tokyo (GMT+9)' },
+  { id: 'America/New_York', name: 'New York (GMT−5)' },
 ];
 
 export default function SelectControlled() {
-  const [zone, setZone] = useState<Key | null>('Europe/Istanbul');
+  const [zone, setZone] = useState<Key | null>('Asia/Tokyo');
   const name = zones.find((item) => item.id === zone)?.name;
 
   return (
@@ -22,7 +22,7 @@ export default function SelectControlled() {
         {(item) => <ListBoxItem>{item.name}</ListBoxItem>}
       </Select>
       <p className="text-body-sm text-on-surface-variant" aria-live="polite">
-        Invoices go out at 09:00, {name}.
+        Times are shown in {name}.
       </p>
     </div>
   );

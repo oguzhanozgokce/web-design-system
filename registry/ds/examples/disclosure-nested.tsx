@@ -8,12 +8,12 @@ export default function DisclosureNested() {
         Security
       </DisclosureTrigger>
       <DisclosurePanel>
-        <p>Two-step sign-in is required for owners and recommended for everyone else.</p>
+        <p>Two-step sign-in asks for a code from your phone when you sign in on a new device.</p>
         <Disclosure variant="plain" size="sm" className="-mx-3">
           <DisclosureTrigger level={4}>Advanced</DisclosureTrigger>
           <DisclosurePanel>
-            Restrict sign-in to the office IP range 192.0.2.0/24 and shorten sessions to 15 minutes
-            for members with payout access.
+            Sign out automatically after 15 minutes without activity, or sign out of every other
+            device at once.
           </DisclosurePanel>
         </Disclosure>
       </DisclosurePanel>

@@ -10,14 +10,14 @@ describe('EmptyState', () => {
     const screen = await renderWithDS(
       <EmptyState
         icon={<InboxIcon />}
-        title="No invoices yet"
-        description="Invoices you create or import appear here."
+        title="No projects yet"
+        description="Projects you create or import appear here."
       />,
     );
-    const heading = screen.getByRole('heading', { level: 2, name: 'No invoices yet' });
+    const heading = screen.getByRole('heading', { level: 2, name: 'No projects yet' });
     await expect.element(heading).toBeVisible();
     await expect
-      .element(screen.getByText('Invoices you create or import appear here.'))
+      .element(screen.getByText('Projects you create or import appear here.'))
       .toBeVisible();
     const root = screen.container.querySelector('[data-slot="empty-state"]')!;
     expect(root.getAttribute('data-size')).toBe('default');
@@ -67,7 +67,7 @@ describe('EmptyState', () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
       <EmptyState
-        title="No results for “acme”"
+        title="No results for “nova”"
         primaryAction={
           <Button variant="tonal" onPress={onPress}>
             Clear search
@@ -89,12 +89,12 @@ describe('EmptyState', () => {
         illustration={<svg data-testid="art" viewBox="0 0 10 10" />}
         title="No projects"
       >
-        <p>Projects group invoices by client.</p>
+        <p>Projects group projects by client.</p>
       </EmptyState>,
     );
     await expect.element(screen.getByTestId('art')).toBeInTheDocument();
     expect(screen.container.querySelector('[data-testid="icon"]')).toBeNull();
-    await expect.element(screen.getByText('Projects group invoices by client.')).toBeVisible();
+    await expect.element(screen.getByText('Projects group projects by client.')).toBeVisible();
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

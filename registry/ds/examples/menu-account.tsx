@@ -54,7 +54,7 @@ export default function MenuAccount() {
           <Initials className="size-10 text-title-sm" />
           <div className="min-w-0">
             <p className="truncate text-title-sm text-on-surface">Ayşe Demir</p>
-            <p className="truncate text-body-sm text-on-surface-variant">ayse@northwind.example</p>
+            <p className="truncate text-body-sm text-on-surface-variant">ayse@example.com</p>
           </div>
         </div>
         <MenuList>

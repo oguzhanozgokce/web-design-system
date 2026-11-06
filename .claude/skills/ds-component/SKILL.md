@@ -1,6 +1,6 @@
 ---
 name: ds-component
-description: Recipe for adding or changing a component in the web design system — files, API, styling, accessibility, localisation, motion, tests, docs and the registry item.
+description: Recipe for adding or changing a component in the web design system — files, API, styling, accessibility, labels, motion, tests, docs and the registry item.
 ---
 
 # Adding a component
@@ -132,8 +132,11 @@ Run only your files: `npx vitest run registry/ds/ui/thing.test.tsx`.
 
 ## 5. Examples and docs
 
-- Examples are tiny default-export components that show one idea each, use realistic product copy
-  (ledgers, invoices, team members, orders — never lorem ipsum, never fake testimonials), and look
+- Examples are tiny default-export components that show one idea each and use neutral copy that
+  fits any product, in the style of HeroUI and Astryx: Save, Search, Settings, Profile,
+  Notifications, Photos / Videos / Music, Copy / Cut / Paste, Day / Week / Month. No domain of one
+  app (no ledgers, invoices, payouts, company names), never lorem ipsum, never fake testimonials.
+  Show the component itself; compose a scene only when the example is about composition. They look
   good centred in a 56rem-wide frame and at 375px.
 - The docs page follows `button.mdx`: frontmatter `title` and `description` (same as the item),
   a `<ComponentPreview name="thing-demo" />`, `## Installation` with `<InstallCommand name="thing" />`,

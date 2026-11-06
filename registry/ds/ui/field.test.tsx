@@ -53,15 +53,15 @@ describe('Field', () => {
         <AriaTextField
           className={fieldStyles().root()}
           defaultValue="DE1234"
-          aria-describedby="vat-count"
+          aria-describedby="tax-count"
         >
           <Field
-            label="VAT number"
+            label="TAX number"
             necessityIndicator="label"
             labels={{ optional: '(if registered)' }}
             counter={
               <FieldCounter
-                id="vat-count"
+                id="tax-count"
                 count={6}
                 max={14}
                 labels={{
@@ -76,7 +76,7 @@ describe('Field', () => {
             </FieldGroup>
           </Field>
         </AriaTextField>
-        <TextField label="Company" necessityIndicator="label" maxLength={40} defaultValue="Acme" />
+        <TextField label="Company" necessityIndicator="label" maxLength={40} defaultValue="Nova" />
       </div>,
       {
         provider: {
@@ -90,7 +90,7 @@ describe('Field', () => {
       },
     );
     await expect
-      .element(screen.getByRole('textbox', { name: 'VAT number (if registered)' }))
+      .element(screen.getByRole('textbox', { name: 'TAX number (if registered)' }))
       .toHaveAccessibleDescription('6 of 14 characters used');
     await expect.element(screen.getByText('6 / 14', { exact: true })).toBeInTheDocument();
     await expect
@@ -100,9 +100,9 @@ describe('Field', () => {
   });
 
   it('hides the label visually but keeps it as the accessible name', async () => {
-    const screen = await renderWithDS(<TextField label="Search ledgers" isLabelHidden />);
+    const screen = await renderWithDS(<TextField label="Search folders" isLabelHidden />);
     await expect
-      .element(screen.getByRole('textbox', { name: 'Search ledgers' }))
+      .element(screen.getByRole('textbox', { name: 'Search folders' }))
       .toBeInTheDocument();
     const label = screen.container.querySelector('[data-slot="label"]');
     expect(label?.className).toContain('sr-only');
@@ -113,8 +113,8 @@ describe('Field', () => {
       const [value, setValue] = useState('finance');
       return (
         <TextField
-          label="Billing email"
-          description="Invoices are sent here."
+          label="Sharing email"
+          description="Projects are sent here."
           errorMessage="Enter an address like name@company.com."
           isInvalid={!value.includes('@')}
           value={value}
@@ -123,16 +123,16 @@ describe('Field', () => {
       );
     }
     const screen = await renderWithDS(<Example />);
-    const input = screen.getByRole('textbox', { name: 'Billing email' });
+    const input = screen.getByRole('textbox', { name: 'Sharing email' });
     await expect.element(input).toHaveAttribute('aria-invalid', 'true');
     await expect
       .element(input)
       .toHaveAccessibleDescription('Enter an address like name@company.com.');
-    await expect.element(screen.getByText('Invoices are sent here.')).not.toBeInTheDocument();
+    await expect.element(screen.getByText('Projects are sent here.')).not.toBeInTheDocument();
 
-    await input.fill('finance@acme.com');
+    await input.fill('finance@nova.com');
     await expect.element(input).not.toHaveAttribute('aria-invalid');
-    await expect.element(input).toHaveAccessibleDescription('Invoices are sent here.');
+    await expect.element(input).toHaveAccessibleDescription('Projects are sent here.');
   });
 
   it('passes the validation result to an errorMessage function', async () => {
@@ -226,8 +226,8 @@ describe('Field', () => {
   it('lets other React Aria fields reuse the parts', async () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
-      <AriaSearchField className={fieldStyles().root()} defaultValue="Q3 invoices">
-        <Field label="Search ledgers" description="Searches names and references." variant="filled">
+      <AriaSearchField className={fieldStyles().root()} defaultValue="Q3 projects">
+        <Field label="Search folders" description="Searches names and references." variant="filled">
           <FieldGroup>
             <FieldAdornment>
               <SearchIcon />
@@ -240,7 +240,7 @@ describe('Field', () => {
         </Field>
       </AriaSearchField>,
     );
-    const input = screen.getByRole('searchbox', { name: 'Search ledgers' });
+    const input = screen.getByRole('searchbox', { name: 'Search folders' });
     await expect.element(input).toHaveAccessibleDescription('Searches names and references.');
     const action = screen.getByRole('button', { name: 'Run search' });
     await expect.element(action).toHaveAttribute('data-slot', 'action');
@@ -371,18 +371,18 @@ describe('Field', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="grid w-96 gap-4 p-4">
-          <TextField label="Company" description="Shown on invoices." isRequired />
+          <TextField label="Company" description="Shown on projects." isRequired />
           <TextField label="Tax ID" necessityIndicator="label" variant="filled" />
-          <TextField label="Billing email" isInvalid errorMessage="Enter a valid email." />
+          <TextField label="Sharing email" isInvalid errorMessage="Enter a valid email." />
           <TextField
-            label="Billing email"
+            label="Sharing email"
             variant="filled"
             isInvalid
             errorMessage="Enter a valid email."
           />
           <TextField label="Workspace ID" isReadOnly defaultValue="ws_48213" />
           <TextField label="Region" isDisabled defaultValue="eu-west-1" />
-          <TextField label="Display name" maxLength={32} defaultValue="Acme Finance" />
+          <TextField label="Display name" maxLength={32} defaultValue="Nova Finance" />
         </div>,
         options,
       );

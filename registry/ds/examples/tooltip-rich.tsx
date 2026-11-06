@@ -5,11 +5,10 @@ export default function TooltipRich() {
   return (
     <TooltipTrigger>
       <ToggleButton variant="outlined" defaultSelected>
-        Auto-reconcile
+        Auto-save
       </ToggleButton>
-      <RichTooltip title="Auto-reconcile" placement="bottom" showArrow>
-        Matches each bank transaction to an open invoice with the same amount and reference.
-        Anything it cannot match waits in Review.
+      <RichTooltip title="Auto-save" placement="bottom" showArrow>
+        Saves your changes every few seconds. Turn it off to save only when you choose.
       </RichTooltip>
     </TooltipTrigger>
   );

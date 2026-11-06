@@ -4,22 +4,22 @@ import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { Button } from '@/registry/ds/ui/button';
 import { ContentState, type ContentStatus } from '@/registry/ds/ui/content-state';
 
-interface Invoice {
+interface Project {
   id: string;
-  customer: string;
+  follower: string;
 }
 
-const invoices: Invoice[] = [
-  { id: 'INV-2048', customer: 'Acme Corp' },
-  { id: 'INV-2049', customer: 'Globex' },
+const projects: Project[] = [
+  { id: 'DOC-2048', follower: 'Nova Corp' },
+  { id: 'DOC-2049', follower: 'Globex' },
 ];
 
-function InvoiceList({ items }: { items: Invoice[] }) {
+function ProjectList({ items }: { items: Project[] }) {
   return (
-    <ul aria-label="Invoices">
-      {items.map((invoice) => (
-        <li key={invoice.id}>
-          {invoice.id} · {invoice.customer}
+    <ul aria-label="Projects">
+      {items.map((project) => (
+        <li key={project.id}>
+          {project.id} · {project.follower}
         </li>
       ))}
     </ul>
@@ -33,12 +33,12 @@ function root(container: HTMLElement) {
 describe('ContentState', () => {
   it('shows a labelled progress bar and marks the region busy while data is undefined', async () => {
     const screen = await renderWithDS(
-      <ContentState<Invoice[]> data={undefined} loadingLabel="Loading invoices">
-        {(items) => <InvoiceList items={items} />}
+      <ContentState<Project[]> data={undefined} loadingLabel="Loading projects">
+        {(items) => <ProjectList items={items} />}
       </ContentState>,
     );
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Loading invoices' }))
+      .element(screen.getByRole('progressbar', { name: 'Loading projects' }))
       .toBeInTheDocument();
     expect(root(screen.container).getAttribute('aria-busy')).toBe('true');
     expect(root(screen.container).getAttribute('data-status')).toBe('loading');
@@ -46,8 +46,8 @@ describe('ContentState', () => {
 
   it('renders the default empty state for an empty array', async () => {
     const screen = await renderWithDS(
-      <ContentState data={[] as Invoice[]}>
-        {(items) => <InvoiceList items={items} />}
+      <ContentState data={[] as Project[]}>
+        {(items) => <ProjectList items={items} />}
       </ContentState>,
     );
     await expect.element(screen.getByRole('status')).toHaveTextContent('Nothing here yet');
@@ -59,29 +59,29 @@ describe('ContentState', () => {
 
   it('passes loaded data to a render function', async () => {
     const screen = await renderWithDS(
-      <ContentState data={invoices}>{(items) => <InvoiceList items={items} />}</ContentState>,
+      <ContentState data={projects}>{(items) => <ProjectList items={items} />}</ContentState>,
     );
-    await expect.element(screen.getByRole('list', { name: 'Invoices' })).toBeVisible();
-    await expect.element(screen.getByText('INV-2049 · Globex')).toBeVisible();
+    await expect.element(screen.getByRole('list', { name: 'Projects' })).toBeVisible();
+    await expect.element(screen.getByText('DOC-2049 · Globex')).toBeVisible();
   });
 
   it('respects a custom isEmpty and empty copy', async () => {
     const screen = await renderWithDS(
       <ContentState
-        data={{ total: 0, rows: [] as Invoice[] }}
+        data={{ total: 0, rows: [] as Project[] }}
         isEmpty={(page) => page.total === 0}
-        emptyTitle="No invoices yet"
-        emptyDescription="Invoices you send appear here."
-        emptyAction={<Button>New invoice</Button>}
+        emptyTitle="No projects yet"
+        emptyDescription="Projects you send appear here."
+        emptyAction={<Button>New project</Button>}
       >
-        {(page) => <InvoiceList items={page.rows} />}
+        {(page) => <ProjectList items={page.rows} />}
       </ContentState>,
     );
     await expect
-      .element(screen.getByRole('heading', { name: 'No invoices yet' }))
+      .element(screen.getByRole('heading', { name: 'No projects yet' }))
       .toBeInTheDocument();
     await expect
-      .element(screen.getByRole('button', { name: 'New invoice' }))
+      .element(screen.getByRole('button', { name: 'New project' }))
       .toHaveAttribute('data-variant', 'filled');
   });
 
@@ -113,7 +113,7 @@ describe('ContentState', () => {
         errorTitle={(error) =>
           (error as { status: number }).status === 403 ? 'You do not have access' : 'Failed'
         }
-        errorDescription="Ask a workspace owner to add you to Billing."
+        errorDescription="Ask a workspace owner to add you to Sharing."
       />,
     );
     await expect
@@ -125,11 +125,11 @@ describe('ContentState', () => {
   it('keeps stale content and shows a refresh error banner when data and error coexist', async () => {
     const onRetry = vi.fn();
     const screen = await renderWithDS(
-      <ContentState data={invoices} error={new Error('offline')} onRetry={onRetry}>
-        {(items) => <InvoiceList items={items} />}
+      <ContentState data={projects} error={new Error('offline')} onRetry={onRetry}>
+        {(items) => <ProjectList items={items} />}
       </ContentState>,
     );
-    await expect.element(screen.getByRole('list', { name: 'Invoices' })).toBeVisible();
+    await expect.element(screen.getByRole('list', { name: 'Projects' })).toBeVisible();
     await expect
       .element(screen.getByRole('alert'))
       .toHaveTextContent('Error: Something went wrongPlease try again in a moment.');
@@ -153,7 +153,7 @@ describe('ContentState', () => {
             errorContent={(error, retry) => <p>Custom error {String(Boolean(retry))}</p>}
             emptyContent={<p>Custom empty</p>}
           >
-            <p>Ledger rows</p>
+            <p>Folder rows</p>
           </ContentState>
         </>
       );
@@ -169,7 +169,7 @@ describe('ContentState', () => {
     await expect.element(screen.getByRole('status')).toHaveTextContent('Custom empty');
 
     await screen.getByRole('button', { name: 'Show content' }).click();
-    await expect.element(screen.getByText('Ledger rows')).toBeVisible();
+    await expect.element(screen.getByText('Folder rows')).toBeVisible();
     const content = screen.container.querySelector('[data-slot="content-view"]')!;
     expect(content.className).toMatch(/animate-ds-fade-in/);
   });
@@ -179,7 +179,7 @@ describe('ContentState', () => {
       const [status, setStatus] = useState<ContentStatus>('error');
       return (
         <ContentState status={status} onRetry={() => setStatus('loading')}>
-          <p>Ledger rows</p>
+          <p>Folder rows</p>
         </ContentState>
       );
     }
@@ -198,13 +198,13 @@ describe('ContentState', () => {
       const [status, setStatus] = useState<ContentStatus>('content');
       return (
         <ContentState status={status}>
-          <Button onPress={() => setStatus('loading')}>Reload ledger</Button>
+          <Button onPress={() => setStatus('loading')}>Reload folder</Button>
         </ContentState>
       );
     }
     const screen = await renderWithDS(<Harness />);
     await userEvent.keyboard('{Tab}');
-    await expect.element(screen.getByRole('button', { name: 'Reload ledger' })).toHaveFocus();
+    await expect.element(screen.getByRole('button', { name: 'Reload folder' })).toHaveFocus();
     await userEvent.keyboard('{Enter}');
 
     await expect.element(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -215,11 +215,11 @@ describe('ContentState', () => {
 
   it('keeps content visible and marks the region busy while refreshing', async () => {
     const screen = await renderWithDS(
-      <ContentState data={invoices} isRefreshing>
-        {(items) => <InvoiceList items={items} />}
+      <ContentState data={projects} isRefreshing>
+        {(items) => <ProjectList items={items} />}
       </ContentState>,
     );
-    await expect.element(screen.getByRole('list', { name: 'Invoices' })).toBeVisible();
+    await expect.element(screen.getByRole('list', { name: 'Projects' })).toBeVisible();
     const element = root(screen.container);
     expect(element.getAttribute('aria-busy')).toBe('true');
     expect(element.getAttribute('data-refreshing')).toBe('true');
@@ -244,13 +244,13 @@ describe('ContentState', () => {
         <ContentState
           status="error"
           onRetry={() => {}}
-          labels={{ errorTitle: 'Faturalar yüklenemedi' }}
+          labels={{ errorTitle: 'Dosyalar yüklenemedi' }}
         />
-        <ContentState status="empty" labels={{ emptyTitle: 'Henüz fatura yok' }} />
+        <ContentState status="empty" labels={{ emptyTitle: 'Henüz dosya yok' }} />
         <ContentState status="loading" />
         <ContentState
           status="loading"
-          loadingLabel="Müşteriler yükleniyor"
+          loadingLabel="Kişiler yükleniyor"
           labels={{ loading: 'Bekleniyor' }}
         />
       </div>,
@@ -268,18 +268,18 @@ describe('ContentState', () => {
       },
     );
     await expect
-      .element(screen.getByRole('heading', { name: 'Faturalar yüklenemedi' }))
+      .element(screen.getByRole('heading', { name: 'Dosyalar yüklenemedi' }))
       .toBeInTheDocument();
     await expect.element(screen.getByText('Lütfen biraz sonra tekrar dene.')).toBeInTheDocument();
     await expect.element(screen.getByRole('button', { name: 'Tekrar dene' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('heading', { name: 'Henüz fatura yok' }))
+      .element(screen.getByRole('heading', { name: 'Henüz dosya yok' }))
       .toBeInTheDocument();
     await expect
       .element(screen.getByRole('progressbar', { name: 'Yükleniyor' }))
       .toBeInTheDocument();
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Müşteriler yükleniyor' }))
+      .element(screen.getByRole('progressbar', { name: 'Kişiler yükleniyor' }))
       .toBeInTheDocument();
   });
 
@@ -290,8 +290,8 @@ describe('ContentState', () => {
           <ContentState status="loading" size="compact" />
           <ContentState status="error" headingLevel={3} onRetry={() => {}} />
           <ContentState status="empty" size="compact" headingLevel={3} />
-          <ContentState data={invoices} error={new Error('offline')} onRetry={() => {}}>
-            {(items) => <InvoiceList items={items} />}
+          <ContentState data={projects} error={new Error('offline')} onRetry={() => {}}>
+            {(items) => <ProjectList items={items} />}
           </ContentState>
         </div>,
         options,

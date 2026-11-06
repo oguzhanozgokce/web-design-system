@@ -11,8 +11,8 @@ export default function BannerActions() {
     <div className="flex w-full max-w-xl flex-col gap-2">
       <Banner
         tone="error"
-        title="Bank sync paused"
-        description="We could not reach your bank since 09:14. New payments will not be matched to invoices until it reconnects."
+        title="Sync paused"
+        description="We could not reach the server since 09:14. Your changes are kept on this device until it reconnects."
         actions={
           <>
             <Button
@@ -23,7 +23,7 @@ export default function BannerActions() {
             >
               Retry now
             </Button>
-            <Button>Reconnect bank</Button>
+            <Button>Work offline</Button>
           </>
         }
       />

@@ -1,10 +1,10 @@
 import { ListBox, ListBoxItem } from '@/registry/ds/ui/list-box';
 
-const members = [
-  { id: 'ayse', name: 'Ayşe Demir', email: 'ayse@harbor.co' },
-  { id: 'mehmet', name: 'Mehmet Kaya', email: 'mehmet@harbor.co' },
-  { id: 'elif', name: 'Elif Şahin', email: 'elif@harbor.co' },
-  { id: 'jonas', name: 'Jonas Weber', email: 'jonas@harbor.co' },
+const people = [
+  { id: 'amara', name: 'Amara Okafor', email: 'amara@example.com' },
+  { id: 'hiroshi', name: 'Hiroshi Tanaka', email: 'hiroshi@example.com' },
+  { id: 'sofia', name: 'Sofia Rossi', email: 'sofia@example.com' },
+  { id: 'mateo', name: 'Mateo García', email: 'mateo@example.com' },
 ];
 
 const tones = [
@@ -31,19 +31,19 @@ function Initials({ name, index }: { name: string; index: number }) {
 export default function ListBoxAvatars() {
   return (
     <ListBox
-      aria-label="Reviewer"
-      items={members}
+      aria-label="Assignee"
+      items={people}
       selectionMode="single"
-      defaultSelectedKeys={['mehmet']}
+      defaultSelectedKeys={['hiroshi']}
       variant="outlined"
       className="w-full max-w-xs"
     >
-      {(member) => (
+      {(person) => (
         <ListBoxItem
-          avatar={<Initials name={member.name} index={members.indexOf(member)} />}
-          description={member.email}
+          avatar={<Initials name={person.name} index={people.indexOf(person)} />}
+          description={person.email}
         >
-          {member.name}
+          {person.name}
         </ListBoxItem>
       )}
     </ListBox>

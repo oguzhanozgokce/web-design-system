@@ -11,7 +11,7 @@ import {
   listBoxStyles,
 } from '@/registry/ds/ui/list-box';
 
-const ledgers = [
+const folders = [
   { id: 'household', name: 'Household', description: '4 members · TRY' },
   { id: 'trip', name: 'Trip to Lisbon', description: '6 members · EUR' },
   { id: 'office', name: 'Office lunches', description: '12 members · TRY' },
@@ -37,7 +37,7 @@ function Members(props: { density?: 'sm' | 'md' }) {
         >
           Ayşe Demir
         </ListBoxItem>
-        <ListBoxItem id="mehmet" avatar={<Initials>MK</Initials>} description="Accountant">
+        <ListBoxItem id="mehmet" avatar={<Initials>MK</Initials>} description="Translator">
           Mehmet Kaya
         </ListBoxItem>
       </ListBoxSection>
@@ -71,10 +71,10 @@ describe('ListBox', () => {
   it('selects with the pointer and keyboard and shows a check mark', async () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
-      <ListBox aria-label="Ledger" selectionMode="single" onSelectionChange={onSelectionChange}>
-        {ledgers.map((ledger) => (
-          <ListBoxItem key={ledger.id} id={ledger.id} description={ledger.description}>
-            {ledger.name}
+      <ListBox aria-label="Folder" selectionMode="single" onSelectionChange={onSelectionChange}>
+        {folders.map((folder) => (
+          <ListBoxItem key={folder.id} id={folder.id} description={folder.description}>
+            {folder.name}
           </ListBoxItem>
         ))}
       </ListBox>,
@@ -95,10 +95,10 @@ describe('ListBox', () => {
 
   it('rings the focused row for keyboard focus but not after a click', async () => {
     const screen = await renderWithDS(
-      <ListBox aria-label="Ledger" selectionMode="single">
-        {ledgers.map((ledger) => (
-          <ListBoxItem key={ledger.id} id={ledger.id}>
-            {ledger.name}
+      <ListBox aria-label="Folder" selectionMode="single">
+        {folders.map((folder) => (
+          <ListBoxItem key={folder.id} id={folder.id}>
+            {folder.name}
           </ListBoxItem>
         ))}
       </ListBox>,
@@ -124,13 +124,13 @@ describe('ListBox', () => {
       return (
         <>
           <ListBox
-            aria-label="Ledgers"
-            items={ledgers}
+            aria-label="Folders"
+            items={folders}
             selectionMode="multiple"
             selectedKeys={selected}
             onSelectionChange={setSelected}
           >
-            {(ledger) => <ListBoxItem description={ledger.description}>{ledger.name}</ListBoxItem>}
+            {(folder) => <ListBoxItem description={folder.description}>{folder.name}</ListBoxItem>}
           </ListBox>
           <output>{selected === 'all' ? 'all' : [...selected].join(',')}</output>
         </>
@@ -149,7 +149,7 @@ describe('ListBox', () => {
   it('skips disabled items', async () => {
     const onAction = vi.fn();
     const screen = await renderWithDS(
-      <ListBox aria-label="Ledger" onAction={onAction}>
+      <ListBox aria-label="Folder" onAction={onAction}>
         <ListBoxItem id="household">Household</ListBoxItem>
         <ListBoxItem id="archived" isDisabled>
           Archived 2023
@@ -171,20 +171,20 @@ describe('ListBox', () => {
   it('renders a default empty state, a custom one and a loading state', async () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-4">
-        <ListBox aria-label="Default" items={[] as typeof ledgers}>
-          {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+        <ListBox aria-label="Default" items={[] as typeof folders}>
+          {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
         </ListBox>
         <ListBox
           aria-label="Custom"
-          items={[] as typeof ledgers}
+          items={[] as typeof folders}
           renderEmptyState={() => (
-            <ListBoxStatus icon={<InboxIcon />}>No archived ledgers yet</ListBoxStatus>
+            <ListBoxStatus icon={<InboxIcon />}>No archived folders yet</ListBoxStatus>
           )}
         >
-          {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+          {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
         </ListBox>
-        <ListBox aria-label="Loading" items={[] as typeof ledgers} isLoading>
-          {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+        <ListBox aria-label="Loading" items={[] as typeof folders} isLoading>
+          {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
         </ListBox>
       </div>,
     );
@@ -192,7 +192,7 @@ describe('ListBox', () => {
       .element(screen.getByRole('listbox', { name: 'Default' }))
       .toHaveAttribute('data-empty', 'true');
     await expect.element(screen.getByText('No items')).toBeVisible();
-    await expect.element(screen.getByText('No archived ledgers yet')).toBeVisible();
+    await expect.element(screen.getByText('No archived folders yet')).toBeVisible();
     await expect.element(screen.getByText('Loading…')).toBeVisible();
     expect(screen.container.querySelectorAll('[data-slot="spinner"]')).toHaveLength(1);
   });
@@ -200,8 +200,8 @@ describe('ListBox', () => {
   it('shows a load-more row after the items while loading', async () => {
     const onLoadMore = vi.fn();
     const screen = await renderWithDS(
-      <ListBox aria-label="Ledgers" items={ledgers} isLoading onLoadMore={onLoadMore}>
-        {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+      <ListBox aria-label="Folders" items={folders} isLoading onLoadMore={onLoadMore}>
+        {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
       </ListBox>,
     );
     await expect.element(screen.getByRole('option', { name: /^Household/ })).toBeVisible();
@@ -213,8 +213,8 @@ describe('ListBox', () => {
   it('asks for more items once the end of the list is visible', async () => {
     const onLoadMore = vi.fn();
     const screen = await renderWithDS(
-      <ListBox aria-label="Ledgers" items={ledgers} onLoadMore={onLoadMore}>
-        {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+      <ListBox aria-label="Folders" items={folders} onLoadMore={onLoadMore}>
+        {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
       </ListBox>,
     );
     await expect.element(screen.getByRole('option', { name: /^Household/ })).toBeVisible();
@@ -254,6 +254,29 @@ describe('ListBox', () => {
     expect(getComputedStyle(legacy).color).not.toBe(getComputedStyle(team).color);
   });
 
+  it('keeps two-line rows at full height in a list that scrolls', async () => {
+    const screen = await renderWithDS(
+      <ListBox
+        aria-label="Folders"
+        className="h-32"
+        items={[...folders, ...folders.map((folder) => ({ ...folder, id: `${folder.id}-copy` }))]}
+      >
+        {(folder) => <ListBoxItem description={folder.description}>{folder.name}</ListBoxItem>}
+      </ListBox>,
+    );
+    const list = screen.getByRole('listbox').element();
+    expect(list.scrollHeight).toBeGreaterThan(list.clientHeight);
+    for (const option of list.querySelectorAll<HTMLElement>('[role="option"]')) {
+      const label = option.querySelector('[data-slot="label"]')!.getBoundingClientRect();
+      const description = option
+        .querySelector('[data-slot="description"]')!
+        .getBoundingClientRect();
+      expect(option.getBoundingClientRect().height).toBeGreaterThanOrEqual(
+        label.height + description.height,
+      );
+    }
+  });
+
   it('applies density', async () => {
     const screen = await renderWithDS(<Members density="sm" />);
     await expect
@@ -265,36 +288,36 @@ describe('ListBox', () => {
   it('takes the empty and loading text from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-4">
-        <ListBox aria-label="Ledgers" items={[] as typeof ledgers}>
-          {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+        <ListBox aria-label="Folders" items={[] as typeof folders}>
+          {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
         </ListBox>
         <ListBox
-          aria-label="Archived ledgers"
-          items={[] as typeof ledgers}
+          aria-label="Archived folders"
+          items={[] as typeof folders}
           labels={{ empty: 'Nothing archived yet' }}
         >
-          {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+          {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
         </ListBox>
-        <ListBox aria-label="Shared ledgers" items={ledgers} isLoading onLoadMore={() => {}}>
-          {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+        <ListBox aria-label="Shared folders" items={folders} isLoading onLoadMore={() => {}}>
+          {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
         </ListBox>
         <ListBox
-          aria-label="Team ledgers"
-          items={ledgers}
+          aria-label="Team folders"
+          items={folders}
           isLoading
           onLoadMore={() => {}}
-          labels={{ loading: 'Fetching ledgers…' }}
+          labels={{ loading: 'Fetching folders…' }}
         >
-          {(ledger) => <ListBoxItem>{ledger.name}</ListBoxItem>}
+          {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
         </ListBox>
       </div>,
-      { provider: { labels: { listBox: { empty: 'No ledgers', loading: 'Loading ledgers…' } } } },
+      { provider: { labels: { listBox: { empty: 'No folders', loading: 'Loading folders…' } } } },
     );
-    await expect.element(screen.getByText('No ledgers')).toBeVisible();
+    await expect.element(screen.getByText('No folders')).toBeVisible();
     await expect.element(screen.getByText('Nothing archived yet')).toBeVisible();
     const [shared, team] = screen.container.querySelectorAll('[data-slot="list-box-loader"]');
-    expect(shared?.textContent).toBe('Loading ledgers…');
-    expect(team?.textContent).toBe('Fetching ledgers…');
+    expect(shared?.textContent).toBe('Loading folders…');
+    expect(team?.textContent).toBe('Fetching folders…');
     expect(screen.container.textContent).not.toContain('No items');
   });
 
@@ -307,8 +330,8 @@ describe('ListBox', () => {
             <ListBoxItem id="inbox" startIcon={<InboxIcon />}>
               Inbox
             </ListBoxItem>
-            <ListBoxItem id="receipts" startIcon={<FolderIcon />} description="128 files">
-              Receipts
+            <ListBoxItem id="comments" startIcon={<FolderIcon />} description="128 files">
+              Comments
             </ListBoxItem>
           </ListBox>
         </div>,

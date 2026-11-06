@@ -18,7 +18,7 @@ import { ArchiveIcon } from '@/lib/ds/icons';
 
 <TooltipTrigger>
   <IconButton aria-label="Archive" icon={<ArchiveIcon />} />
-  <Tooltip>Archive invoice</Tooltip>
+  <Tooltip>Move to archive</Tooltip>
 </TooltipTrigger>;
 ```
 
@@ -36,8 +36,8 @@ without animation, for half a second after the pointer leaves the last one, or `
 is longer. `shortcut` takes the same keys as
 [KbdCombo](/docs/components/data-display/kbd): `'mod'` shows ⌘ on Apple platforms and Ctrl
 elsewhere, named keys such as `'shift'` and `'backspace'` show their symbol and are read out by
-their localised name, and any other string, such as `'Z'`, renders as written. The keys always run
-left to right.
+their name from Kbd's labels, and any other string, such as `'Z'`, renders as written. The keys
+always run left to right.
 
 <ComponentPreview name="tooltip-toolbar" />
 
@@ -62,9 +62,9 @@ on touch screens, who never see tooltips, lose nothing.
 
 Give `RichTooltip` an `action` and `TooltipTrigger` turns it into a non-modal dialog. It opens on
 hover, on keyboard focus after `delay` and on long press, stays open while the pointer moves onto
-it, and Tab moves from the trigger into it. The switch also happens when the `RichTooltip` sits inside a component of
-your own. The trigger keeps its own press action; for an info button whose only job is to show the
-text, use a [Popover](/docs/components/overlays/popover) instead.
+it, and Tab moves from the trigger into it. The switch also happens when the `RichTooltip` sits
+inside a component of your own. The trigger keeps its own press action; for an info button whose
+only job is to show the text, use a [Popover](/docs/components/overlays/popover) instead.
 
 <ComponentPreview name="tooltip-rich-action" />
 
@@ -116,6 +116,11 @@ Every other [React Aria Tooltip](https://react-aria.adobe.com/Tooltip) prop is p
 | `containerPadding` | `number`                                 | `12`               |
 | `className`        | `string`                                 |                    |
 
+The surface is `surface-container`, and the rich tooltip says so through `SurfaceContext`, so a
+[Card](/docs/components/layout/card) inside it steps up from the tooltip rather than from the page.
+Its action keeps its own size and variant even when the trigger sits in a [Button
+Group](/docs/components/actions/button-group).
+
 ### TooltipGroup
 
 | Prop         | Type               | Default |
@@ -135,10 +140,11 @@ RichTooltip: `data-slot="rich-tooltip"` with `"title"`, `"body"` and `"actions"`
 `data-trigger="PreviewTrigger"` when it has an action. `tooltipStyles` and `richTooltipStyles`
 expose the slots.
 
-### Messages
+### Labels
 
-Tooltip has no messages of its own. The spoken names of shortcut keys come from `Kbd`, namespace
-`kbd`, so a key reads the same in a tooltip, a menu and help text.
+Tooltip writes no text of its own, so it has no `labels`. The spoken names of shortcut keys come
+from [Kbd's labels](/docs/components/data-display/kbd#labels): set them once for the whole app with
+`<DSProvider labels={{ kbd: { … } }}>`, and a key reads the same in a tooltip and in help text.
 
 ## Accessibility
 

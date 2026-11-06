@@ -1,4 +1,3 @@
-import { HomeIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { Card, CardContent, CardHeader } from '@/registry/ds/ui/card';
 
@@ -7,20 +6,23 @@ export default function CardHeaderExample() {
     <Card variant="outlined" className="w-full max-w-md">
       <CardHeader
         leading={
-          <span className="grid size-10 place-items-center rounded-full bg-secondary-container text-on-secondary-container">
-            <HomeIcon className="size-5" />
+          <span
+            aria-hidden="true"
+            className="grid size-10 place-items-center rounded-full bg-secondary-container text-title-sm text-on-secondary-container"
+          >
+            LS
           </span>
         }
-        title="Operating account"
-        description="Garanti BBVA •••• 4821 · synced 5 minutes ago"
+        title="Lena Schmidt"
+        description="Designer"
         action={
           <Button variant="tonal" size="sm">
-            Manage
+            Follow
           </Button>
         }
       />
       <CardContent className="text-on-surface-variant">
-        Incoming payments land here first. Payroll and vendor payouts are drawn from this account.
+        Designs simple, accessible interfaces and writes about colour and type.
       </CardContent>
     </Card>
   );

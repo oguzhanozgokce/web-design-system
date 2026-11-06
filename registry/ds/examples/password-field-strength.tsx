@@ -18,8 +18,8 @@ export default function PasswordFieldStrength() {
   return (
     <PasswordField
       className="w-full max-w-sm"
-      label="Vault passphrase"
-      description="Used to unlock exported ledgers. We cannot recover it."
+      label="Passphrase"
+      description="Unlocks your encrypted backups. We cannot recover it."
       strength={strength}
       onChange={(value) => setStrength(estimate(value))}
     />

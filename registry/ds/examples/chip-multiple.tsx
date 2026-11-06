@@ -8,7 +8,7 @@ const channels = [
   { id: 'email', name: 'Email' },
   { id: 'sms', name: 'SMS' },
   { id: 'push', name: 'Push' },
-  { id: 'slack', name: 'Slack' },
+  { id: 'in-app', name: 'In-app' },
 ];
 
 export default function ChipMultiple() {
@@ -18,7 +18,7 @@ export default function ChipMultiple() {
   return (
     <div className="flex flex-col items-start gap-3">
       <ChipGroup
-        label="Send payment reminders by"
+        label="Notify me by"
         selectionMode="multiple"
         selectedKeys={selected}
         onSelectionChange={setSelected}
@@ -27,7 +27,7 @@ export default function ChipMultiple() {
         {(channel) => <Chip id={channel.id}>{channel.name}</Chip>}
       </ChipGroup>
       <p className="text-body-sm text-on-surface-variant" aria-live="polite">
-        {names.length ? names.map(({ name }) => name).join(', ') : 'Reminders are off'}
+        {names.length ? names.map(({ name }) => name).join(', ') : 'Notifications are off'}
       </p>
     </div>
   );

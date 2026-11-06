@@ -33,15 +33,15 @@ export default async function HomePage() {
           <ComponentGallery entries={entries} categories={galleryCategories} />
         </section>
         <section className="mx-auto w-full max-w-6xl px-4 pb-24">
-          <Reveal className="relative isolate overflow-hidden rounded-xl bg-primary-container px-6 py-14 text-on-primary-container sm:px-12">
+          <Reveal className="relative isolate overflow-clip rounded-xl border border-outline-variant bg-surface-container-low px-6 py-14 text-on-surface sm:px-12">
             <div
               aria-hidden
-              className="absolute -inset-x-20 -top-24 -z-10 h-72 bg-[radial-gradient(50%_60%_at_80%_20%,color-mix(in_srgb,var(--tertiary-container)_80%,transparent),transparent)] blur-2xl"
+              className="absolute -inset-x-20 -top-24 -z-10 h-72 bg-[radial-gradient(50%_60%_at_80%_20%,color-mix(in_srgb,var(--primary)_12%,transparent),transparent)] blur-2xl"
             />
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div className="flex max-w-2xl flex-col gap-3">
                 <h2 className="text-headline-lg text-balance">Make it yours in a minute.</h2>
-                <p className="text-body-lg text-pretty opacity-90">
+                <p className="text-body-lg text-pretty text-on-surface-variant">
                   Pick a seed in the theme builder, copy the tokens, and install the first
                   component.
                 </p>

@@ -14,9 +14,9 @@ description: Material 3 linear and circular progress indicators, determinate or 
 ```tsx
 import { CircularProgress, LinearProgress } from '@/components/ds/progress';
 
-<LinearProgress label="Uploading statements.csv" value={uploaded} showValueLabel />;
+<LinearProgress label="Uploading photos.zip" value={uploaded} showValueLabel />;
 
-<CircularProgress aria-label="Loading invoices" isIndeterminate />;
+<CircularProgress aria-label="Loading messages" isIndeterminate />;
 ```
 
 The keyframes and animated custom properties ship inside the component as a React 19 hoisted
@@ -158,7 +158,7 @@ to one indicator, or set them for every one with `<DSProvider labels={{ progress
   out the value, which is how screen readers know the length is unknown.
 - `label` becomes the accessible name. Without `label`, `aria-label` or `aria-labelledby` the
   indicator falls back to the `loading` or `progress` label, but a specific name such as
-  "Uploading statements.csv" is always better.
+  "Uploading photos.zip" is always better.
 - A progress bar is not a live region. When a long task finishes, move focus or announce the result
   with a toast or a status message.
 - The bar mirrors in right-to-left languages; the circle keeps turning clockwise.

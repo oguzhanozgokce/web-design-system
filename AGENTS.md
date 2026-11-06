@@ -58,6 +58,8 @@ copy, so the source in `registry/ds` must work after the shadcn CLI copies it so
 - Animation respects `useMotionPreference()` and `motion-reduce:`. Springs come from `lib/motion`.
 - Registry files import each other only through `@/registry/ds/...`. No relative imports, no
   `next/*`, `next-intl` or `lucide-react` in `registry/`.
+- Example and docs copy is neutral and fits any product (Save, Search, Settings, Photos). Nothing
+  hints at one app: no ledgers, invoices, payouts or company names.
 - No comments in code. Reasoning goes in commit messages, this file and the docs.
 - Copy no code from React Bits, 21st.dev, Aceternity or any paid tier. Code adapted from an MIT
   source is credited in the item's `credits`.

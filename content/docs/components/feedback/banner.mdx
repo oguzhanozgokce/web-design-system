@@ -17,9 +17,9 @@ import { Button } from '@/components/ds/button';
 
 <Banner
   tone="warning"
-  title="Card ending 4242 expires soon"
-  description="Update it before the next invoice."
-  actions={<Button onPress={openBilling}>Update card</Button>}
+  title="Storage almost full"
+  description="Delete files you no longer need to keep syncing."
+  actions={<Button onPress={openStorage}>Manage storage</Button>}
 />;
 ```
 
@@ -136,7 +136,7 @@ Text the banner writes on its own. Pass `labels` to one banner, or set them for 
 - `announce` with `tone="error"` makes the message `role="alert"`, which interrupts. Use it for
   errors caused by what the user just did, not for banners present when the page loads.
 - The glyph is decorative. The tone is spoken as a visually hidden prefix, such as "Warning:".
-- Dismiss is a React Aria button named by the `dismiss` label. The banner fades out in 100 ms, becomes
-  `inert` while it does, and is removed straight away when motion is disabled.
+- Dismiss is a React Aria button named by the `dismiss` label. The banner fades out in 100 ms,
+  becomes `inert` while it does, and is removed straight away when motion is disabled.
 - In tonal banners, focus rings use the banner's text colour so they keep 3:1 contrast on every
   container. Contrast is checked with axe in light, dark and RTL by `banner.test.tsx`.

@@ -30,6 +30,7 @@ import {
 } from 'react-aria-components';
 import { useMediaQuery } from '@/registry/ds/hooks/use-media-query';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
+import { ButtonGroupContext } from '@/registry/ds/ui/button';
 import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
@@ -253,16 +254,18 @@ export function Dialog({
       >
         <DialogLayoutContext value={layout}>
           <SurfaceContext value={isFullScreen ? 'surface' : 'surface-container-high'}>
-            <AriaDialog
-              {...props}
-              aria-describedby={
-                [ariaDescribedBy, ...descriptionIds].filter(Boolean).join(' ') || undefined
-              }
-              data-slot="dialog"
-              className={styles.dialog()}
-            >
-              {children}
-            </AriaDialog>
+            <ButtonGroupContext value={null}>
+              <AriaDialog
+                {...props}
+                aria-describedby={
+                  [ariaDescribedBy, ...descriptionIds].filter(Boolean).join(' ') || undefined
+                }
+                data-slot="dialog"
+                className={styles.dialog()}
+              >
+                {children}
+              </AriaDialog>
+            </ButtonGroupContext>
           </SurfaceContext>
         </DialogLayoutContext>
       </Modal>

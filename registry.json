@@ -18,6 +18,7 @@
         "@ds/button",
         "@ds/dialog",
         "@ds/ds-provider",
+        "@ds/labels",
         "@ds/utils"
       ],
       "files": [
@@ -40,6 +41,7 @@
       ],
       "registryDependencies": [
         "@ds/ds-provider",
+        "@ds/labels",
         "@ds/utils"
       ],
       "files": [
@@ -62,6 +64,7 @@
       ],
       "registryDependencies": [
         "@ds/ds-provider",
+        "@ds/labels",
         "@ds/utils"
       ],
       "files": [
@@ -199,6 +202,7 @@
       ],
       "registryDependencies": [
         "@ds/ds-provider",
+        "@ds/labels",
         "@ds/spinner",
         "@ds/utils"
       ],
@@ -241,6 +245,7 @@
       "registryDependencies": [
         "@ds/ds-provider",
         "@ds/field",
+        "@ds/labels",
         "@ds/list-box",
         "@ds/popover",
         "@ds/spinner",
@@ -318,6 +323,7 @@
         "react-aria-components"
       ],
       "registryDependencies": [
+        "@ds/button",
         "@ds/card",
         "@ds/ds-provider",
         "@ds/theme-scope",
@@ -388,8 +394,8 @@
         "react-aria-components"
       ],
       "registryDependencies": [
-        "@ds/i18n",
         "@ds/icons",
+        "@ds/labels",
         "@ds/motion",
         "@ds/use-media-query"
       ],
@@ -506,27 +512,13 @@
       ],
       "registryDependencies": [
         "@ds/ds-provider",
+        "@ds/labels",
         "@ds/utils"
       ],
       "files": [
         {
           "path": "registry/ds/ui/field.tsx",
           "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "i18n",
-      "type": "registry:lib",
-      "title": "Localisation helpers",
-      "description": "The 18 supported locales, per-component message catalogues, locale resolution and direction.",
-      "categories": [
-        "foundations"
-      ],
-      "files": [
-        {
-          "path": "registry/ds/lib/i18n.ts",
-          "type": "registry:lib"
         }
       ]
     },
@@ -603,6 +595,21 @@
       }
     },
     {
+      "name": "labels",
+      "type": "registry:lib",
+      "title": "Labels",
+      "description": "The labels contract: English defaults that components write on their own, replaced per component or app-wide, with templates that take a string or a function for plurals.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/lib/labels.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "link",
       "type": "registry:ui",
       "title": "Link",
@@ -659,8 +666,10 @@
         "react-aria-components"
       ],
       "registryDependencies": [
+        "@ds/button",
         "@ds/card",
         "@ds/ds-provider",
+        "@ds/labels",
         "@ds/popover",
         "@ds/theme-scope",
         "@ds/utils"
@@ -691,7 +700,7 @@
       "name": "number-field",
       "type": "registry:ui",
       "title": "Number field",
-      "description": "Counter and quantity stepper on the shared Field contract, with minus and plus or stacked chevrons, locale-aware currency, percent and unit formats, a checkout-sized display size and an optional rolling odometer.",
+      "description": "Counter and quantity stepper on the shared Field contract, with minus and plus or stacked chevrons, locale-aware currency, percent and unit formats, a large display size, a compact pill and an optional rolling odometer.",
       "categories": [
         "inputs"
       ],
@@ -703,6 +712,7 @@
       "registryDependencies": [
         "@ds/ds-provider",
         "@ds/field",
+        "@ds/labels",
         "@ds/motion",
         "@ds/utils"
       ],
@@ -727,6 +737,7 @@
       "registryDependencies": [
         "@ds/ds-provider",
         "@ds/field",
+        "@ds/labels",
         "@ds/tooltip",
         "@ds/use-controllable-state",
         "@ds/utils"
@@ -750,6 +761,7 @@
         "react-aria-components"
       ],
       "registryDependencies": [
+        "@ds/button",
         "@ds/card",
         "@ds/ds-provider",
         "@ds/theme-scope",
@@ -876,6 +888,7 @@
       "registryDependencies": [
         "@ds/ds-provider",
         "@ds/field",
+        "@ds/labels",
         "@ds/list-box",
         "@ds/popover",
         "@ds/spinner",
@@ -901,6 +914,7 @@
         "react-aria-components"
       ],
       "registryDependencies": [
+        "@ds/button",
         "@ds/card",
         "@ds/ds-provider",
         "@ds/motion",
@@ -1043,6 +1057,7 @@
       ],
       "registryDependencies": [
         "@ds/ds-provider",
+        "@ds/labels",
         "@ds/utils"
       ],
       "files": [
@@ -1194,6 +1209,7 @@
         "react-aria-components"
       ],
       "registryDependencies": [
+        "@ds/button",
         "@ds/card",
         "@ds/ds-provider",
         "@ds/kbd",

@@ -4,18 +4,18 @@ export default function AvatarShapes() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-8">
       <div className="flex items-center gap-3">
-        <Avatar name="Burak Öztürk" />
-        <Avatar name="Zeynep Arslan" />
-        <Avatar name="Can Yılmaz" />
+        <Avatar name="Mateo García" />
+        <Avatar name="Layla Haddad" />
+        <Avatar name="Chen Wei" />
       </div>
       <div className="flex items-center gap-3">
-        <Avatar name="Northwind Studio" shape="rounded" />
+        <Avatar name="Design team" shape="rounded" />
         <Avatar
-          name="Harbor Logistics"
+          name="Travel album"
           shape="rounded"
-          src="https://picsum.photos/seed/harbor-logistics/80"
+          src="https://picsum.photos/seed/travel-album/80"
         />
-        <Avatar name="Atlas Payroll" shape="rounded" />
+        <Avatar name="Book club" shape="rounded" />
       </div>
     </div>
   );

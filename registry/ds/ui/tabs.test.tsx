@@ -8,19 +8,19 @@ import { Tab, TabList, TabPanel, Tabs, type TabsProps } from '@/registry/ds/ui/t
 
 const still = { provider: { motion: 'reduced' as const } };
 
-const ledgers = ['Overview', 'Invoices', 'Payments', 'Notes'];
+const folders = ['Overview', 'Projects', 'Messages', 'Notes'];
 
-function LedgerTabs(props: Omit<TabsProps, 'children'>) {
+function FolderTabs(props: Omit<TabsProps, 'children'>) {
   return (
     <Tabs {...props}>
-      <TabList aria-label="Ledger">
-        {ledgers.map((name) => (
+      <TabList aria-label="Folder">
+        {folders.map((name) => (
           <Tab key={name} id={name.toLowerCase()}>
             {name}
           </Tab>
         ))}
       </TabList>
-      {ledgers.map((name) => (
+      {folders.map((name) => (
         <TabPanel key={name} id={name.toLowerCase()}>
           {name} panel
         </TabPanel>
@@ -37,8 +37,8 @@ function indicatorOwner(container: HTMLElement) {
 
 describe('Tabs', () => {
   it('renders a labelled tab list with one selected tab, its panel and one indicator', async () => {
-    const screen = await renderWithDS(<LedgerTabs />);
-    await expect.element(screen.getByRole('tablist', { name: 'Ledger' })).toBeVisible();
+    const screen = await renderWithDS(<FolderTabs />);
+    await expect.element(screen.getByRole('tablist', { name: 'Folder' })).toBeVisible();
     const overview = screen.getByRole('tab', { name: 'Overview' });
     await expect.element(overview).toHaveAttribute('aria-selected', 'true');
     await expect.element(screen.getByRole('tabpanel')).toHaveTextContent('Overview panel');
@@ -52,17 +52,17 @@ describe('Tabs', () => {
 
   it('selects on press, reports the key and moves the indicator', async () => {
     const onSelectionChange = vi.fn();
-    const screen = await renderWithDS(<LedgerTabs onSelectionChange={onSelectionChange} />);
-    const payments = screen.getByRole('tab', { name: 'Payments' });
-    await payments.click();
-    await expect.element(payments).toHaveAttribute('aria-selected', 'true');
-    expect(onSelectionChange).toHaveBeenLastCalledWith('payments');
-    await expect.element(screen.getByRole('tabpanel')).toHaveTextContent('Payments panel');
-    expect(indicatorOwner(screen.container)).toBe(payments.element());
+    const screen = await renderWithDS(<FolderTabs onSelectionChange={onSelectionChange} />);
+    const messages = screen.getByRole('tab', { name: 'Messages' });
+    await messages.click();
+    await expect.element(messages).toHaveAttribute('aria-selected', 'true');
+    expect(onSelectionChange).toHaveBeenLastCalledWith('messages');
+    await expect.element(screen.getByRole('tabpanel')).toHaveTextContent('Messages panel');
+    expect(indicatorOwner(screen.container)).toBe(messages.element());
   });
 
   it('animates the indicator from the previous tab with the spatial spring', async () => {
-    const screen = await renderWithDS(<LedgerTabs />);
+    const screen = await renderWithDS(<FolderTabs />);
     await screen.getByRole('tab', { name: 'Notes' }).click();
     const indicator = screen.container.querySelector<HTMLElement>('[data-slot="indicator"]')!;
     expect(getComputedStyle(indicator).transitionProperty).toBe('width, height, translate');
@@ -82,7 +82,7 @@ describe('Tabs', () => {
             <I18nProvider key={dir} locale={dir === 'rtl' ? 'ar' : 'en'}>
               <div dir={dir}>
                 {(['primary', 'secondary', 'pill'] as const).map((variant) => (
-                  <LedgerTabs
+                  <FolderTabs
                     key={variant}
                     variant={variant}
                     selectedKey={selected}
@@ -113,7 +113,7 @@ describe('Tabs', () => {
   });
 
   it('jumps without a transition when motion is reduced', async () => {
-    const screen = await renderWithDS(<LedgerTabs />, still);
+    const screen = await renderWithDS(<FolderTabs />, still);
     await screen.getByRole('tab', { name: 'Notes' }).click();
     const indicator = screen.container.querySelector<HTMLElement>('[data-slot="indicator"]')!;
     expect(getComputedStyle(indicator).transitionProperty).toBe('none');
@@ -121,11 +121,11 @@ describe('Tabs', () => {
   });
 
   it('moves with arrow keys, Home and End', async () => {
-    const screen = await renderWithDS(<LedgerTabs />);
+    const screen = await renderWithDS(<FolderTabs />);
     screen.getByRole('tab', { name: 'Overview' }).element().focus();
     await userEvent.keyboard('{ArrowRight}');
     await expect
-      .element(screen.getByRole('tab', { name: 'Invoices' }))
+      .element(screen.getByRole('tab', { name: 'Projects' }))
       .toHaveAttribute('aria-selected', 'true');
     await userEvent.keyboard('{End}');
     await expect
@@ -138,23 +138,23 @@ describe('Tabs', () => {
   });
 
   it('mirrors the arrow keys in RTL layouts', async () => {
-    const screen = await renderWithDS(<LedgerTabs />, { locale: 'ar' });
+    const screen = await renderWithDS(<FolderTabs />, { locale: 'ar' });
     screen.getByRole('tab', { name: 'Overview' }).element().focus();
     await userEvent.keyboard('{ArrowLeft}');
     await expect
-      .element(screen.getByRole('tab', { name: 'Invoices' }))
+      .element(screen.getByRole('tab', { name: 'Projects' }))
       .toHaveAttribute('aria-selected', 'true');
   });
 
   it('places the indicator under the selected tab in RTL layouts', async () => {
-    const screen = await renderWithDS(<LedgerTabs variant="secondary" />, {
+    const screen = await renderWithDS(<FolderTabs variant="secondary" />, {
       locale: 'ar',
       ...still,
     });
-    const invoices = screen.getByRole('tab', { name: 'Invoices' });
-    await invoices.click();
+    const projects = screen.getByRole('tab', { name: 'Projects' });
+    await projects.click();
     const indicator = screen.container.querySelector<HTMLElement>('[data-slot="indicator"]')!;
-    const tabRect = invoices.element().getBoundingClientRect();
+    const tabRect = projects.element().getBoundingClientRect();
     const indicatorRect = indicator.getBoundingClientRect();
     expect(indicatorRect.left).toBeCloseTo(tabRect.left, 0);
     expect(indicatorRect.right).toBeCloseTo(tabRect.right, 0);
@@ -166,9 +166,9 @@ describe('Tabs', () => {
       const [selected, setSelected] = useState<Key>('notes');
       return (
         <>
-          <LedgerTabs selectedKey={selected} onSelectionChange={setSelected} />
-          <button type="button" onClick={() => setSelected('invoices')}>
-            Show invoices
+          <FolderTabs selectedKey={selected} onSelectionChange={setSelected} />
+          <button type="button" onClick={() => setSelected('projects')}>
+            Show projects
           </button>
         </>
       );
@@ -177,29 +177,29 @@ describe('Tabs', () => {
     await expect
       .element(screen.getByRole('tab', { name: 'Notes' }))
       .toHaveAttribute('aria-selected', 'true');
-    await screen.getByRole('button', { name: 'Show invoices' }).click();
+    await screen.getByRole('button', { name: 'Show projects' }).click();
     await expect
-      .element(screen.getByRole('tab', { name: 'Invoices' }))
+      .element(screen.getByRole('tab', { name: 'Projects' }))
       .toHaveAttribute('aria-selected', 'true');
-    await expect.element(screen.getByRole('tabpanel')).toHaveTextContent('Invoices panel');
+    await expect.element(screen.getByRole('tabpanel')).toHaveTextContent('Projects panel');
   });
 
   it('skips disabled tabs', async () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
-      <LedgerTabs disabledKeys={['invoices']} onSelectionChange={onSelectionChange} />,
+      <FolderTabs disabledKeys={['projects']} onSelectionChange={onSelectionChange} />,
     );
-    const invoices = screen.getByRole('tab', { name: 'Invoices' });
-    await expect.element(invoices).toHaveAttribute('aria-disabled', 'true');
-    await invoices.click({ force: true });
-    await expect.element(invoices).toHaveAttribute('aria-selected', 'false');
+    const projects = screen.getByRole('tab', { name: 'Projects' });
+    await expect.element(projects).toHaveAttribute('aria-disabled', 'true');
+    await projects.click({ force: true });
+    await expect.element(projects).toHaveAttribute('aria-selected', 'false');
 
     screen.getByRole('tab', { name: 'Overview' }).element().focus();
     await userEvent.keyboard('{ArrowRight}');
     await expect
-      .element(screen.getByRole('tab', { name: 'Payments' }))
+      .element(screen.getByRole('tab', { name: 'Messages' }))
       .toHaveAttribute('aria-selected', 'true');
-    expect(onSelectionChange).not.toHaveBeenCalledWith('invoices');
+    expect(onSelectionChange).not.toHaveBeenCalledWith('projects');
   });
 
   it('stacks icons on primary tabs and keeps them inline elsewhere', async () => {
@@ -235,7 +235,7 @@ describe('Tabs', () => {
     expect(secondary.element().getBoundingClientRect().height).toBe(48);
   });
 
-  it('formats count badges for the locale and gives them a localised label', async () => {
+  it('formats count badges for the locale and labels them with the badge labels', async () => {
     const screen = await renderWithDS(
       <Tabs variant="secondary">
         <TabList aria-label="Siparişler">
@@ -257,7 +257,10 @@ describe('Tabs', () => {
         <TabPanel id="disputes">İtirazlar</TabPanel>
         <TabPanel id="refunds">İadeler</TabPanel>
       </Tabs>,
-      { locale: 'tr' },
+      {
+        locale: 'tr',
+        provider: { labels: { badge: { count: '{count} yeni', dot: 'Yeni' } } },
+      },
     );
     await expect.element(screen.getByRole('tab', { name: 'Ödenmemiş 12 yeni' })).toBeVisible();
     await expect.element(screen.getByRole('tab', { name: 'Bekleyen 99+ yeni' })).toBeVisible();
@@ -338,21 +341,21 @@ describe('Tabs', () => {
   });
 
   it('waits for Enter with manual keyboard activation', async () => {
-    const screen = await renderWithDS(<LedgerTabs keyboardActivation="manual" />);
+    const screen = await renderWithDS(<FolderTabs keyboardActivation="manual" />);
     screen.getByRole('tab', { name: 'Overview' }).element().focus();
     await userEvent.keyboard('{ArrowRight}');
-    const invoices = screen.getByRole('tab', { name: 'Invoices' });
-    await expect.element(invoices).toHaveFocus();
-    await expect.element(invoices).toHaveAttribute('aria-selected', 'false');
+    const projects = screen.getByRole('tab', { name: 'Projects' });
+    await expect.element(projects).toHaveFocus();
+    await expect.element(projects).toHaveAttribute('aria-selected', 'false');
     await userEvent.keyboard('{Enter}');
-    await expect.element(invoices).toHaveAttribute('aria-selected', 'true');
+    await expect.element(projects).toHaveAttribute('aria-selected', 'true');
   });
 
   it('paints the indicator of disabled tabs in the disabled colour', async () => {
     const screen = await renderWithDS(
       <>
-        <LedgerTabs isDisabled />
-        <LedgerTabs variant="pill" isDisabled />
+        <FolderTabs isDisabled />
+        <FolderTabs variant="pill" isDisabled />
         <span data-testid="text-disabled" className="bg-on-surface/38" />
         <span data-testid="container-disabled" className="bg-on-surface/12" />
       </>,
@@ -366,16 +369,16 @@ describe('Tabs', () => {
   });
 
   it('works vertically with up and down arrows and an end-edge indicator', async () => {
-    const screen = await renderWithDS(<LedgerTabs orientation="vertical" />, still);
-    const list = screen.getByRole('tablist', { name: 'Ledger' });
+    const screen = await renderWithDS(<FolderTabs orientation="vertical" />, still);
+    const list = screen.getByRole('tablist', { name: 'Folder' });
     await expect.element(list).toHaveAttribute('aria-orientation', 'vertical');
     screen.getByRole('tab', { name: 'Overview' }).element().focus();
     await userEvent.keyboard('{ArrowDown}');
-    const invoices = screen.getByRole('tab', { name: 'Invoices' });
-    await expect.element(invoices).toHaveAttribute('aria-selected', 'true');
+    const projects = screen.getByRole('tab', { name: 'Projects' });
+    await expect.element(projects).toHaveAttribute('aria-selected', 'true');
     const indicator = screen.container.querySelector<HTMLElement>('[data-slot="indicator"]')!;
     expect(indicator.getBoundingClientRect().right).toBeCloseTo(
-      invoices.element().getBoundingClientRect().right,
+      projects.element().getBoundingClientRect().right,
       0,
     );
   });
@@ -484,12 +487,12 @@ describe('Tabs', () => {
                 </Tab>
                 <Tab id="archive">Archive</Tab>
               </TabList>
-              <TabPanel id="inbox">Three unread messages from Northwind Traders.</TabPanel>
+              <TabPanel id="inbox">Three unread messages from Riverside Studios.</TabPanel>
               <TabPanel id="sent">Sent</TabPanel>
               <TabPanel id="archive">Archive</TabPanel>
             </Tabs>
           ))}
-          <LedgerTabs orientation="vertical" variant="secondary" />
+          <FolderTabs orientation="vertical" variant="secondary" />
         </div>,
         options,
       );

@@ -13,13 +13,14 @@ export default function NumberFieldSteps() {
         formatOptions={{ style: 'unit', unit: 'minute', unitDisplay: 'long' }}
       />
       <NumberField
-        label="Hourly rate"
+        label="Temperature"
         layout="inline"
-        description="Rounded to the nearest 50 cents."
-        defaultValue={85}
-        minValue={20}
+        description="In steps of half a degree."
+        defaultValue={21}
+        minValue={10}
+        maxValue={30}
         step={0.5}
-        formatOptions={{ style: 'currency', currency: 'USD' }}
+        formatOptions={{ style: 'unit', unit: 'celsius' }}
       />
     </div>
   );

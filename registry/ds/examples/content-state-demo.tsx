@@ -6,41 +6,46 @@ import { RefreshIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { ContentState } from '@/registry/ds/ui/content-state';
 
-interface Invoice {
+interface RecentFile {
   id: string;
-  customer: string;
-  amount: number;
+  name: string;
+  kind: string;
+  size: number;
 }
 
-const invoices: Invoice[] = [
-  { id: 'INV-2048', customer: 'Acme Corp', amount: 4280 },
-  { id: 'INV-2049', customer: 'Globex Corporation', amount: 1150.5 },
-  { id: 'INV-2050', customer: 'Initech', amount: 920 },
+const recentFiles: RecentFile[] = [
+  { id: 'brief', name: 'Project brief.pdf', kind: 'PDF document', size: 2.4 },
+  { id: 'photo', name: 'Team photo.jpg', kind: 'JPEG image', size: 5.1 },
+  { id: 'notes', name: 'Meeting notes.txt', kind: 'Plain text', size: 0.1 },
 ];
 
-function fetchInvoices(shouldFail: boolean) {
-  return new Promise<Invoice[]>((resolve, reject) => {
+function fetchFiles(shouldFail: boolean) {
+  return new Promise<RecentFile[]>((resolve, reject) => {
     setTimeout(() => {
       if (shouldFail) reject(new Error('Request timed out'));
-      else resolve(invoices);
+      else resolve(recentFiles);
     }, 1200);
   });
 }
 
 export default function ContentStateDemo() {
   const { locale } = useLocale();
-  const currency = new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' });
-  const [data, setData] = useState<Invoice[]>();
+  const megabytes = new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit: 'megabyte',
+    maximumFractionDigits: 1,
+  });
+  const [data, setData] = useState<RecentFile[]>();
   const [error, setError] = useState<unknown>();
   const [isRefreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    fetchInvoices(true).then(setData, setError);
+    fetchFiles(true).then(setData, setError);
   }, []);
 
   async function load() {
     try {
-      setData(await fetchInvoices(false));
+      setData(await fetchFiles(false));
       setError(undefined);
     } catch (reason) {
       setError(reason);
@@ -56,7 +61,7 @@ export default function ContentStateDemo() {
   return (
     <section className="w-full max-w-lg rounded-lg border border-outline-variant bg-surface">
       <div className="flex items-center justify-between gap-2 border-b border-outline-variant py-2 ps-4 pe-2">
-        <h3 className="text-title-sm text-on-surface">Open invoices</h3>
+        <h3 className="text-title-sm text-on-surface">Recent files</h3>
         <Button
           variant="text"
           size="sm"
@@ -73,19 +78,19 @@ export default function ContentStateDemo() {
         isRefreshing={isRefreshing}
         onRetry={load}
         headingLevel={4}
-        loadingLabel="Loading invoices"
+        loadingLabel="Loading files"
         className="p-2"
       >
         {(items) => (
           <ul className="flex flex-col">
-            {items.map((invoice) => (
-              <li key={invoice.id} className="flex items-center justify-between gap-4 px-2 py-3">
+            {items.map((file) => (
+              <li key={file.id} className="flex items-center justify-between gap-4 px-2 py-3">
                 <div>
-                  <p className="text-title-sm text-on-surface">{invoice.id}</p>
-                  <p className="text-body-sm text-on-surface-variant">{invoice.customer}</p>
+                  <p className="text-title-sm text-on-surface">{file.name}</p>
+                  <p className="text-body-sm text-on-surface-variant">{file.kind}</p>
                 </div>
                 <span className="text-body-md text-on-surface tabular-digits">
-                  {currency.format(invoice.amount)}
+                  {megabytes.format(file.size)}
                 </span>
               </li>
             ))}

@@ -4,14 +4,14 @@ export default function TagGroupDisabled() {
   return (
     <TagGroup
       label="Access"
-      description="Only workspace owners can change access."
+      description="Only the owner can change access."
       isDisabled
       onRemove={() => {}}
       className="w-full max-w-sm"
     >
-      <Tag id="invoices">Invoices</Tag>
-      <Tag id="payroll">Payroll</Tag>
-      <Tag id="reports">Reports</Tag>
+      <Tag id="photos">Photos</Tag>
+      <Tag id="calendar">Calendar</Tag>
+      <Tag id="contacts">Contacts</Tag>
     </TagGroup>
   );
 }

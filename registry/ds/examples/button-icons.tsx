@@ -5,7 +5,7 @@ export default function ButtonIcons() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
       <Button variant="tonal" startIcon={<DownloadIcon />}>
-        Export CSV
+        Download
       </Button>
       <Button endIcon={<ArrowForwardIcon className="rtl:-scale-x-100" />}>Continue</Button>
     </div>

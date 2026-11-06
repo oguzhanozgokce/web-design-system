@@ -12,7 +12,7 @@ export default function DialogRequired() {
         <DialogHeader
           icon={<LockIcon />}
           title="Your session expired"
-          description="For your security, Finance signs you out after 30 minutes without activity. Unsaved changes are kept as a draft."
+          description="For your security, you are signed out after 30 minutes without activity. Unsaved changes are kept as a draft."
         />
         <DialogFooter>
           <Button slot="close">Sign in again</Button>

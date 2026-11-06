@@ -11,7 +11,7 @@ export default function TagIcons() {
         Scheduled
       </Tag>
       <Tag tone="warning" icon={<WarningIcon />}>
-        Card expiring
+        Expiring soon
       </Tag>
       <Tag icon={<LockIcon />}>Private</Tag>
       <Tag tone="primary" variant="outlined" dot="pulse">

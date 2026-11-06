@@ -14,10 +14,10 @@ export default function CopyButtonHook() {
         variant="text"
         startIcon={<icons.link />}
         onPress={() => {
-          copy(`${window.location.origin}/reports/q3-revenue`);
+          copy(window.location.href);
         }}
       >
-        Copy report link
+        Copy page link
       </Button>
       <p role="status" className="min-h-4 text-body-sm text-on-surface-variant">
         {status === 'copied' ? 'Link copied. Paste it into a message or email.' : null}

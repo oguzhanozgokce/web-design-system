@@ -6,7 +6,7 @@ import { Button } from '@/registry/ds/ui/button';
 import { Chip, ChipGroup } from '@/registry/ds/ui/chip';
 import { Sheet, SheetBody, SheetFooter, SheetHeader, SheetTrigger } from '@/registry/ds/ui/sheet';
 
-const statuses = ['Paid', 'Overdue', 'Draft', 'Refunded'];
+const types = ['Photos', 'Videos', 'Documents', 'Music'];
 
 export default function SheetResponsive() {
   const isWide = useMediaQuery('(min-width: 48rem)');
@@ -14,15 +14,15 @@ export default function SheetResponsive() {
   return (
     <SheetTrigger>
       <Button variant="outlined" startIcon={<FilterIcon />}>
-        Filter invoices
+        Filters
       </Button>
       <Sheet side={isWide ? 'end' : 'bottom'} size="sm">
-        <SheetHeader title="Filter invoices" description="Pick one or more statuses." />
+        <SheetHeader title="Filters" description="Show only the types you pick." />
         <SheetBody>
-          <ChipGroup label="Status" selectionMode="multiple" defaultSelectedKeys={['overdue']}>
-            {statuses.map((status) => (
-              <Chip key={status} id={status.toLowerCase()}>
-                {status}
+          <ChipGroup label="Type" selectionMode="multiple" defaultSelectedKeys={['photos']}>
+            {types.map((type) => (
+              <Chip key={type} id={type.toLowerCase()}>
+                {type}
               </Chip>
             ))}
           </ChipGroup>
@@ -31,7 +31,7 @@ export default function SheetResponsive() {
           <Button variant="text" slot="close">
             Cancel
           </Button>
-          <Button slot="close">Apply filters</Button>
+          <Button slot="close">Apply</Button>
         </SheetFooter>
       </Sheet>
     </SheetTrigger>

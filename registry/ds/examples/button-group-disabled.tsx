@@ -18,7 +18,7 @@ export default function ButtonGroupDisabled() {
           Delete
         </Button>
       </ButtonGroup>
-      <p className="text-body-sm text-on-surface-variant">Select orders to use bulk actions.</p>
+      <p className="text-body-sm text-on-surface-variant">Select items to use bulk actions.</p>
     </div>
   );
 }

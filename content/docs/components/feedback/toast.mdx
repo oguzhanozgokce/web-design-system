@@ -27,8 +27,8 @@ import { Toaster } from '@/components/ds/toast';
 ```tsx
 import { toast } from '@/components/ds/toast';
 
-toast('Invoice INV-2048 sent to Acme Corp');
-toast.success('Payment received');
+toast('Message sent');
+toast.success('Changes saved');
 ```
 
 New toasts land in front. Older ones tuck behind with a small peek and scale, and the stack fans
@@ -184,8 +184,8 @@ belong to the `Toaster` that shows them: pass `labels` to it, or set them for ev
 
 - Built on React Aria's toast region and toast, which are still `UNSTABLE_` in React Aria
   Components 1.22. This component wraps them, so app code never imports an unstable name.
-- The region is a landmark named by the `notifications` label, "Notifications" by default. F6 moves focus between it and the other
-  landmarks on the page.
+- The region is a landmark named by the `notifications` label, "Notifications" by default. F6
+  moves focus between it and the other landmarks on the page.
 - Each toast is a non-modal `alertdialog` named by its title or message and described by the rest.
   Its text sits in an `alert`, so screen readers announce new toasts and in-place updates.
 - Countdowns pause while the pointer is over the stack, while keyboard or touch focus is inside it,

@@ -1,0 +1,60 @@
+---
+title: Text and direction
+description: Built-in text is yours to replace, layouts mirror for right-to-left, and dates and numbers follow the locale.
+---
+
+## Built-in text
+
+The library ships no translations. A few components write text of their own: the accessible name
+of a spinner, a "Close" button, "3 selected" in a select. Each has an English default, and you
+replace it in one of two places.
+
+For one component, pass `labels`:
+
+```tsx
+<Dialog labels={{ close: 'Kapat' }}>…</Dialog>
+```
+
+For the whole app, give `DSProvider` the same keys under the component's namespace:
+
+```tsx
+<DSProvider labels={{ dialog: { close: 'Kapat' }, select: { placeholder: 'Seçin' } }}>
+```
+
+A component's own `labels` win over the provider's, and the provider's win over the defaults. Every
+docs page lists the keys, the English default and where each one shows up. Each component also
+exports its type and defaults (`DialogLabels`, `defaultDialogLabels`), so a translation file can be
+typed.
+
+### Values and plurals
+
+Some labels hold values, such as `selectedCount: '{count} selected'`. A label is either a string with
+`{placeholders}` or a function of the values, so an i18n library with plurals plugs straight in:
+
+```tsx
+const t = useTranslations('select');
+
+<Select labels={{ selectedCount: ({ count }) => t('selected', { count }) }} />;
+```
+
+Values arrive already formatted for the locale, so `count` is `"1,204"` in English and `"1.204"` in
+Turkish.
+
+Text you always write yourself, such as a title, a description or a button's label, is an ordinary
+prop and never a label.
+
+## Locale
+
+`DSProvider locale` does not change any wording. React Aria uses it for dates, numbers, calendars
+and its own screen reader announcements.
+
+## Right to left
+
+The library uses logical properties only: `ms-`, `pe-`, `inset-s-`, `rounded-s-`, `border-e`,
+`text-start`. Physical ones (`ml-`, `left-`, `text-left`) fail `check:ds`. Set `dir="rtl"` on
+`<html>` for Arabic or Hebrew and the layout mirrors.
+
+Directional icons, such as arrows, need `rtl:-scale-x-100`. Icons that mean the same in both
+directions, such as a plus or a check, do not.
+
+Every preview on this site has an LTR/RTL switch.

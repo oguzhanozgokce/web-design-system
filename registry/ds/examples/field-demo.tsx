@@ -5,8 +5,8 @@ export default function FieldDemo() {
     <TextField
       className="w-full max-w-sm"
       label="Display name"
-      description="Shown on invoices and receipts."
-      defaultValue="Acme Finance"
+      description="Shown on your profile."
+      defaultValue="Alex Morgan"
       maxLength={40}
       isRequired
     />

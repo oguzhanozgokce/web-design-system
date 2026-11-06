@@ -59,9 +59,9 @@ describe('Badge', () => {
 
   it('uses a custom label with a count placeholder', async () => {
     const screen = await renderWithDS(
-      <Badge count={4} label="{count} unpaid invoices" tone="warning" />,
+      <Badge count={4} label="{count} unpaid projects" tone="warning" />,
     );
-    await expect.element(screen.getByText('4 unpaid invoices')).toBeInTheDocument();
+    await expect.element(screen.getByText('4 unpaid projects')).toBeInTheDocument();
   });
 
   it('shows a short text label as is', async () => {
@@ -140,11 +140,11 @@ describe('Badge', () => {
   it('adds its label to the accessible name of a control', async () => {
     const screen = await renderWithDS(
       <Button variant="text" endIcon={<Badge count={12} />}>
-        Invoices
+        Projects
       </Button>,
     );
     await expect
-      .element(screen.getByRole('button', { name: 'Invoices 12 new' }))
+      .element(screen.getByRole('button', { name: 'Projects 12 new' }))
       .toBeInTheDocument();
   });
 

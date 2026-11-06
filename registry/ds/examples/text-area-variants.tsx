@@ -3,24 +3,24 @@ import { TextArea } from '@/registry/ds/ui/text-area';
 export default function TextAreaVariants() {
   return (
     <div className="grid w-full max-w-xl gap-6 sm:grid-cols-2">
-      <TextArea label="Refund reason" isRequired placeholder="What went wrong?" minRows={2} />
+      <TextArea label="Feedback" isRequired placeholder="What could we do better?" minRows={2} />
       <TextArea
-        label="Refund reason"
+        label="Feedback"
         variant="filled"
         isRequired
-        placeholder="What went wrong?"
+        placeholder="What could we do better?"
         minRows={2}
       />
       <TextArea
-        label="Audit trail"
+        label="Comment"
         isReadOnly
         minRows={2}
-        defaultValue="Approved by Dana Kim on 4 November."
+        defaultValue="Looks good to me. Ready to publish on Monday."
       />
       <TextArea
-        label="Dispute details"
+        label="Steps to reproduce"
         isInvalid
-        errorMessage="Add at least one sentence for the bank."
+        errorMessage="Add at least one step."
         minRows={2}
       />
     </div>

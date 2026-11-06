@@ -16,9 +16,9 @@ import { Avatar, AvatarGroup } from '@/components/ds/avatar';
 
 <Avatar name={member.name} src={member.photoUrl} status="online" />;
 
-<AvatarGroup aria-label="Invoice approvers" max={3}>
-  {approvers.map((approver) => (
-    <Avatar key={approver.id} name={approver.name} src={approver.photoUrl} />
+<AvatarGroup aria-label="Project members" max={3}>
+  {members.map((member) => (
+    <Avatar key={member.id} name={member.name} src={member.photoUrl} />
   ))}
 </AvatarGroup>;
 ```
@@ -40,7 +40,7 @@ not get stuck on initials.
 ### Initials
 
 Initials are the first letter of the first and last word, so middle names are skipped. Words that
-start with punctuation, such as `(Finance)`, are ignored. Scripts without capital letters (Arabic,
+start with punctuation, such as `(Design)`, are ignored. Scripts without capital letters (Arabic,
 Chinese, Japanese, Korean, Thai and others) get one character, and a character is always a whole
 grapheme, so combining marks and conjuncts stay intact. Initials are uppercased in the
 `DSProvider` locale, so `ilkay şahin` becomes `İŞ` in Turkish and `IŞ` in English.
@@ -167,7 +167,7 @@ because `name` is the person's name here. `isPending` is left out too.
 | `labels`   | `Partial<AvatarLabels>`                |                    |
 
 `max` counts avatars, not the overflow avatar, as in `DSAvatarGroup`. Give the group an
-`aria-label`, such as “Invoice approvers”.
+`aria-label`, such as “Project members”.
 
 ### Helpers
 

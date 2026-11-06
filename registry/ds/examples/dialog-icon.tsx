@@ -6,19 +6,19 @@ export default function DialogIcon() {
   return (
     <DialogTrigger>
       <Button variant="tonal" startIcon={<SyncIcon />}>
-        Bank sync paused
+        Sync paused
       </Button>
       <Dialog size="sm">
         <DialogHeader
           icon={<SyncIcon />}
-          title="Reconnect Northwind Bank?"
-          description="Your bank asks you to sign in again every 90 days. Until you do, new transactions stop importing."
+          title="Resume sync?"
+          description="Files you changed while sync was paused upload as soon as it resumes."
         />
         <DialogFooter>
           <Button slot="close" variant="text">
             Later
           </Button>
-          <Button slot="close">Reconnect</Button>
+          <Button slot="close">Resume</Button>
         </DialogFooter>
       </Dialog>
     </DialogTrigger>
