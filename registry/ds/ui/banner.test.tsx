@@ -1,0 +1,329 @@
+import { useState } from 'react';
+import { userEvent } from 'vitest/browser';
+import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
+import { FlagIcon } from '@/registry/ds/lib/icons';
+import { Banner, type BannerTone } from '@/registry/ds/ui/banner';
+import { Button } from '@/registry/ds/ui/button';
+
+const tones: BannerTone[] = ['info', 'success', 'warning', 'error', 'neutral'];
+
+describe('Banner', () => {
+  it('renders a polite status with the tone, title, description and default glyph', async () => {
+    const screen = await renderWithDS(
+      <Banner
+        tone="warning"
+        title="Card ending 4242 expires soon"
+        description="Update it before the invoice on 1 December."
+      />,
+    );
+    const status = screen.getByRole('status');
+    await expect
+      .element(status)
+      .toHaveTextContent(
+        'Warning: Card ending 4242 expires soonUpdate it before the invoice on 1 December.',
+      );
+    const banner = screen.container.querySelector('[data-slot="banner"]')!;
+    expect(banner.getAttribute('data-tone')).toBe('warning');
+    expect(banner.getAttribute('data-variant')).toBe('tonal');
+    expect(banner.getAttribute('data-layout')).toBe('inline');
+    expect(banner.className).toMatch(/bg-warning-container/);
+    const icon = banner.querySelector('[data-slot="icon"]')!;
+    expect(icon.getAttribute('aria-hidden')).toBe('true');
+    expect(icon.querySelector('svg')).not.toBeNull();
+  });
+
+  it('becomes an alert only for announced errors', async () => {
+    const screen = await renderWithDS(
+      <>
+        <Banner tone="error" announce title="Payment failed" />
+        <Banner tone="info" announce title="Export started" />
+        <Banner tone="error" title="Two invoices are overdue" />
+      </>,
+    );
+    await expect.element(screen.getByRole('alert')).toHaveTextContent('Error: Payment failed');
+    const statuses = screen.getByRole('status').elements();
+    expect(statuses.map((element) => element.textContent)).toEqual([
+      'Information: Export started',
+      'Error: Two invoices are overdue',
+    ]);
+  });
+
+  it('leaves the tone label out for neutral banners and honours custom or hidden icons', async () => {
+    const screen = await renderWithDS(
+      <>
+        <Banner tone="neutral" title="Read-only workspace" icon={<FlagIcon data-testid="flag" />} />
+        <Banner tone="success" title="Saved" icon={null} data-testid="plain" />
+      </>,
+    );
+    await expect
+      .element(screen.getByRole('status').first())
+      .toHaveTextContent('Read-only workspace');
+    await expect.element(screen.getByTestId('flag')).toBeInTheDocument();
+    expect(screen.getByTestId('plain').element().querySelector('[data-slot="icon"]')).toBeNull();
+  });
+
+  it('gives actions small text buttons that a caller can override', async () => {
+    const onRetry = vi.fn();
+    const screen = await renderWithDS(
+      <Banner
+        tone="error"
+        title="Bank sync paused"
+        actions={
+          <>
+            <Button onPress={onRetry}>Retry</Button>
+            <Button variant="filled">Reconnect</Button>
+          </>
+        }
+      />,
+    );
+    const retry = screen.getByRole('button', { name: 'Retry' });
+    await expect.element(retry).toHaveAttribute('data-variant', 'text');
+    await expect.element(retry).toHaveAttribute('data-size', 'sm');
+    await expect
+      .element(screen.getByRole('button', { name: 'Reconnect' }))
+      .toHaveAttribute('data-variant', 'filled');
+    await retry.click();
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it('lines wrapped text actions up with each other and with the title', async () => {
+    for (const locale of ['en', 'ar']) {
+      const screen = await renderWithDS(
+        <div className="w-64">
+          <Banner
+            tone="warning"
+            title="Card ending 4242 expires on 30 November"
+            actions={
+              <>
+                <Button>Update card</Button>
+                <Button>Remind me later</Button>
+              </>
+            }
+          />
+        </div>,
+        { locale },
+      );
+      const edge = (element: Element) => {
+        const rect = element.getBoundingClientRect();
+        return locale === 'ar' ? rect.right : rect.left;
+      };
+      const [first, second] = ['Update card', 'Remind me later'].map((name) =>
+        screen.getByRole('button', { name }).element(),
+      );
+      const title = screen.container.querySelector('[data-slot="title"]')!;
+      expect(second.getBoundingClientRect().top).toBeGreaterThan(first.getBoundingClientRect().top);
+      expect(edge(second)).toBeCloseTo(edge(first), 0);
+      expect(edge(first.querySelector('[data-slot="label"]')!)).toBeCloseTo(edge(title), 0);
+      await screen.unmount();
+    }
+  });
+
+  it('dismisses itself and moves focus to the next focusable element', async () => {
+    const onDismiss = vi.fn();
+    const onOpenChange = vi.fn();
+    const screen = await renderWithDS(
+      <div>
+        <Banner
+          isDismissable
+          onDismiss={onDismiss}
+          onOpenChange={onOpenChange}
+          title="New: recurring invoices"
+        />
+        <Button>Create invoice</Button>
+      </div>,
+    );
+    const dismiss = screen.getByRole('button', { name: 'Dismiss' });
+    await userEvent.keyboard('{Tab}');
+    await expect.element(dismiss).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+
+    expect(onDismiss).toHaveBeenCalledOnce();
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    await expect.element(screen.getByRole('button', { name: 'Create invoice' })).toHaveFocus();
+    await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('stays visible while a controlled isOpen stays true', async () => {
+    function Controlled() {
+      const [isOpen, setOpen] = useState(true);
+      const [count, setCount] = useState(0);
+      return (
+        <>
+          <Banner
+            isDismissable
+            isOpen={isOpen}
+            onOpenChange={() => setCount((value) => value + 1)}
+            title="Usage at 92% of plan"
+          />
+          <p>Dismissed {count}</p>
+          <Button onPress={() => setOpen((value) => !value)}>Toggle</Button>
+        </>
+      );
+    }
+    const screen = await renderWithDS(<Controlled />);
+    await screen.getByRole('button', { name: 'Dismiss' }).click();
+    await expect.element(screen.getByText('Dismissed 1')).toBeInTheDocument();
+    await expect.element(screen.getByRole('status')).toBeInTheDocument();
+
+    await screen.getByRole('button', { name: 'Toggle' }).click();
+    await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
+    await screen.getByRole('button', { name: 'Toggle' }).click();
+    await expect
+      .element(screen.getByRole('status'))
+      .toHaveTextContent('Information: Usage at 92% of plan');
+  });
+
+  it('keeps focus on Dismiss while a controlled banner stays open', async () => {
+    function Controlled() {
+      const [isOpen, setOpen] = useState(true);
+      return (
+        <>
+          <Banner isDismissable isOpen={isOpen} title="Usage at 92% of plan" />
+          <Button onPress={() => setOpen(false)}>Hide banner</Button>
+        </>
+      );
+    }
+    const screen = await renderWithDS(<Controlled />);
+    const dismiss = screen.getByRole('button', { name: 'Dismiss' });
+    await userEvent.keyboard('{Tab}');
+    await expect.element(dismiss).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await expect.element(screen.getByRole('status')).toBeInTheDocument();
+    await expect.element(dismiss).toHaveFocus();
+
+    const hide = screen.getByRole('button', { name: 'Hide banner' });
+    await hide.click();
+    await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
+    await expect.element(hide).toHaveFocus();
+  });
+
+  it('moves focus to a control that is enabled by the banner closing', async () => {
+    function Announcement() {
+      const [isOpen, setOpen] = useState(true);
+      return (
+        <>
+          <Banner
+            isDismissable
+            isOpen={isOpen}
+            onOpenChange={setOpen}
+            title="New: recurring invoices"
+          />
+          <Button isDisabled={isOpen} onPress={() => setOpen(true)}>
+            Show again
+          </Button>
+          <Button>Create invoice</Button>
+        </>
+      );
+    }
+    for (const motion of ['system', 'disabled'] as const) {
+      const screen = await renderWithDS(<Announcement />, { provider: { motion } });
+      await userEvent.keyboard('{Tab}');
+      await expect.element(screen.getByRole('button', { name: 'Dismiss' })).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+      await expect.element(screen.getByRole('button', { name: 'Show again' })).toHaveFocus();
+      await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
+      await screen.unmount();
+    }
+  });
+
+  it('moves focus to the previous focusable element when nothing follows', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <Button>Export ledger</Button>
+        <Banner isDismissable tone="success" title="Export ready" />
+      </div>,
+    );
+    await screen.getByRole('button', { name: 'Dismiss' }).click();
+    await expect.element(screen.getByRole('button', { name: 'Export ledger' })).toHaveFocus();
+    await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('fades out as inert, and leaves at once when motion is disabled', async () => {
+    const animated = await renderWithDS(
+      <Banner isDismissable title="Payout sent" data-testid="animated" />,
+    );
+    await animated.getByRole('button', { name: 'Dismiss' }).click();
+    const exiting = animated.getByTestId('animated').element();
+    expect(exiting.hasAttribute('data-exiting')).toBe(true);
+    expect(exiting.hasAttribute('inert')).toBe(true);
+    await expect.element(animated.getByTestId('animated')).not.toBeInTheDocument();
+    await animated.unmount();
+
+    const instant = await renderWithDS(
+      <Banner isDismissable title="Payout sent" data-testid="instant" />,
+      { provider: { motion: 'disabled' } },
+    );
+    await instant.getByRole('button', { name: 'Dismiss' }).click();
+    expect(document.querySelector('[data-testid="instant"]')).toBeNull();
+  });
+
+  it('starts hidden with defaultOpen false and reports page layout and variant', async () => {
+    const screen = await renderWithDS(
+      <>
+        <Banner defaultOpen={false} title="Hidden notice" />
+        <Banner layout="page" variant="outlined" tone="error" title="Webhook failing" />
+      </>,
+    );
+    await expect.element(screen.getByText('Hidden notice')).not.toBeInTheDocument();
+    const banner = screen.container.querySelector('[data-slot="banner"]')!;
+    expect(banner.getAttribute('data-layout')).toBe('page');
+    expect(banner.getAttribute('data-variant')).toBe('outlined');
+    expect(banner.className).toMatch(/border-error\/50/);
+    expect(banner.className).toMatch(/rounded-none/);
+  });
+
+  it('takes its dismiss and tone labels from labels, then DSProvider', async () => {
+    const screen = await renderWithDS(
+      <>
+        <Banner tone="error" isDismissable title="Ödeme başarısız" />
+        <Banner
+          tone="warning"
+          isDismissable
+          title="Kartın süresi doluyor"
+          labels={{ dismiss: 'Gizle', warning: 'Dikkat:' }}
+        />
+      </>,
+      { provider: { labels: { banner: { dismiss: 'Kapat', error: 'Hata:' } } } },
+    );
+    await expect.element(screen.getByRole('button', { name: 'Kapat' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('button', { name: 'Gizle' })).toBeInTheDocument();
+    const statuses = screen.getByRole('status').elements();
+    expect(statuses.map((element) => element.textContent)).toEqual([
+      'Hata: Ödeme başarısız',
+      'Dikkat: Kartın süresi doluyor',
+    ]);
+  });
+
+  it('has no accessibility violations in light, dark and RTL', async () => {
+    for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
+      const screen = await renderWithDS(
+        <div className="flex flex-col gap-3 p-4">
+          {tones.map((tone) =>
+            (['tonal', 'outlined'] as const).map((variant) => (
+              <Banner
+                key={`${tone}-${variant}`}
+                tone={tone}
+                variant={variant}
+                isDismissable
+                title={`${tone} ${variant}`}
+                description="Invoices sync every 15 minutes."
+                actions={<Button>Review</Button>}
+              />
+            )),
+          )}
+          <Banner
+            layout="page"
+            tone="info"
+            isDismissable
+            description="Scheduled maintenance on Sunday from 02:00 to 04:00 UTC."
+            actions={<Button>Status page</Button>}
+          />
+          <Banner layout="page" variant="outlined" tone="warning" title="Trial ends in 3 days" />
+        </div>,
+        options,
+      );
+      await expectNoA11yViolations(screen.container);
+      await screen.unmount();
+    }
+  });
+});

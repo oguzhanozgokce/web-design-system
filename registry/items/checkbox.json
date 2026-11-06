@@ -1,0 +1,8 @@
+{
+  "name": "checkbox",
+  "type": "registry:ui",
+  "title": "Checkbox",
+  "description": "Material 3 checkbox with an animated check mark, indeterminate state, labels and descriptions, plus a checkbox group with validation and a built-in select-all checkbox.",
+  "category": "inputs",
+  "files": ["ui/checkbox.tsx"]
+}

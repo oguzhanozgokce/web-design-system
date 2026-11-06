@@ -1,0 +1,8 @@
+{
+  "name": "search-field",
+  "type": "registry:ui",
+  "title": "Search field",
+  "description": "Search input on the shared Field contract, with a clear button and Escape to clear, submit on Enter, a pending spinner for async search, a focus shortcut with its key hint and a Material 3 pill shape for top bars.",
+  "category": "inputs",
+  "files": ["ui/search-field.tsx"]
+}

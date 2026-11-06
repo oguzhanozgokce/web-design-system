@@ -1,0 +1,28 @@
+---
+title: Typography
+description: The Material 3 type scale as Tailwind utilities.
+---
+
+Each utility sets size, line height, letter spacing and weight together. The font family comes
+from the project.
+
+| Utility            | Size / line height | Weight | Use                       |
+| ------------------ | ------------------ | ------ | ------------------------- |
+| `text-display-lg`  | 57 / 64            | 400    | Hero numbers, marketing   |
+| `text-display-md`  | 45 / 52            | 400    |                           |
+| `text-display-sm`  | 36 / 44            | 400    |                           |
+| `text-headline-lg` | 32 / 40            | 400    | Page titles               |
+| `text-headline-md` | 28 / 36            | 400    |                           |
+| `text-headline-sm` | 24 / 32            | 400    | Section titles            |
+| `text-title-lg`    | 22 / 28            | 400    | Dialog titles             |
+| `text-title-md`    | 16 / 24            | 500    | Card titles, list headers |
+| `text-title-sm`    | 14 / 20            | 500    |                           |
+| `text-body-lg`     | 16 / 24            | 400    | Long text                 |
+| `text-body-md`     | 14 / 20            | 400    | Default UI text           |
+| `text-body-sm`     | 12 / 16            | 400    | Supporting text           |
+| `text-label-lg`    | 14 / 20            | 500    | Buttons, tabs             |
+| `text-label-md`    | 12 / 16            | 500    | Chips, badges             |
+| `text-label-sm`    | 11 / 16            | 500    | Tiny labels               |
+
+`cn()` and `tv()` know these names, so `cn('text-body-md', 'text-on-surface')` keeps both: one is a
+size, the other a colour.

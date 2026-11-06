@@ -1,0 +1,8 @@
+{
+  "name": "icons",
+  "type": "registry:lib",
+  "title": "Icons",
+  "description": "The Material Symbols Rounded glyphs the library draws itself; every one can be replaced through DSProvider.",
+  "category": "foundations",
+  "files": ["lib/icons.tsx"]
+}

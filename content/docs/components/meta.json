@@ -1,0 +1,14 @@
+{
+  "title": "Components",
+  "pages": [
+    "actions",
+    "inputs",
+    "date-time",
+    "navigation",
+    "layout",
+    "overlays",
+    "feedback",
+    "data-display",
+    "expressive"
+  ]
+}

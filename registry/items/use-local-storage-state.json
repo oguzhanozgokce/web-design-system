@@ -1,0 +1,8 @@
+{
+  "name": "use-local-storage-state",
+  "type": "registry:hook",
+  "title": "useLocalStorageState",
+  "description": "State kept in localStorage, synchronised across components and tabs, with a server value for static rendering.",
+  "category": "foundations",
+  "files": ["hooks/use-local-storage-state.ts"]
+}

@@ -1,0 +1,165 @@
+---
+title: Checkbox
+description: Material 3 checkbox with an animated check mark, indeterminate state, labels and descriptions, plus a checkbox group with validation and a built-in select-all checkbox.
+---
+
+<ComponentPreview name="checkbox-demo" />
+
+## Installation
+
+<InstallCommand name="checkbox" />
+
+## Usage
+
+```tsx
+import { Checkbox, CheckboxGroup } from '@/components/ds/checkbox';
+
+<Checkbox defaultSelected>Email me when an invoice is overdue</Checkbox>;
+
+<CheckboxGroup label="Weekly digest" defaultValue={['payouts']}>
+  <Checkbox value="payouts">Payouts</Checkbox>
+  <Checkbox value="refunds">Refunds</Checkbox>
+</CheckboxGroup>;
+```
+
+## Examples
+
+### Description
+
+`description` adds supporting text under the label. Clicking it toggles the checkbox, and screen
+readers hear it as the description, not as part of the name.
+
+<ComponentPreview name="checkbox-description" />
+
+### Group
+
+`CheckboxGroup` gives several checkboxes one label, one description and one error. Its value is
+the array of selected `value`s, so it works with `value`/`defaultValue`/`onChange` and with
+forms through `name`.
+
+<ComponentPreview name="checkbox-group" />
+
+### Horizontal
+
+`orientation="horizontal"` lays the options out in a wrapping row. Use it for three to five short
+options, such as columns or file formats.
+
+<ComponentPreview name="checkbox-horizontal" />
+
+### Select all
+
+`SelectAllCheckbox` goes inside a `CheckboxGroup` and controls every enabled checkbox in it. It is
+indeterminate while only some are selected and skips disabled and read-only options. It follows the
+group's disabled, read-only and invalid states. Its label defaults to "Select all"; pass `children`
+for a label that names what it selects.
+
+<ComponentPreview name="checkbox-select-all" />
+
+### Indeterminate
+
+Outside a group, drive `isIndeterminate` yourself. This is the pattern for table headers: the
+header checkbox is mixed while some rows are selected. Checkboxes without a visible label need an
+`aria-label`.
+
+<ComponentPreview name="checkbox-indeterminate" align="stretch" />
+
+### Validation
+
+Set `isInvalid` and `errorMessage` on the group, or pass `validate` and let React Aria run it.
+The boxes turn to the error colour and the message is linked to every checkbox.
+
+<ComponentPreview name="checkbox-invalid" />
+
+### Disabled
+
+`isDisabled` works on a single checkbox or on the whole group.
+
+<ComponentPreview name="checkbox-disabled" />
+
+## API
+
+### Checkbox
+
+| Prop              | Type                                                       | Default |
+| ----------------- | ---------------------------------------------------------- | ------- |
+| `children`        | `ReactNode`                                                |         |
+| `description`     | `ReactNode`                                                |         |
+| `errorMessage`    | `ReactNode \| (validation: ValidationResult) => ReactNode` |         |
+| `isSelected`      | `boolean`                                                  |         |
+| `defaultSelected` | `boolean`                                                  | `false` |
+| `onChange`        | `(isSelected: boolean) => void`                            |         |
+| `isIndeterminate` | `boolean`                                                  | `false` |
+| `value`           | `string`                                                   |         |
+| `isDisabled`      | `boolean`                                                  | `false` |
+| `isReadOnly`      | `boolean`                                                  | `false` |
+| `isInvalid`       | `boolean`                                                  | `false` |
+| `isRequired`      | `boolean`                                                  | `false` |
+
+Every other [React Aria CheckboxField](https://react-aria.adobe.com/Checkbox) prop is passed
+through, such as `name`, `validate`, `inputRef` and `slot="selection"` inside a GridList or Table.
+
+### CheckboxGroup
+
+| Prop           | Type                                                       | Default      |
+| -------------- | ---------------------------------------------------------- | ------------ |
+| `label`        | `ReactNode`                                                |              |
+| `description`  | `ReactNode`                                                |              |
+| `errorMessage` | `ReactNode \| (validation: ValidationResult) => ReactNode` |              |
+| `orientation`  | `'vertical' \| 'horizontal'`                               | `'vertical'` |
+| `value`        | `string[]`                                                 |              |
+| `defaultValue` | `string[]`                                                 | `[]`         |
+| `onChange`     | `(value: string[]) => void`                                |              |
+| `isDisabled`   | `boolean`                                                  | `false`      |
+| `isReadOnly`   | `boolean`                                                  | `false`      |
+| `isInvalid`    | `boolean`                                                  | `false`      |
+| `isRequired`   | `boolean`                                                  | `false`      |
+
+Every other [React Aria CheckboxGroup](https://react-aria.adobe.com/CheckboxGroup) prop is passed
+through.
+
+### SelectAllCheckbox
+
+| Prop       | Type                      | Default      |
+| ---------- | ------------------------- | ------------ |
+| `children` | `ReactNode`               | `Select all` |
+| `labels`   | `Partial<CheckboxLabels>` |              |
+
+Also takes the `Checkbox` props except `value`, `name`, `isSelected`, `defaultSelected`,
+`isIndeterminate`, `onChange`, `validate` and `validationBehavior`, which it manages. `children`
+replaces the default label. It is not a form value and never blocks a native form submit. It throws
+when rendered outside a `CheckboxGroup`.
+
+### Data attributes
+
+Checkbox root (`data-slot="checkbox"`): `data-selected`, `data-indeterminate`, `data-disabled`,
+`data-invalid`, `data-required`, `data-readonly`; `data-select-all` on the select-all checkbox.
+The clickable part (`data-slot="target"`) also has `data-hovered`, `data-pressed` and
+`data-focus-visible`. Parts: `"control"`, `"state-layer"`, `"box"` (with
+`data-state="checked" | "indeterminate" | "unchecked"`), `"mark"`, `"content"`, `"label"`,
+`"required"`, `"description"`, `"error"`.
+
+Group root (`data-slot="checkbox-group"`): `data-orientation`, `data-disabled`, `data-readonly`,
+`data-invalid`, `data-required`. Parts: `"header"`, `"label"`, `"required"`, `"description"`,
+`"items"`, `"error"`.
+
+### Labels
+
+Text `SelectAllCheckbox` writes on its own. Pass `labels`, or set it app-wide with
+`<DSProvider labels={{ checkbox: { selectAll: '…' } }}>`. `children` wins over both. `Checkbox` and
+`CheckboxGroup` write no text of their own.
+
+| Key         | Default      | Used for                                            |
+| ----------- | ------------ | --------------------------------------------------- |
+| `selectAll` | `Select all` | the label of a `SelectAllCheckbox` without children |
+
+## Accessibility
+
+- Built on React Aria `CheckboxField` and `CheckboxGroup`: a native checkbox input, Space to
+  toggle, and the label and description wired with `aria-labelledby` and `aria-describedby`. An
+  explicit `aria-label` or `aria-labelledby` always wins over the visible label.
+- Indeterminate sets the input's `indeterminate` property, so screen readers announce "mixed".
+- The click target is the box, its 40px state layer, the label and the description. Empty space
+  beside the label does not toggle the checkbox.
+- The check mark draws with the effect spring and appears instantly with reduced motion, from
+  either the system setting or `DSProvider motion`.
+- Contrast is checked with axe in light, dark and RTL by `checkbox.test.tsx`.

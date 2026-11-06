@@ -1,0 +1,195 @@
+---
+title: Disclosure
+description: Expandable section with a heading trigger, optional icon and description, and an animated panel, plus an Accordion that groups disclosures as plain, outlined or separated lists.
+---
+
+<ComponentPreview name="disclosure-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="disclosure" />
+
+## Usage
+
+```tsx
+import {
+  Accordion,
+  Disclosure,
+  DisclosurePanel,
+  DisclosureTrigger,
+} from '@/components/ds/disclosure';
+
+<Disclosure>
+  <DisclosureTrigger>Billing address</DisclosureTrigger>
+  <DisclosurePanel>14 Harbour Street, Leeds</DisclosurePanel>
+</Disclosure>;
+
+<Accordion defaultExpandedKeys={['fees']}>
+  <Disclosure id="fees">
+    <DisclosureTrigger>Which fees are deducted?</DisclosureTrigger>
+    <DisclosurePanel>Card processing fees and refunds.</DisclosurePanel>
+  </Disclosure>
+  <Disclosure id="schedule">
+    <DisclosureTrigger>When are payouts sent?</DisclosureTrigger>
+    <DisclosurePanel>Every Monday at 09:00.</DisclosurePanel>
+  </Disclosure>
+</Accordion>;
+```
+
+A `Disclosure` is one expandable section. An `Accordion` groups several and, by default, keeps one
+open at a time. The panel animates its height and the chevron turns as it opens.
+
+## Examples
+
+### Variants
+
+`outlined` is the default and reads as a self-contained section. `plain` has no container and suits
+an "advanced options" toggle inside a form. `filled` sits on a tonal surface for emphasis.
+
+<ComponentPreview name="disclosure-variants" align="stretch" />
+
+### Icons and descriptions
+
+`startIcon` adds a leading icon and `description` a supporting line under the title. Both are part
+of the trigger, so pressing anywhere on the row toggles the panel.
+
+<ComponentPreview name="disclosure-icons" align="stretch" />
+
+### Sizes
+
+`md` is the default, with a 16px title. `sm` has a 14px title and tighter padding for dense admin
+tables and side panels. `lg` has a 22px title and 16px body text for marketing pages.
+
+<ComponentPreview name="disclosure-sizes" align="stretch" />
+
+### FAQ section
+
+`variant="plain"` draws a divider between items and no outer frame, which fits a marketing page.
+Give the section its own heading and keep the questions one level below it.
+
+<ComponentPreview name="disclosure-faq" align="stretch" />
+
+### Settings groups
+
+`variant="outlined"` puts the items in one bordered container. `allowsMultipleExpanded` lets an admin
+keep several groups open while comparing settings. Pass `className` to `DisclosurePanel` to adjust
+its padding for full-width rows such as switches.
+
+<ComponentPreview name="disclosure-settings" align="stretch" />
+
+### Separated
+
+`variant="separated"` makes each item its own rounded card. Items are `filled` unless a
+`Disclosure` sets its own `variant`.
+
+<ComponentPreview name="disclosure-separated" align="stretch" />
+
+### Controlled
+
+`expandedKeys` and `onExpandedChange` control which items are open, for example to add an "Expand
+all" action. Give each `Disclosure` an `id` to use as its key.
+
+<ComponentPreview name="disclosure-controlled" align="stretch" />
+
+### Disabled
+
+`isDisabled` on a `Disclosure` locks that item; on the `Accordion` it locks every item. Use the
+description to say why it is unavailable.
+
+<ComponentPreview name="disclosure-disabled" align="stretch" />
+
+### Nested
+
+A disclosure inside a panel is independent of the accordion around it. Lower its heading `level` so
+the outline stays correct.
+
+<ComponentPreview name="disclosure-nested" align="stretch" />
+
+## API
+
+### Disclosure
+
+| Prop               | Type                                | Default      |
+| ------------------ | ----------------------------------- | ------------ |
+| `variant`          | `'plain' \| 'outlined' \| 'filled'` | `'outlined'` |
+| `size`             | `'sm' \| 'md' \| 'lg'`              | `'md'`       |
+| `id`               | `Key`                               | generated    |
+| `isExpanded`       | `boolean`                           |              |
+| `defaultExpanded`  | `boolean`                           | `false`      |
+| `onExpandedChange` | `(isExpanded: boolean) => void`     |              |
+| `isDisabled`       | `boolean`                           | `false`      |
+| `className`        | `string \| (state) => string`       |              |
+
+Inside an `Accordion`, `size` defaults to the accordion's size and `id` is the key used by
+`expandedKeys`. In a `plain` or `outlined` accordion every item is a plain row and its `variant` is
+ignored; in a `separated` one it defaults to `filled`.
+
+### DisclosureTrigger
+
+| Prop          | Type                          | Default |
+| ------------- | ----------------------------- | ------- |
+| `children`    | `ReactNode`                   |         |
+| `description` | `ReactNode`                   |         |
+| `startIcon`   | `ReactNode`                   |         |
+| `level`       | `1 \| 2 \| 3 \| 4 \| 5 \| 6`  | `3`     |
+| `className`   | `string \| (state) => string` |         |
+
+Renders a heading of the given `level` with a [React Aria Button](https://react-aria.adobe.com/Button)
+inside. Other button props, such as `onHoverStart`, are passed through.
+
+### DisclosurePanel
+
+| Prop        | Type                  | Default   |
+| ----------- | --------------------- | --------- |
+| `children`  | `ReactNode`           |           |
+| `role`      | `'group' \| 'region'` | `'group'` |
+| `className` | `string`              |           |
+
+`className` goes to the inner content element, which holds the padding and the 12px gap between
+children.
+
+### Accordion
+
+| Prop                     | Type                                   | Default      |
+| ------------------------ | -------------------------------------- | ------------ |
+| `variant`                | `'plain' \| 'outlined' \| 'separated'` | `'outlined'` |
+| `size`                   | `'sm' \| 'md' \| 'lg'`                 | `'md'`       |
+| `allowsMultipleExpanded` | `boolean`                              | `false`      |
+| `expandedKeys`           | `Iterable<Key>`                        |              |
+| `defaultExpandedKeys`    | `Iterable<Key>`                        |              |
+| `onExpandedChange`       | `(keys: Set<Key>) => void`             |              |
+| `isDisabled`             | `boolean`                              | `false`      |
+| `className`              | `string \| (state) => string`          |              |
+
+Every other [React Aria DisclosureGroup](https://react-aria.adobe.com/DisclosureGroup) prop is
+passed through.
+
+### Motion
+
+The panel animates its height with the spatial spring and fades its content with the effect spring;
+the chevron turns 180° on the same spring. Both are instant when `DSProvider` motion is `reduced` or
+`disabled`, or the system asks for reduced motion.
+
+### Data attributes
+
+Disclosure: `data-slot="disclosure"`, `data-variant`, `data-size`, `data-expanded`,
+`data-disabled`, `data-focus-visible-within`. Accordion: `data-slot="accordion"`, `data-variant`,
+`data-size`, `data-disabled`. Parts: `data-slot="disclosure-heading"`, `"disclosure-trigger"`,
+`"disclosure-start-icon"`, `"disclosure-text"`, `"disclosure-title"`, `"disclosure-description"`,
+`"disclosure-indicator"`, `"disclosure-panel"`, `"disclosure-content"`.
+
+The component has no built-in strings, so it has no messages catalogue.
+
+## Accessibility
+
+- Built on React Aria `Disclosure` and `DisclosureGroup`. The trigger is a button inside a heading,
+  with `aria-expanded` and `aria-controls`; the panel is labelled by the trigger.
+- Enter and Space toggle the panel. Disabled items stay in the reading order but cannot be focused.
+- The trigger's focus ring follows the corners of its container, and the panel leaves room above
+  its content, so a focused link or button at the top of the panel shows its whole ring.
+- Collapsed panels use `hidden="until-found"`, so the browser's find in page can search them and
+  opens the matching item.
+- The title and description are both part of the button's name, so speech-input users can say
+  what they see. Icons and the chevron are hidden from assistive technology.
+- The chevron needs no mirroring in right-to-left languages and sits at the inline end.
+- Contrast is checked with axe in light, dark and RTL by `disclosure.test.tsx`.

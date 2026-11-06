@@ -1,0 +1,142 @@
+---
+title: Banner
+description: Inline message and top-of-page banner in five status tones, tonal or outlined, with a default glyph per tone, text-button actions, a dismiss button and a polite status region that becomes an alert for announced errors.
+---
+
+<ComponentPreview name="banner-demo" />
+
+## Installation
+
+<InstallCommand name="banner" />
+
+## Usage
+
+```tsx
+import { Banner } from '@/components/ds/banner';
+import { Button } from '@/components/ds/button';
+
+<Banner
+  tone="warning"
+  title="Card ending 4242 expires soon"
+  description="Update it before the next invoice."
+  actions={<Button onPress={openBilling}>Update card</Button>}
+/>;
+```
+
+## Examples
+
+### Tones
+
+`info` explains, `success` confirms, `warning` asks for attention before something goes wrong, and
+`error` says it already did. `neutral` uses a surface container for news and notes that are not a
+status. Each tone has its own glyph; screen readers also hear the tone ("Warning:") before the
+title, so colour is never the only signal.
+
+<ComponentPreview name="banner-tones" align="stretch" />
+
+### Variants
+
+`tonal` fills the banner with the tone's container colour and is the default. `outlined` keeps the
+surface colour and draws the tone as a border and a coloured glyph, which suits dense settings
+pages where several banners would otherwise shout.
+
+<ComponentPreview name="banner-variants" align="stretch" />
+
+### Page banner
+
+`layout="page"` is the Material 3 banner: full width, square corners, placed at the top of the
+page under the app bar. Actions sit at the end when the banner is wider than 42rem and wrap under
+the message when it is narrower, so it reads well at 375px.
+
+<ComponentPreview name="banner-page" align="stretch" />
+
+### Actions
+
+Buttons in `actions` default to small text buttons coloured like the banner's text. Pass `variant`
+on a button to override that. When `onPress` returns a promise, the button shows its own pending
+state. When the first action is a text button, the row shifts so its label lines up with the title,
+and actions that wrap onto a second row line up with the first.
+
+<ComponentPreview name="banner-actions" align="stretch" />
+
+### Dismissing
+
+`isDismissable` adds a Dismiss button. Without `isOpen` the banner hides itself; with
+`isOpen` and `onOpenChange` you decide, for example to remember the choice. When the banner closes
+and its Dismiss button had focus, focus moves to the next focusable element on the page, or the
+previous one at the end of the page. A controlled banner that stays open keeps focus on Dismiss.
+
+<ComponentPreview name="banner-dismissable" align="stretch" />
+
+### Form errors
+
+Put an error summary above a form with `announce`, which turns an error banner into
+`role="alert"` so screen readers read it straight away. `children` render under the description,
+for a list of the fields to fix.
+
+<ComponentPreview name="banner-form" />
+
+### Icons
+
+The default glyph follows the tone. Pass `icon` to use a more specific one, or `icon={null}` to
+leave it out.
+
+<ComponentPreview name="banner-icon" align="stretch" />
+
+## API
+
+### Banner
+
+| Prop            | Type                                                         | Default    |
+| --------------- | ------------------------------------------------------------ | ---------- |
+| `tone`          | `'info' \| 'success' \| 'warning' \| 'error' \| 'neutral'`   | `'info'`   |
+| `variant`       | `'tonal' \| 'outlined'`                                      | `'tonal'`  |
+| `layout`        | `'inline' \| 'page'`                                         | `'inline'` |
+| `title`         | `ReactNode`                                                  |            |
+| `description`   | `ReactNode`                                                  |            |
+| `children`      | `ReactNode`                                                  |            |
+| `icon`          | `ReactNode`; `null` hides it                                 | tone glyph |
+| `actions`       | `ReactNode`                                                  |            |
+| `isDismissable` | `boolean`                                                    | `false`    |
+| `onDismiss`     | `() => void`                                                 |            |
+| `isOpen`        | `boolean`                                                    |            |
+| `defaultOpen`   | `boolean`                                                    | `true`     |
+| `onOpenChange`  | `(isOpen: boolean) => void`                                  |            |
+| `announce`      | `boolean`; with `tone="error"` the message is `role="alert"` | `false`    |
+| `labels`        | `Partial<BannerLabels>`                                      |            |
+
+Every other `div` prop, including `ref`, goes to the root. `bannerStyles` is exported for custom
+compositions.
+
+### Data attributes
+
+`data-tone`, `data-variant`, `data-layout`, `data-exiting`. Parts: `data-slot="banner"`, `"icon"`,
+`"body"`, `"content"`, `"title"`, `"description"`, `"extra"`, `"actions"`, `"dismiss"`.
+
+### Labels
+
+Text the banner writes on its own. Pass `labels` to one banner, or set them for every banner with
+`<DSProvider labels={{ banner: { … } }}>`.
+
+| Key       | Default        | Used for                                                 |
+| --------- | -------------- | -------------------------------------------------------- |
+| `dismiss` | `Dismiss`      | the accessible name of the dismiss button                |
+| `info`    | `Information:` | the hidden prefix screen readers hear before the message |
+| `success` | `Success:`     | the same, for `tone="success"`                           |
+| `warning` | `Warning:`     | the same, for `tone="warning"`                           |
+| `error`   | `Error:`       | the same, for `tone="error"`                             |
+
+`neutral` banners have no prefix.
+
+## Accessibility
+
+- The message (tone label, title, description and children) is a `role="status"` live region, so
+  a banner that appears after an action is read out politely without moving focus. Actions and the
+  Dismiss button sit outside it, so they are not read as part of the message.
+- `announce` with `tone="error"` makes the message `role="alert"`, which interrupts. Use it for
+  errors caused by what the user just did, not for banners present when the page loads.
+- The glyph is decorative. The tone is spoken as a visually hidden prefix, such as "Warning:".
+- Dismiss is a React Aria button named by the `dismiss` label. The banner fades out in 100 ms, becomes
+  `inert` while it does, and is removed straight away when motion is disabled.
+- In tonal banners, focus rings use the banner's text colour so they keep 3:1 contrast on every
+  container. Contrast is checked with axe in light, dark and RTL by `banner.test.tsx`.

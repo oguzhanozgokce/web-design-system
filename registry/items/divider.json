@@ -1,0 +1,8 @@
+{
+  "name": "divider",
+  "type": "registry:ui",
+  "title": "Divider",
+  "description": "Material 3 divider on React Aria Separator, horizontal or vertical, full width or with a start or middle inset, and an optional centred label such as a localised \u201cor\u201d.",
+  "category": "layout",
+  "files": ["ui/divider.tsx"]
+}

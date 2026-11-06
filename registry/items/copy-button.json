@@ -1,0 +1,8 @@
+{
+  "name": "copy-button",
+  "type": "registry:ui",
+  "title": "Copy Button",
+  "description": "Copies a string or an async value to the clipboard, confirms with a check and a screen-reader announcement, and reports failures; icon-only or with a label.",
+  "category": "actions",
+  "files": ["ui/copy-button.tsx", "hooks/use-copy-to-clipboard.ts"]
+}

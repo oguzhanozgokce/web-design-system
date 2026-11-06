@@ -1,0 +1,215 @@
+---
+title: Sheet
+description: Material 3 sheet that slides in from the start, end, top or bottom edge, with sizes per side, header, body and footer parts, and bottom sheets that drag to dismiss, rest at snap points or stay open beside the page.
+---
+
+<ComponentPreview name="sheet-demo" />
+
+## Installation
+
+<InstallCommand name="sheet" />
+
+## Usage
+
+```tsx
+import { Button } from '@/components/ds/button';
+import { Sheet, SheetBody, SheetFooter, SheetHeader, SheetTrigger } from '@/components/ds/sheet';
+
+<SheetTrigger>
+  <Button>View invoice</Button>
+  <Sheet side="end">
+    <SheetHeader title="Invoice INV-2048" description="Northwind Traders, due 14 November" />
+    <SheetBody>Three line items, paid by bank transfer.</SheetBody>
+    <SheetFooter>
+      <Button variant="text" slot="close">
+        Cancel
+      </Button>
+      <Button onPress={markAsPaid}>Mark as paid</Button>
+    </SheetFooter>
+  </Sheet>
+</SheetTrigger>;
+```
+
+`SheetTrigger` takes two children: the button that opens the sheet and the `Sheet`. Inside the
+sheet, `SheetHeader` names it, `SheetBody` scrolls and `SheetFooter` holds the actions. Any button
+with `slot="close"` closes the sheet.
+
+Use a sheet for supporting content and tasks that sit beside the page: filters, a record's
+details, a short form, a list of actions. Use a dialog for a decision that interrupts the task.
+
+## Examples
+
+### Sides
+
+`side` is `start`, `end`, `top` or `bottom`. `start` and `end` follow the reading direction, so an
+`end` sheet opens on the left in Arabic. Only the corners that face the page are rounded.
+
+<ComponentPreview name="sheet-sides" />
+
+### Sizes
+
+On `start` and `end` sheets, `size` sets the width: `sm` 320px, `md` 400px (the default and the
+Material 3 width), `lg` 560px, `xl` 720px and `full`. Side sheets always leave 56px of the page
+visible, except at `full`. On `top` and `bottom` sheets, `size` caps the width on wide screens
+(480px, 640px, 896px, 1200px) and the height follows the content; `full` covers the screen.
+
+<ComponentPreview name="sheet-sizes" />
+
+### Bottom sheet
+
+Bottom sheets get a drag handle. Drag the handle or the header down more than 96px, or flick it
+down faster than 500px a second, and the sheet closes; a shorter drag springs back. Dragging up
+past the top stretches and returns. Buttons, chips and fields in the header never start a drag.
+Hide the handle with `showDragHandle={false}`.
+
+<ComponentPreview name="sheet-bottom" />
+
+### Snap points
+
+`snapPoints` takes heights as a share of the screen (`'50%'`) or in pixels (`320` or `'320px'`).
+The sheet opens at the first one and rests at the nearest one after a drag; a fast flick moves one
+step. The handle becomes a button that steps through the snap points from the keyboard. Control the
+current one with `snapPoint` and `onSnapPointChange`. Content below the visible part, including the
+footer, appears as the sheet grows, so keep the main action near the top. When the keyboard moves
+focus to content below the visible part, the sheet grows to its largest snap point.
+
+<ComponentPreview name="sheet-snap-points" />
+
+### Standard sheet
+
+`variant="standard"` is a non-modal sheet. It has no scrim, does not trap focus or block scrolling,
+and stays open while people use the page; Escape, the close button or a drag down close it. Control
+it with `isOpen` and `onOpenChange` instead of `SheetTrigger`, which would hand its press handlers
+to every button in a non-modal sheet. Give the button that toggles it `aria-expanded` and
+`aria-controls` pointing at the sheet's `id`. Add bottom padding to the page so the sheet does not
+cover the last row of content.
+
+<ComponentPreview name="sheet-standard" />
+
+### Controlled, with a form
+
+Pass `isOpen` and `onOpenChange` to open the sheet from anywhere. `Sheet` accepts a function as
+children that receives `close`, so a form can close the sheet after it saves. While saving,
+`isDismissable={false}` and `isKeyboardDismissDisabled` keep the sheet open.
+
+<ComponentPreview name="sheet-controlled" />
+
+### Responsive side
+
+Switch `side` with a media query to show a bottom sheet on phones and a side sheet on wider
+screens. The same content works in both.
+
+<ComponentPreview name="sheet-responsive" />
+
+## API
+
+### SheetTrigger
+
+React Aria [DialogTrigger](https://react-aria.adobe.com/Dialog). Its first child must be a
+pressable component such as `Button`.
+
+| Prop           | Type                        | Default |
+| -------------- | --------------------------- | ------- |
+| `isOpen`       | `boolean`                   |         |
+| `defaultOpen`  | `boolean`                   | `false` |
+| `onOpenChange` | `(isOpen: boolean) => void` |         |
+
+### Sheet
+
+| Prop                           | Type                                                   | Default          |
+| ------------------------------ | ------------------------------------------------------ | ---------------- |
+| `side`                         | `'start' \| 'end' \| 'top' \| 'bottom'`                | `'end'`          |
+| `size`                         | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'full'`               | `'md'`           |
+| `variant`                      | `'modal' \| 'standard'`                                | `'modal'`        |
+| `isDismissable`                | `boolean`                                              | `true`           |
+| `isKeyboardDismissDisabled`    | `boolean`                                              | `false`          |
+| `shouldCloseOnInteractOutside` | `(element: Element) => boolean`                        |                  |
+| `showDragHandle`               | `boolean`                                              | `true`           |
+| `snapPoints`                   | `SheetSnapPoint[]`                                     |                  |
+| `snapPoint`                    | `SheetSnapPoint`                                       |                  |
+| `defaultSnapPoint`             | `SheetSnapPoint`                                       | first snap point |
+| `onSnapPointChange`            | `(snapPoint: SheetSnapPoint) => void`                  |                  |
+| `isOpen`                       | `boolean`                                              | from the trigger |
+| `defaultOpen`                  | `boolean`                                              |                  |
+| `onOpenChange`                 | `(isOpen: boolean) => void`                            |                  |
+| `role`                         | `'dialog' \| 'alertdialog'`                            | `'dialog'`       |
+| `id`                           | `string`                                               |                  |
+| `aria-label`                   | `string`                                               |                  |
+| `aria-labelledby`              | `string`                                               |                  |
+| `aria-describedby`             | `string`                                               |                  |
+| `className`                    | `string`                                               |                  |
+| `children`                     | `ReactNode \| ((renderProps: { close }) => ReactNode)` |                  |
+
+`SheetSnapPoint` is `number | '${number}%' | '${number}px'`. Snap points, the drag handle and drag
+to dismiss apply to `side="bottom"` only. `isDismissable` covers a press on the scrim and a drag
+down; Escape follows `isKeyboardDismissDisabled`. `className` styles the sheet surface.
+
+### SheetHeader
+
+| Prop              | Type        | Default |
+| ----------------- | ----------- | ------- |
+| `title`           | `ReactNode` |         |
+| `description`     | `ReactNode` |         |
+| `showCloseButton` | `boolean`   | `true`  |
+| `id`              | `string`    |         |
+| `className`       | `string`    |         |
+| `children`        | `ReactNode` |         |
+
+`title` names the sheet and `description` describes it to screen readers. `children` render below
+them, for a search field or a row of chips. Without a `title`, give `Sheet` an `aria-label`.
+
+### SheetBody, SheetFooter
+
+Plain `div`s that take every HTML attribute and a `ref`. The body scrolls; when its content
+overflows it gets `tabIndex={0}` and `data-scrollable`, so keyboard users can scroll it. The footer
+stays at the bottom with a divider and aligns its actions to the end.
+
+### SheetClose
+
+The icon button in the header, labelled with the localised `close` message. It accepts every
+[React Aria Button](https://react-aria.adobe.com/Button) prop except `slot` and `children`.
+
+### Styles
+
+`sheetStyles` exposes the `overlay`, `root`, `surface`, `dialog`, `handleZone`, `handle`,
+`handleBar`, `header`, `heading`, `title`, `description`, `close`, `body` and `footer` slots, with
+the `side`, `size`, `variant`, `motion`, `hasHandle` and `isDraggable` variants. `SheetStyleProps`
+is its variant props type.
+
+### Data attributes
+
+Root: `data-slot="sheet"`, `data-side`, `data-size`, `data-variant`, `data-entering`,
+`data-exiting`. Surface: `data-slot="sheet-surface"`, `data-dragging`, `data-snap-point`. Parts:
+`data-slot="sheet-overlay"`, `"sheet-dialog"`, `"sheet-handle-zone"`, `"sheet-handle"`,
+`"sheet-header"`, `"sheet-heading"`, `"sheet-title"`, `"sheet-description"`, `"sheet-close"`,
+`"sheet-body"` (with `data-scrollable` when its content overflows), `"sheet-footer"`.
+
+### Messages
+
+| Key          | English        |
+| ------------ | -------------- |
+| `close`      | `Close`        |
+| `dragHandle` | `Resize sheet` |
+
+Namespace `sheet`.
+
+## Accessibility
+
+- Built on React Aria `ModalOverlay`, `Modal` and `Dialog`. The sheet is a modal dialog named by
+  its title and described by its description; the trigger gets `aria-expanded`.
+- Focus moves into the sheet, stays inside while it is open and returns to the trigger on close.
+  Escape and a press on the scrim close it, and screen reader users get a hidden dismiss button.
+- The page behind a modal sheet is hidden from assistive technology and does not scroll. A modal
+  sheet fits the visual viewport, so the on-screen keyboard does not cover a field in it.
+- A body that scrolls is focusable, so it can be scrolled with the arrow keys.
+- The standard variant is a non-modal dialog: focus moves in when it opens and returns to the
+  element that opened it when it closes, but nothing else on the page is blocked.
+- Dragging is never the only way to act. With snap points, the handle is a button with
+  `aria-expanded` that steps through them with Enter or Space; without them it is hidden from
+  assistive technology, and the close button, Escape and the scrim still close the sheet. Tabbing
+  to content below the visible part grows the sheet so the focused element is never hidden.
+- The sheet takes its direction from the locale, so `start` and `end` and their slide animations
+  are mirrored in Arabic.
+- Sheets slide in with the Material 3 emphasized easing. With reduced motion, from the system or
+  `DSProvider`, they fade instead and a released drag settles without a spring.
+- Contrast is checked with axe in light, dark and RTL by `sheet.test.tsx`.

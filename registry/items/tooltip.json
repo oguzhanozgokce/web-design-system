@@ -1,0 +1,8 @@
+{
+  "name": "tooltip",
+  "type": "registry:ui",
+  "title": "Tooltip",
+  "description": "Material 3 plain and rich tooltips that open on hover and keyboard focus, with keyboard shortcut hints, a shared group for toolbars and an interactive rich variant with an action.",
+  "category": "overlays",
+  "files": ["ui/tooltip.tsx"]
+}

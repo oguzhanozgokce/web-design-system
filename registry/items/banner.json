@@ -1,0 +1,8 @@
+{
+  "name": "banner",
+  "type": "registry:ui",
+  "title": "Banner",
+  "description": "Inline message and top-of-page banner in five status tones, tonal or outlined, with a default glyph per tone, text-button actions, a dismiss button and a polite status region that becomes an alert for announced errors.",
+  "category": "feedback",
+  "files": ["ui/banner.tsx"]
+}

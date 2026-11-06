@@ -1,0 +1,9 @@
+{
+  "name": "utils",
+  "type": "registry:lib",
+  "title": "Utilities",
+  "description": "cn() and a tv() preconfigured to merge the Material 3 type scale and elevation utilities.",
+  "category": "foundations",
+  "files": ["lib/utils.ts"],
+  "registryDependencies": ["@ds/theme"]
+}

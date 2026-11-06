@@ -1,0 +1,233 @@
+---
+title: Field
+description: The shared contract every input follows, with a label and necessity indicator, description, error message, character counter and outlined and filled controls in three sizes.
+---
+
+<ComponentPreview name="field-demo" />
+
+Every input in the library is a Field: `TextField`, `TextArea`, `SearchField`, `PasswordField`,
+`NumberField`, `Select` and `ComboBox` take the same label, description, error, necessity, size and
+variant props, and draw the same control. Learn it once here; each input page only lists what it
+adds.
+
+## Installation
+
+<InstallCommand name="field" />
+
+Installing any input installs `field` with it. Install it on its own only to build a new input.
+
+## Usage
+
+```tsx
+import { TextField } from '@/components/ds/text-field';
+
+<TextField
+  label="Display name"
+  description="Shown on invoices and receipts."
+  errorMessage="Enter a name your customers will recognise."
+  isRequired
+/>;
+```
+
+To build an input, put the parts inside any React Aria field:
+
+```tsx
+import { TextField as AriaTextField } from 'react-aria-components';
+import { Field, FieldGroup, FieldInput, fieldStyles } from '@/components/ds/field';
+
+<AriaTextField className={fieldStyles().root()}>
+  <Field label="Invite link" description="Anyone with this link can join.">
+    <FieldGroup>
+      <FieldInput />
+    </FieldGroup>
+  </Field>
+</AriaTextField>;
+```
+
+## Examples
+
+### Variants
+
+`outlined` is the default and reads best on white pages and cards. `filled` is the Material 3
+filled field with a bottom indicator; use it in dense admin forms or on tinted surfaces. Pick one per
+form.
+
+<ComponentPreview name="field-variants" align="stretch" />
+
+### Sizes
+
+`md` (40 px) is the default. `sm` (36 px) suits filter bars and table toolbars, `lg` (48 px) suits
+sign-up and checkout forms. Every size uses 16 px text on touch screens, so iOS does not zoom in on
+focus.
+
+<ComponentPreview name="field-sizes" />
+
+### Required and optional
+
+`necessityIndicator="icon"` (the default) adds an asterisk to required fields. When most fields in a
+form are required, switch to `necessityIndicator="label"`, which marks the optional ones with
+"(optional)" instead, the `optional` label. The asterisk is hidden from screen readers, which hear
+"required" from the input itself.
+
+<ComponentPreview name="field-necessity" align="stretch" />
+
+### Validation
+
+`errorMessage` takes a string or a function of the
+[validation result](https://react-aria.adobe.com/forms#validation), so one field can explain
+different failures. Native constraints (`isRequired`, `type="email"`, `maxLength`) and `validate`
+show their errors after the first submit; `isInvalid` shows one immediately. While the field is
+invalid, the error replaces the description so the form does not jump.
+
+Without `errorMessage`, a native constraint shows the browser's own message, in the browser's
+language rather than the `DSProvider` locale. Give every constrained field an `errorMessage`, as
+both fields here do, so the message matches the rest of the form.
+
+<ComponentPreview name="field-validation" />
+
+### States
+
+`isReadOnly` keeps the value readable, selectable and submitted, on a tinted control. `isDisabled`
+dims the field and leaves it out of the form. `isInvalid` turns the control and the message to the
+error role.
+
+<ComponentPreview name="field-states" align="stretch" />
+
+### Hidden label
+
+`isLabelHidden` keeps the label as the accessible name but hides it from view. Use it only where the
+context already names the field, such as a search box in a toolbar.
+
+<ComponentPreview name="field-hidden-label" align="stretch" />
+
+### Building an input
+
+The parts work inside every React Aria field. `FieldGroup` draws the control and focuses the input
+when its padding or an adornment is pressed. `FieldAdornment` holds icons and text, `FieldButton` holds
+small actions such as copy or clear. Give every `FieldButton` an `aria-label`, and announce what it
+did when the result is not visible, as the copy button here does with a status region.
+
+<ComponentPreview name="field-composition" />
+
+## API
+
+### Shared props
+
+Every input accepts these, plus the React Aria props of the field it is built on (`value`,
+`defaultValue`, `onChange`, `name`, `validate`, `validationBehavior` and the rest).
+
+| Prop                 | Type                                                         | Default      |
+| -------------------- | ------------------------------------------------------------ | ------------ |
+| `label`              | `ReactNode`                                                  |              |
+| `isLabelHidden`      | `boolean`                                                    | `false`      |
+| `description`        | `ReactNode`                                                  |              |
+| `errorMessage`       | `ReactNode \| ((validation: ValidationResult) => ReactNode)` |              |
+| `necessityIndicator` | `'icon' \| 'label'`                                          | `'icon'`     |
+| `size`               | `'sm' \| 'md' \| 'lg'`                                       | `'md'`       |
+| `variant`            | `'outlined' \| 'filled'`                                     | `'outlined'` |
+| `isRequired`         | `boolean`                                                    | `false`      |
+| `isDisabled`         | `boolean`                                                    | `false`      |
+| `isReadOnly`         | `boolean`                                                    | `false`      |
+| `isInvalid`          | `boolean`                                                    | automatic    |
+
+The props interface is exported as `FieldBaseProps`.
+
+### Field
+
+Renders the label, the control you pass as `children` and the supporting line. Place it inside a
+React Aria field so the label, description and error are wired to the input. It reads the
+validation state from that field; pass `isRequired` to both so the indicator shows.
+
+| Prop                 | Type                                                         | Default      |
+| -------------------- | ------------------------------------------------------------ | ------------ |
+| `label`              | `ReactNode`                                                  |              |
+| `isLabelHidden`      | `boolean`                                                    | `false`      |
+| `description`        | `ReactNode`                                                  |              |
+| `errorMessage`       | `ReactNode \| ((validation: ValidationResult) => ReactNode)` |              |
+| `necessityIndicator` | `'icon' \| 'label'`                                          | `'icon'`     |
+| `isRequired`         | `boolean`                                                    | `false`      |
+| `size`               | `'sm' \| 'md' \| 'lg'`                                       | `'md'`       |
+| `variant`            | `'outlined' \| 'filled'`                                     | `'outlined'` |
+| `counter`            | `ReactNode`                                                  |              |
+| `labels`             | `Partial<FieldLabels>`                                       |              |
+| `children`           | `ReactNode`                                                  |              |
+
+### Parts
+
+| Part             | Built on                | Props                                                                         |
+| ---------------- | ----------------------- | ----------------------------------------------------------------------------- |
+| `Label`          | React Aria `Label`      | `isRequired`, `necessityIndicator`, `isHidden`, `labels`                      |
+| `Description`    | React Aria `Text`       | `slot="description"` is set for you                                           |
+| `FieldError`     | React Aria `FieldError` | children as a node or a function of the validation result                     |
+| `FieldGroup`     | React Aria `Group`      | `size`, `variant`, `multiline`, `isReadOnly`                                  |
+| `FieldInput`     | React Aria `Input`      | every input attribute                                                         |
+| `FieldAdornment` | `span`                  | `placement: 'start' \| 'end'`                                                 |
+| `FieldButton`    | React Aria `Button`     | `size`; needs an `aria-label`; `data-slot="action"`                           |
+| `FieldCounter`   | `span`                  | `count`, `max`, `labels`, `id` (add the id to the input's `aria-describedby`) |
+
+`Label`, `FieldGroup`, `FieldInput` and `FieldButton` read `size`, `variant`, `isRequired` and
+`necessityIndicator` from the nearest `Field` through `FieldContext`; their own props override it.
+`useFieldContext()` returns that value (`FieldContextValue`) for parts you build yourself.
+
+### fieldStyles
+
+`fieldStyles(variants)` returns one class function per slot: `root`, `label`, `necessity`,
+`container`, `input`, `adornment`, `action`, `supporting`, `description`, `error` and `counter`.
+
+| Variant              | Values                   | Affects                                             |
+| -------------------- | ------------------------ | --------------------------------------------------- |
+| `size`               | `'sm' \| 'md' \| 'lg'`   | `container` height, padding and icon size, `action` |
+| `variant`            | `'outlined' \| 'filled'` | `container`                                         |
+| `multiline`          | `boolean`                | `container` and `input` for a text area             |
+| `placement`          | `'start' \| 'end'`       | `adornment` spacing                                 |
+| `necessityIndicator` | `'icon' \| 'label'`      | `necessity`                                         |
+| `isLabelHidden`      | `boolean`                | `label`                                             |
+
+Use it to style a control that is not a `Group`, such as the trigger button of a select: give that
+element the `group/control` class (the `container` slot includes it) and `data-hovered`,
+`data-invalid`, `data-disabled` and `data-readonly` when they apply.
+
+### Data attributes
+
+The control (`data-slot="container"`) carries `data-hovered`, `data-focus-within`,
+`data-focus-visible`, `data-invalid`, `data-disabled` and `data-readonly`. Inputs put `data-size` and
+`data-variant` on their root. Parts: `data-slot="label"`, `"necessity-indicator"`, `"container"`,
+`"input"`, `"start-adornment"`, `"end-adornment"`, `"action"`, `"supporting"`, `"description"`,
+`"error"`, `"counter"` and `"counter-announcer"`. The counter has `data-over` when the count passes
+`max`.
+
+### Labels
+
+Text the parts write on their own. Pass `labels` to `Field`, `Label` or `FieldCounter`, or set them
+for every input with `<DSProvider labels={{ field: { … } }}>`. `TextField`, `TextArea`,
+`SearchField`, `PasswordField` and `NumberField` take these keys in their own `labels` prop next to
+their own keys, so one prop covers all the text of a field.
+
+| Key                   | Default                             | Used for                                                                     |
+| --------------------- | ----------------------------------- | ---------------------------------------------------------------------------- |
+| `optional`            | `(optional)`                        | the marker after an optional field's label with `necessityIndicator="label"` |
+| `characterCount`      | `{count}/{max}`                     | the visible counter                                                          |
+| `characterCountLabel` | `Character count: {count} of {max}` | the counter as screen readers hear it, on focus and after typing pauses      |
+
+`{count}` and `{max}` arrive formatted for the `DSProvider` locale. A template can also be a function
+of those values, for languages that need plural forms.
+
+## Accessibility
+
+- The label, description and error are wired to the input by React Aria: the label is the
+  accessible name, the description or error is the accessible description, and `aria-invalid` is set
+  while the field is invalid.
+- Required fields set `required` (or `aria-required` with `validationBehavior="aria"`). The asterisk
+  is decorative; "(optional)" is part of the accessible name.
+- The error carries an icon as well as colour, so it does not rely on colour alone.
+- The counter is read with the description on focus and announced politely 750 ms after typing
+  stops, never on every keystroke, and only while the input it describes has focus, so a value set
+  by code elsewhere on the page stays quiet.
+- Focus shows as a 2 px primary border (error border when invalid) for mouse and keyboard alike,
+  and the caret takes the same colour. Borders use the `outline` role, which keeps 3:1 contrast
+  against the surface. In forced-colours mode, where borders lose their colour, the input shows the
+  system focus outline instead, and the filled control, whose tint and indicator disappear there,
+  gets a bottom border so it stays visible.
+- Text adornments keep their own reading direction, so `https://` reads correctly inside an
+  Arabic form and an Arabic unit reads correctly inside an English one.
+- Contrast is checked with axe in light, dark and RTL by `field.test.tsx`.

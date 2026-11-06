@@ -1,0 +1,139 @@
+---
+title: Copy Button
+description: Copies a string or an async value to the clipboard, confirms with a check and a screen-reader announcement, and reports failures; icon-only or with a label.
+---
+
+<ComponentPreview name="copy-button-demo" />
+
+## Installation
+
+<InstallCommand name="copy-button" />
+
+## Usage
+
+```tsx
+import { CopyButton } from '@/components/ds/copy-button';
+
+<CopyButton value={workspace.id} aria-label="Copy workspace ID" />;
+```
+
+## Examples
+
+### With a label
+
+Pass children to show a label. After a successful copy the label reads "Copied" for two seconds.
+The button keeps the width of the longer label, so nothing around it moves.
+
+<ComponentPreview name="copy-button-label" />
+
+### Variants
+
+Without children the button is an icon-only circle. It defaults to `text`, which suits code blocks
+and table cells. With a label it defaults to `outlined`. Inside a `ButtonGroup` it takes the group's
+`buttonVariant` and `size` instead. Every Button variant works in both forms.
+
+<ComponentPreview name="copy-button-variants" />
+
+### Sizes
+
+The icon-only circle follows the Button heights, from `xs` (28px) to `xl` (56px), so it lines up
+with fields and buttons of the same size. `md` is the default. On touch screens the `xs`, `sm` and
+`md` circles get a larger invisible hit area, as `IconButton` does.
+
+<ComponentPreview name="copy-button-sizes" />
+
+### Async values
+
+`value` can be a function that returns a string or a promise. A promise puts the button in its
+pending state and ignores repeat presses until it settles. In browsers that support it, the
+clipboard write starts during the press, so Safari keeps the user's permission while the value is
+still loading.
+
+<ComponentPreview name="copy-button-async" />
+
+### In a table
+
+Give each icon-only button a specific `aria-label`, such as "Copy invoice number INV-2041", when
+several sit on one screen. `onCopy` receives the copied text.
+
+<ComponentPreview name="copy-button-table" align="stretch" />
+
+### The hook
+
+`useCopyToClipboard` is the logic behind the button, for copy actions that need another shape, such
+as a menu item. It returns `status`, `copy(value)` and `reset()`. You own the announcement when you
+use it directly.
+
+<ComponentPreview name="copy-button-hook" />
+
+## API
+
+### CopyButton
+
+| Prop          | Type                                                        | Default                               |
+| ------------- | ----------------------------------------------------------- | ------------------------------------- |
+| `value`       | `string \| (() => string \| Promise<string>)`               | required                              |
+| `children`    | `ReactNode`                                                 | icon-only when omitted                |
+| `aria-label`  | `string`                                                    | `copy` label when icon-only           |
+| `variant`     | `'filled' \| 'tonal' \| 'outlined' \| 'text' \| 'elevated'` | group's, else `'text'` / `'outlined'` |
+| `size`        | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                      | group's, else `'md'`                  |
+| `onCopy`      | `(text: string) => void`                                    |                                       |
+| `onCopyError` | `(error: unknown) => void`                                  |                                       |
+| `timeout`     | `number`                                                    | `2000`                                |
+| `isDisabled`  | `boolean`                                                   | `false`                               |
+| `labels`      | `Partial<CopyButtonLabels>`                                 |                                       |
+
+Every other [Button](/docs/components/actions/button) prop is passed through except `onPress`,
+`startIcon`, `endIcon`, `tone`, `isPending` and the form `value`, which the copy button owns.
+`labels` takes the copy button's own labels, not Button's.
+
+`copyButtonStyles` holds the classes for the `base`, `glyph`, `icon`, `label` and `face` slots.
+
+### useCopyToClipboard
+
+| Option        | Type                       | Default |
+| ------------- | -------------------------- | ------- |
+| `timeout`     | `number`                   | `2000`  |
+| `onCopy`      | `(text: string) => void`   |         |
+| `onCopyError` | `(error: unknown) => void` |         |
+
+Returns `{ status, attempt, copy, reset }`. `status` is `'idle' | 'copied' | 'failed'`, `attempt`
+counts every copy, and `copy(value)` resolves to `true` or `false`. An error thrown by `onCopy` is
+not a failed copy: the status stays `copied` and `copy(value)` rejects with that error.
+`writeToClipboard(source)` is exported for code outside React.
+
+### Data attributes
+
+The root is a Button, so it carries Button's attributes plus `data-status` (`idle`, `copied`,
+`failed`). Parts: `data-slot="glyph"`, `"copy-label"`, `"face"`. The live region,
+`data-slot="announcer"`, is rendered in `document.body`, so the button stays the only element in its
+parent and fits a connected `ButtonGroup`.
+
+### Labels
+
+Text the copy button writes on its own. Pass `labels` to one copy button, or set them for every copy
+button with `<DSProvider labels={{ copyButton: { … } }}>`.
+
+| Key          | Default         | Used for                                                        |
+| ------------ | --------------- | --------------------------------------------------------------- |
+| `copy`       | `Copy`          | the accessible name of an icon-only button without `aria-label` |
+| `copied`     | `Copied`        | the label after a copy, and its announcement                    |
+| `copyFailed` | `Couldn’t copy` | the label after a failed copy, and its announcement             |
+
+The pending spinner is Button's. Set its name for every button with
+`<DSProvider labels={{ button: { pending: … } }}>`.
+
+## Accessibility
+
+- Built on Button and React Aria `Button`: Enter and Space copy, and focus stays on the button
+  while an async value loads.
+- "Copied" and "Couldn't copy" are announced through a polite live region that takes its `lang` and
+  `dir` from `DSProvider`'s locale. It lives in `document.body` and stays exposed while a modal
+  dialog hides the rest of the page. The icon-only button keeps its name, so the announcement is
+  the only change a screen reader hears. With a label, the visible name also changes, so some
+  screen readers say "Copied" twice.
+- Failures are reported, never silent. The Clipboard API needs a secure context (HTTPS or
+  localhost) and a focused document; outside one the button reports "Couldn't copy".
+- The glyph cross-fades; it also scales only when the motion preference allows it.
+- Contrast is checked with axe in light, dark and RTL, before and after a copy, by
+  `copy-button.test.tsx`.

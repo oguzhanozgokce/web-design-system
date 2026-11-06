@@ -1,0 +1,8 @@
+{
+  "name": "field",
+  "type": "registry:ui",
+  "title": "Field",
+  "description": "The shared contract every input follows, with a label and necessity indicator, description, error message, character counter and outlined and filled controls in three sizes.",
+  "category": "inputs",
+  "files": ["ui/field.tsx"]
+}

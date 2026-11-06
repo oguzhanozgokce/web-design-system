@@ -1,0 +1,8 @@
+{
+  "name": "text-field",
+  "type": "registry:ui",
+  "title": "Text field",
+  "description": "Single-line input on the shared Field contract, with start and end adornments, a clear button, a character counter and native types for email, URL and phone.",
+  "category": "inputs",
+  "files": ["ui/text-field.tsx"]
+}

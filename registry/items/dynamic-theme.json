@@ -1,0 +1,8 @@
+{
+  "name": "dynamic-theme",
+  "type": "registry:ui",
+  "title": "Dynamic theme",
+  "description": "Applies a scheme generated from a seed colour to a subtree or to the whole page, following light, dark and contrast, with a cached boot script for user-chosen themes and an animated theme switch.",
+  "category": "foundations",
+  "files": ["ui/dynamic-theme.tsx", "ui/dynamic-theme-script.tsx"]
+}

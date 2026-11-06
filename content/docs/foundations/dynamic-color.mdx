@@ -1,0 +1,267 @@
+---
+title: Dynamic colour
+description: Build the whole Material 3 scheme at runtime from a brand colour, a user's choice or a photo, for one card or the whole page, in light, dark and every contrast level.
+---
+
+On Android 12 and later the mobile library can take its colours from the wallpaper
+(`DSTheme(dynamicColor = true)`). A browser has no wallpaper, so on the web the seed comes from the
+product instead: a tenant's brand colour in an admin panel, an accent the user picks in their
+settings, or the cover image of whatever is on screen. The engine is the one that generates the
+static tokens, and it matches `rememberDSBrandColors` on mobile role for role in every style except
+two, listed under [Compose counterpart](#compose-counterpart).
+
+<ComponentPreview name="dynamic-theme-demo" align="start" />
+
+## Installation
+
+<InstallCommand name="dynamic-theme" />
+
+For themes taken from images, and to remember a user's choice:
+
+<InstallCommand name="use-image-seed" />
+
+<InstallCommand name="use-local-storage-state" />
+
+## Usage
+
+```tsx
+import { DynamicTheme } from '@/components/ds/dynamic-theme';
+
+<DynamicTheme seed={workspace.brandColor}>
+  <WorkspaceDashboard />
+</DynamicTheme>;
+```
+
+Everything inside reads its colours from the generated roles: `bg-primary`, `text-on-surface`, every
+component, and the popovers, menus, dialogs and sheets they open, even though those render at the
+end of the page. Nothing else on the page changes. Those overlays take the scope's pinned `mode`;
+an unpinned scope's overlays follow the page's mode.
+
+## Examples
+
+### One theme per tenant
+
+Each scope gets its own scheme, so a list of workspaces can show each in its own brand. Scopes nest,
+and the nearest one wins.
+
+<ComponentPreview name="dynamic-theme-tenants" align="stretch" />
+
+### From an image
+
+`useImageSeed` downsizes the image to 128 pixels, quantizes it and ranks the colours with Material's
+content-based scoring, the same `QuantizerCelebi` and `Score` that pick wallpaper colours on Android.
+It returns up to four candidates, best first, so the user can choose as they do on a phone. The same
+image always gives the same seeds. A file the user picks or drops is read in the browser and never
+uploaded.
+
+<ComponentPreview name="dynamic-theme-image" align="start" />
+
+Images from another origin need CORS headers, or the canvas cannot read them and the hook reports
+`status: 'error'`. An image with no usable colour, such as a grey or transparent one, returns no
+seeds, or the `fallback` you pass. Pass a URL, a `File` or a new element when the picture changes:
+the hook compares sources by identity, so it does not notice an `<img>` whose `src` changed.
+
+### Palette styles
+
+The same seed in each style. `tonal-spot`, Material's default and the default here, matches
+`dsBrandColors` on mobile. The static tokens of this site are generated as `vibrant`; pass
+`paletteStyle="vibrant"` to match them. `fidelity` keeps the container closest to the seed, which
+suits a brand colour that must appear as it is.
+
+<ComponentPreview name="dynamic-theme-styles" align="stretch" />
+
+### Pinning a mode
+
+A scope follows the nearest light or dark mode around it: `.dark`, `.light` or `data-theme` on any
+ancestor, or on the scope itself. `mode` pins it, and sets `data-theme` on the scope so the static
+tokens and nested scopes inside follow too. Use it for a promotional band that stays dark on a light
+page.
+
+<ComponentPreview name="dynamic-theme-mode" align="stretch" />
+
+### Contrast
+
+By default a scope follows the page: `data-contrast="medium"` or `"high"` on `<html>`, and the
+operating system's increased-contrast setting when the page sets none. The static tokens follow the
+same setting. Pin a level with `contrast` when a surface must not change.
+
+<ComponentPreview name="dynamic-theme-contrast" align="stretch" />
+
+## Whole-page themes
+
+`scope="root"` puts the scheme on `<html>`, so the page background, the header, overlays and every
+mode island below follow it. It renders no element of its own.
+
+```tsx
+<DynamicTheme scope="root" seed={tenant.brandColor} paletteStyle="fidelity" />
+```
+
+When the seed is known on the server, as a tenant's is, the scheme is part of the HTML and the first
+paint is already themed. Inside a hidden `<Activity>`, for example a route Next keeps alive in the
+background, the root theme switches off until it is visible again.
+
+### Remembering a user's choice
+
+A colour the user picks lives in their browser, which the server never sees. Give the root theme a
+`storageKey` and render `DynamicThemeScript` in the document head: the script paints the last scheme
+from a cache before the page renders, and the theme refreshes the cache whenever the seed changes.
+The script must be part of the server-rendered or static HTML; React does not run a script it
+creates in the browser.
+
+```tsx title="app/layout.tsx"
+import { DynamicThemeScript } from '@/components/ds/dynamic-theme-script';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <DynamicThemeScript storageKey="accent-theme" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```tsx title="components/accent-theme.tsx"
+'use client';
+
+import { DynamicTheme } from '@/components/ds/dynamic-theme';
+import { useLocalStorageState } from '@/hooks/ds/use-local-storage-state';
+
+export function AccentTheme() {
+  const [accent] = useLocalStorageState<string | null>('accent', null);
+  return <DynamicTheme scope="root" seed={accent} storageKey="accent-theme" />;
+}
+```
+
+To reset, keep the component mounted and pass `seed={null}`: that removes the theme and clears the
+cache. Unmounting leaves the cache, so the next visit would paint a theme nobody owns. With a
+`storageKey`, the scheme is applied by the cache and then by the component after hydration, never by
+server HTML.
+
+Under a nonce-based Content Security Policy, pass the same `nonce` to `DynamicThemeScript` and to
+`DynamicTheme`; the boot script copies its own nonce onto the style it creates.
+
+### Animating the switch
+
+`useThemeTransition` wraps a state update in a view transition, so the page cross-fades to the new
+colours instead of jumping. It falls back to an instant change where view transitions are missing or
+`DSProvider motion="disabled"`.
+
+```tsx
+import { useThemeTransition } from '@/components/ds/dynamic-theme';
+
+const transition = useThemeTransition();
+
+<Button onPress={() => transition(() => setAccent(next))}>Use this colour</Button>;
+```
+
+A full scheme takes a few tens of milliseconds to build. For a colour input that fires on every drag
+step, update the seed in `startTransition` so dragging stays smooth, as the demo above does.
+
+## API
+
+### DynamicTheme
+
+| Prop           | Type                                                                                   | Default        |
+| -------------- | -------------------------------------------------------------------------------------- | -------------- |
+| `seed`         | `string \| null`, a 3- or 6-digit hex colour                                           | —              |
+| `paletteStyle` | `'tonal-spot' \| 'vibrant' \| 'expressive' \| 'fidelity' \| 'neutral' \| 'monochrome'` | `'tonal-spot'` |
+| `contrast`     | `'auto' \| 'standard' \| 'medium' \| 'high'`                                           | `'auto'`       |
+| `scope`        | `'element' \| 'root'`                                                                  | `'element'`    |
+| `mode`         | `'light' \| 'dark'`, element scope only; leave it unset to follow the page             | —              |
+| `storageKey`   | `string`, root scope only                                                              | —              |
+| `nonce`        | `string`, for a nonce-based Content Security Policy                                    | —              |
+
+The element scope renders a `div` and accepts its attributes. A missing or invalid seed renders the
+children without a theme.
+
+### DynamicThemeScript
+
+From `@/components/ds/dynamic-theme-script`. Exports `DynamicThemeScriptProps`.
+
+| Prop         | Type     | Default  |
+| ------------ | -------- | -------- |
+| `storageKey` | `string` | required |
+| `nonce`      | `string` | —        |
+
+### Hooks
+
+| Hook                                        | From                                 | Returns                                                                                  |
+| ------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `useDynamicTheme()`                         | `@/components/ds/dynamic-theme`      | the nearest scope's `{ seed, paletteStyle, contrast, mode }`, or `null`                  |
+| `useThemeTransition()`                      | `@/components/ds/dynamic-theme`      | `(update: () => void) => void`                                                           |
+| `useImageSeed(source, { count, fallback })` | `@/hooks/ds/use-image-seed`          | `{ seed, seeds, status, error }`; `seed` is `null` until there is one                    |
+| `useLocalStorageState(key, default)`        | `@/hooks/ds/use-local-storage-state` | `[value, setValue]`, shared across components and tabs; `setValue(undefined)` removes it |
+| `useThemeScopeProps()`                      | `@/lib/ds/theme-scope`               | the attributes an overlay root needs to keep the scheme of the scope that opened it      |
+
+`source` is an image URL, a `File` or `Blob`, an `<img>` element or an `ImageBitmap`. `status` is
+`idle`, `loading`, `ready` or `error`. `useLocalStorageState` stores JSON, so values must be
+serialisable; the first `default` is used when nothing is stored.
+
+### Functions
+
+From `@/lib/ds/dynamic-color`, for code that runs outside React or on a server:
+
+| Function                                | Does                                                                                   |
+| --------------------------------------- | -------------------------------------------------------------------------------------- |
+| `dynamicSchemeCss(options, target)`     | the CSS for a scheme; `target` is `{ scope: 'root' }` or `{ scope: 'element', key }`   |
+| `schemeKey(options)`                    | a stable key for `options`; put it in `data-ds-scheme` on the element the CSS targets  |
+| `seedsFromImage(source, options)`       | ranked seeds from an image; options `count` (4), `fallback`, `maxSize` (128), `signal` |
+| `seedsFromImageData(data, options)`     | ranked seeds from RGBA pixels, for a worker or a server                                |
+| `parseSeed(value)`                      | a normalised `#rrggbb` seed, or `null`                                                 |
+| `dynamicThemeBootScript(storageKey)`    | the boot script's source, for a framework without React in the head                    |
+| `removeBootStyles(storageKey)`          | removes the styles that script created                                                 |
+| `brandColors(options)` (`color-scheme`) | the role values themselves, for charts or canvas                                       |
+
+Types: `DynamicSchemeOptions`, `DynamicScope`, `DynamicContrast`, `SeedExtractionOptions`,
+`ImageSeedSource`. `brandColors` and `tokens/config.json` call the palette style `style`; the
+functions here call it `paletteStyle`, like the component, whose `style` prop is the HTML one.
+
+### Data attributes
+
+| Attribute        | On                                  | Value                                          |
+| ---------------- | ----------------------------------- | ---------------------------------------------- |
+| `data-slot`      | element scope                       | `dynamic-theme`                                |
+| `data-ds-scheme` | element scope and its overlay roots | the scheme's key; the generated CSS targets it |
+| `data-theme`     | element scope with `mode`           | the pinned mode                                |
+
+## How it works
+
+Each role is written once per contrast level as `light-dark(light, dark)`. CSS resolves it against
+the `color-scheme` of the element that uses it, which every `.light`, `.dark` and `data-theme`
+element sets and every child inherits, so the nearest mode always wins without any selector knowing
+about it. The static tokens work the same way, which is why a root theme reaches mode islands too.
+
+The scheme's styles live in the document head, one per distinct scheme however many scopes use it,
+and leave when the last of those scopes unmounts. During server rendering a scope writes its style
+inline so the first paint is themed, and moves it to the head once React has hydrated.
+
+A scope following the page's contrast writes about 14 KB of CSS; pinning `contrast` cuts it to 6 KB
+and pinning `mode` as well to 4.5 KB. Identical schemes are written once.
+
+Browsers without `light-dark()` (before Chrome 123, Firefox 120 and Safari 17.5) get a fallback in
+the same stylesheet: the scheme at its standard contrast level, following a dark class on any
+ancestor, and a root theme that stops at mode islands.
+
+## Accessibility
+
+Every role pair is generated with Material's contrast curves, so `on-primary` on `primary` stays
+readable whatever the seed, photos included. Text placed directly on a photo is not covered: put it
+on a role colour or a scrim. Leave `contrast` on `auto` and `mode` unset except on surfaces that
+must not change, so users who ask for more contrast get it. Success, warning and info keep the same
+tones at every contrast level, on the web and on mobile alike.
+
+## Compose counterpart
+
+| Web                                         | Compose                                                                                                                                                    |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<DynamicTheme seed paletteStyle contrast>` | `val brand = rememberDSBrandColors(seed, style = …, contrast = …)`, then `DSTheme(colorScheme = brand.colorScheme, extendedColors = brand.extendedColors)` |
+| `useImageSeed`                              | none yet                                                                                                                                                   |
+| none                                        | `DSTheme(dynamicColor = true)`, Android 12+ wallpaper colours                                                                                              |
+
+Every role matches MaterialKolor 6.0.0 for `tonal-spot`, `vibrant`, `fidelity`, `neutral` and
+`monochrome`, with two exceptions where the npm package still ships an older 2025 colour spec:
+`expressive` in dark mode, and the light surfaces of `vibrant` with yellow seeds. A test in the
+library fails when they start to match.

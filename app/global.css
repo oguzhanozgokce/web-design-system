@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+@import '../registry/ds/styles/theme.css';
+
+@source '../registry';
+@source '../components';
+
+:root,
+.dark {
+  --color-fd-background: var(--surface);
+  --color-fd-foreground: var(--on-surface);
+  --color-fd-muted: var(--surface-container);
+  --color-fd-muted-foreground: var(--on-surface-variant);
+  --color-fd-popover: var(--surface-container-high);
+  --color-fd-popover-foreground: var(--on-surface);
+  --color-fd-card: var(--surface-container-low);
+  --color-fd-card-foreground: var(--on-surface);
+  --color-fd-border: var(--outline-variant);
+  --color-fd-primary: var(--primary);
+  --color-fd-primary-foreground: var(--on-primary);
+  --color-fd-secondary: var(--surface-container-high);
+  --color-fd-secondary-foreground: var(--on-surface);
+  --color-fd-accent: var(--secondary-container);
+  --color-fd-accent-foreground: var(--on-secondary-container);
+  --color-fd-ring: var(--secondary);
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}

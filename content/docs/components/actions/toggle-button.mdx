@@ -1,0 +1,164 @@
+---
+title: Toggle Button
+description: Material 3 Expressive toggle button whose shape morphs between a capsule and a rounded square, plus a group for single or multiple selection.
+---
+
+<ComponentPreview name="toggle-button-demo" />
+
+## Installation
+
+<InstallCommand name="toggle-button" />
+
+## Usage
+
+```tsx
+import { ToggleButton, ToggleButtonGroup } from '@/components/ds/toggle-button';
+
+<ToggleButton isSelected={watching} onChange={setWatching}>
+  Watch invoice
+</ToggleButton>;
+
+<ToggleButtonGroup aria-label="Period" defaultSelectedKeys={['week']} disallowEmptySelection>
+  <ToggleButton id="day">Day</ToggleButton>
+  <ToggleButton id="week">Week</ToggleButton>
+  <ToggleButton id="month">Month</ToggleButton>
+</ToggleButtonGroup>;
+```
+
+## Examples
+
+### Variants
+
+Each variant has a quiet unselected look and a strong selected one. `filled` moves from a surface
+container to primary, `tonal` from secondary container to secondary, `outlined` from an outline to
+inverse surface, and `elevated` from a raised surface to primary. There is no `text` toggle, because
+an unselected text button gives no hint that it can stay on.
+
+<ComponentPreview name="toggle-button-variants" />
+
+### Shape morph
+
+Selection changes the shape as well as the colour, so it still reads without colour. A `round`
+toggle (the default) becomes a rounded square when selected, and a `square` toggle becomes a
+capsule. Pressing squares the corners a little further. The morph uses the spatial spring and is
+instant under reduced motion.
+
+<ComponentPreview name="toggle-button-shapes" />
+
+### Sizes
+
+The same five sizes as `Button`. The selected corner radius grows with the size: 8px at `xs`,
+12px from `sm` to `lg` and 16px at `xl`.
+
+<ComponentPreview name="toggle-button-sizes" />
+
+### Icons
+
+`selectedIcon` replaces `startIcon` while the toggle is on, such as an outlined heart that fills.
+Keep the label the same in both states; the pressed state is what changes.
+
+<ComponentPreview name="toggle-button-icons" />
+
+### Controlled
+
+`isSelected` and `onChange` control the toggle. `defaultSelected` sets the initial state when it is
+uncontrolled.
+
+<ComponentPreview name="toggle-button-controlled" />
+
+### Single selection group
+
+`ToggleButtonGroup` picks one option by default and renders as a connected group. Add
+`disallowEmptySelection` when one option must always be on, as in a period switch.
+
+<ComponentPreview name="toggle-button-group-demo" />
+
+### Multiple selection
+
+`selectionMode="multiple"` lets people turn on several options, such as status filters.
+`variant="standard"` spaces them out and lets them wrap.
+
+<ComponentPreview name="toggle-button-group-multiple" />
+
+### Vertical group
+
+`orientation="vertical"` stacks the options. Arrow keys follow the orientation.
+
+<ComponentPreview name="toggle-button-group-vertical" />
+
+### Full width
+
+`fullWidth` shares the container width equally between the options.
+
+<ComponentPreview name="toggle-button-group-full-width" align="stretch" />
+
+### Inside a ButtonGroup
+
+A `ToggleButton` placed in a `ButtonGroup` takes the group's size and variant, so a toggle can sit
+next to ordinary actions.
+
+<ComponentPreview name="toggle-button-in-group" />
+
+## API
+
+### ToggleButton
+
+| Prop              | Type                                              | Default     |
+| ----------------- | ------------------------------------------------- | ----------- |
+| `variant`         | `'filled' \| 'tonal' \| 'outlined' \| 'elevated'` | `'filled'`  |
+| `size`            | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`            | `'md'`      |
+| `shape`           | `'round' \| 'square'`                             | `'round'`   |
+| `fullWidth`       | `boolean`                                         | `false`     |
+| `startIcon`       | `ReactNode`                                       |             |
+| `selectedIcon`    | `ReactNode`                                       | `startIcon` |
+| `endIcon`         | `ReactNode`                                       |             |
+| `isSelected`      | `boolean`                                         |             |
+| `defaultSelected` | `boolean`                                         | `false`     |
+| `onChange`        | `(isSelected: boolean) => void`                   |             |
+| `isDisabled`      | `boolean`                                         | `false`     |
+| `id`              | `Key`                                             |             |
+
+`id` is the key used by `ToggleButtonGroup`. Every other
+[React Aria ToggleButton](https://react-aria.adobe.com/ToggleButton) prop is passed through.
+
+### ToggleButtonGroup
+
+| Prop                     | Type                                              | Default        |
+| ------------------------ | ------------------------------------------------- | -------------- |
+| `selectionMode`          | `'single' \| 'multiple'`                          | `'single'`     |
+| `selectedKeys`           | `Iterable<Key>`                                   |                |
+| `defaultSelectedKeys`    | `Iterable<Key>`                                   |                |
+| `onSelectionChange`      | `(keys: Set<Key>) => void`                        |                |
+| `disallowEmptySelection` | `boolean`                                         | `false`        |
+| `variant`                | `'standard' \| 'connected'`                       | `'connected'`  |
+| `orientation`            | `'horizontal' \| 'vertical'`                      | `'horizontal'` |
+| `size`                   | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`            | `'md'`         |
+| `buttonVariant`          | `'filled' \| 'tonal' \| 'outlined' \| 'elevated'` | `'filled'`     |
+| `fullWidth`              | `boolean`                                         | `false`        |
+| `isDisabled`             | `boolean`                                         | `false`        |
+| `aria-label`             | `string`                                          |                |
+
+Inside a `ButtonGroup`, `size`, `buttonVariant` and `isDisabled` default to the group's values.
+Every other [React Aria ToggleButtonGroup](https://react-aria.adobe.com/ToggleButtonGroup) prop is
+passed through.
+
+### Data attributes
+
+ToggleButton: `data-slot="toggle-button"`, `data-variant`, `data-size`, `data-shape`,
+`data-selected`, `data-pressed`, `data-hovered`, `data-focus-visible`, `data-disabled`. Parts:
+`data-slot="label"`, `"start-icon"`, `"end-icon"`.
+
+ToggleButtonGroup: `data-slot="toggle-button-group"`, `data-variant`, `data-size`,
+`data-orientation`, `data-disabled`.
+
+## Accessibility
+
+- A standalone `ToggleButton` is a `button` with `aria-pressed`. Enter and Space toggle it.
+- In single selection mode, `ToggleButtonGroup` is a `radiogroup` of `radio` items with
+  `aria-checked`. In multiple selection mode it is a `toolbar` of pressed-state buttons.
+- The group is one tab stop. Arrow keys move between options, mirrored in right-to-left languages,
+  and Space or Enter toggles the focused one.
+- Selection is shown by shape and colour together, so it does not rely on colour alone.
+- Give each group an `aria-label`. Icon-only toggles belong in `IconToggleButton` from
+  `icon-button`, which requires one.
+- Contrast is checked with axe in light, dark and RTL by `toggle-button.test.tsx`.

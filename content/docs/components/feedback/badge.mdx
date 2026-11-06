@@ -1,0 +1,132 @@
+---
+title: Badge
+description: Material 3 badge as a small dot or a count that caps at 99+, in five tones, with a screen reader label and an anchor that pins it to the top-end corner of an icon or avatar.
+---
+
+<ComponentPreview name="badge-demo" />
+
+## Installation
+
+<InstallCommand name="badge" />
+
+## Usage
+
+```tsx
+import { Badge, BadgeAnchor } from '@/components/ds/badge';
+
+<Badge count={unread} />;
+
+<BadgeAnchor badge={<Badge count={unread} />}>
+  <InboxIcon />
+</BadgeAnchor>;
+```
+
+## Examples
+
+### Dot, count and overflow
+
+Without `count` or children the badge is a 6px dot that says "something new". With `count` it
+grows to 16px and shows the number. Counts above `max` (99 by default) read `99+`. A count of zero
+renders nothing unless you pass `showZero`.
+
+<ComponentPreview name="badge-sizes" />
+
+### Short text
+
+Without `count`, children show a short label such as "New" or "Beta" in place of a number; when
+both are given, `count` wins. Keep it to one word; longer text belongs in a
+[Tag](/docs/components/data-display/tag).
+
+<ComponentPreview name="badge-text" />
+
+### Tones
+
+`error` is the Material 3 default and suits unread counts. `primary` fits totals that need no
+action, `success` and `warning` carry status, and `neutral` uses the inverse surface for an
+achromatic badge that reads on any background.
+
+<ComponentPreview name="badge-tones" />
+
+### On an icon
+
+`BadgeAnchor` pins its `badge` to the top-end corner of its child, using the Material 3 offsets for
+a 24px icon: a dot sits inside the corner, and a count starts 12px before the end edge and grows
+outwards. The corner follows the reading direction, so it moves to the left in Arabic.
+
+<ComponentPreview name="badge-anchor" />
+
+### On an avatar
+
+`overlap="circular"` centres the badge on the rim of a round child instead of its square corner.
+
+<ComponentPreview name="badge-avatar" />
+
+### Screen reader label
+
+Screen readers hear "12 new" by default. Pass `label` when the context needs more: `{count}` is
+replaced by the number as shown, including `99+`. Use your own plural rules when you write it. To
+change the default wording for every badge, set the [labels](#labels) once on `DSProvider`.
+
+<ComponentPreview name="badge-label" />
+
+## API
+
+### Badge
+
+| Prop        | Type                                                          | Default                   |
+| ----------- | ------------------------------------------------------------- | ------------------------- |
+| `count`     | `number`                                                      |                           |
+| `max`       | `number`                                                      | `99`                      |
+| `showZero`  | `boolean`                                                     | `false`                   |
+| `tone`      | `'error' \| 'primary' \| 'success' \| 'warning' \| 'neutral'` | `'error'`                 |
+| `label`     | `string`, may contain `{count}`                               | the `count` or `dot` text |
+| `labels`    | `Partial<BadgeLabels>`                                        |                           |
+| `children`  | `ReactNode`                                                   |                           |
+| `className` | `string`                                                      |                           |
+
+Every other `span` attribute, including `ref`, is passed through.
+
+### BadgeAnchor
+
+| Prop       | Type                          | Default         |
+| ---------- | ----------------------------- | --------------- |
+| `badge`    | `ReactNode`                   |                 |
+| `overlap`  | `'rectangular' \| 'circular'` | `'rectangular'` |
+| `children` | `ReactNode`                   |                 |
+
+Every other `span` attribute, including `ref`, is passed through.
+
+### Data attributes
+
+Badge: `data-slot="badge"`, `data-size="small" | "large"`, `data-tone`. Part:
+`data-slot="badge-label"`. BadgeAnchor: `data-slot="badge-anchor"`, `data-overlap`.
+
+### Labels
+
+Text the badge writes on its own. Pass `labels` to one badge, or set them for every badge with
+`<DSProvider labels={{ badge: { … } }}>`. A template can also be a function of its values, so an
+i18n library can pick the plural form.
+
+| Key        | Default       | Used for                                                          |
+| ---------- | ------------- | ----------------------------------------------------------------- |
+| `count`    | `{count} new` | what screen readers hear for a count; `{count}` is the shown text |
+| `dot`      | `New`         | what screen readers hear for a dot                                |
+| `overflow` | `{max}+`      | the visible text of a count above `max`                           |
+
+`label` on one badge wins over `count` and `dot`. Digits are formatted with `Intl.NumberFormat` for
+the current locale before they reach a template.
+
+## Accessibility
+
+- The visible number is hidden from screen readers and replaced by a full label, so "3" is read
+  as "3 new", and the dot is read as "New".
+- Inside a link or button with a visible label, the badge label joins the accessible name. Put the
+  label before the badge in the DOM so it reads "Inbox 3 new"; in a vertical navigation item,
+  `flex-col-reverse` keeps the icon on top.
+- An icon-only `IconButton` is named by its `aria-label`, which hides the badge text. Include the
+  count in that label, for example "Notifications, 3 new".
+- A badge does not announce changes. Use a toast or a polite live region when a new count needs to
+  be spoken.
+- An anchored badge pops in with the fast spatial spring when it mounts, and appears instantly
+  under reduced motion. Inline badges never animate, so long lists stay calm.
+- Contrast is checked with axe for every tone in light, dark and RTL by `badge.test.tsx`.

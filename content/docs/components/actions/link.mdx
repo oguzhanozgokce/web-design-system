@@ -1,0 +1,116 @@
+---
+title: Link
+description: Text link in an inline and a standalone style, with an optional forward arrow, external links that announce the new tab, router navigation and a disabled state.
+---
+
+<ComponentPreview name="link-demo" />
+
+## Installation
+
+<InstallCommand name="link" />
+
+## Usage
+
+```tsx
+import { Link } from '@/components/ds/link';
+
+<p>
+  Read the <Link href="/help/payouts">payout schedule</Link> before your first sale.
+</p>;
+```
+
+## Examples
+
+### Variants
+
+`inline` is for links inside a sentence. It takes the font of the text around it and keeps an
+underline, so the link never depends on colour alone. `standalone` is for links that sit on their
+own, such as a card footer or a "view all" action. It uses the `label-lg` type and shows the
+underline only on hover. Do not put a standalone link inside a paragraph.
+
+<ComponentPreview name="link-variants" />
+
+### Forward arrow
+
+`showArrow` adds a trailing arrow that nudges forward on hover and keyboard focus. It points the
+other way in right-to-left languages. Use it for links that move the user deeper into the product,
+and leave it off for links that download or change something.
+
+<ComponentPreview name="link-arrow" />
+
+### External links
+
+`isExternal` opens the link in a new tab with `rel="noreferrer noopener"`, adds a north-east glyph
+and appends a visually hidden "(opens in a new tab)", the `opensInNewTab` label. Any `rel` you pass
+is kept. When `isExternal` is set, the external glyph replaces the forward arrow.
+
+<ComponentPreview name="link-external" />
+
+### Disabled
+
+`isDisabled` renders a non-focusable element with `role="link"` and `aria-disabled`, without an
+`href`. Say nearby why the link is unavailable.
+
+<ComponentPreview name="link-disabled" align="start" />
+
+### Type
+
+An inline link inherits size and weight, so it fits in a heading or a caption without extra
+classes. A standalone link takes another type role through `className`, for example `text-title-md`
+on a marketing page. The arrow scales with it.
+
+<ComponentPreview name="link-typography" />
+
+### Routing
+
+Links navigate through `DSProvider`'s router, like `ButtonLink`. Pass `navigate` once, as shown in
+[Installation](/docs/foundations/installation), and every internal link keeps client-side navigation
+and next-intl locale prefixes. External links and links opened with a modifier key fall back to the
+browser.
+
+## API
+
+### Link
+
+| Prop         | Type                                                 | Default    |
+| ------------ | ---------------------------------------------------- | ---------- |
+| `variant`    | `'inline' \| 'standalone'`                           | `'inline'` |
+| `showArrow`  | `boolean`                                            | `false`    |
+| `isExternal` | `boolean`                                            | `false`    |
+| `isDisabled` | `boolean`                                            | `false`    |
+| `labels`     | `Partial<LinkLabels>`                                |            |
+| `href`       | `string`                                             |            |
+| `onPress`    | `(event: PressEvent) => void`                        |            |
+| `className`  | `string \| (renderProps: LinkRenderProps) => string` |            |
+| `ref`        | `Ref<HTMLAnchorElement>`                             |            |
+
+Every other [React Aria Link](https://react-aria.adobe.com/Link) prop is passed through, such as
+`target`, `rel`, `download` and `routerOptions`.
+
+`linkStyles({ variant })` returns the link classes, for styling another React Aria element as a
+link.
+
+### Data attributes
+
+`data-variant`, `data-external`, `data-hovered`, `data-pressed`, `data-focus-visible`,
+`data-disabled`, `data-current`. Parts: `data-slot="label"`, `"arrow"`, `"external-icon"`.
+
+### Labels
+
+Text the link writes on its own. Pass `labels` to one link, or set them for every link with
+`<DSProvider labels={{ link: { … } }}>`.
+
+| Key             | Default                | Used for                                                     |
+| --------------- | ---------------------- | ------------------------------------------------------------ |
+| `opensInNewTab` | `(opens in a new tab)` | visually hidden text after the label of an `isExternal` link |
+
+## Accessibility
+
+- Built on React Aria `Link`: Enter activates it, and press events normalise mouse, touch and
+  keyboard. Without `href` it renders `role="link"` and stays focusable.
+- Inline links keep an underline at rest, which meets WCAG 1.4.1 without relying on colour.
+- External links say they open a new tab in the accessible name. The glyphs are hidden from
+  assistive technology.
+- The arrow only moves when the motion preference allows it, and its transition stops under
+  `prefers-reduced-motion`.
+- Contrast is checked with axe in light, dark and RTL by `link.test.tsx`.

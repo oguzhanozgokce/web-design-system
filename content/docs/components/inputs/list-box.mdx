@@ -1,0 +1,179 @@
+---
+title: List box
+description: Selectable list on React Aria ListBox, with sections, start icons or avatars, descriptions, a check mark for selected rows, two densities, an empty state and load-more.
+---
+
+<ComponentPreview name="list-box-demo" />
+
+## Installation
+
+<InstallCommand name="list-box" />
+
+## Usage
+
+```tsx
+import { ListBox, ListBoxItem } from '@/components/ds/list-box';
+
+<ListBox aria-label="Default view" selectionMode="single" variant="outlined">
+  <ListBoxItem id="table" startIcon={<TableRowsIcon />} description="Every transaction in a row">
+    Table
+  </ListBoxItem>
+  <ListBoxItem id="board">Board</ListBoxItem>
+</ListBox>;
+```
+
+`ListBox` is also the list inside [Select](/docs/components/inputs/select) and
+[Combo box](/docs/components/inputs/combo-box), so the items you write here work there unchanged.
+Use it on its own for a picker that stays on screen, such as a side panel or a settings column.
+
+## Examples
+
+### Sections
+
+`ListBoxSection` groups items under a `title`. Sections after the first get a divider. A section
+without a title needs an `aria-label`.
+
+<ComponentPreview name="list-box-sections" />
+
+### Avatars
+
+`avatar` sits before the text and is sized by the list density: 32px at `md`, 24px at `sm`. Pass an
+image or an initials badge. The slot is hidden from assistive technology, since the item text
+already names the row, so give an image `alt=""`.
+
+<ComponentPreview name="list-box-avatars" />
+
+### Multiple selection
+
+`selectionMode="multiple"` lets people pick several rows with a click, Space or Enter. Every selected
+row shows the check mark and the selected container colour. Use `selectedKeys` and
+`onSelectionChange` to own the value.
+
+<ComponentPreview name="list-box-multiple" />
+
+### Disabled items
+
+Disable single items with `isDisabled` or several with `disabledKeys`. Disabled rows are skipped by
+the keyboard and cannot be selected; one that is already selected keeps its check mark on a muted
+container. Say why in the description, so the row is not a dead end.
+
+<ComponentPreview name="list-box-disabled" />
+
+### Empty state
+
+With no items the list shows “No items”. Pass `renderEmptyState` and return a `ListBoxStatus` for
+a message and an icon that fit the context.
+
+<ComponentPreview name="list-box-empty" />
+
+### Density
+
+`density="md"` (40px rows) is the default. `sm` (32px rows) suits dense admin panels and toolbars.
+Rows grow with a description, so long text wraps instead of being cut.
+
+<ComponentPreview name="list-box-density" />
+
+### Load more
+
+Pass `onLoadMore` and `isLoading` for long lists. `onLoadMore` runs when the end of the list scrolls
+into view, and a spinner row with “Loading…” shows while `isLoading` is true. Give the list a fixed
+height so it scrolls.
+
+<ComponentPreview name="list-box-load-more" />
+
+## API
+
+### ListBox
+
+| Prop                  | Type                                             | Default    |
+| --------------------- | ------------------------------------------------ | ---------- |
+| `items`               | `Iterable<T>`                                    |            |
+| `children`            | `ReactNode \| ((item: T) => ReactNode)`          |            |
+| `selectionMode`       | `'none' \| 'single' \| 'multiple'`               | `'none'`   |
+| `selectedKeys`        | `Iterable<Key> \| 'all'`                         |            |
+| `defaultSelectedKeys` | `Iterable<Key> \| 'all'`                         |            |
+| `onSelectionChange`   | `(keys: Selection) => void`                      |            |
+| `onAction`            | `(key: Key) => void`                             |            |
+| `disabledKeys`        | `Iterable<Key>`                                  |            |
+| `density`             | `'sm' \| 'md'`                                   | `'md'`     |
+| `variant`             | `'plain' \| 'outlined'`                          | `'plain'`  |
+| `renderEmptyState`    | `(renderProps: ListBoxRenderProps) => ReactNode` | “No items” |
+| `isLoading`           | `boolean`                                        |            |
+| `onLoadMore`          | `() => void`                                     |            |
+| `labels`              | `Partial<ListBoxLabels>`                         |            |
+
+Every other [React Aria ListBox](https://react-aria.adobe.com/ListBox) prop is passed through, such
+as `aria-label`, `selectionBehavior`, `disallowEmptySelection`, `dependencies` and
+`dragAndDropHooks`.
+
+### ListBoxItem
+
+| Prop          | Type                | Default                    |
+| ------------- | ------------------- | -------------------------- |
+| `id`          | `Key`               | the item's `id` or key     |
+| `children`    | `ReactNode`         |                            |
+| `textValue`   | `string`            | `children` when it is text |
+| `description` | `ReactNode`         |                            |
+| `startIcon`   | `ReactNode`         |                            |
+| `avatar`      | `ReactNode`         |                            |
+| `keywords`    | `readonly string[]` |                            |
+| `isDisabled`  | `boolean`           | `false`                    |
+
+Set `textValue` whenever `children` is not plain text; typeahead and the select and combo box values
+use it. `keywords` only matter inside a [Combo box](/docs/components/inputs/combo-box). Items also
+take `href`, `onAction` and the other [React Aria ListBoxItem](https://react-aria.adobe.com/ListBox)
+props.
+
+### ListBoxSection
+
+`title` (`ReactNode`) renders a header that names the group. `items` and a render function work as
+on `ListBox`. Without a `title`, pass `aria-label`.
+
+### ListBoxStatus
+
+A centred message for `renderEmptyState`, with an optional `icon`. It takes every `div` prop.
+
+### listBoxStyles
+
+`listBoxStyles(variants)` returns one class function per slot: `root`, `section`, `header`, `item`,
+`avatar`, `icon`, `content`, `label`, `description`, `check`, `status` and `loader`. Variants are
+`density` (`'sm' | 'md'`, sets the row height, padding and icon size as CSS variables on `root`) and
+`variant` (`'plain' | 'outlined'`).
+
+### Contexts
+
+`ListBoxValueContext` renders items in their compact form (start icon or avatar, then the label).
+Select sets it for its trigger, and a custom trigger can do the same. `ListBoxKeywordsContext`
+carries the keyword index a combo box filters with.
+
+### Data attributes
+
+The root has `data-slot="list-box"`, `data-density`, `data-variant`, `data-empty`, `data-focused`,
+`data-focus-visible`, `data-layout` and `data-orientation`. Items have
+`data-slot="list-box-item"` with `data-selected`, `data-focused`, `data-focus-visible`,
+`data-hovered`, `data-pressed` and `data-disabled`. Parts: `data-slot="avatar"`, `"start-icon"`,
+`"content"`, `"label"`, `"description"`, `"check"`, `"list-box-section"`, `"list-box-header"`,
+`"list-box-status"`, `"list-box-loader"` and `"list-box-value"`.
+
+### Labels
+
+Text the list box writes on its own. Pass `labels` to one list, or set them for every list box with
+`<DSProvider labels={{ listBox: { … } }}>`. Select and Combo box take their own `labels` for the
+lists they open.
+
+| Key       | Default    | Used for                                           |
+| --------- | ---------- | -------------------------------------------------- |
+| `empty`   | `No items` | the empty state when `renderEmptyState` is not set |
+| `loading` | `Loading…` | the load-more row while `isLoading` is true        |
+
+## Accessibility
+
+- Built on React Aria `ListBox`: arrow keys, Home, End, Page Up and Page Down move focus, typing
+  jumps to a matching row, and Shift and Ctrl or Cmd extend a multiple selection.
+- An option is named by its whole text, label first and description second, as a native `option`
+  would be. The start icon, avatar and check mark are hidden from assistive technology; selection is
+  announced through `aria-selected`.
+- An option is not named by its label alone, because the visible description would then be missing
+  from its name, which fails WCAG 2.5.3 (Label in Name).
+- Rows show an inset focus ring for keyboard focus, so it is never clipped by the list or a popover.
+- Contrast is checked with axe in light, dark and RTL by `list-box.test.tsx`.

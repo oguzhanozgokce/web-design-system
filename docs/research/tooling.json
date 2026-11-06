@@ -1,0 +1,264 @@
+{
+  "asOf": "2026-11-06. I queried the npm registry and GitHub on that day. Newest items seen: @base-ui/react repo push 2026-11-06; tailwindcss 4.3.4 and storybook 10.6.6 published 2026-11-05; storybook 11.0.0-beta.0 on 2026-11-03; web.dev Baseline post dated 2026-10-29.",
+  "topics": [
+    {
+      "topic": "1. Headless primitives: Radix, Base UI, React Aria Components, Ark UI",
+      "options": [
+        "Base UI (@base-ui/react) 1.9.0, released 2026-10-09, MIT. Version 1.0.0 came out 2025-12-11 and renamed the package from @base-ui-components/react. One minor release a month since then. 37 components, plus DirectionProvider, mergeProps and useRender. No Calendar or DatePicker yet. Every dist file starts with 'use client'. shadcn made it the default base on 2026-07-02 and reported 6M+ weekly downloads.",
+        "Radix (unified radix-ui package) 1.8.1, released 2026-10-12, MIT, owned by WorkOS. The repo was almost dormant from Nov 2025 to Apr 2026. Commits came in bursts after that: 21 in May, 90 in June, 105 in July, 69 in October 2026. 76 of the 2026 commits are from one maintainer (chaance). Releases 1.5.0 (2026-06-06) through 1.8.1 are only bug and accessibility fixes, with no new components such as Combobox. @radix-ui/themes was last released as 3.3.0 on 2026-01-31.",
+        "React Aria Components 1.22.1, released 2026-10-09, Apache-2.0, maintained by Adobe. Version 1.22.0 added Sheet. It has the strongest i18n support: Calendar, DatePicker, DateRangePicker and DateField built on @internationalized/date 3.12.4 (13 calendar systems), a locale-aware NumberField, ColorPicker, Table, Tree and accessible drag and drop. Built-in UI strings cover 34 locales. Its exports import 'client-only' rather than declaring 'use client'. HeroUI v3 (3.0.0 released 2026-03-21, Apache-2.0) is built on it. shadcn added it as a first-class base on 2026-07-17.",
+        "Ark UI (@ark-ui/react) 5.40.0, released 2026-10-29, MIT, built on the Zag.js 1.47.0 state machines. It also supports Solid, Vue and Svelte. 6.0.0-next.0 was published 2026-10-06. It has the widest set of unusual components: date-picker, color-picker, carousel, file-upload, signature-pad, qr-code, timer, tour, image-cropper, marquee, json-tree-view, angle-slider. @ark-ui/mcp is at 1.3.0."
+      ],
+      "recommendation": "Use Base UI as the default primitive for new components. Use React Aria Components for anything locale-heavy: calendar, date and time pickers, number fields with currency or units, color, tables and trees with drag and drop. Choose one primitive per component and hide it behind your own API, so callers never see asChild versus render versus render-props. Don't start new components on Radix, but there is no need to migrate existing Radix code. Consider Ark UI only for an unusual component that the other two lack (carousel, signature pad, tour), or if you ever need Vue or Solid.",
+      "why": "Base UI has a stable 1.x line, ships every month, is funded by MUI and is now the shadcn default, so most registry items and agent skills will target it. Radix is maintained in bursts with no new components. The user ships 18 locales including ar, th and ja. React Aria has calendar systems such as Buddhist for th-TH and Islamic, RTL date-field fixes and localized aria strings that Base UI lacks. Its built-in strings do not cover id, vi, th or sw, so the library must supply those itself. Mixing primitives already works in practice. HeroUI v3 depends on react-aria-components and @radix-ui/react-avatar at the same time. shadcn's Radix-to-Base UI migration skill states that both libraries coexist while you migrate one component at a time. One caution, which I have not tested: each library keeps its own dismiss-layer and focus-trap stack, so avoid nesting an overlay from one library inside an overlay from another.",
+      "sources": [
+        "npm view @base-ui/react / radix-ui / react-aria-components / @ark-ui/react time (queried 2026-11-06)",
+        "https://base-ui.com/llms.txt",
+        "https://github.com/mui/base-ui/releases/tag/v1.9.0",
+        "https://unpkg.com/@base-ui/react@1.9.0/dialog/root/DialogRoot.mjs",
+        "gh api repos/radix-ui/primitives/commits (per-month counts since 2025-06)",
+        "https://github.com/radix-ui/primitives/blob/main/packages/react/radix-ui/CHANGELOG.md",
+        "https://github.com/adobe/react-spectrum/releases/tag/react-aria-components@1.22.0",
+        "https://react-aria.adobe.com/llms.txt",
+        "https://unpkg.com/react-aria-components@1.22.1/dist/exports/Button.mjs",
+        "github.com/adobe/react-spectrum tree, intl/*.json locale files",
+        "https://github.com/chakra-ui/ark/tree/main/packages/react/src/components",
+        "npm view @heroui/react@3.2.7 dependencies",
+        "https://github.com/shadcn-ui/ui/blob/main/apps/v4/content/docs/changelog/2026-07-base-ui-default.mdx",
+        "https://github.com/shadcn-ui/ui/blob/main/apps/v4/content/docs/changelog/2026-07-react-aria.mdx",
+        "https://www.infoq.com/news/2026/02/baseui-v1-accessible",
+        "https://mui.com/blog/2026-and-beyond/"
+      ]
+    },
+    {
+      "topic": "2. Distribution: npm package vs shadcn registry vs jsrepo, how 21st.dev, Magic UI and React Bits ship, and hybrids",
+      "options": [
+        "shadcn CLI (npm 'shadcn') 4.23.0, released 2026-10-27, MIT. CLI v4 shipped 2026-03-06 with skills, --preset, --dry-run/--diff/--view, init --template, --monorepo and --base. Namespaced registries are configured in components.json, for example \"@acme\": \"https://acme.com/r/{name}.json\", with header and token auth. Item types: registry:ui, component, block, hook, lib, page, file, style, theme, font, item and base. Items can carry cssVars (theme, light, dark), css, envVars, font and docs. 'include' and 'shadcn registry validate' arrived 2026-05-20. GitHub registries arrived 2026-06-01: any public repo with a root registry.json works with 'npx shadcn add owner/repo/item', with no build or hosting. Private GitHub registries arrived Aug 2026, authenticated through gh credentials or GH_TOKEN. registry:base pins which primitive library an item uses.",
+        "shadcn MCP server: run 'npx shadcn@latest mcp init --client claude'. It works with any compliant registry as long as registry.json is served at the registry root.",
+        "jsrepo 3.8.3, released 2026-11-03, MIT. v3 came out 2025-11-24. It is a registry toolchain whose providers include github, gitlab, bitbucket, azure, http, fs, jsrepo.com and shadcn. Outputs include a shadcn-format registry. Transforms cover prettier, biome, oxfmt, TS-to-JS and file casing. It has its own MCP server and an interactive update/diff command.",
+        "React Bits (DavidHDev/react-bits, 51k stars). Built with jsrepo.config.ts using the @jsrepo/shadcn output into public/r. Each component ships in four variants (JS/TS × CSS/Tailwind), with llms.txt and an MCP server. License is 'MIT + Commons Clause License Condition v1.0': you 'may not sell, sublicense, or redistribute the components themselves - whether alone, in a bundle, or as a ported version'. You may use them inside your own apps, but you may NOT copy them into an open-source component library, even with attribution.",
+        "Magic UI (magicuidesign/magicui). MIT, which allows copying into an MIT or Apache library if you keep the copyright notice. Ships a shadcn registry (root registry.json), @magicuidesign/mcp 2.1.0 and a skills/magic-ui agent skill. Repo is a pnpm and Turborepo monorepo.",
+        "21st.dev is a marketplace of 12,000+ components in shadcn-registry format. Install by copying TSX, through the shadcn CLI, or through the 21st MCP and CLI (@21st-dev/cli 1.18.0; @21st-dev/magic is a legacy proxy). The free Hobby plan allows '2 free copies / day', even though llms.txt says 'Unlimited'. Builder costs $6/mo billed yearly. Authors keep authorship. I found no site-wide license, so per-component licensing is unverified: treat each component as all rights reserved unless its page states a license.",
+        "Plain npm package, as HeroUI v3 does: @heroui/react 3.2.7 plus @heroui/styles, Apache-2.0, with react-aria-components and tailwind-variants as dependencies. Apps get upgrades with a version bump. The downside is that customizing means overriding classes, and every consuming app must add '@source \"../node_modules/<pkg>\"' to its CSS, because Tailwind v4 skips node_modules when it scans for classes."
+      ],
+      "recommendation": "Use a hybrid built in one repo. (1) Publish the styled components as a shadcn-compatible registry, starting as a private GitHub registry and switching to public later with no hosting needed. You can also emit static /r/*.json with 'shadcn build' to any static host, which fits Hostinger. Give it a namespace such as @oz. (2) Publish to npm only what should never be forked per app: the tokens and theme CSS package, small runtime utilities, and possibly hooks. (3) Use registry:block and registry:page for admin and dashboard sections, and registry:item for AGENTS.md and conventions. Do not ingest React Bits code into the library because of the Commons Clause. Treat 21st components as unlicensed until each one is checked.",
+      "why": "The user wants to stop rewriting components but still tweak them per site. Copy-in source gives that, and the shadcn CLI now has --diff for pulling upstream changes, presets and validate. It is also what agents expect: the shadcn MCP and skills work with any compliant registry for free. GitHub registries remove the need to run a registry server. An npm-only library forces class overrides and @source configuration in every app. jsrepo is a good alternative builder if multi-format output becomes useful (React Bits uses it to emit shadcn output plus JS and TS variants), but the shadcn format remains the common interchange.",
+      "sources": [
+        "npm view shadcn time (4.0.0 on 2026-03-06, 4.23.0 on 2026-10-27)",
+        "https://github.com/shadcn-ui/ui/tree/main/apps/v4/content/docs/changelog (2026-03-cli-v4, 2026-05-registry-include, 2026-06-github-registries, 2026-07-base-ui-default)",
+        "https://ui.shadcn.com/docs/changelog",
+        "https://ui.shadcn.com/docs/registry/namespace",
+        "https://ui.shadcn.com/docs/registry/registry-item-json",
+        "https://ui.shadcn.com/docs/registry/mcp",
+        "https://github.com/jsrepojs/jsrepo (apps/docs/content/docs/providers, outputs)",
+        "https://github.com/DavidHDev/react-bits/blob/main/LICENSE.md",
+        "https://github.com/DavidHDev/react-bits/blob/main/jsrepo.config.ts",
+        "https://github.com/magicuidesign/magicui (LICENSE.md, registry.json, skills/)",
+        "https://21st.dev/llms.txt",
+        "https://21st.dev/pricing.md",
+        "npm view @heroui/react@3.2.7 dependencies peerDependencies",
+        "https://tailwindcss.com/docs/detecting-classes-in-source-files"
+      ]
+    },
+    {
+      "topic": "3. Variant styling: class-variance-authority vs tailwind-variants, and Tailwind v4 theming",
+      "options": [
+        "class-variance-authority 0.7.1, Apache-2.0. Last release 2024-11-26, so nothing in about two years. Its successor, the 'cva' package at 1.0.0-beta.12 (2026-09-17), is still beta. shadcn still uses class-variance-authority in its base, radix and aria buttons.",
+        "tailwind-variants 4.0.1, released 2026-10-31, MIT, maintained by HeroUI. 4.0.0 came out 2026-10-29. It now has zero dependencies and its own compiled merge, so tailwind-merge is no longer a peer. It exports twMerge, twJoin and clsx, adds multi-extend (extend: [a, b, c]) and a debug mode, and claims hot tv() is about 3.5x faster. Slots, compoundSlots and compoundVariants carry over from earlier versions. HeroUI 3.2.7 still pins 3.3.1.",
+        "The cn package 0.5.2, released 2026-11-02, MIT, from shadcn. It replaces twMerge(clsx()). Every shadcn component imports it since 2026-09-03, and 'npx shadcn migrate cn' converts existing code. tailwind-merge 3.7.0 (2026-09-12) is still maintained.",
+        "Tailwind CSS 4.3.4, released 2026-11-02. 4.2.0 (2026-02-18) added logical block utilities and deprecated start-*/end-*. 4.3.0 (2026-05-08) added stacked and compound @variant, scrollbar-* and zoom-* utilities, and --default() in functional @utility. Dark mode driven by a data attribute: @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *)).",
+        "Pattern seen in shadcn v4: base components use cva with semantic hooks such as 'cn-button-variant-default' and 'cn-button-size-sm'. Each of the 8 styles (vega, nova, maia, lyra, mira, luma, rhea, sera) then maps those names to utilities in style-*.css with @apply. So one structure supports many visual languages."
+      ],
+      "recommendation": "Use tailwind-variants v4 for multi-part components (Card, Dialog, DatePicker, Table, Sidebar) because of slots and compoundSlots, and use it for simple ones too, so there is one API. Name variants after Material 3, not after visuals: variant filled, tonal, outlined, text, elevated; size xs, sm, md, lg; plus a tone (primary, secondary, error). Express a different design approach as a style layer or variant, not as ButtonV2. Keep M3 roles as CSS variables under @theme, or under @theme inline when the values are runtime variables, and switch them with data-theme and data-contrast attributes on <html>. If you pull shadcn registry items, you will carry cva and cn anyway. That's fine, because both can coexist.",
+      "why": "class-variance-authority has not had a stable release since 2024, and its v1 is still beta. tailwind-variants v4 now covers merging itself with no dependencies, and HeroUI runs it at scale. Naming variants after M3 roles keeps the user's rule that a decision reads the same in Compose and on the web. The shadcn base-times-style split shows how to offer alternative looks without forking components.",
+      "sources": [
+        "npm view class-variance-authority, cva, tailwind-variants, tailwind-merge, cn, tailwindcss time (2026-11-06)",
+        "https://github.com/heroui-inc/tailwind-variants/releases/tag/v4.0.0",
+        "https://github.com/shadcn-ui/ui/blob/main/apps/v4/content/docs/changelog/2026-09-cn.mdx",
+        "https://github.com/shadcn-ui/ui/blob/main/apps/v4/registry/bases/base/ui/button.tsx",
+        "https://github.com/shadcn-ui/ui/blob/main/apps/v4/registry/styles/style-nova.css",
+        "https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.2.0",
+        "https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.0",
+        "https://tailwindcss.com/docs/dark-mode"
+      ]
+    },
+    {
+      "topic": "4. Tokens: Material 3 scheme from one seed, DTCG format, Style Dictionary, sync with Compose",
+      "options": [
+        "@material/material-color-utilities 0.4.0, released 2026-01-21, Apache-2.0. It is the first npm release since 0.3.0 in 2024. The tarball contains ColorSpec 2021 and 2025 and the schemes TonalSpot, Expressive, Vibrant, Fidelity, Content, Neutral, Monochrome, Rainbow and FruitSalad. The ColorSpec 2026 and CMF scheme work from 2026-02-17 onward is on GitHub only and has not been released on npm. The repo was last pushed 2026-10-19.",
+        "MaterialKolor 6.0.0, released 2026-10-15, MIT, for Compose Multiplatform. Its color engine is now generated from upstream's Kotlin source and is tested to match upstream ARGB for ARGB. SPEC_2025 is now the default, and the 2026 spec and CMF are available. The release notes warn that 'some colors change even when your code compiles'.",
+        "DTCG Format, Color and Resolver modules 2025.10: first stable spec, 2025-10-28. Supports Display P3, OKLCH and CSS Color 4. The Resolver handles light and dark contexts.",
+        "Style Dictionary 5.8.0, released 2026-11-03, Apache-2.0. DTCG 2025.10 support is partial, and 5.7.0 (2026-10-16) added the 'duration' type. Built-in formats include css/variables and compose/object for Kotlin. Two prototype-pollution advisories were fixed in Sep and Oct 2026, so stay current.",
+        "Terrazzo (@terrazzo/cli) 2.10.0, released 2026-10-21, MIT, DTCG-native. Plugins exist for CSS, Tailwind, JS, Sass, vanilla-extract and Swift. There is no Kotlin or Compose plugin.",
+        "@tokens-studio/sd-transforms 2.0.3 (2025-12-10), needed only if you design tokens in Figma Tokens Studio. @material/web 2.5.0 says it is 'in maintenance mode pending new maintainers', so do not use it for components."
+      ],
+      "recommendation": "Keep the Compose app as the source of truth, as the user's CLAUDE.md already requires. Pin both platforms to the same algorithm inputs: seed, variant (TonalSpot), spec version 2025, and contrast level. On the web, use material-color-utilities 0.4.0, which has spec 2025. On mobile, use MaterialKolor 6 with SPEC_2025. Have a small Node script emit a DTCG 2025.10 tokens.json covering light, dark and the medium and high contrast variants, plus shape and type scales. Generate theme.css (M3 role variables for Tailwind @theme) with Style Dictionary 5.8. Optionally generate a Kotlin object with compose/object to diff against Color.kt in CI. Publish the JSON and CSS as an npm tokens package, or as a registry:theme or registry:style item with cssVars.",
+      "why": "Both engines now come from the same upstream code, so the same inputs give identical colors on both platforms. The one gap is that npm lacks spec 2026, so stay on 2025 until it ships. DTCG 2025.10 is the stable interchange format. Style Dictionary is the only mainstream tool that outputs both CSS and Compose Kotlin, which Terrazzo cannot.",
+      "sources": [
+        "npm view @material/material-color-utilities time; npm pack 0.4.0 tarball listing",
+        "https://github.com/material-foundation/material-color-utilities/commits/main/typescript",
+        "https://github.com/jordond/MaterialKolor/releases/tag/6.0.0",
+        "https://www.w3.org/community/reports/design-tokens/CG-FINAL-resolver-20251028/",
+        "https://github.com/style-dictionary/style-dictionary/releases (v5.6.0 to v5.8.0)",
+        "https://github.com/style-dictionary/style-dictionary/blob/main/lib/enums/formats.js (compose/object)",
+        "https://github.com/terrazzoapp/terrazzo",
+        "https://github.com/material-components/material-web (README maintenance note)"
+      ]
+    },
+    {
+      "topic": "5. Docs and playground: Fumadocs, Nextra, Storybook, Ladle, automatic props tables, live code editing",
+      "options": [
+        "Fumadocs: fumadocs-core and fumadocs-ui 16.18.0 (2026-11-05), fumadocs-mdx 15.5.0, fumadocs-typescript 5.6.0 (AutoTypeTable), @fumadocs/story 1.5.3 (1.0 on 2026-05-26), all MIT. Story gives you defineStory() with controls generated from props, rendered in an iframe frame. The project itself recommends Storybook for real UI testing. Built-in features: static build, i18n routing, llms.txt and remark-llms, an MCP utility, Twoslash, and setups for React Router, TanStack Start and Waku. fumadocs-ui 16.18 requires next 16.x as a peer dependency. Ignore 17.0.0: npm marks it 'accidentally published', do not use.",
+        "Nextra 4.6.1 (2025-12-04), MIT. Last commit 2026-06-23, so slower than Fumadocs.",
+        "Storybook 10.6.6 (2026-11-05). 10.0 (2025-10-28) went ESM-only. 11.0.0-beta.0 came out 2026-11-03. In 11, docgenServer is stable and on by default, reading props server-side through the TypeScript compiler API. It needs TypeScript 5.9 or 6, Node 22.12 or later, and it deprecates react-docgen and react-docgen-typescript builder docgen until removal in 12. Related: @storybook/addon-vitest, addon-a11y (axe) and @storybook/addon-mcp 10.6.6, which exposes a component manifest to agents at /mcp.",
+        "Ladle 5.1.1 (2025-11-04), MIT. Last repo activity 2026-06-28, so low activity.",
+        "Live code editing: react-live 5.0.1 (2026-10-05). Its 5.0.0 (2026-09-23) added React 19 types and an exports map. Sandpack 2.20.0 is from 2025-02-14 and the repo has had no pushes since 2025-04-24, so treat it as dormant.",
+        "TypeScript 7.0.2 (Go native, released 2026-07-08) has no stable programmatic API. That is expected in 7.1. Prop-table extractors (Storybook docgenServer, fumadocs-typescript, react-docgen-typescript) therefore need TypeScript 6 installed side by side, as @typescript/typescript6 or by aliasing."
+      ],
+      "recommendation": "Build the public docs site with Fumadocs on Next 16, statically exported and kept separate from the Next 15 product sites. Use AutoTypeTable for props, Fumadocs Story for interactive controls, react-live for small editable examples, and the built-in llms.txt and MCP. Use Storybook 10.6 (move to 11 when it is stable) as the internal workshop and test harness, not as public docs. Pin TypeScript 6 for tooling even if tsc 7 is used for type checks.",
+      "why": "Fumadocs is the most active of the docs frameworks and the only one with built-in stories, type tables, LLM export and static export. Storybook remains the best test runner for components (Vitest plus a11y) and now serves agents through MCP. Running Storybook as the public site would duplicate work. The TypeScript 7 API gap is the main trap for automatic props tables in late 2026.",
+      "sources": [
+        "npm view fumadocs-ui@16.18.0 peerDependencies; npm view fumadocs-ui@17.0.0 deprecated",
+        "https://fumadocs.dev/llms.txt",
+        "https://fumadocs.dev/docs/integrations/story",
+        "https://github.com/storybookjs/storybook/blob/next/MIGRATION.md (From 10.x to 11.0.0)",
+        "https://github.com/storybookjs/storybook/releases/tag/v11.0.0-beta.0",
+        "https://storybook.js.org/docs/ai/mcp/overview",
+        "npm view nextra, @ladle/react, react-live, @codesandbox/sandpack-react time",
+        "https://github.com/FormidableLabs/react-live/releases",
+        "https://infoq.com/news/2026/08/typescript-7-released/",
+        "https://nx.dev/docs/technologies/typescript/guides/typescript-7"
+      ]
+    },
+    {
+      "topic": "6. Testing: Vitest browser mode, Playwright component and visual tests, axe, Chromatic alternatives",
+      "options": [
+        "Vitest 5.1.0 (2026-11-02). 5.0.0 came out 2026-09-03. Browser mode has been stable since v4 (2025-10-22) and uses @vitest/browser-playwright. v5 removed the webdriverio package, added screenshotDirectory for toMatchScreenshot, requires Node 22 and Vite 6.4+, and clears mocks before each test by default. vitest-browser-react is at 2.3.0.",
+        "Playwright 1.65.0 (2026-11-05) for e2e tests and toHaveScreenshot. The @playwright/experimental-ct-* packages were 'removed in Playwright 1.63 and are no longer published'. The last version was 1.62.1 (2026-07-30). The replacement is a 'gallery pattern', documented in a skill bundled inside playwright-core.",
+        "axe-core 4.14.0 (2026-10-05) and @axe-core/playwright 4.14.0, MPL-2.0, which is fine as a dev dependency. @storybook/addon-a11y 10.6.6 runs axe on every story through addon-vitest. vitest-axe 0.1.0 dates from 2022 and is stale.",
+        "Chromatic: free tier 5,000 snapshots a month, Chrome only. Starter is $179/mo, Pro $399/mo, and there is a free-for-OSS program by application. Argos (@argos-ci/cli 6.11.0, 2026-10-21): free Hobby tier with 5,000 screenshots and a hard cap, commercial use allowed. Pro is $100/mo for 35k screenshots. Lost Pixel 3.22.0 dates from 2024-11-14 and is stale. A self-hosted option is Vitest toMatchScreenshot or Playwright toHaveScreenshot with baselines committed to git."
+      ],
+      "recommendation": "Write stories once, then run them as Vitest browser-mode tests with Storybook addon-vitest, which covers interaction tests and the a11y addon with test set to 'error'. Run them in both themes and at a 375px viewport, matching the user's CLAUDE.md rule. Add Vitest toMatchScreenshot baselines generated in a Linux container, the same way their lockfile is generated, to avoid font and antialiasing drift. Add Argos Hobby only once the library is public. Use plain Playwright with @axe-core/playwright for page-level checks in the consuming sites. Do not adopt Playwright CT.",
+      "why": "Vitest browser mode is the stable, actively developed way to test components in a real browser. Playwright CT is gone. Screenshot baselines taken on a Mac will not match Linux CI. Argos's free tier is enough for a personal library, while Chromatic's useful tiers start at $179 a month.",
+      "sources": [
+        "https://github.com/vitest-dev/vitest/releases/tag/v5.0.0",
+        "npm view vitest, @vitest/browser-playwright, vitest-browser-react time",
+        "https://unpkg.com/playwright-core@1.65.0/lib/tools/skills/playwright-component-testing/references/migration.md",
+        "npm view @playwright/experimental-ct-react time",
+        "npm view axe-core, @axe-core/playwright, vitest-axe, lost-pixel, @argos-ci/cli",
+        "https://www.chromatic.com/pricing",
+        "https://argos-ci.com/pricing",
+        "https://www.infoq.com/news/2025/12/vitest-4-browser-mode"
+      ]
+    },
+    {
+      "topic": "7. Monorepo and release: workspaces, Turborepo, Changesets, tsdown and tsup, React 19 and RSC 'use client' boundaries",
+      "options": [
+        "pnpm 12.18.0 (2026-11-05). 11.0 came out 2026-04-28 and 12.0 on 2026-08-26. 12.0 errors on unrecognized pnpm-workspace.yaml settings and canonicalizes git dependencies to HTTPS. Catalogs are mature. Bun 1.4.4 (2026-10-22) also supports workspaces.",
+        "Turborepo (turbo) 2.11.10 (2026-10-20). Nx 24.0.4 (2026-11-03). Vite+ (vite-plus) 1.5.0, with 1.0.0 published to npm 2026-09-28: MIT, one 'vp' CLI bundling Vite 8, Vitest 5, tsdown, oxlint and oxfmt with a task runner. The InfoQ article from Aug 2026 still called it beta.",
+        "Changesets (@changesets/cli) 3.0.3. 3.0.0 came out 2026-08-11: Node ^22.11, a 'format' option replacing 'prettier', 'changeset tag' renamed to 'git-tag', and prereleases moved under .changeset/pre/. npm revoked classic tokens on 2025-12-09, so publish from CI through npm Trusted Publishing (OIDC, npm 11.5.1+). Nextra and Ladle both migrated to it in 2026.",
+        "tsdown 0.23.5 (2026-11-03), still 0.x, built on Rolldown 1.3.0 (Rolldown 1.0 came out 2026-05-07). It has unbundle mode, dts, package-exports generation and React Compiler support. tsup 9.0.0 (2026-10-14) exists, but its README says 'not actively maintained anymore. Please consider using tsdown'. Package checks: publint 0.3.25 and @arethetypeswrong/cli 0.18.5.",
+        "React 19.3.1 (2026-10-14). Next.js 16.4.5 is latest (16.0 came out 2025-10-22). React Compiler 1.0 (babel-plugin-react-compiler 1.0.0, 2025-10-07): react.dev recommends library authors precompile and, if supporting React below 19, ship react-compiler-runtime with the right target. TypeScript 7.0.2 (2026-07-08) has no API, so keep TypeScript 6 for tools."
+      ],
+      "recommendation": "Use pnpm 12 workspaces with catalogs and Turborepo 2.11. Lay it out as apps/docs (Fumadocs), apps/storybook, packages/tokens, packages/ui (registry source plus an optional npm build), packages/hooks and registry.json at the root. Version with Changesets 3 and publish from GitHub Actions through OIDC trusted publishing. Build npm packages with tsdown using unbundle: true, so each source file keeps its own 'use client', then check that the emitted files still start with it, because I could not confirm tsdown's directive handling. Validate with publint and attw. Put 'use client' only on interactive modules. Keep purely presentational parts (Card, Badge, Text, Skeleton) free of hooks and context so they render in Server Components. Set React peerDependencies to ^19, and precompile with React Compiler only after tests pass both compiled and uncompiled.",
+      "why": "This is the stack the reference projects actually use: Magic UI runs pnpm and Turborepo, and Fumadocs, Radix and Nextra all use Changesets. tsup is effectively unmaintained. Bundling into one file drops per-module 'use client' directives. Registry items avoid that problem entirely because the source is compiled by the consuming app. Vite+ is promising but newly 1.x, so treat it as optional.",
+      "sources": [
+        "npm view pnpm time (11.0.0, 12.0.0); https://github.com/pnpm/pnpm/releases/tag/v12.0.0",
+        "npm view turbo, nx, vite-plus, vite, rolldown, tsdown, tsup, publint, @arethetypeswrong/cli time",
+        "https://github.com/changesets/changesets/releases (@changesets/cli@3.0.0)",
+        "https://github.com/egoist/tsup (README warning)",
+        "https://github.com/rolldown/tsdown/blob/main/docs/recipes/react-support.md",
+        "https://github.com/TanStack/query/pull/5161 (directives lost when bundling)",
+        "https://react.dev/reference/react-compiler/compiling-libraries",
+        "https://github.com/facebook/react/blob/main/CHANGELOG.md (19.3.0)",
+        "https://infoq.com/news/2026/08/vite-plus-beta",
+        "https://dev.to/zhangjintao/from-deprecated-npm-classic-tokens-to-oidc-trusted-publishing-a-cicd-troubleshooting-journey-4h8b"
+      ]
+    },
+    {
+      "topic": "8. Motion: motion v12+, View Transitions, scroll-driven animations, reduced motion, number-flow counters",
+      "options": [
+        "motion (and framer-motion) 14.9.1 (2026-11-04), MIT. 13.0.0 (2026-08-05) only removed the optional @emotion/is-prop-valid dependency. 14.0.0 (2026-10-02) removed compatibility internals. The v12 API is unchanged. 2026 additions: layoutRoot-relative layoutId, animateLayout for vanilla JS, and more scroll offsets hardware-accelerated through ViewTimeline. AnimateNumber is part of paid Motion+ and imports from 'motion-plus/react'.",
+        "React 19.3.0 (2026-09-09) made <ViewTransition>, addTransitionType and Fragment refs stable. Same-document View Transitions work in Chrome 111+, Safari 18+ and Firefox 144+. Cross-document transitions are still partial in Firefox and are an Interop 2026 focus area.",
+        "CSS scroll-driven animations (animation-timeline: scroll() and view()) reached Baseline Newly available when Firefox 159 shipped them, per the web.dev post of 2026-10-29. Chrome has supported them since 115 and Safari since 26.",
+        "NumberFlow (@number-flow/react) 0.6.2 (2026-07-18), MIT. It formats with Intl, and useCanAnimate has respectMotionPreference set to true by default. tw-animate-css 1.4.0 handles CSS enter and exit animations."
+      ],
+      "recommendation": "Use three layers. (1) Tailwind and tw-animate-css plus CSS scroll-driven animations for entrances and decoration, with motion-safe:/motion-reduce: variants and an @supports (animation-timeline: scroll()) fallback. (2) React 19.3 <ViewTransition> for page, route and shared-element transitions. (3) motion 14 only where you need physics, gestures, drag, Reorder or layoutId, wrapped in a library-level <MotionConfig reducedMotion=\"user\">. Use NumberFlow for animated counters and steppers, paired with Base UI or React Aria NumberField for input. Every wrapper keeps the user's existing data-reveal noscript rule.",
+      "why": "Native CSS and React primitives now cover most marketing motion with no client JS loop, which suits static exports and Server Components. motion's recent majors are small, so it is a safe dependency. NumberFlow is free and respects reduced motion by default, while Motion's AnimateNumber is paid.",
+      "sources": [
+        "https://github.com/motiondivision/motion/blob/main/CHANGELOG.md (13.0.0, 14.0.0, 14.x)",
+        "https://motion.dev/docs/react-animate-number",
+        "https://react.dev/blog/2026/09/09/react-19-3",
+        "https://github.com/facebook/react/blob/main/CHANGELOG.md",
+        "https://web.dev/blog/web-platform-10-2026",
+        "https://developer.chrome.com/blog/view-transitions-in-2025",
+        "https://caniuse.com/cross-document-view-transitions",
+        "https://github.com/barvian/number-flow/blob/main/packages/react/src/index.tsx",
+        "npm view @number-flow/react, tw-animate-css time"
+      ]
+    },
+    {
+      "topic": "9. AI-ready libraries: llms.txt, MCP servers for registries, Claude Code skills shipped with a library",
+      "options": [
+        "llms.txt plus per-page .md versions are now standard among the reference projects: ui.shadcn.com, base-ui.com, react-aria.adobe.com, fumadocs.dev, 21st.dev and reactbits.dev all serve /llms.txt. 21st also answers 'Accept: text/markdown' and publishes /.well-known/skills/index.json. Fumadocs generates llms.txt and LLM markdown (remark-llms) and has an MCP utility.",
+        "MCP servers: shadcn MCP works with any compliant registry ('npx shadcn@latest mcp init --client claude'). Others: @react-aria/mcp 1.2.1, @storybook/addon-mcp 10.6.6 (component manifest at /mcp), @mui/mcp 0.1.9, @ark-ui/mcp 1.3.0, @heroui/react-mcp 1.1.4, @magicuidesign/mcp 2.1.0, and the 21st MCP and CLI (@21st-dev/cli 1.18.0).",
+        "Agent skills: the SKILL.md format became an open standard at agentskills.io on 2025-12-18. The 'skills' CLI (vercel-labs/skills, npm 1.7.6, 2026-11-03) installs them with 'npx skills add owner/repo'. shadcn ships skills/shadcn and skills/migrate-radix-to-base in its repo, Magic UI ships skills/magic-ui, and Playwright bundles skills inside playwright-core/lib/tools/skills. One secondary source reports 341 malicious skills found in early 2026, so review third-party skills before installing."
+      ],
+      "recommendation": "Get MCP for free by making the registry shadcn-compliant: serve registry.json at the root and write good item descriptions and docs fields. Ship skills/<lib>/SKILL.md in the repo covering conventions: M3 role names only, no raw hex, Link from @/i18n/navigation, every string through next-intl, logical properties. Add a registry:item that drops AGENTS.md and CLAUDE.md snippets into consuming apps. Have Fumadocs emit llms.txt and .md pages. Optionally enable Storybook addon-mcp so agents can query real prop types.",
+      "why": "Agents (Claude Code, Codex, Cursor) already discover components through the shadcn MCP and skills. A library that ships in that format is reused correctly by agents with no extra server code. Skills also enforce the house rules that the user currently writes by hand in each project's CLAUDE.md.",
+      "sources": [
+        "https://ui.shadcn.com/llms.txt",
+        "https://base-ui.com/llms.txt",
+        "https://react-aria.adobe.com/llms.txt",
+        "https://fumadocs.dev/llms.txt",
+        "https://21st.dev/llms.txt",
+        "https://ui.shadcn.com/docs/registry/mcp",
+        "npm view @react-aria/mcp, @storybook/addon-mcp, @mui/mcp, @ark-ui/mcp, @heroui/react-mcp, @magicuidesign/mcp, @21st-dev/cli, skills",
+        "https://github.com/shadcn-ui/ui/tree/main/skills",
+        "https://github.com/magicuidesign/magicui/tree/main/skills",
+        "https://unpkg.com/playwright-core@1.65.0/lib/tools/skills/",
+        "https://www.firecrawl.dev/blog/agent-skills",
+        "https://www.noqta.tn/en/news/skill-md-open-standard-30-ai-coding-tools-adoption-2026"
+      ]
+    },
+    {
+      "topic": "10. RTL and i18n inside a component library",
+      "options": [
+        "Tailwind 4.2+ logical utilities: ms/me, ps/pe, pbs/pbe, mbs/mbe, border-bs/be, inline-* and block-* sizes, and inset-s/inset-e. start-*/end-* are deprecated in 4.2.0 (2026-02-18), plus text-start and the rtl:/ltr: variants.",
+        "shadcn RTL (2026-01-28): with rtl: true the CLI rewrites physical classes to logical ones at install time, flips icons with rtl:rotate-180, and changes slide-in-from-left to slide-in-from-start. 'npx shadcn migrate rtl' converts existing code, and a Direction provider component is included.",
+        "Primitive direction support: Base UI has DirectionProvider. React Aria has I18nProvider, which derives direction and locale and formats dates and numbers. Ark UI has LocaleProvider (Zag). Radix has DirectionProvider.",
+        "Calendars and dates: React Aria Calendar, DatePicker and DateRangePicker on @internationalized/date 3.12.4 support 13 calendar systems and fixed RTL date-field formatting. react-day-picker 10.0.2: v10 (2026-05-08) moved to @daypicker/react and split non-Gregorian calendars into @daypicker/* packages, built on date-fns 4.4 and @date-fns/tz 1.5. Ark UI has a date-picker. Base UI has no calendar as of 1.9.0. Native Temporal ships in Chrome 144+ and Firefox 139+, but Safari stable is unverified, so it is not Baseline. temporal-polyfill is 1.0.8."
+      ],
+      "recommendation": "Write the source with logical utilities only, and lint for ml-*, mr-*, left-*, right-*, text-left and start-*/end-*. Do not rely on install-time transforms. Never import next-intl inside the library. Each component takes a locale and labels, or reads them from one <UIProvider locale dir messages>, which apps fill from next-intl. Ship default English labels and per-locale message objects for all 18 locales, because React Aria's built-in strings do not cover id, vi, th or sw. Format every date, number and currency through Intl, React Aria's @internationalized packages or NumberFlow. Build the Calendar and DatePicker on React Aria so th-TH (Buddhist calendar) and ar work correctly. Include a Storybook global for locale and dir, and run visual tests in ar (RTL) in addition to en.",
+      "why": "The user's sites already ship 18 locales with Arabic RTL through next-intl. A library that hard-codes strings or physical sides would break their existing i18n check and RTL layout. Tailwind now has a complete logical-property set, and React Aria is the only mainstream primitive that handles non-Gregorian calendars and localized date entry.",
+      "sources": [
+        "https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.2.0",
+        "https://github.com/shadcn-ui/ui/blob/main/apps/v4/content/docs/changelog/2026-01-rtl.mdx",
+        "https://base-ui.com/react/utils/direction-provider.md",
+        "https://react-aria.adobe.com/llms.txt (I18nProvider, Calendar, internationalized/date, blog/rtl-date-time)",
+        "https://github.com/gpbl/react-day-picker/releases/tag/v10.0.0",
+        "https://github.com/chakra-ui/ark/tree/main/packages/react/src/components/date-picker",
+        "https://flaviocopes.com/temporal-api.md",
+        "npm view @internationalized/date, react-day-picker, date-fns, @date-fns/tz, temporal-polyfill time"
+      ]
+    }
+  ],
+  "surprises": [
+    "shadcn/ui made Base UI its default base on 2026-07-02 and added React Aria as a third base on 2026-07-17. Radix is now the opt-in choice ('npx shadcn init -b radix').",
+    "Base UI 1.0 shipped 2025-12-11 under a new package name, @base-ui/react. The old @base-ui-components/react stopped at 1.0.0-rc.0. Base UI is now at 1.9.0 and still has no Calendar.",
+    "Radix was nearly dormant from late 2025 to April 2026, then shipped radix-ui 1.5 to 1.8.1 between June and October 2026 as bug fixes only. Most commits come from a single maintainer.",
+    "shadcn components now import cn from a standalone 'cn' package instead of clsx plus tailwind-merge (since 2026-09-03). Any public or private GitHub repo with a root registry.json is now an installable shadcn registry (since 2026-06-01 and Aug 2026).",
+    "TypeScript 7.0, the native Go compiler, went stable on 2026-07-08 without a programmatic API. Storybook docgen, fumadocs-typescript and react-docgen-typescript need TypeScript 6 installed side by side until 7.1.",
+    "Playwright's experimental component-testing packages were removed in 1.63. The last version is 1.62.1 (2026-07-30), and the replacement is a 'gallery pattern' skill that ships inside playwright-core.",
+    "Vitest 5.0 (2026-09-03) removed the webdriverio provider and requires Node 22 and Vite 6.4+. Storybook 11 is in beta (2026-11-03) and requires Node 22.12+ and TypeScript 5.9 or 6. React 19.3 (2026-09-09) made <ViewTransition> and Fragment refs stable.",
+    "Next.js 16.4.5 is current. fumadocs-ui 16.x requires next 16, so a docs site cannot share the user's Next 15 setup. Also, fumadocs 17.0.0 on npm was published by accident and must be ignored.",
+    "tailwind-variants 4.0 (2026-10-29) has zero dependencies and does its own class merging. class-variance-authority has had no release since 2024-11-26, and its v1 (the 'cva' package) is still beta.12.",
+    "Tailwind 4.2 deprecated start-*/end-* in favour of inset-s-*/inset-e-* and added block-direction logical utilities. Tailwind v4 never scans node_modules, so an npm-distributed Tailwind library needs '@source' in every app.",
+    "material-color-utilities 0.4.0 (2026-01-21) is the first npm release since 2024, and ColorSpec 2026 is still GitHub-only. MaterialKolor 6.0 (2026-10-15) now defaults to SPEC_2025 and changes colours compared with 5.x, so Compose and web must pin the same spec.",
+    "React Bits is not plain MIT. It is 'MIT + Commons Clause', which forbids redistributing its components 'alone, in a bundle, or as a ported version', so it cannot be folded into an open-source library. 21st.dev states no site-wide license and caps free copying at 2 a day.",
+    "motion went to v13 (2026-08-05) and v14 (2026-10-02), but both majors are small cleanups and the v12 API still works. AnimateNumber is paid Motion+, while NumberFlow (MIT) is free.",
+    "CSS scroll-driven animations became Baseline Newly available when Firefox 159 shipped them (web.dev, 2026-10-29). Cross-document View Transitions are still only partial in Firefox.",
+    "npm revoked classic tokens on 2025-12-09. Publishing from CI should use OIDC trusted publishing, and Changesets 3.0 (2026-08-11), pnpm 12 (2026-08-26), Vite 8 (2026-03-12) and Rolldown 1.0 (2026-05-07) are all new majors since mid-2026 or earlier in the year.",
+    "tsup now says in its README that it is not actively maintained and points to tsdown, which is still 0.x (0.23.5). Sandpack has had no repo activity since 2025-04, while react-live released v5 in 2026-09."
+  ]
+}

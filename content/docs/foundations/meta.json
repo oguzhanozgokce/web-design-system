@@ -1,0 +1,15 @@
+{
+  "title": "Foundations",
+  "pages": [
+    "installation",
+    "theming",
+    "color",
+    "dynamic-color",
+    "typography",
+    "shape-and-elevation",
+    "motion",
+    "localisation",
+    "icons",
+    "conventions"
+  ]
+}

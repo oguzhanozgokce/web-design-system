@@ -1,0 +1,193 @@
+---
+title: Kbd
+description: Keyboard key hints, one key or a shortcut combination that shows ⌘ on Apple platforms and Ctrl elsewhere, with full key names for screen readers.
+---
+
+<ComponentPreview name="kbd-demo" />
+
+## Installation
+
+<InstallCommand name="kbd" />
+
+## Usage
+
+```tsx
+import { Kbd, KbdCombo } from '@/components/ds/kbd';
+
+<Kbd>escape</Kbd>;
+
+<KbdCombo keys={['mod', 'K']} />;
+```
+
+`Kbd` shows one key. `KbdCombo` shows keys pressed together. A string that names a key, such as
+`'mod'`, `'shift'`, `'enter'` or `'ArrowUp'`, renders the platform's symbol or short label and
+gives screen readers the full key name. Any other string, such as `'K'` or `'/'`, renders as
+written.
+
+| Key                           | Apple   | Elsewhere | Screen readers hear     |
+| ----------------------------- | ------- | --------- | ----------------------- |
+| `mod`                         | ⌘       | Ctrl      | Command / Control       |
+| `command`                     | ⌘       | ⌘         | Command                 |
+| `control`                     | ⌃       | Ctrl      | Control                 |
+| `option`, `alt`               | ⌥       | Alt       | Option / Alt            |
+| `shift`                       | ⇧       | Shift     | Shift                   |
+| `enter`                       | ↩       | Enter     | Enter                   |
+| `escape`                      | Esc     | Esc       | Escape                  |
+| `backspace`                   | ⌫       | ⌫         | Backspace               |
+| `delete`                      | ⌦       | Del       | Delete                  |
+| `tab`                         | ⇥       | Tab       | Tab                     |
+| `space`                       | Space   | Space     | Space                   |
+| `up`, `down`, `left`, `right` | ↑ ↓ ← → | ↑ ↓ ← →   | Up arrow, Down arrow... |
+
+Names are matched without case, and the `KeyboardEvent.key` spellings work too: `Meta`, `Control`,
+`Alt`, `Escape`, `ArrowUp`, plus `cmd`, `ctrl`, `opt`, `esc`, `return` and `del`. Use `mod` for the
+primary shortcut modifier so one shortcut reads right on every platform.
+
+### Platform detection
+
+The platform is read from the browser through `useSyncExternalStore`. The server render and the
+hydrating client render both use the non-Apple keys, so the HTML always matches; on an Apple
+device React re-renders the keys with ⌘ right after hydration. A component that mounts on the
+client, such as one inside a dialog, renders the right keys straight away. Pass
+`platform="apple"` or `platform="other"` to fix the platform, for example in a help page that shows
+both.
+
+## Examples
+
+### Variants
+
+`outlined` is a keycap with a heavier bottom edge, for help text and onboarding. `tonal` drops the
+border for dense toolbars and search fields. `text` has no container and takes the colour around
+it, for menu items and tooltips.
+
+<ComponentPreview name="kbd-variants" />
+
+### Sizes
+
+`md` is 24px and matches `body-md` text. `sm` is 20px for menus, table toolbars and `body-sm` text.
+
+<ComponentPreview name="kbd-sizes" />
+
+### Named keys
+
+Named keys get a symbol where the platform has one and a short label where it does not. The short
+labels and the spoken names are [labels](#labels), so a German app can set `deleteShort: 'Entf'`
+and `spaceShort: 'Leertaste'`.
+
+<ComponentPreview name="kbd-named-keys" align="start" />
+
+### Apple and other platforms
+
+The same `keys` render ⌘ ⇧ ⌥ on macOS and iOS, and Ctrl, Shift and Alt on Windows, Linux and
+Android. On Apple platforms the modifiers are put in Apple's order, ⌃ ⌥ ⇧ ⌘, whatever order `keys`
+uses, so `['mod', 'shift', 'P']` shows ⇧ ⌘ P there and Ctrl Shift P elsewhere. The Menu's
+`shortcut` prop orders keys the same way.
+
+<ComponentPreview name="kbd-platforms" align="stretch" />
+
+### Separator
+
+Keys sit side by side by default. `separator` adds a visible mark between them, such as `"+"`.
+Screen readers always hear "plus" between keys, with or without it.
+
+<ComponentPreview name="kbd-separator" />
+
+### In a list of actions
+
+Use `variant="text"` for shortcuts at the end of a row, so the keys take the row's colour. Items in
+a [Menu](/docs/components/overlays/menu) take a `shortcut` prop that renders the hint for you.
+
+<ComponentPreview name="kbd-menu" />
+
+### Announcing a real shortcut
+
+A hint only describes a shortcut; the control that owns it should announce it too. Put
+`aria-keyshortcuts` on that control. `toAriaKeyShortcuts(['mod', 'enter'])` returns
+`"Meta+Enter Control+Enter"`, which covers both platforms without knowing which one is running.
+
+<ComponentPreview name="kbd-shortcut-hint" align="start" />
+
+## API
+
+### Kbd
+
+| Prop       | Type                                | Default      |
+| ---------- | ----------------------------------- | ------------ |
+| `children` | `ReactNode`; a key name is resolved |              |
+| `variant`  | `'outlined' \| 'tonal' \| 'text'`   | `'outlined'` |
+| `size`     | `'sm' \| 'md'`                      | `'md'`       |
+| `platform` | `'apple' \| 'other'`                | detected     |
+| `labels`   | `Partial<KbdLabels>`                |              |
+
+Every other HTML attribute is passed to the `<kbd>` element.
+
+### KbdCombo
+
+| Prop        | Type                                | Default      |
+| ----------- | ----------------------------------- | ------------ |
+| `keys`      | `KbdKey[]`, in the order pressed    |              |
+| `separator` | `ReactNode`                         |              |
+| `variant`   | `'outlined' \| 'tonal' \| 'text'`   | `'outlined'` |
+| `size`      | `'sm' \| 'md'`                      | `'md'`       |
+| `platform`  | `'apple' \| 'other'`                | detected     |
+| `labels`    | `Partial<KbdLabels>`, for every key |              |
+
+`KbdCombo` renders a `<kbd dir="ltr">` with one nested `<kbd>` per key, the HTML pattern for a key
+combination.
+
+### Helpers
+
+| Export               | Signature                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| `toAriaKeyShortcuts` | `(keys: KbdKey[]) => string`                                                          |
+| `resolveKbdKey`      | `(key: string) => KbdNamedKey \| undefined`                                           |
+| `useKbdPlatform`     | `(override?: KbdPlatform) => KbdPlatform \| undefined`, from `hooks/use-kbd-platform` |
+
+### Data attributes
+
+`data-variant`, `data-size`; `data-key` on a named `Kbd`; `data-platform` on `KbdCombo`. Parts:
+`data-slot="kbd"`, `"kbd-combo"`, `"kbd-glyph"`, `"kbd-separator"`.
+
+### Labels
+
+Key names Kbd writes on its own. Pass `labels` to one `Kbd` or `KbdCombo`, or set them for every key
+with `<DSProvider labels={{ kbd: { … } }}>`. The full names are what screen readers hear; the
+`*Short` keys are what non-Apple keyboards print on the key, and what Kbd shows there.
+
+| Key            | Default       | Used for                                      |
+| -------------- | ------------- | --------------------------------------------- |
+| `command`      | `Command`     | heard for ⌘, and for `mod` on Apple           |
+| `control`      | `Control`     | heard for Ctrl and ⌃, and for `mod` elsewhere |
+| `option`       | `Option`      | heard for ⌥ on Apple                          |
+| `alt`          | `Alt`         | heard for Alt elsewhere                       |
+| `shift`        | `Shift`       | heard for Shift and ⇧                         |
+| `enter`        | `Enter`       | heard for Enter and ↩                         |
+| `escape`       | `Escape`      | heard for Esc                                 |
+| `backspace`    | `Backspace`   | heard for ⌫                                   |
+| `delete`       | `Delete`      | heard for Del and ⌦                           |
+| `tab`          | `Tab`         | heard for Tab and ⇥                           |
+| `space`        | `Space`       | heard for Space                               |
+| `up`           | `Up arrow`    | heard for ↑                                   |
+| `down`         | `Down arrow`  | heard for ↓                                   |
+| `left`         | `Left arrow`  | heard for ←                                   |
+| `right`        | `Right arrow` | heard for →                                   |
+| `controlShort` | `Ctrl`        | shown for `control` and `mod` elsewhere       |
+| `altShort`     | `Alt`         | shown for `alt` and `option` elsewhere        |
+| `shiftShort`   | `Shift`       | shown for `shift` elsewhere                   |
+| `enterShort`   | `Enter`       | shown for `enter` elsewhere                   |
+| `escapeShort`  | `Esc`         | shown for `escape` on every platform          |
+| `deleteShort`  | `Del`         | shown for `delete` elsewhere                  |
+| `tabShort`     | `Tab`         | shown for `tab` elsewhere                     |
+| `spaceShort`   | `Space`       | shown for `space` on every platform           |
+
+## Accessibility
+
+- Symbols such as ⌘ and ⇧ are hidden from screen readers. Each named key carries visually hidden
+  text with its full name from `labels`, so ⌘ K is read as "Command plus K".
+- Kbd is not interactive and never takes focus. When a control has a shortcut, add
+  `aria-keyshortcuts` to the control and keep the hint as visual help.
+- For an icon used as a key, add the key's name as visually hidden text inside the `Kbd`.
+- Keys always run left to right, as "Ctrl+K" does inside Arabic text and as the Menu shows its
+  shortcuts, so the modifier stays on the left in right-to-left languages. The combination itself
+  still sits where the sentence puts it.
+- Contrast for every variant is checked with axe in light, dark and RTL by `kbd.test.tsx`.

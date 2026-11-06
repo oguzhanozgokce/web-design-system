@@ -1,0 +1,8 @@
+{
+  "name": "switch",
+  "type": "registry:ui",
+  "title": "Switch",
+  "description": "Material 3 switch with a growing handle, optional handle icons, label at either side, descriptions and a full-width row layout for settings pages.",
+  "category": "inputs",
+  "files": ["ui/switch.tsx"]
+}

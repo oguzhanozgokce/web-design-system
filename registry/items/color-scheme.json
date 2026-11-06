@@ -1,0 +1,8 @@
+{
+  "name": "color-scheme",
+  "type": "registry:lib",
+  "title": "Colour scheme",
+  "description": "Generates every Material 3 role plus success, warning and info from one seed colour at runtime, matching MaterialKolor on mobile.",
+  "category": "foundations",
+  "files": ["lib/color-scheme.ts"]
+}

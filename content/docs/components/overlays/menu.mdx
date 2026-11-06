@@ -1,0 +1,266 @@
+---
+title: Menu
+description: Material 3 menu that opens from a button or a right click, with icons, descriptions, shortcut hints that follow the platform, sections, check-mark selection, nested submenus, link items and a destructive tone.
+---
+
+<ComponentPreview name="menu-demo" />
+
+## Installation
+
+<InstallCommand name="menu" />
+
+## Usage
+
+```tsx
+import { IconButton } from '@/components/ds/icon-button';
+import { Menu, MenuItem, MenuSeparator, MenuTrigger } from '@/components/ds/menu';
+import { DeleteIcon, EditIcon, MoreVerticalIcon } from '@/lib/ds/icons';
+
+<MenuTrigger>
+  <IconButton aria-label="More actions for INV-2048" icon={<MoreVerticalIcon />} />
+  <Menu onAction={(key) => runInvoiceAction(key)}>
+    <MenuItem id="edit" startIcon={<EditIcon />} shortcut={['mod', 'E']}>
+      Edit
+    </MenuItem>
+    <MenuSeparator />
+    <MenuItem id="delete" startIcon={<DeleteIcon />} tone="destructive">
+      Delete
+    </MenuItem>
+  </Menu>
+</MenuTrigger>;
+```
+
+`MenuTrigger` takes two children: a pressable trigger such as `Button` or `IconButton`, and a
+`Menu`. `Menu` draws the popover surface and the list. `onAction` on the menu receives the `id` of
+the chosen item; each `MenuItem` also takes its own `onAction`. The menu closes as soon as an
+action runs, so work that takes a while reports its progress somewhere else, such as a toast.
+
+## Examples
+
+### Descriptions
+
+`description` adds a second line under the label. Use it when the label alone leaves people
+guessing, such as which export format suits which tool. Keep it to a few words: the description is
+part of what screen readers announce for the item.
+
+<ComponentPreview name="menu-descriptions" />
+
+### Keyboard shortcuts
+
+`shortcut` shows the key combination that also runs the action. `'mod'` is ⌘ on Apple platforms
+and Ctrl elsewhere. On Apple platforms the menu shows symbols in Apple's modifier order (⌃ ⌥ ⇧ ⌘)
+with no separator; elsewhere it joins localised key names with `+`, so German shows `Strg+Umschalt+S`.
+Named keys are `mod`, `command`, `control`, `option`, `alt`, `shift`, `enter`, `backspace`,
+`delete`, `escape`, `tab`, `space` and the four arrows; any other string, such as `'Z'` or `'F2'`,
+renders as written. The menu only shows the hint: register the shortcut yourself.
+
+<ComponentPreview name="menu-shortcuts" />
+
+### Sections
+
+Group related items with `MenuSection` and give each group a `MenuHeader`. A section without a
+header needs an `aria-label`. Put a `MenuSeparator` between sections.
+
+<ComponentPreview name="menu-sections" />
+
+### Selection
+
+`selectionMode="single"` or `"multiple"` on a `Menu` or a `MenuSection` turns items into radio or
+checkbox items with a check mark at the end. Each section keeps its own selection, so one menu can
+hold a sort order and a set of visible columns. Single selection closes the menu; multiple
+selection keeps it open so people can tick several items.
+
+<ComponentPreview name="menu-selection" />
+
+### Dynamic items
+
+Pass `items` and a function as children to render a menu from data. Each item needs an `id`, and
+`disabledKeys` turns individual items off without changing the data.
+
+<ComponentPreview name="menu-dynamic" />
+
+### Submenus
+
+`SubmenuTrigger` takes a `MenuItem` and a `Menu`. The submenu opens on hover after 200 ms, with
+the arrow key that points into it, or with Enter, and it inherits the parent's `size`. Keep nesting
+to two levels; deeper paths are easier as a dialog. A submenu opens beside its parent and is never
+moved on top of it, so on a phone-width screen a menu in the middle of the page has no room for one.
+There, use a `MenuSection` with its own selection instead, as the account menu below does.
+
+<ComponentPreview name="menu-submenu" />
+
+### Links
+
+An item with `href` renders an anchor. Internal links navigate through `DSProvider`'s router, so
+next-intl locale prefixes keep working. Say in the description when a link opens a new tab.
+
+<ComponentPreview name="menu-links" />
+
+### Disabled items
+
+`isDisabled` on an item or `disabledKeys` on the menu keeps the item visible but skips it with the
+arrow keys. Say why it is unavailable in the `description` rather than hiding it.
+
+<ComponentPreview name="menu-disabled" />
+
+### Sizes
+
+`md` items are 48px tall, the Material 3 default and a comfortable touch target. `sm` is the dense
+40px variant for admin tables and toolbars. This example renders `MenuList` inline so both sizes
+are visible at once.
+
+<ComponentPreview name="menu-sizes" />
+
+### Context menu
+
+`trigger="contextMenu"` opens the menu at the pointer on right click, on long press on touch
+screens, with Shift+F10 or the Menu key on Windows and Linux, with Control+Enter on macOS and with
+the screen reader's context menu command. The trigger keeps its own `onPress`. A context menu is
+hard to discover, so offer the same actions from a visible button as well.
+
+<ComponentPreview name="menu-context" />
+
+### Custom content
+
+`Menu` is `MenuPopover` with a `MenuList` inside. Compose the two yourself to put content above the
+list, such as the signed-in account. Only the list is keyboard navigable, so keep the extra content
+to text.
+
+<ComponentPreview name="menu-account" />
+
+## API
+
+### MenuTrigger
+
+React Aria [MenuTrigger](https://react-aria.adobe.com/Menu). Its first child must be a pressable
+component.
+
+| Prop           | Type                                      | Default   |
+| -------------- | ----------------------------------------- | --------- |
+| `trigger`      | `'press' \| 'longPress' \| 'contextMenu'` | `'press'` |
+| `isOpen`       | `boolean`                                 |           |
+| `defaultOpen`  | `boolean`                                 | `false`   |
+| `onOpenChange` | `(isOpen: boolean) => void`               |           |
+
+### Menu
+
+| Prop                  | Type                                                 | Default                                    |
+| --------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| `size`                | `'sm' \| 'md'`                                       | `'md'`, or the parent menu's size          |
+| `onAction`            | `(key: Key, value: T) => void`                       |                                            |
+| `selectionMode`       | `'none' \| 'single' \| 'multiple'`                   | `'none'`                                   |
+| `selectedKeys`        | `'all' \| Iterable<Key>`                             |                                            |
+| `defaultSelectedKeys` | `'all' \| Iterable<Key>`                             |                                            |
+| `onSelectionChange`   | `(keys: Selection) => void`                          |                                            |
+| `disabledKeys`        | `Iterable<Key>`                                      |                                            |
+| `items`               | `Iterable<T>`                                        |                                            |
+| `shouldCloseOnSelect` | `boolean`                                            | `true`, `false` for multiple selection     |
+| `renderEmptyState`    | `() => ReactNode`                                    | the localised `empty` message              |
+| `placement`           | `'bottom start' \| 'bottom end' \| 'top start' \| …` | `'bottom start'`, submenus `'end top'`     |
+| `offset`              | `number`                                             | `8`, `0` for context menus, submenus `-4`  |
+| `crossOffset`         | `number`                                             | `0`, submenus `-8` (`-4` when `size="sm"`) |
+| `shouldFlip`          | `boolean`                                            | `true`                                     |
+| `maxHeight`           | `number`                                             | the space left in the viewport             |
+| `containerPadding`    | `number`                                             | `12`                                       |
+
+Every other [React Aria Menu](https://react-aria.adobe.com/Menu) prop is passed through to the list.
+The surface is `surface-container` with `rounded-sm` corners and elevation 2, between 112px and
+280px wide.
+
+### MenuItem
+
+| Prop            | Type                         | Default                        |
+| --------------- | ---------------------------- | ------------------------------ |
+| `id`            | `Key`                        |                                |
+| `children`      | `ReactNode`                  | the label                      |
+| `startIcon`     | `ReactNode`                  |                                |
+| `description`   | `ReactNode`                  |                                |
+| `shortcut`      | `MenuShortcutKey[]`          |                                |
+| `tone`          | `'default' \| 'destructive'` | `'default'`                    |
+| `isDisabled`    | `boolean`                    | `false`                        |
+| `onAction`      | `() => void`                 |                                |
+| `textValue`     | `string`                     | the label, when it is a string |
+| `href`          | `string`                     |                                |
+| `target`, `rel` | `string`                     |                                |
+| `routerOptions` | `RouterOptions`              |                                |
+
+Every other [React Aria MenuItem](https://react-aria.adobe.com/Menu) prop is passed through. Set
+`textValue` when the label is not a plain string, so typeahead still finds the item. A long label
+wraps to a second line and is clipped after that, so keep labels to a few words. A selected item
+turns `primary`, a destructive one stays `error` even when selected, and a disabled one is
+`on-surface` at 38% whatever its tone. The start icon is decorative and hidden from screen readers.
+
+### MenuSection, MenuHeader and MenuSeparator
+
+`MenuSection` takes `selectionMode`, `selectedKeys`, `defaultSelectedKeys`, `onSelectionChange`,
+`disallowEmptySelection` and `shouldCloseOnSelect` of its own, and `aria-label` when it has no
+`MenuHeader`. `MenuHeader` is the section title. `MenuSeparator` is a divider in
+`outline-variant`.
+
+### SubmenuTrigger
+
+React Aria [SubmenuTrigger](https://react-aria.adobe.com/Menu). The first child is the `MenuItem`
+that opens the submenu, the second is a `Menu`. `delay` sets the hover delay, 200 ms by default.
+
+### MenuPopover and MenuList
+
+The two parts `Menu` is made of. `MenuPopover` takes every
+[React Aria Popover](https://react-aria.adobe.com/Popover) prop. `MenuList` takes every `Menu` prop
+except the placement ones; rendered outside a popover it needs an `aria-label`.
+
+### Styles
+
+`menuPopoverStyles({ motion, className })` extends `popoverStyles` from Popover with the menu
+surface. `menuStyles({ size, tone, isSelected, isDisabled })` exposes the `list`, `item`, `icon`,
+`content`, `label`, `description`, `shortcut`, `indicator`, `section`, `header`, `separator` and
+`empty` slots.
+
+### Data attributes
+
+Menu: `data-slot="menu"`, `data-size`, `data-empty`. Popover: `data-slot="menu-popover"`,
+`data-placement`, `data-trigger` (`MenuTrigger` or `SubmenuTrigger`), `data-entering`,
+`data-exiting`. Item: `data-slot="menu-item"`, `data-tone`, `data-size`, `data-hovered`,
+`data-focused`, `data-focus-visible`, `data-pressed`, `data-selected`, `data-selection-mode`,
+`data-disabled`, `data-has-submenu`, `data-open`. Parts: `data-slot="start-icon"`, `"content"`,
+`"label"`, `"description"`, `"shortcut"` (with `data-platform`), `"check"`, `"submenu-indicator"`,
+`"menu-section"`, `"menu-header"`, `"menu-separator"`, `"empty"`.
+
+### Messages
+
+| Key         | English     |
+| ----------- | ----------- |
+| `empty`     | `No items`  |
+| `ctrl`      | `Ctrl`      |
+| `alt`       | `Alt`       |
+| `shift`     | `Shift`     |
+| `enter`     | `Enter`     |
+| `backspace` | `Backspace` |
+| `delete`    | `Del`       |
+| `escape`    | `Esc`       |
+| `tab`       | `Tab`       |
+| `space`     | `Space`     |
+
+Namespace `menu`. The key names are used outside Apple platforms, where keyboards print them.
+
+## Accessibility
+
+- Built on React Aria `Menu`. The trigger gets `aria-haspopup` and `aria-expanded`. Enter, Space
+  and ArrowDown open the menu on the first item, ArrowUp on the last. Arrow keys, Home, End and
+  typeahead move between items, and Escape closes the menu and returns focus to the trigger.
+- Submenus open with ArrowRight, or ArrowLeft in right-to-left locales, and close with the opposite
+  arrow or Escape. The chevron flips with the reading direction.
+- Selectable items are `menuitemradio` or `menuitemcheckbox` with `aria-checked`. The check mark is
+  decorative.
+- An item's accessible name is all of its visible text: label, description and shortcut. Speech
+  input users can say exactly what they see (WCAG 2.5.3, which axe checks), and a shortcut such as
+  `Ctrl+E` is read the way it is printed. Apple symbols such as ⌘ are read by VoiceOver as the key
+  name. In tests, match items by the start of their name, such as `{ name: /^Duplicate/ }`.
+- Context menus leave out `aria-haspopup`, because pressing the trigger does not open them. Offer
+  the same actions from a visible button.
+- Disabled items stay visible and are skipped by the arrow keys. The destructive tone is colour
+  only, so keep the word in the label, such as "Delete", and confirm actions that cannot be undone.
+- The menu grows from its trigger. With reduced motion, from the system or `DSProvider`, it fades
+  instead. In forced-colours mode the focused item uses the system highlight.
+- The popover renders in a portal and carries the current `lang` and `dir`, so translated items
+  are pronounced correctly and submenus open towards the reading direction.
+- Contrast is checked with axe in light, dark and RTL by `menu.test.tsx`.

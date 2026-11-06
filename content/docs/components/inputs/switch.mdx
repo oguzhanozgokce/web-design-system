@@ -1,0 +1,120 @@
+---
+title: Switch
+description: Material 3 switch with a growing handle, optional handle icons, label at either side, descriptions and a full-width row layout for settings pages.
+---
+
+<ComponentPreview name="switch-demo" />
+
+## Installation
+
+<InstallCommand name="switch" />
+
+## Usage
+
+```tsx
+import { Switch } from '@/components/ds/switch';
+
+<Switch defaultSelected onChange={setAutoRenew}>
+  Auto-renew subscription
+</Switch>;
+```
+
+A switch applies its change immediately. When the change needs a Save button, use a
+[Checkbox](/docs/components/inputs/checkbox) instead.
+
+## Examples
+
+### Description
+
+`description` explains the consequence of turning the setting on. It is part of the click target
+and is announced as the description.
+
+<ComponentPreview name="switch-description" />
+
+### Label placement
+
+The label sits after the switch by default. `labelPlacement="start"` puts it first, which suits
+forms where labels line up on the start edge.
+
+<ComponentPreview name="switch-label-placement" />
+
+### Handle icons
+
+The selected handle shows a check by default. `unselectedIcon` adds an icon to the off state,
+which also grows the off handle from 16px to 24px. `selectedIcon` replaces the check, and
+`selectedIcon={null}` removes it.
+
+<ComponentPreview name="switch-icons" />
+
+### Settings row
+
+`variant="row"` stretches the switch across its container with the label and description at the
+start, an optional `icon`, and a state layer over the whole row. Stack rows inside a surface for
+settings pages.
+
+<ComponentPreview name="switch-row" align="stretch" />
+
+### Controlled
+
+Use `isSelected` and `onChange` when the rest of the page reacts to the setting.
+
+<ComponentPreview name="switch-controlled" />
+
+### Disabled
+
+Disabled switches keep their state visible so people can see what a policy has fixed.
+
+<ComponentPreview name="switch-disabled" />
+
+## API
+
+### Switch
+
+| Prop              | Type                                                       | Default     |
+| ----------------- | ---------------------------------------------------------- | ----------- |
+| `children`        | `ReactNode`                                                |             |
+| `description`     | `ReactNode`                                                |             |
+| `errorMessage`    | `ReactNode \| (validation: ValidationResult) => ReactNode` |             |
+| `variant`         | `'default' \| 'row'`                                       | `'default'` |
+| `labelPlacement`  | `'start' \| 'end'`                                         | `'end'`     |
+| `icon`            | `ReactNode`                                                |             |
+| `selectedIcon`    | `ReactNode \| null`                                        | check icon  |
+| `unselectedIcon`  | `ReactNode`                                                |             |
+| `isSelected`      | `boolean`                                                  |             |
+| `defaultSelected` | `boolean`                                                  | `false`     |
+| `onChange`        | `(isSelected: boolean) => void`                            |             |
+| `isDisabled`      | `boolean`                                                  | `false`     |
+| `isReadOnly`      | `boolean`                                                  | `false`     |
+| `isInvalid`       | `boolean`                                                  | `false`     |
+| `isRequired`      | `boolean`                                                  | `false`     |
+
+`icon` shows only in the row variant, and the row variant always puts the label at the start.
+Every other [React Aria SwitchField](https://react-aria.adobe.com/Switch) prop is passed through,
+such as `name`, `value` and `inputRef`.
+
+### Data attributes
+
+Root (`data-slot="switch"`): `data-variant`, `data-label-placement`, `data-selected`,
+`data-disabled`, `data-readonly`, `data-invalid`, `data-required`. The clickable part
+(`data-slot="target"`, the whole row for `variant="row"`) also has `data-hovered`, `data-pressed`
+and `data-focus-visible`.
+Parts: `"track"`, `"thumb"`, `"state-layer"`, `"handle"`, `"handle-icon"`, `"icon"`, `"content"`,
+`"label"`, `"required"`, `"description"`, `"error"`.
+
+### Labels
+
+Switch writes no text of its own, so it takes no `labels`. The default check icon comes from
+`useIcons()`, so replacing `check` in `DSProvider icons` changes it everywhere.
+
+## Accessibility
+
+- Built on React Aria `SwitchField`: a native checkbox input with `role="switch"`, Space to
+  toggle, and the label and description wired with `aria-labelledby` and `aria-describedby`. An
+  explicit `aria-label` or `aria-labelledby` always wins over the visible label.
+- The focus ring sits on the track, or inside the whole row for `variant="row"`. A read-only row
+  shows no hover or press layer.
+- The handle moves with logical `inset-inline-start`, so it travels right to left in RTL without
+  extra code.
+- The handle slides and grows with the fast spatial spring and moves instantly with reduced
+  motion.
+- Contrast is checked with axe in light, dark and RTL by `switch.test.tsx`.

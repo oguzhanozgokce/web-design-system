@@ -1,0 +1,104 @@
+---
+title: Empty State
+description: Centred placeholder for empty tables, lists and whole pages, with an icon or illustration, a real heading, a description and primary and secondary actions in three sizes.
+---
+
+<ComponentPreview name="empty-state-demo" />
+
+## Installation
+
+<InstallCommand name="empty-state" />
+
+## Usage
+
+```tsx
+import { Button } from '@/components/ds/button';
+import { EmptyState } from '@/components/ds/empty-state';
+import { DescriptionIcon } from '@/lib/ds/icons';
+
+<EmptyState
+  icon={<DescriptionIcon />}
+  title="No invoices yet"
+  description="Create your first invoice to get paid."
+  primaryAction={<Button onPress={create}>New invoice</Button>}
+/>;
+```
+
+## Examples
+
+### Sizes
+
+`compact` fits a dashboard card, a side panel or a list: a plain glyph, small type and text-button
+actions. `default` suits a table or a section, with the icon in a tinted circle and a filled
+primary action. `page` fills most of the viewport for a screen with nothing on it yet.
+
+<ComponentPreview name="empty-state-sizes" align="stretch" />
+
+### Page with an illustration
+
+`illustration` replaces the icon circle and is sized to the empty state. Draw it with role
+colours (`fill-primary-container`, `stroke-on-primary`) so it follows the theme and dark mode.
+
+<ComponentPreview name="empty-state-page" />
+
+### Inside a table
+
+Put a `compact` empty state in a single cell that spans every column, so the table keeps its
+header and caption. Say why it is empty and offer the way out, such as clearing a filter.
+
+<ComponentPreview name="empty-state-table" align="stretch" />
+
+### No search results
+
+Repeat what the user searched for in the title. `children` render under the description for an
+extra hint.
+
+<ComponentPreview name="empty-state-search" />
+
+## Writing empty states
+
+- Say what will be here and how to get it: "No invoices yet", then "Create your first invoice".
+- Give one primary action. A second action is for an alternative route, such as importing.
+- Do not invent numbers, reviews or people to fill the space.
+
+## API
+
+### EmptyState
+
+| Prop              | Type                               | Default     |
+| ----------------- | ---------------------------------- | ----------- |
+| `title`           | `ReactNode`                        | required    |
+| `description`     | `ReactNode`                        |             |
+| `children`        | `ReactNode`                        |             |
+| `icon`            | `ReactNode`                        |             |
+| `illustration`    | `ReactNode`; wins over `icon`      |             |
+| `primaryAction`   | `ReactNode`                        |             |
+| `secondaryAction` | `ReactNode`                        |             |
+| `size`            | `'compact' \| 'default' \| 'page'` | `'default'` |
+| `headingLevel`    | `1 \| 2 \| 3 \| 4 \| 5 \| 6`       | `2`         |
+
+Every other `div` prop goes to the root. `emptyStateStyles` is exported for custom compositions.
+
+Buttons in `primaryAction` and `secondaryAction` pick up a variant and size from the empty state
+unless you set them:
+
+| Size      | Primary        | Secondary        |
+| --------- | -------------- | ---------------- |
+| `compact` | `text`, `sm`   | `text`, `sm`     |
+| `default` | `filled`, `md` | `text`, `md`     |
+| `page`    | `filled`, `md` | `outlined`, `md` |
+
+### Data attributes
+
+`data-size`. Parts: `data-slot="empty-state"`, `"media"`, `"content"`, `"title"`,
+`"description"`, `"extra"`, `"actions"`.
+
+## Accessibility
+
+- The title is a real heading. Set `headingLevel` so it fits the page outline: usually one level
+  below the heading of the section that holds it.
+- The icon or illustration is decorative and hidden from assistive technology. Put anything
+  meaningful in the title or description.
+- An empty state is not a live region by itself. When it replaces content after a fetch or a
+  search, render it through `ContentState`, which announces it.
+- Contrast is checked with axe in light, dark and RTL by `empty-state.test.tsx`.

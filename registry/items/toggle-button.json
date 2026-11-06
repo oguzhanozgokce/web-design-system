@@ -1,0 +1,8 @@
+{
+  "name": "toggle-button",
+  "type": "registry:ui",
+  "title": "Toggle Button",
+  "description": "Material 3 Expressive toggle button whose shape morphs between a capsule and a rounded square, plus a group for single or multiple selection.",
+  "category": "actions",
+  "files": ["ui/toggle-button.tsx"]
+}

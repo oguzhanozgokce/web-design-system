@@ -1,0 +1,8 @@
+{
+  "name": "icon-button",
+  "type": "registry:ui",
+  "title": "Icon Button",
+  "description": "Material 3 icon button in four variants, five sizes and two shapes, with a toggle twin, a link twin, a destructive tone and automatic pending state for async actions.",
+  "category": "actions",
+  "files": ["ui/icon-button.tsx"]
+}

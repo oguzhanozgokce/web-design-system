@@ -1,0 +1,220 @@
+---
+title: Avatar
+description: Material 3 avatar that falls back from a photo to initials to a person glyph, with a stable tonal colour from the name, five sizes, two shapes, a presence dot, a button twin and an overlapping group with a +N overflow.
+---
+
+<ComponentPreview name="avatar-demo" />
+
+## Installation
+
+<InstallCommand name="avatar" />
+
+## Usage
+
+```tsx
+import { Avatar, AvatarGroup } from '@/components/ds/avatar';
+
+<Avatar name={member.name} src={member.photoUrl} status="online" />;
+
+<AvatarGroup aria-label="Invoice approvers" max={3}>
+  {approvers.map((approver) => (
+    <Avatar key={approver.id} name={approver.name} src={approver.photoUrl} />
+  ))}
+</AvatarGroup>;
+```
+
+Always pass `name`, even with a photo. It names the avatar for screen readers, picks its colour and
+gives the initials that show while the photo loads or when it fails.
+
+## Examples
+
+### Fallbacks
+
+The photo fades in once it has loaded. Until then, and for good if it fails, the avatar shows the
+initials of `name`. Without a name it shows a person glyph; `fallbackIcon` swaps the glyph, for a
+team or a bot. A photo that loaded before hydration is picked up too, so server-rendered pages do
+not get stuck on initials.
+
+<ComponentPreview name="avatar-fallbacks" />
+
+### Initials
+
+Initials are the first letter of the first and last word, so middle names are skipped. Words that
+start with punctuation, such as `(Finance)`, are ignored. Scripts without capital letters (Arabic,
+Chinese, Japanese, Korean, Thai and others) get one character, and a character is always a whole
+grapheme, so combining marks and conjuncts stay intact. Initials are uppercased in the
+`DSProvider` locale, so `ilkay şahin` becomes `İŞ` in Turkish and `IŞ` in English.
+
+<ComponentPreview name="avatar-initials" />
+
+### Colours
+
+The colour comes from the name: `primary-container`, `secondary-container` or
+`tertiary-container`, each with its `on-` role. It uses the same hash as `DSAvatar` in the Compose
+library, so a person has the same colour in the app and on the web. `tone` sets it by hand, and
+`neutral` (`surface-container-highest`) suits bots and system accounts. To colour by a stable id
+instead of a name that can change, pass `tone={getAvatarTone(user.id)}`.
+
+<ComponentPreview name="avatar-colors" />
+
+### Sizes
+
+`md` (40px) is the default. `xs` (24px) fits table cells and inline mentions, `sm` (32px) dense
+lists and comment threads, `lg` (56px) and `xl` (72px) profile headers.
+
+<ComponentPreview name="avatar-sizes" />
+
+### Shapes
+
+`circle` is for people. `rounded` (12px corners) is for workspaces, organisations and projects, so
+the two never get confused in the same list.
+
+<ComponentPreview name="avatar-shapes" />
+
+### Status
+
+`status` adds a presence dot at the bottom-end corner, from left to right here: `online`, `away`,
+`busy` and `offline`. Each has its own shape as well as its own colour, so it reads without colour
+vision, and screen readers hear the status after the name.
+
+<ComponentPreview name="avatar-status" />
+
+### Next to a visible name
+
+When the name is already written beside the avatar, pass `alt=""`. The image is then hidden from
+screen readers so they do not read the name twice. A `status` is still announced, because the text
+beside the avatar does not say it.
+
+<ComponentPreview name="avatar-decorative" />
+
+### Group
+
+`AvatarGroup` overlaps its avatars, shows the first `max` (4 by default) and sums up the rest in a
+`+N` avatar that screen readers hear as “N more”. It sets `size` (default `sm`) and `shape` for every
+avatar inside it, and stacks from the start edge in right-to-left languages. Leave `status` off
+avatars in a group: the next avatar covers the dot.
+
+<ComponentPreview name="avatar-group" />
+
+### Counting from the server
+
+When you load only the first few members, pass the real count as `total`. Above 99 the overflow
+avatar shows `99+`, while screen readers still hear the exact number.
+
+<ComponentPreview name="avatar-group-total" />
+
+### On a container
+
+Avatars in a group and status dots are cut out with a ring in the `surface` colour. On another
+surface, set `--ds-avatar-ring` to that role once on the container.
+
+<ComponentPreview name="avatar-group-surface" />
+
+### As a button
+
+`AvatarButton` is a React Aria `Button` with the same props as `Avatar`. Use it to open a profile,
+assign someone or trigger an account menu: it works as the trigger of `MenuTrigger`,
+`DialogTrigger`, `TooltipTrigger` and popovers. Give it an `aria-label` that says what pressing
+does.
+
+<ComponentPreview name="avatar-button" />
+
+```tsx
+<MenuTrigger>
+  <AvatarButton name={user.name} src={user.photoUrl} aria-label="Account" />
+  <Menu>…</Menu>
+</MenuTrigger>
+```
+
+## API
+
+### Avatar
+
+| Prop           | Type                                                  | Default      |
+| -------------- | ----------------------------------------------------- | ------------ |
+| `name`         | `string`                                              |              |
+| `alt`          | `string`                                              | `name`       |
+| `src`          | `string`                                              |              |
+| `imageProps`   | `ImgHTMLAttributes` without `src` and `alt`           |              |
+| `fallbackIcon` | `ReactNode`                                           | person glyph |
+| `size`         | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                | `'md'`       |
+| `shape`        | `'circle' \| 'rounded'`                               | `'circle'`   |
+| `tone`         | `'primary' \| 'secondary' \| 'tertiary' \| 'neutral'` | from `name`  |
+| `status`       | `'online' \| 'away' \| 'busy' \| 'offline'`           |              |
+| `labels`       | `Partial<AvatarLabels>`                               |              |
+
+`alt`, `aria-label` or `aria-labelledby` overrides the accessible name. An empty `alt`, or no name
+at all, hides the image from screen readers; its `status` is still announced. Use `imageProps` for
+`srcSet`, `sizes`, `loading`, `referrerPolicy` and `onError`. Every other `span` attribute is passed
+to the root. Inside an `AvatarGroup`, `size` and `shape` default to the group's.
+
+### AvatarButton
+
+`name`, `alt`, `src`, `imageProps`, `fallbackIcon`, `size`, `shape`, `tone`, `status` and `labels`
+as on `Avatar`, plus every [React Aria Button](https://react-aria.adobe.com/Button) prop such as
+`onPress`, `isDisabled` and `aria-label`. React Aria's `name` and `value` form props are left out,
+because `name` is the person's name here. `isPending` is left out too.
+
+### AvatarGroup
+
+| Prop       | Type                                   | Default            |
+| ---------- | -------------------------------------- | ------------------ |
+| `children` | `Avatar` or `AvatarButton` elements    |                    |
+| `max`      | `number`                               | `4`                |
+| `total`    | `number`                               | number of children |
+| `size`     | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'` | `'sm'`             |
+| `shape`    | `'circle' \| 'rounded'`                | `'circle'`         |
+| `labels`   | `Partial<AvatarLabels>`                |                    |
+
+`max` counts avatars, not the overflow avatar, as in `DSAvatarGroup`. Give the group an
+`aria-label`, such as “Invoice approvers”.
+
+### Helpers
+
+`getAvatarInitials(name, locale?)` and `getAvatarTone(key)` are exported for places that need the
+same initials or colour outside an avatar.
+
+### Data attributes
+
+Avatar: `data-slot="avatar"`, `data-size`, `data-shape`, `data-tone`, `data-status`,
+`data-image-state` (`loading`, `loaded`, `error`; only with `src`). Parts: `"avatar-visual"`,
+`"avatar-image"` (with `data-loaded`), `"avatar-initials"`, `"avatar-icon"`, `"avatar-status"`.
+AvatarButton: `data-slot="avatar-button"`, `data-size`, `data-shape` and React Aria's `data-hovered`,
+`data-pressed`, `data-focus-visible` and `data-disabled`. AvatarGroup: `data-slot="avatar-group"`,
+`data-size`, `data-shape`, with `"avatar-group-item"` and `"avatar-overflow"`. `avatarStyles`,
+`avatarGroupStyles` and `avatarButtonStyles` expose the classes. `--ds-avatar-ring` sets the
+cut-out ring colour.
+
+### Labels
+
+Text the avatar writes on its own. Pass `labels` to one `Avatar`, `AvatarButton` or `AvatarGroup`,
+or set them for every avatar with `<DSProvider labels={{ avatar: { … } }}>`.
+
+| Key           | Default        | Used for                                        |
+| ------------- | -------------- | ----------------------------------------------- |
+| `online`      | `Online`       | the hidden status text after the name           |
+| `away`        | `Away`         | the hidden status text after the name           |
+| `busy`        | `Busy`         | the hidden status text after the name           |
+| `offline`     | `Offline`      | the hidden status text after the name           |
+| `more`        | `{count} more` | the accessible name of the `+N` overflow avatar |
+| `overflowCap` | `{max}+`       | what the overflow avatar shows above 99 hidden  |
+
+`{count}` and `{max}` arrive formatted with the locale's number format. A template can also be a
+function of those values, for languages with plural forms: `more: ({ count }) => …`. One person's
+status can say more than the status, such as `labels={{ busy: 'In a meeting until 14:00' }}`.
+
+## Accessibility
+
+- An avatar is one image named after the person (`role="img"`), whether it shows a photo, initials
+  or the glyph, so screen readers hear the same thing while the photo loads. Initials are never
+  read out on their own and are not machine-translated.
+- The status is visually hidden text after the image, taken from `labels`, and stays announced
+  when the image is decorative. The dot also differs in shape (filled, crescent, bar, ring), not
+  only in colour.
+- `AvatarGroup` is a labelled `group`; the overflow avatar is read as “3 more”, not “+3”.
+- `AvatarButton` gets its name from the avatar and status unless you set `aria-label`. On touch
+  screens, `xs`, `sm` and `md` grow their hit area to 48px without changing the layout. Pressing
+  scales it slightly and the group's avatars scale in; both only play when spatial motion is on, so
+  a reduced-motion setting in the system or in `DSProvider` turns them off. The photo fade turns
+  off with the system setting or `motion="disabled"`.
+- Contrast is checked with axe in light, dark and RTL by `avatar.test.tsx`.

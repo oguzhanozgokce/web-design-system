@@ -1,0 +1,202 @@
+---
+title: Tag
+description: Compact status labels for tables and lists in six tones and three variants, with an optional dot or icon, plus a keyboard-navigable TagGroup for removable or selectable tags in forms.
+---
+
+<ComponentPreview name="tag-demo" />
+
+## Installation
+
+<InstallCommand name="tag" />
+
+## Usage
+
+```tsx
+import { Tag, TagGroup } from '@/components/ds/tag';
+
+<Tag tone="success" dot>
+  Paid
+</Tag>;
+
+<TagGroup label="Labels" items={labels} onRemove={removeLabels}>
+  {(label) => <Tag id={label.id}>{label.name}</Tag>}
+</TagGroup>;
+```
+
+### Tag or Chip
+
+A tag describes something. A [Chip](/docs/components/feedback/chip) is something people act on.
+
+|                | Tag                                                         | Chip                                                   |
+| -------------- | ----------------------------------------------------------- | ------------------------------------------------------ |
+| Job            | Show a status or category: "Paid", "Overdue", "Draft"       | Filter, choose, enter a value or run a small action    |
+| Size           | 20 or 24px, 4px corners, `label-sm`                         | 28 or 32px, 8px corners, `label-lg` (Material 3 chips) |
+| Colour         | Six tones that carry meaning (success, warning, error...)   | Neutral; selection fills it with the secondary colour  |
+| On its own     | A plain `<span>`. Nothing happens when you click it         | Always a button, toggle or grid row                    |
+| In a group     | `TagGroup`: removable or selectable labels inside a form    | `ChipGroup`: filter bars and choice sets               |
+| Typical places | Table cells, list rows, card headers, invoice and order IDs | Toolbars above a table, search refinements, pickers    |
+
+If the colour of the label means something, use a Tag. If the label is the control, use a Chip. A
+`TagGroup` sits between the two: it is the right choice when a form edits a set of labels that are
+shown as tags everywhere else, such as the labels on an invoice or the categories of a vendor.
+
+## Examples
+
+### Tones
+
+`neutral` is the default and suits states that need no attention, such as "Draft". `success`,
+`warning` and `error` map to the outcome of a payment, a job or a check. `info` marks something
+scheduled or informational. `primary` highlights something new or featured. Every tone uses its
+Material 3 container and on-container roles, so text contrast holds in both themes.
+
+<ComponentPreview name="tag-tones" />
+
+### Variants
+
+`tonal` fills the tag with the tone's container colour and works best in dense tables. `outlined`
+keeps the surface behind it and suits busy cards. `filled` uses the tone's main colour for the one
+status that must stand out, such as "Overdue", so use it sparingly.
+
+<ComponentPreview name="tag-variants" />
+
+### Sizes
+
+`md` is 24px and the default. `sm` is 20px for compact tables, list rows and sidebars. Both use the
+`label-sm` type role and 4px corners.
+
+<ComponentPreview name="tag-sizes" />
+
+### Dot and icon
+
+`dot` adds a small status dot in the tone colour. `dot="pulse"` animates it for live states such as
+"Syncing". The pulse stops when the visitor prefers reduced motion or `DSProvider` sets `motion` to
+`'reduced'` or `'disabled'`. `icon` takes any icon and sizes it to
+the tag; it replaces the dot. Both are decorative, so the text must say the status on its own.
+
+<ComponentPreview name="tag-icons" />
+
+### In a table
+
+Tags stay one line high and truncate inside narrow cells. Keep the label to one or two words.
+
+<ComponentPreview name="tag-table" align="stretch" />
+
+### Removable tags
+
+Pass `onRemove` to a `TagGroup` and every tag gets a remove button named after it, such as "Remove
+Billing". Keyboard users press Delete or Backspace on a focused tag. When the last tag goes, the
+group shows "None", and focus moves to the group so it is not lost.
+
+<ComponentPreview name="tag-group-removable" align="start" />
+
+### Selectable tags
+
+`selectionMode="single"` or `"multiple"` turns the tags into a selection. A selected tag fills with
+its tone's main colour and shows a check, so selection never depends on colour alone. Set `tone`
+and `variant` on the group to style every tag at once; a tag's own props win.
+
+<ComponentPreview name="tag-group-selectable" align="start" />
+
+### Empty state and validation
+
+`renderEmptyState` replaces the default "None". `isInvalid` with `errorMessage` swaps the
+description for the error, and screen readers hear it as the group's description.
+
+<ComponentPreview name="tag-group-validation" align="start" />
+
+### Disabled
+
+`isDisabled` on the group disables every tag and its remove button and takes the group out of the
+tab order. To disable a single tag, set `isDisabled` on that `Tag`, or pass `disabledKeys` to the
+group.
+
+<ComponentPreview name="tag-group-disabled" align="start" />
+
+## API
+
+### Tag
+
+| Prop         | Type                                                                     | Default     |
+| ------------ | ------------------------------------------------------------------------ | ----------- |
+| `tone`       | `'neutral' \| 'primary' \| 'success' \| 'warning' \| 'error' \| 'info'`  | `'neutral'` |
+| `variant`    | `'tonal' \| 'outlined' \| 'filled'`                                      | `'tonal'`   |
+| `size`       | `'sm' \| 'md'`                                                           | `'md'`      |
+| `dot`        | `boolean \| 'pulse'`                                                     | `false`     |
+| `icon`       | `ReactNode`                                                              |             |
+| `children`   | `ReactNode`                                                              |             |
+| `id`         | `Key`                                                                    |             |
+| `textValue`  | `string`, required inside a `TagGroup` when `children` is not plain text |             |
+| `isDisabled` | `boolean`, inside a `TagGroup`                                           | `false`     |
+| `href`       | `string`, inside a `TagGroup`, with the other React Aria link props      |             |
+| `onAction`   | `() => void`, inside a `TagGroup`                                        |             |
+| `labels`     | `Partial<TagLabels>`, inside a `TagGroup`; wins over the group's         |             |
+
+On its own, a `Tag` renders a `<span>` and passes every other HTML attribute through, such as
+`title`. Inside a `TagGroup` it renders a React Aria
+[Tag](https://react-aria.adobe.com/TagGroup) and the tone, variant and size fall back to the
+group's.
+
+### TagGroup
+
+| Prop                | Type                                       | Default     |
+| ------------------- | ------------------------------------------ | ----------- |
+| `label`             | `ReactNode`                                |             |
+| `description`       | `ReactNode`                                |             |
+| `errorMessage`      | `ReactNode`, shown while `isInvalid`       |             |
+| `isInvalid`         | `boolean`                                  | `false`     |
+| `isDisabled`        | `boolean`                                  | `false`     |
+| `tone`              | the `Tag` tones, applied to every tag      | `'neutral'` |
+| `variant`           | `'tonal' \| 'outlined' \| 'filled'`        | `'tonal'`   |
+| `size`              | `'sm' \| 'md'`                             | `'md'`      |
+| `items`             | `Iterable<T>`                              |             |
+| `children`          | `ReactNode \| (item: T) => ReactNode`      |             |
+| `onRemove`          | `(keys: Set<Key>) => void`                 |             |
+| `selectionMode`     | `'none' \| 'single' \| 'multiple'`         | `'none'`    |
+| `selectedKeys`      | `Iterable<Key> \| 'all'`                   |             |
+| `onSelectionChange` | `(keys: Selection) => void`                |             |
+| `renderEmptyState`  | `(props: TagListRenderProps) => ReactNode` | `"None"`    |
+| `labels`            | `Partial<TagLabels>`, for every tag        |             |
+
+Every other [React Aria TagGroup](https://react-aria.adobe.com/TagGroup) prop is passed through,
+such as `defaultSelectedKeys`, `disabledKeys` and `disallowEmptySelection`. Give the group a
+`label` or an `aria-label`.
+
+### Data attributes
+
+`Tag`: `data-tone`, `data-variant`, `data-size`, and inside a group `data-selected`,
+`data-disabled`, `data-hovered`, `data-pressed`, `data-focus-visible`, `data-allows-removing`.
+`TagGroup`: `data-variant`, `data-size`, `data-invalid`, `data-disabled`. Parts:
+`data-slot="tag"`, `"label"`, `"dot"`, `"icon"`, `"check"`, `"remove"`, `"tag-group"`,
+`"tag-group-label"`, `"tag-list"` (with `data-empty` and `data-focus-visible`), `"tag-group-empty"`,
+`"tag-group-description"`, `"tag-group-error"`.
+
+### Labels
+
+Text the tags write on their own. Pass `labels` to a `TagGroup` for all of its tags or to one `Tag`
+inside it, or set them for every tag with `<DSProvider labels={{ tag: { … } }}>`.
+
+| Key      | Default          | Used for                                                       |
+| -------- | ---------------- | -------------------------------------------------------------- |
+| `remove` | `Remove {label}` | the accessible name of a tag's remove button                   |
+| `empty`  | `None`           | what an empty group shows when `renderEmptyState` is not given |
+
+`{label}` is the tag's `textValue`, or its `children` when they are a string or a number.
+
+Two strings come from React Aria, not from `labels`: the hint "Press Delete to remove tag." that
+keyboard and screen reader users hear on a removable tag, and "Remove" on the remove button of a
+tag without a text label. React Aria translates both for the `DSProvider` locale.
+
+## Accessibility
+
+- A standalone `Tag` is plain text. The dot and icon are hidden from screen readers, so the label
+  must name the status: write "Overdue", not a red dot alone.
+- `TagGroup` is built on React Aria `TagGroup`: a grid with one row per tag, arrow keys move between
+  tags (mirrored in right-to-left languages), Home and End jump to the ends, and Delete or
+  Backspace removes the focused tag.
+- The remove button is named after its tag and has a 24px hit area at both sizes. The name comes
+  from `textValue`, or from `children` when they are a string or a number; give rich content a
+  `textValue`.
+- When the last tag is removed, focus moves to the group and shows the focus ring there. A disabled
+  group is skipped by Tab.
+- Selected tags show a check as well as a colour change.
+- Contrast for every tone and variant is checked with axe in light, dark and RTL by `tag.test.tsx`.

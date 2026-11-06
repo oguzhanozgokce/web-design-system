@@ -1,0 +1,122 @@
+---
+title: Button Group
+description: Material 3 button group, standard or connected, horizontal or vertical, that gives its buttons a shared size, variant and tone.
+---
+
+<ComponentPreview name="button-group-demo" />
+
+## Installation
+
+<InstallCommand name="button-group" />
+
+## Usage
+
+```tsx
+import { Button } from '@/components/ds/button';
+import { ButtonGroup } from '@/components/ds/button-group';
+
+<ButtonGroup aria-label="Invoice actions" size="sm" buttonVariant="tonal">
+  <Button onPress={approve}>Approve</Button>
+  <Button onPress={reject}>Reject</Button>
+</ButtonGroup>;
+```
+
+`size`, `buttonVariant`, `tone` and `isDisabled` become the defaults of every `Button` and
+`ButtonLink` inside the group. `ToggleButton` takes `size`, `buttonVariant` and `isDisabled`. A prop
+set on a single button still wins. A `ButtonGroup` or `ToggleButtonGroup` nested inside takes the
+same defaults unless it sets its own.
+
+## Examples
+
+### Standard
+
+The default. Buttons sit 8px apart, keep their own shape and wrap onto a new line when space runs
+out. Use it for a few related actions that each stand on their own.
+
+<ComponentPreview name="button-group-standard" />
+
+### Connected
+
+`variant="connected"` joins the buttons with a 2px gap. Outer corners stay round, inner corners
+shrink to 4px, and a pressed or selected button rounds out with a spring. Use it when the buttons
+act on one thing, such as moving through a calendar.
+
+<ComponentPreview name="button-group-connected" />
+
+### Button variant
+
+`buttonVariant` styles every button in the group at once. `filled`, `tonal`, `outlined` and
+`elevated` all work in a connected group.
+
+<ComponentPreview name="button-group-button-variants" />
+
+### Sizes
+
+`size` sets the size of every button and the radius of the connected ends. Keep one size per group.
+
+<ComponentPreview name="button-group-sizes" />
+
+### Vertical
+
+`orientation="vertical"` stacks the buttons and stretches them to the widest one. In a connected
+group the top and bottom ends round instead of the start and end.
+
+<ComponentPreview name="button-group-vertical" />
+
+### Full width
+
+`fullWidth` makes the group fill its container and shares the width equally. It suits dialog footers
+and sheets on small screens.
+
+<ComponentPreview name="button-group-full-width" align="stretch" />
+
+### Disabled
+
+`isDisabled` disables every button in the group. Tell people what unlocks the actions.
+
+<ComponentPreview name="button-group-disabled" />
+
+## API
+
+### ButtonGroup
+
+| Prop            | Type                                                        | Default         |
+| --------------- | ----------------------------------------------------------- | --------------- |
+| `variant`       | `'standard' \| 'connected'`                                 | `'standard'`    |
+| `orientation`   | `'horizontal' \| 'vertical'`                                | `'horizontal'`  |
+| `size`          | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                      | `'md'`          |
+| `buttonVariant` | `'filled' \| 'tonal' \| 'outlined' \| 'text' \| 'elevated'` | from the button |
+| `tone`          | `'default' \| 'destructive'`                                | from the button |
+| `fullWidth`     | `boolean`                                                   | `false`         |
+| `isDisabled`    | `boolean`                                                   | `false`         |
+| `aria-label`    | `string`                                                    |                 |
+
+Every other [React Aria Group](https://react-aria.adobe.com/Group) prop is passed through.
+`ToggleButton` ignores `buttonVariant="text"`, because Material 3 has no text toggle.
+
+### ButtonGroupContext
+
+`ButtonGroupContext` is exported from `button.tsx`. A custom button can read it with `use()` to pick
+up the group's `size`, `variant`, `tone` and `isDisabled`.
+
+React context passes through portals, so a dialog or popover opened from a button in the group
+inherits these defaults too. Wrap the overlay's content in `<ButtonGroupContext value={null}>` to
+give its buttons their own defaults back.
+
+### Data attributes
+
+`data-variant`, `data-orientation`, `data-size`, `data-disabled`, `data-hovered`,
+`data-focus-within`, `data-focus-visible`. Root: `data-slot="button-group"`.
+
+## Accessibility
+
+- Renders a React Aria `Group` with `role="group"`. Give it an `aria-label` so screen readers
+  announce what the buttons belong to.
+- Each button stays in the tab order. For a set of options where one or more is selected, use
+  `ToggleButtonGroup`, which adds arrow-key navigation and radio or toolbar semantics.
+- In a connected group the keyboard-focused button is raised above its neighbours, so the 2px gap
+  never hides part of its focus ring.
+- Corners use logical properties, so connected groups mirror in right-to-left languages.
+- Corner morphs follow the spatial spring and become instant under reduced motion or with
+  `DSProvider motion="reduced"`.
+- Contrast is checked with axe in light, dark and RTL by `button-group.test.tsx`.

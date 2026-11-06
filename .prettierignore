@@ -1,0 +1,14 @@
+node_modules
+.next
+.source
+out
+public/r
+registry.json
+registry/__index__.tsx
+registry/ds/styles/tokens.css
+registry/ds/lib/icons.tsx
+tokens/tokens.json
+package-lock.json
+docs/research
+.vitest
+THIRD_PARTY_NOTICES.md

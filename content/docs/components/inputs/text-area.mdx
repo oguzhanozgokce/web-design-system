@@ -1,0 +1,100 @@
+---
+title: Text area
+description: Multi-line input on the shared Field contract that grows with its content between a minimum and maximum number of rows, with a character counter.
+---
+
+<ComponentPreview name="text-area-demo" />
+
+## Installation
+
+<InstallCommand name="text-area" />
+
+## Usage
+
+```tsx
+import { TextArea } from '@/components/ds/text-area';
+
+<TextArea label="Invoice note" minRows={3} maxRows={8} />;
+```
+
+Label, description, errors, sizes, variants and the required indicator follow the
+[Field](/docs/components/inputs/field) contract.
+
+## Examples
+
+### Auto-grow
+
+The text area starts at `minRows` (3), grows as the text gets longer and starts scrolling at
+`maxRows` (8). It uses CSS `field-sizing: content` where the browser supports it and measures the
+content where it does not, again whenever the text or the width changes. Set both to the same
+number for a fixed height.
+
+<ComponentPreview name="text-area-auto-grow" />
+
+### Character counter
+
+Setting `maxLength` limits the text and shows a counter beside the description. Screen readers hear
+the count on focus and a polite update once typing pauses.
+
+<ComponentPreview name="text-area-counter" />
+
+### Resizable
+
+Resizing is off by default, because auto-grow already fits the content. `resize="vertical"` adds the
+drag handle for long-form notes; the height still stops at `maxRows`.
+
+<ComponentPreview name="text-area-resize" />
+
+### Variants and states
+
+Text areas take the same `variant`, `isRequired`, `isReadOnly`, `isDisabled` and `isInvalid` as every
+other field.
+
+<ComponentPreview name="text-area-variants" align="stretch" />
+
+## API
+
+### TextArea
+
+| Prop           | Type                       | Default  |
+| -------------- | -------------------------- | -------- |
+| `value`        | `string`                   |          |
+| `defaultValue` | `string`                   | `''`     |
+| `onChange`     | `(value: string) => void`  |          |
+| `placeholder`  | `string`                   |          |
+| `minRows`      | `number`                   | `3`      |
+| `maxRows`      | `number`                   | `8`      |
+| `resize`       | `'none' \| 'vertical'`     | `'none'` |
+| `maxLength`    | `number`                   |          |
+| `showCounter`  | `boolean`                  | `true`   |
+| `inputRef`     | `Ref<HTMLTextAreaElement>` |          |
+| `labels`       | `Partial<FieldLabels>`     |          |
+
+Plus the [shared Field props](/docs/components/inputs/field#shared-props) and every other
+[React Aria TextField](https://react-aria.adobe.com/TextField) prop, such as `name`, `validate` and
+`onBlur`. `className` styles the root.
+
+### textAreaStyles
+
+`textAreaStyles({ resize })` holds the auto-grow and resize classes for the `textarea`. Combine it
+with `fieldStyles({ multiline: true }).input()` to build a multi-line input of your own; set
+`--field-min-rows` and `--field-max-rows` on the element.
+
+### Data attributes
+
+The root has `data-slot="text-area"`, `data-size`, `data-variant`, `data-invalid`,
+`data-disabled`, `data-readonly` and `data-required`. The textarea has `data-slot="input"` and
+`data-resize`; the other parts are listed on [Field](/docs/components/inputs/field#data-attributes).
+
+### Labels
+
+TextArea writes no text of its own. `labels` takes the
+[Field labels](/docs/components/inputs/field#labels) for the counter and the optional marker, which
+`DSProvider` sets for every input under `field`.
+
+## Accessibility
+
+- Built on React Aria `TextField` with a native `textarea`, so Enter adds a line and the label,
+  description and error are wired to it.
+- Growing keeps the caret and the whole text in view without an inner scrollbar until `maxRows`.
+- Contrast is checked with axe in light, dark and RTL by `text-area.test.tsx`.

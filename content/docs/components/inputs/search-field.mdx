@@ -1,0 +1,154 @@
+---
+title: Search field
+description: Search input on the shared Field contract, with a clear button and Escape to clear, submit on Enter, a pending spinner for async search, a focus shortcut with its key hint and a Material 3 pill shape for top bars.
+---
+
+<ComponentPreview name="search-field-demo" />
+
+## Installation
+
+<InstallCommand name="search-field" />
+
+## Usage
+
+```tsx
+import { SearchField } from '@/components/ds/search-field';
+
+<SearchField value={query} onChange={setQuery} />;
+```
+
+Without a visible `label`, the field is named "Search" for screen readers and shows the same word as
+its placeholder, both from the `search` label. Pass `label`, `aria-label` or `placeholder` to say
+what is being searched. Label, description, errors, sizes and variants follow the
+[Field](/docs/components/inputs/field) contract.
+
+## Examples
+
+### Variants
+
+`outlined` and `filled` match the other inputs in a form. `shape="pill"` is the Material 3 search
+bar: a fully rounded `surface-container-high` bar with no border, for app bars and page headers. It
+replaces the variant's border or underline, so `variant` has no effect on a pill.
+
+<ComponentPreview name="search-field-variants" />
+
+### Sizes
+
+`md` (40px) is the default. `sm` suits table toolbars and filters. `lg` suits a help centre or a
+landing page where search is the main action.
+
+<ComponentPreview name="search-field-sizes" />
+
+### Keyboard shortcut
+
+`shortcut` binds a key that focuses the field from anywhere on the page and selects its text, and
+shows the key as a small hint while the field is empty and not focused. Use a single key such as
+`"/"` or `"p"`, or join modifiers with `+`: `"Mod+K"` is ⌘K on Apple devices and Ctrl+K elsewhere. A
+single key is ignored while someone is typing in another field or moving through a list, menu or grid
+that jumps to items by letter, but speech input can still trigger it, so WCAG 2.1.4 asks for a
+setting that turns single-key shortcuts off; pass `shortcut={undefined}` when it is off. The input
+carries `aria-keyshortcuts`, so screen readers announce the shortcut with the field. A hidden field,
+or one behind a modal dialog, leaves the key alone. When two visible fields bind the same shortcut,
+the first one mounted wins.
+
+<ComponentPreview name="search-field-shortcut" />
+
+### Submit on Enter
+
+`onSubmit` runs on Enter with the current query. When it returns a promise, the search glyph turns
+into a spinner until it settles and further Enter presses are ignored. Without `onSubmit`, Enter
+submits the surrounding form as usual.
+
+<ComponentPreview name="search-field-submit" />
+
+### Search as you type
+
+Pass `isPending` while results load. The spinner fades in only after 300 ms, so fast responses never
+flash. Announce the result count yourself in a polite live region; the field does not know it.
+
+<ComponentPreview name="search-field-pending" />
+
+### In a top bar
+
+`endAdornment` holds trailing actions such as a filter button. They sit after the clear button and
+do not inherit its clear behaviour; a button passed as `icon` keeps its own action too. Give a pill without a label an `aria-label` that names the scope.
+
+<ComponentPreview name="search-field-top-bar" />
+
+## API
+
+### SearchField
+
+| Prop           | Type                                          | Default                          |
+| -------------- | --------------------------------------------- | -------------------------------- |
+| `value`        | `string`                                      |                                  |
+| `defaultValue` | `string`                                      | `''`                             |
+| `onChange`     | `(value: string) => void`                     |                                  |
+| `onSubmit`     | `(value: string) => void \| Promise<unknown>` |                                  |
+| `onClear`      | `() => void`                                  |                                  |
+| `isPending`    | `boolean`                                     | automatic                        |
+| `shortcut`     | `string`                                      |                                  |
+| `shape`        | `'field' \| 'pill'`                           | `'field'`                        |
+| `placeholder`  | `string`                                      | "Search" without a visible label |
+| `icon`         | `ReactNode`                                   | the `search` icon                |
+| `endAdornment` | `ReactNode`                                   |                                  |
+| `inputRef`     | `Ref<HTMLInputElement>`                       |                                  |
+| `labels`       | `Partial<SearchFieldLabels & FieldLabels>`    |                                  |
+
+Plus the [shared Field props](/docs/components/inputs/field#shared-props) and every other
+[React Aria SearchField](https://react-aria.adobe.com/SearchField) prop, such as `name`,
+`validate` and `onKeyDown`. `enterKeyHint` defaults to `'search'`, so phone keyboards show a search
+key. `className` styles the root.
+
+`shortcut` takes a key (`"/"`, `"k"`) optionally preceded by modifiers joined with `+`: `Mod`,
+`Control` (`Ctrl`), `Alt` (`Option`), `Shift` and `Meta` (`Cmd`). Letters and digits match by
+physical key too, so `Mod+K` works on Cyrillic and Greek layouts.
+
+### searchFieldStyles
+
+`searchFieldStyles({ shape, size })` returns one class function per slot: `root`, `container`
+(added to the Field container), `icon`, `glyph`, `pending` and `shortcut`.
+
+### Data attributes
+
+The root has `data-slot="search-field"`, `data-size`, `data-shape`, `data-variant` (not on a pill),
+`data-pending`, `data-empty`, `data-invalid`, `data-disabled`, `data-readonly` and `data-required`.
+Parts:
+`data-slot="start-adornment"` holds `"search-icon"` and, while pending, `"pending"`; then
+`"input"`, `"shortcut"`, `"clear-button"` and `"end-adornment"`. The other parts are listed on
+[Field](/docs/components/inputs/field#data-attributes).
+
+### Labels
+
+Text the field writes on its own. Pass `labels` to one field, or set them for every search field
+with `<DSProvider labels={{ searchField: { … } }}>`.
+
+| Key          | Default        | Used for                                                           |
+| ------------ | -------------- | ------------------------------------------------------------------ |
+| `search`     | `Search`       | the accessible name and placeholder when there is no visible label |
+| `clear`      | `Clear search` | the accessible name of the clear button                            |
+| `searching`  | `Searching`    | the accessible name of the pending spinner                         |
+| `keyControl` | `Ctrl`         | the Control key in the shortcut hint                               |
+| `keyAlt`     | `Alt`          | the Alt key in the shortcut hint                                   |
+| `keyShift`   | `Shift`        | the Shift key in the shortcut hint                                 |
+| `keyMeta`    | `Win`          | the Meta key in the shortcut hint                                  |
+
+The key names show only outside Apple platforms, which use ⌘, ⌥, ⇧ and ⌃. Keyboards label their keys
+in their own language: a German app passes `keyControl: 'Strg'` and `keyShift: 'Umschalt'`.
+`labels` also takes the [Field labels](/docs/components/inputs/field#labels), which `DSProvider`
+sets under `field`.
+
+## Accessibility
+
+- Built on React Aria `SearchField`: the input has the `searchbox` role, Escape clears it, and once it
+  is empty Escape passes through so it can close a dialog.
+- The clear button is named by the `clear` label, stays out of the tab order like the browser's
+  own, and keeps focus in the input.
+- While pending, a progress bar named by the `searching` label replaces the glyph. Focus never
+  moves.
+- The shortcut hint is hidden from screen readers; the shortcut itself is exposed with
+  `aria-keyshortcuts` on the input.
+- The glyph and the clear button sit on the logical start and end, so they swap sides in
+  right-to-left languages.
+- The pill has no border, so in forced-colours mode, where its tint disappears, it gets one.
+- Contrast is checked with axe in light, dark and RTL by `search-field.test.tsx`.

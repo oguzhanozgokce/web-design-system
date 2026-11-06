@@ -1,0 +1,8 @@
+{
+  "name": "content-state",
+  "type": "registry:ui",
+  "title": "Content State",
+  "description": "Switches between loading, error, empty and content for data you fetch, from an explicit status or from data and error, with default copy you can replace, an async retry, a skeleton slot and a refresh-error banner over stale content.",
+  "category": "feedback",
+  "files": ["ui/content-state.tsx"]
+}

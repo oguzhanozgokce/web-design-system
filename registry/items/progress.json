@@ -1,0 +1,8 @@
+{
+  "name": "progress",
+  "type": "registry:ui",
+  "title": "Progress",
+  "description": "Material 3 linear and circular progress indicators, determinate or indeterminate, with a track gap, a stop dot, four tones, two thicknesses, an expressive wavy variant and value labels formatted for the locale.",
+  "category": "feedback",
+  "files": ["ui/progress.tsx"]
+}

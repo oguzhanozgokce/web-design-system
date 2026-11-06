@@ -1,0 +1,70 @@
+---
+title: Theming
+description: One seed colour becomes every Material 3 role, in light and dark, at three contrast levels.
+---
+
+The theme is generated, not hand-picked. `tokens/config.json` holds a seed colour and a palette
+style. `npm run generate` turns them into `registry/ds/styles/tokens.css`: 49 Material 3 roles plus
+success, warning and info, for light and dark, each at standard, medium and high contrast.
+
+```json title="tokens/config.json"
+{
+  "seed": "#5B4BFF",
+  "style": "vibrant",
+  "spec": "2025",
+  "platform": "phone"
+}
+```
+
+## Same colours as the Compose library
+
+The mobile `designsystem-color` module builds its `ColorScheme` with MaterialKolor 6, whose default
+colour spec is 2025 on the phone platform. The web generator runs `@material/material-color-utilities`
+with the same spec and platform, and harmonises success, warning and info toward the seed with the
+same source colours and tones. The same seed and style give the same hex values on both platforms.
+
+| Style        | What it does                                   |
+| ------------ | ---------------------------------------------- |
+| `tonal-spot` | Material's default: calm, low-chroma accents   |
+| `vibrant`    | Saturated accents; the catalogue default       |
+| `expressive` | Shifts hues for playful palettes               |
+| `fidelity`   | Keeps `primary-container` closest to the seed  |
+| `neutral`    | Nearly grey, for tools and dense admin screens |
+| `monochrome` | Grey only                                      |
+
+## Dark mode and contrast
+
+Each role is declared once as `light-dark(light, dark)` and resolves against the nearest
+`color-scheme`, which `.light`, `.dark` and `[data-theme]` set on any element. `next-themes` sets it
+on `<html>`; a `.dark` section inside a light page is dark, and a `.light` island inside it is light
+again.
+
+Medium and high contrast apply with `data-contrast` on `<html>`. Without it, the tokens follow the
+operating system's increased-contrast setting (`prefers-contrast: more`) and switch to high:
+
+```html
+<html class="dark" data-contrast="high"></html>
+```
+
+Components never use `dark:`. The roles change underneath them. Browsers without `light-dark()`
+(before Chrome 123, Firefox 120 and Safari 17.5) get the same values through per-mode blocks.
+
+## Runtime themes
+
+A tenant's brand colour, an accent the user picks or the colours of a photo can theme one card or the
+whole page at runtime, with the same engine. See [Dynamic colour](/docs/foundations/dynamic-color).
+
+## Theme builder
+
+The [theme builder](/theme) runs the same engine in the browser. Pick a seed, a palette style and a
+contrast level, check the result on an admin screen and the full role grid in light and dark, then
+copy one of three exports:
+
+| Export               | What to do with it                                                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `tokens.css`         | Replace the colour blocks of `registry/ds/styles/tokens.css`. It is what `npm run generate` writes: every contrast level, both modes. |
+| `tokens/config.json` | Commit it and run `npm run generate` to rebuild `tokens.css` from it.                                                                 |
+| Compose              | `rememberDSBrandColors(seed = …, style = …, contrast = …)`; pass its `colorScheme` and `extendedColors` to `DSTheme`.                 |
+
+Contrast is a viewer setting, not part of the config: the CSS export always carries all three
+levels, and only the Compose call takes the level you picked.

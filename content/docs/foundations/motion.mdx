@@ -1,0 +1,45 @@
+---
+title: Motion
+description: Springs and easings shared with the Compose library, and how reduced motion works.
+---
+
+## Springs
+
+The Compose library animates with springs: spatial springs may overshoot, effect springs never
+bounce. The web uses the same damping ratios and stiffnesses.
+
+| Spec         | Expressive damping / stiffness | Productive damping / stiffness |
+| ------------ | ------------------------------ | ------------------------------ |
+| Spatial fast | 0.65 / 800                     | 0.9 / 1400                     |
+| Spatial      | 0.8 / 380                      | 0.9 / 700                      |
+| Spatial slow | 0.8 / 200                      | 0.9 / 300                      |
+| Effect fast  | 1 / 3800                       | 1 / 3800                       |
+| Effect       | 1 / 1600                       | 1 / 1600                       |
+| Effect slow  | 1 / 800                        | 1 / 800                        |
+
+In JavaScript, `spatialSpring('fast')` and `effectSpring()` from `@/lib/ds/motion` return transitions
+for the `motion` package.
+
+In CSS, the generator turns each spring into a `linear()` easing with its settle time:
+
+```tsx
+<div className="transition-transform duration-(--ds-duration-spatial) ease-spatial" />
+```
+
+`data-motion-profile="productive"` on any ancestor switches to the calmer productive springs, the
+right choice for dense admin screens.
+
+## Easings and durations
+
+`ease-standard`, `ease-emphasized-decelerate` and `ease-emphasized-accelerate`, with 150, 250 and
+400 ms for short, medium and long, match `DSMotion`.
+
+## Reduced motion
+
+`DSProvider motion` accepts `system`, `reduced` or `disabled`, like `DSMotionPreference`.
+
+- `system` follows the operating system.
+- `reduced` removes spatial movement but keeps short fades.
+- `disabled` removes effects too.
+
+Components read it through `useMotionPreference()`. CSS animations use `motion-reduce:`.

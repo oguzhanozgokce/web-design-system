@@ -1,0 +1,36 @@
+---
+title: Introduction
+description: A Material 3 component library for React, and the web twin of the Compose mobile design system.
+---
+
+Web Design System is the component library behind every web project: marketing sites, admin
+panels and the panels users sign in to. It speaks the same language as the Compose mobile design
+system, so a decision reads the same on Android, iOS and the web.
+
+<ComponentPreview name="button-variants" />
+
+## What it is
+
+- **Material 3 roles, generated from one seed colour.** `bg-primary`, `text-on-surface-variant`,
+  `bg-surface-container-low`. The web runs the same algorithm and spec version as MaterialKolor
+  on mobile, so the same seed gives the same colours on every platform.
+- **Source you own.** Components install through the shadcn CLI as files in your project, from a
+  registry. You change them per project and pull upstream changes with `--diff`.
+- **Accessible by construction.** Interactive components are built on React Aria Components:
+  keyboard support, focus management, screen reader announcements, 13 calendar systems and
+  right-to-left layout come with them.
+- **Every string localised.** Built-in labels ship in all 18 languages the apps support, and
+  every one can be overridden.
+- **Motion with manners.** Springs match the Compose library, and every animated component
+  honours reduced motion.
+
+## How it is organised
+
+| Layer       | What lives there                                                               |
+| ----------- | ------------------------------------------------------------------------------ |
+| Foundations | Tokens, theme, `DSProvider`, icons, localisation, motion                       |
+| Components  | Accessible primitives and composites: buttons, inputs, overlays, tables, dates |
+| Expressive  | Opt-in motion and micro-interactions: rolling counters, hold to confirm        |
+| Blocks      | Whole sections: app shell, settings page, sign-in, data table page             |
+
+Start with [Installation](/docs/foundations/installation).

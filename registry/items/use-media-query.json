@@ -1,0 +1,8 @@
+{
+  "name": "use-media-query",
+  "type": "registry:hook",
+  "title": "useMediaQuery",
+  "description": "Subscribes to a CSS media query, with a server value for static rendering.",
+  "category": "foundations",
+  "files": ["hooks/use-media-query.ts"]
+}

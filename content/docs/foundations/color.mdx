@@ -1,0 +1,20 @@
+---
+title: Color
+description: The Material 3 colour roles and how to pair them.
+---
+
+Use the role names, never raw colours. A role always comes with its `on-` pair, which is the only
+colour guaranteed to be readable on it.
+
+<PaletteSwatches />
+
+## Rules
+
+- Pair roles: `bg-primary text-on-primary`, `bg-secondary-container text-on-secondary-container`.
+- Surfaces climb by emphasis: `surface-container-lowest` → `-low` → (default) → `-high` → `-highest`.
+  Cards and panels sit one level above what they are on.
+- `outline-variant` draws dividers and card borders, `outline` draws input borders.
+- Disabled content is `on-surface` at 38%, disabled containers `on-surface` at 12%.
+- `success`, `warning` and `info` are extensions harmonised with the seed. Use them for status, not
+  decoration.
+- No hex value appears outside `tokens.css`. `npm run check:ds` fails the build if one does.

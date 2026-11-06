@@ -1,0 +1,187 @@
+---
+title: Number field
+description: Counter and quantity stepper on the shared Field contract, with minus and plus or stacked chevrons, locale-aware currency, percent and unit formats, a checkout-sized display size and an optional rolling odometer.
+---
+
+<ComponentPreview name="number-field-demo" />
+
+## Installation
+
+<InstallCommand name="number-field" />
+
+## Usage
+
+```tsx
+import { NumberField } from '@/components/ds/number-field';
+
+<NumberField label="Seats" defaultValue={5} minValue={1} maxValue={200} />;
+```
+
+Label, description, errors, variants and the required indicator follow the
+[Field](/docs/components/inputs/field) contract. `onChange` receives a number, and only when the
+value is committed: on a step, on Enter and on blur, never on every keystroke. An empty field
+reports `NaN`.
+
+Use a number field when people know the exact number they want. When the rough position matters
+more, a [slider](/docs/components/inputs/slider) is faster.
+
+## Examples
+
+### Layouts
+
+`layout="stepper"` (the default) puts minus and plus on either side of the value. It suits
+quantities, guests and seats, where most changes are one or two steps and the buttons are the main
+input. `layout="inline"` stacks small chevrons at the end and leaves the value where a text field
+would put it, so it lines up with the other fields in a form. Its buttons are small, so prefer the
+stepper layout on touch-first screens.
+
+<ComponentPreview name="number-field-layouts" />
+
+### Formats
+
+`formatOptions` takes any `Intl.NumberFormat` option. Currency, percent and units such as
+`kilogram` or `minute` are formatted for the locale, so `1250` reads `€1,250.00` in English and
+`1.250,00 €` in German, and typed input is parsed the same way. With `style: 'percent'`, the value
+is a fraction: `0.05` shows as `5%`. The mobile keyboard switches to a decimal or numeric pad to
+match.
+
+<ComponentPreview name="number-field-formats" />
+
+### Limits and steps
+
+`minValue` and `maxValue` clamp the value, and `step` rounds it when it is committed. The minus
+or plus button turns off at each limit. Arrow keys step, Home and End jump to the limits, and the
+scroll wheel steps while the field has focus. Holding a button repeats the step after 400 ms
+(600 ms on touch), then every 60 ms.
+
+<ComponentPreview name="number-field-steps" />
+
+### Sizes
+
+`md` (40 px) is the default. `sm` (36 px) suits table rows and filter bars, `lg` (48 px) suits
+sign-up and checkout forms. Each size has a minimum width that fits about eight characters; set a
+width with `className` for longer values.
+
+<ComponentPreview name="number-field-sizes" />
+
+### Display
+
+`size="display"` is a 56 px quantity picker for carts, checkouts and booking flows. The value is set
+large, the buttons are 44 px tonal circles, and the outlined control is a pill. Pair it with the
+running total next to it.
+
+<ComponentPreview name="number-field-display" />
+
+### Animated
+
+`isAnimated` renders the value with [Number Flow](https://number-flow.barvian.me) while nobody is
+typing in the field, so each step rolls digit by digit like an odometer, on the library's spatial
+spring for the current motion profile. The input underneath keeps the real value, so typing,
+selection, screen readers and forms work as usual: the moment someone types, the plain input shows,
+and a typed value appears without rolling when it is committed. Under reduced motion and in
+forced-colours mode the field shows plain text instead. It also does when the digits are not Latin,
+as in `ar-EG` or when someone types Arabic-Indic digits, and in right-to-left locales where a
+currency, percent, unit or sign would change order. It needs the `@number-flow/react` package, which
+the install command adds.
+
+<ComponentPreview name="number-field-animated" />
+
+### Variants
+
+`outlined` is the default. `filled` matches the Material 3 filled field; pick one per form.
+
+<ComponentPreview name="number-field-variants" />
+
+### Validation
+
+Required fields, `validate` and `isInvalid` work as on every [Field](/docs/components/inputs/field).
+By default a typed value is snapped to the nearest step and clamped to the limits on commit. Set
+`commitBehavior="validate"` to keep what was typed and report it instead; the validation result
+then has `stepMismatch`, `rangeOverflow` and `rangeUnderflow` for a precise `errorMessage`.
+
+<ComponentPreview name="number-field-validation" />
+
+### Controlled
+
+Pass `value` and `onChange` when something else on the page depends on the number, such as a
+total.
+
+<ComponentPreview name="number-field-controlled" />
+
+## API
+
+### NumberField
+
+| Prop                 | Type                                       | Default      |
+| -------------------- | ------------------------------------------ | ------------ |
+| `value`              | `number`                                   |              |
+| `defaultValue`       | `number`                                   | `NaN`        |
+| `onChange`           | `(value: number) => void`                  |              |
+| `minValue`           | `number`                                   |              |
+| `maxValue`           | `number`                                   |              |
+| `step`               | `number`                                   | `1`          |
+| `formatOptions`      | `Intl.NumberFormatOptions`                 |              |
+| `commitBehavior`     | `'snap' \| 'validate'`                     | `'snap'`     |
+| `layout`             | `'stepper' \| 'inline'`                    | `'stepper'`  |
+| `size`               | `'sm' \| 'md' \| 'lg' \| 'display'`        | `'md'`       |
+| `variant`            | `'outlined' \| 'filled'`                   | `'outlined'` |
+| `isAnimated`         | `boolean`                                  | `false`      |
+| `placeholder`        | `string`                                   |              |
+| `isWheelDisabled`    | `boolean`                                  | `false`      |
+| `incrementAriaLabel` | `string`                                   |              |
+| `decrementAriaLabel` | `string`                                   |              |
+| `inputRef`           | `Ref<HTMLInputElement>`                    |              |
+| `labels`             | `Partial<NumberFieldLabels & FieldLabels>` |              |
+| `className`          | `string \| ((renderProps) => string)`      |              |
+
+Plus the [shared Field props](/docs/components/inputs/field#shared-props) (except `size`, which adds
+`display` here) and every other [React Aria NumberField](https://react-aria.adobe.com/NumberField)
+prop, such as `name`, `validate`, `onBlur` and `isDisabled`. `className` styles the root.
+
+### numberFieldStyles
+
+`numberFieldStyles(variants)` returns one class function per slot: `container`, `value`, `input`,
+`roller`, `steppers` and `stepper`. They add to the [Field](/docs/components/inputs/field#fieldstyles)
+slots. Variants: `layout`, `size`, `variant` and `isRolling`.
+
+### Data attributes
+
+The root has `data-slot="number-field"`, `data-layout`, `data-size`, `data-variant`,
+`data-animated`, `data-invalid`, `data-disabled`, `data-readonly` and `data-required`. The buttons
+are `data-slot="decrement"` and `"increment"` with `data-pressed` and `data-disabled`; in the inline
+layout they sit in `data-slot="steppers"`. The input and the animated number sit in
+`data-slot="value"`; the animated number is `data-slot="roller"`, and the input has `data-rolling`
+while it shows. The other parts are listed on [Field](/docs/components/inputs/field#data-attributes).
+
+### Labels
+
+Text the field writes on its own. Pass `labels` to one field, or set them for every number field
+with `<DSProvider labels={{ numberField: { … } }}>`.
+
+| Key        | Default            | Used for                                        |
+| ---------- | ------------------ | ----------------------------------------------- |
+| `increase` | `Increase {label}` | the accessible name of the plus or up button    |
+| `decrease` | `Decrease {label}` | the accessible name of the minus or down button |
+
+`{label}` is the field's label or `aria-label`, so screen readers hear "Increase Seats". Put
+`{label}` where your language puts the object: `'{label} erhöhen'` names the German button "Seats
+erhöhen". When the label is not plain text, the button is named by reference to the label element
+in the same order. `incrementAriaLabel` and `decrementAriaLabel` replace the whole name for one
+field. `labels` also takes the [Field labels](/docs/components/inputs/field#labels), which
+`DSProvider` sets under `field`.
+
+## Accessibility
+
+- Built on React Aria `NumberField`: the input is a text box announced as a number field, with the
+  label, description and error wired to it. Each step is announced, and so is a typed value that
+  is reformatted when it is committed.
+- The buttons stay out of the tab order, so keyboard users step with the arrow keys. A mouse press
+  moves focus to the input; a touch press keeps it on the button so the on-screen keyboard stays
+  closed. Each button is named from the field's label, in the word order of the `increase` and
+  `decrease` labels, and turns off at the limits.
+- The animated number is hidden from assistive technology; the input it covers keeps the value,
+  the caret and the selection.
+- Stepper buttons are at least 28 px and display buttons 44 px. The inline chevrons are smaller,
+  which is why that layout suits forms used with a keyboard; the input itself takes typing and the
+  arrow keys.
+- Contrast is checked with axe in light, dark and RTL by `number-field.test.tsx`.

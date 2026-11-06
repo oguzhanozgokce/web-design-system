@@ -1,0 +1,127 @@
+---
+title: Radio Group
+description: Material 3 radio group with per-option descriptions, vertical or horizontal layout and a card variant for plan and option pickers.
+---
+
+<ComponentPreview name="radio-group-demo" />
+
+## Installation
+
+<InstallCommand name="radio-group" />
+
+## Usage
+
+```tsx
+import { Radio, RadioGroup } from '@/components/ds/radio-group';
+
+<RadioGroup label="Invoice delivery" defaultValue="email">
+  <Radio value="email">Email</Radio>
+  <Radio value="post">Postal mail</Radio>
+</RadioGroup>;
+```
+
+## Examples
+
+### Descriptions
+
+Each `Radio` takes a `description`. The group takes its own `description` for context that applies
+to every option.
+
+<ComponentPreview name="radio-group-descriptions" />
+
+### Horizontal
+
+`orientation="horizontal"` puts short options in a wrapping row. Left and Right arrows follow the
+reading direction, so they swap in RTL.
+
+<ComponentPreview name="radio-group-horizontal" />
+
+### Cards
+
+`variant="card"` turns each option into a bordered tile with a title, description and optional
+`icon`. The selected tile fills with `secondary-container`. Use it when options need explanation,
+such as sharing or delivery settings.
+
+<ComponentPreview name="radio-group-card" />
+
+### Plan picker
+
+Cards in a horizontal group sit in a responsive grid: as many columns as fit, one column on a
+phone.
+
+<ComponentPreview name="radio-group-plans" align="stretch" />
+
+### Validation
+
+`isInvalid` and `errorMessage` show an error under the group, and the rings turn to the error
+colour. `isRequired` adds an asterisk and `aria-required`.
+
+<ComponentPreview name="radio-group-invalid" />
+
+### Disabled
+
+Disable one option with `isDisabled` on the `Radio`, or the whole group on the `RadioGroup`.
+
+<ComponentPreview name="radio-group-disabled" />
+
+## API
+
+### RadioGroup
+
+| Prop           | Type                                                       | Default      |
+| -------------- | ---------------------------------------------------------- | ------------ |
+| `label`        | `ReactNode`                                                |              |
+| `description`  | `ReactNode`                                                |              |
+| `errorMessage` | `ReactNode \| (validation: ValidationResult) => ReactNode` |              |
+| `variant`      | `'default' \| 'card'`                                      | `'default'`  |
+| `orientation`  | `'vertical' \| 'horizontal'`                               | `'vertical'` |
+| `value`        | `string \| null`                                           |              |
+| `defaultValue` | `string \| null`                                           |              |
+| `onChange`     | `(value: string) => void`                                  |              |
+| `isDisabled`   | `boolean`                                                  | `false`      |
+| `isReadOnly`   | `boolean`                                                  | `false`      |
+| `isInvalid`    | `boolean`                                                  | `false`      |
+| `isRequired`   | `boolean`                                                  | `false`      |
+
+Every other [React Aria RadioGroup](https://react-aria.adobe.com/RadioGroup) prop is passed
+through, such as `name` and `validate`.
+
+### Radio
+
+| Prop          | Type        | Default |
+| ------------- | ----------- | ------- |
+| `value`       | `string`    |         |
+| `children`    | `ReactNode` |         |
+| `description` | `ReactNode` |         |
+| `icon`        | `ReactNode` |         |
+| `isDisabled`  | `boolean`   | `false` |
+
+`icon` shows only in the card variant. Every other React Aria `RadioField` prop is passed through.
+
+### Data attributes
+
+Group root (`data-slot="radio-group"`): `data-variant`, `data-orientation`, `data-disabled`,
+`data-invalid`, `data-required`, `data-readonly`. Parts: `"header"`, `"label"`, `"required"`,
+`"description"`, `"items"`, `"error"`.
+
+Radio root (`data-slot="radio"`): `data-variant`, `data-selected`, `data-disabled`,
+`data-readonly`, `data-invalid`, `data-required`. The clickable part (`data-slot="target"`, the
+whole tile for cards) also has `data-hovered`, `data-pressed` and `data-focus-visible`. Parts:
+`"control"`, `"state-layer"`, `"ring"`, `"dot"`, `"icon"`, `"content"`, `"label"`,
+`"description"`.
+
+### Labels
+
+Radio Group writes no text of its own, so it takes no `labels`.
+
+## Accessibility
+
+- Built on React Aria `RadioGroup` and `RadioField`: native radio inputs, one tab stop for the
+  group, arrow keys to move the selection, and RTL-aware Left and Right.
+- With a description, the name comes from the label only and the description is linked with
+  `aria-describedby`, so a card is announced as "Team, radio button, 2 of 3" followed by its
+  details. An explicit `aria-label` or `aria-labelledby` always wins over the visible label.
+- In the card variant the focus ring and state layer cover the whole tile. A read-only group
+  shows no hover or press layer, since nothing in it can change.
+- The inner dot scales in with the spatial spring and appears instantly with reduced motion.
+- Contrast is checked with axe in light, dark and RTL by `radio-group.test.tsx`.

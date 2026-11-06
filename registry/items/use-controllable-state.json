@@ -1,0 +1,8 @@
+{
+  "name": "use-controllable-state",
+  "type": "registry:hook",
+  "title": "useControllableState",
+  "description": "State that works controlled through value and onChange, or uncontrolled from a default.",
+  "category": "foundations",
+  "files": ["hooks/use-controllable-state.ts"]
+}

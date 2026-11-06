@@ -1,0 +1,8 @@
+{
+  "name": "theme",
+  "type": "registry:style",
+  "title": "Theme",
+  "description": "Material 3 colour roles, type scale, shapes, elevation, motion tokens and the state-layer and focus-ring utilities, generated from one seed colour.",
+  "category": "foundations",
+  "files": ["styles/theme.css", "styles/tokens.css"]
+}

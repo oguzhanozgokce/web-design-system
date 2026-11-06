@@ -1,0 +1,8 @@
+{
+  "name": "chip",
+  "type": "registry:ui",
+  "title": "Chip",
+  "description": "Material 3 chips for filtering, choosing and entering values, as a keyboard-navigable group with single or multiple selection and removable input chips, plus standalone assist and filter chips.",
+  "category": "feedback",
+  "files": ["ui/chip.tsx"]
+}

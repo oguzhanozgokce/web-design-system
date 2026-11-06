@@ -1,0 +1,8 @@
+{
+  "name": "radio-group",
+  "type": "registry:ui",
+  "title": "Radio Group",
+  "description": "Material 3 radio group with per-option descriptions, vertical or horizontal layout and a card variant for plan and option pickers.",
+  "category": "inputs",
+  "files": ["ui/radio-group.tsx"]
+}

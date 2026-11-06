@@ -1,0 +1,110 @@
+---
+title: Button
+description: Material 3 button in five variants and five sizes, with icons, a destructive tone, a link twin and automatic pending state for async actions.
+---
+
+<ComponentPreview name="button-demo" />
+
+## Installation
+
+<InstallCommand name="button" />
+
+## Usage
+
+```tsx
+import { Button } from '@/components/ds/button';
+
+<Button onPress={save}>Save</Button>;
+```
+
+## Examples
+
+### Variants
+
+`filled` is the main action on a screen. `tonal` is a strong secondary action. `outlined` and `text`
+are for lower emphasis. `elevated` separates a button from a patterned or image background.
+
+<ComponentPreview name="button-variants" />
+
+### Sizes
+
+`md` (40px) is the default. `xs` and `sm` suit dense admin tables and toolbars. `lg` and `xl` suit
+marketing pages and single-action screens.
+
+<ComponentPreview name="button-sizes" />
+
+### Icons
+
+`startIcon` and `endIcon` take any icon and size it to the button. Flip directional icons in RTL
+with `rtl:-scale-x-100`.
+
+<ComponentPreview name="button-icons" />
+
+### Destructive
+
+`tone="destructive"` works with every variant. Pair a filled destructive button with a
+confirmation step.
+
+<ComponentPreview name="button-destructive" />
+
+### Async actions
+
+When `onPress` returns a promise, the button sets `isPending` until it settles. Repeat presses are
+ignored, focus stays on the button and screen readers hear the pending label. The spinner appears
+only after 300 ms, so fast actions never flash.
+
+<ComponentPreview name="button-async" />
+
+### As a link
+
+`ButtonLink` renders an anchor with the same styles. It navigates through `DSProvider`'s router, so
+next-intl locale prefixes keep working. When it opens a new tab, say so in its name, for example
+with a visually hidden "(opens in a new tab)".
+
+<ComponentPreview name="button-link" />
+
+## API
+
+### Button
+
+| Prop         | Type                                                        | Default     |
+| ------------ | ----------------------------------------------------------- | ----------- |
+| `variant`    | `'filled' \| 'tonal' \| 'outlined' \| 'text' \| 'elevated'` | `'filled'`  |
+| `tone`       | `'default' \| 'destructive'`                                | `'default'` |
+| `size`       | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                      | `'md'`      |
+| `fullWidth`  | `boolean`                                                   | `false`     |
+| `startIcon`  | `ReactNode`                                                 |             |
+| `endIcon`    | `ReactNode`                                                 |             |
+| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>`           |             |
+| `isPending`  | `boolean`                                                   | automatic   |
+| `isDisabled` | `boolean`                                                   | `false`     |
+| `labels`     | `Partial<ButtonLabels>`                                     |             |
+
+Every other [React Aria Button](https://react-aria.adobe.com/Button) prop is passed through.
+
+### ButtonLink
+
+The same style props plus every [React Aria Link](https://react-aria.adobe.com/Link) prop, such as
+`href`, `target` and `routerOptions`.
+
+### Data attributes
+
+`data-variant`, `data-tone`, `data-size`, `data-pending`, `data-hovered`, `data-pressed`,
+`data-focus-visible`, `data-disabled`. Parts: `data-slot="content"`, `"label"`, `"start-icon"`,
+`"end-icon"`, `"pending"`.
+
+### Labels
+
+Text the button writes on its own. Pass `labels` to one button, or set them for every button with
+`<DSProvider labels={{ button: { … } }}>`.
+
+| Key       | Default   | Used for                                   |
+| --------- | --------- | ------------------------------------------ |
+| `pending` | `Loading` | the accessible name of the pending spinner |
+
+## Accessibility
+
+- Built on React Aria `Button`: Enter and Space activate it, and press events normalise mouse,
+  touch and keyboard.
+- While pending, the button stays focusable and announces a progress bar, so focus never jumps.
+- Contrast is checked with axe in light, dark and RTL by `button.test.tsx`.

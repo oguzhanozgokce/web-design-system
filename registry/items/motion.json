@@ -1,0 +1,8 @@
+{
+  "name": "motion",
+  "type": "registry:lib",
+  "title": "Motion tokens",
+  "description": "Spatial and effect springs, durations and easings shared with the Compose design system.",
+  "category": "foundations",
+  "files": ["lib/motion.ts"]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "sheet",
+  "type": "registry:ui",
+  "title": "Sheet",
+  "description": "Material 3 sheet that slides in from the start, end, top or bottom edge, with sizes per side, header, body and footer parts, and bottom sheets that drag to dismiss, rest at snap points or stay open beside the page.",
+  "category": "overlays",
+  "files": ["ui/sheet.tsx"],
+  "credits": [
+    {
+      "source": "EasyUI",
+      "url": "https://github.com/Surajmaurya1/easyui/blob/main/src/components/ui/sheet.tsx",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Suraj Maurya"
+    }
+  ]
+}

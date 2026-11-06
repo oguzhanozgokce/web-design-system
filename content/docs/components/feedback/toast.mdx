@@ -1,0 +1,200 @@
+---
+title: Toast
+description: Material 3 snackbar toasts with a global toast() API, status tones, actions, promise and in-place updates, six logical placements and a stack that fans out on hover or keyboard focus.
+---
+
+<ComponentPreview name="toast-demo" />
+
+## Installation
+
+<InstallCommand name="toast" />
+
+## Usage
+
+Mount one `Toaster` inside `DSProvider`, then call `toast()` from anywhere: an event handler, a
+data hook, a form action.
+
+```tsx
+import { DSProvider } from '@/components/ds/ds-provider';
+import { Toaster } from '@/components/ds/toast';
+
+<DSProvider locale={locale}>
+  {children}
+  <Toaster />
+</DSProvider>;
+```
+
+```tsx
+import { toast } from '@/components/ds/toast';
+
+toast('Invoice INV-2048 sent to Acme Corp');
+toast.success('Payment received');
+```
+
+New toasts land in front. Older ones tuck behind with a small peek and scale, and the stack fans
+out while the pointer is over it or keyboard focus is inside it. Every countdown pauses at the same
+time, so nothing disappears while someone is reading it. Three toasts show at once; the rest wait
+in line and appear as earlier ones close.
+
+The examples on this page each mount their own `Toaster` with a `toasterId`, so every preview
+follows its own direction switch. In an app, mount one `Toaster` and leave
+`toasterId` out.
+
+## Examples
+
+### Tones
+
+The default tone is the Material 3 snackbar on `inverse-surface`. `info`, `success`, `warning`
+and `error` use the status containers and add their icon. Use the helpers (`toast.success`) or
+pass `tone`.
+
+<ComponentPreview name="toast-tones" />
+
+### Undo action
+
+An `action` adds one text button. Pressing it runs `onAction` and closes the toast. Prefer an undo
+over a confirmation dialog for reversible changes such as archiving.
+
+<ComponentPreview name="toast-undo" align="stretch" className="justify-center" />
+
+### Promises
+
+`toast.promise` shows a loading toast and turns the same toast into success or error when the
+promise settles. `success` and `error` take a message, a function of the result, or an object with
+`message`, `description` and `action`. An error with an action stays open until someone acts on it.
+
+<ComponentPreview name="toast-promise" />
+
+### Update in place
+
+`toast.loading` returns an id. `toast.update(id, ...)` changes the message, tone or action without
+moving the toast, and restarts its countdown. It returns `false` once the toast is gone, which is a
+good signal to stop the work that feeds it.
+
+<ComponentPreview name="toast-update" />
+
+### Title and description
+
+`title` becomes the toast's accessible name and the message moves under it. `description` adds a
+line of supporting text in a smaller size.
+
+<ComponentPreview name="toast-title" />
+
+### Placement
+
+`placement` takes `top-start`, `top-center`, `top-end`, `bottom-start`, `bottom-center` or
+`bottom-end`. Start and end follow the reading direction, so `bottom-end` sits on the left in
+Arabic. Below 640px every placement spans the width of the screen with a 16px margin. The
+vertical offset adds the device's safe-area inset, so toasts clear a notch or home indicator.
+
+<ComponentPreview name="toast-placement" />
+
+### Duration and dismissal
+
+Toasts close after 5 seconds. Change it per toast with `duration`, or for every toast with the
+`Toaster`'s `duration`. `Infinity` keeps a toast open; it always gets a close button.
+`toast.dismiss(id)` closes one toast and `toast.dismiss()` closes all of them.
+
+<ComponentPreview name="toast-duration" />
+
+## API
+
+### toast
+
+| Call                                          | Returns   | Notes                                                  |
+| --------------------------------------------- | --------- | ------------------------------------------------------ |
+| `toast(message, options?)`                    | `string`  | The id of the toast                                    |
+| `toast.info/success/warning/error(msg, opts)` | `string`  | Same as `toast` with that `tone`                       |
+| `toast.loading(message, options?)`            | `string`  | Shows a spinner and stays until updated or closed      |
+| `toast.promise(promise, options)`             | `string`  | Accepts a promise or a function that returns one       |
+| `toast.update(id, update)`                    | `boolean` | `false` when the toast has already closed              |
+| `toast.dismiss(id?)`                          | `void`    | Closes one toast, or every toast when `id` is left out |
+
+### Options
+
+| Option        | Type                                                             | Default                          |
+| ------------- | ---------------------------------------------------------------- | -------------------------------- |
+| `title`       | `ReactNode`                                                      |                                  |
+| `description` | `ReactNode`                                                      |                                  |
+| `tone`        | `'default' \| 'info' \| 'success' \| 'warning' \| 'error'`       | `'default'`                      |
+| `icon`        | `ReactNode`                                                      | the tone's icon; `null` hides it |
+| `action`      | `{ label: ReactNode; onAction: () => void \| Promise<unknown> }` |                                  |
+| `duration`    | `number` (ms)                                                    | the `Toaster`'s `duration`       |
+| `id`          | `string`                                                         | generated                        |
+| `toasterId`   | `string`                                                         | `'default'`                      |
+| `onClose`     | `(reason: ToastCloseReason) => void`                             |                                  |
+
+`duration` defaults to `Infinity` for loading toasts and for errors with an action. Passing an `id`
+that is already on screen replaces that toast instead of adding a new one. `ToastCloseReason` is
+`'timeout' | 'close' | 'escape' | 'action' | 'programmatic'`. When `onAction` returns a promise,
+the button shows its pending state, the countdown pauses, and the toast closes once the promise
+resolves; it stays open if the promise rejects.
+
+### toast.update
+
+Takes `message`, `isLoading`, `title`, `description`, `tone`, `icon`, `action` and `duration`.
+Keys you leave out keep their value. `null` removes the `title`, `description` or `action`, and
+hides the `icon`.
+
+### toast.promise
+
+Takes `loading`, `success` and `error`, plus `title`, `description`, `icon`, `duration`, `id`,
+`toasterId` and `onClose`, which apply to every state. `duration` applies once the promise settles.
+An object passed to `success` or `error`, or returned by a function there, takes `message` plus
+`title`, `description`, `tone`, `icon`, `action` and `duration`.
+
+### Toaster
+
+| Prop               | Type                   | Default                |
+| ------------------ | ---------------------- | ---------------------- |
+| `placement`        | `ToastPlacement`       | `'bottom-end'`         |
+| `maxVisibleToasts` | `number`               | `3`                    |
+| `duration`         | `number` (ms)          | `5000`                 |
+| `showCloseButton`  | `boolean`              | `true`                 |
+| `isExpanded`       | `boolean`              | `false`                |
+| `toasterId`        | `string`               | `'default'`            |
+| `labels`           | `Partial<ToastLabels>` |                        |
+| `aria-label`       | `string`               | `labels.notifications` |
+| `className`        | `string`               |                        |
+
+`isExpanded` keeps the stack fanned out. With `showCloseButton={false}`, only toasts that never
+time out show a close button. When several `Toaster`s share a `toasterId`, only the most recently
+mounted one renders, so a nested layout never shows a toast twice.
+
+### Data attributes
+
+The region has `data-placement`. The list has `data-expanded` and `data-paused`. Each toast has
+`data-tone`, `data-loading`, `data-front`, `data-stacked`, `data-exiting` and
+`data-focus-visible`. Parts: `data-slot="toaster"`, `"toast-list"`, `"toast"`, `"body"`, `"icon"`,
+`"main"`, `"content"`, `"title"`, `"message"`, `"description"`, `"close"`. `toastStyles` exports
+the classes of every part.
+
+### Labels
+
+Text the toaster writes on its own. Toasts are created with `toast()` outside React, so their labels
+belong to the `Toaster` that shows them: pass `labels` to it, or set them for every toaster with
+`<DSProvider labels={{ toast: { … } }}>`.
+
+| Key             | Default         | Used for                                 |
+| --------------- | --------------- | ---------------------------------------- |
+| `close`         | `Close`         | the accessible name of each close button |
+| `notifications` | `Notifications` | the region's landmark name               |
+
+## Accessibility
+
+- Built on React Aria's toast region and toast, which are still `UNSTABLE_` in React Aria
+  Components 1.22. This component wraps them, so app code never imports an unstable name.
+- The region is a landmark named by the `notifications` label, "Notifications" by default. F6 moves focus between it and the other
+  landmarks on the page.
+- Each toast is a non-modal `alertdialog` named by its title or message and described by the rest.
+  Its text sits in an `alert`, so screen readers announce new toasts and in-place updates.
+- Countdowns pause while the pointer is over the stack, while keyboard or touch focus is inside it,
+  while an async action runs and while the browser tab is hidden. Keyboard focus fans the stack out,
+  so a focused control is never hidden behind another toast. Focus left behind by a mouse click
+  does not hold the pause once the pointer leaves, so toasts never get stuck on screen.
+- Escape closes the focused toast. When a focused toast closes, focus moves to the next toast, or
+  back to where it was before it entered the region.
+- Errors with an action never time out, and every toast has a close button by default.
+- With reduced motion, toasts fade instead of sliding. `motion="disabled"` on `DSProvider` removes
+  the animation.
+- Contrast is checked with axe in light, dark and RTL by `toast.test.tsx`.

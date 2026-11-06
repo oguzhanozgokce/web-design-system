@@ -1,0 +1,8 @@
+{
+  "name": "button-group",
+  "type": "registry:ui",
+  "title": "Button Group",
+  "description": "Material 3 button group, standard or connected, horizontal or vertical, that gives its buttons a shared size, variant and tone.",
+  "category": "actions",
+  "files": ["ui/button-group.tsx"]
+}

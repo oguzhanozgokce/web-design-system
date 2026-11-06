@@ -1,0 +1,8 @@
+{
+  "name": "dynamic-color",
+  "type": "registry:lib",
+  "title": "Dynamic colour",
+  "description": "Runtime Material 3 schemes as scoped CSS, seed colours ranked from an image with Material's content-based quantizer and score, and a boot script that paints a stored theme before hydration.",
+  "category": "foundations",
+  "files": ["lib/dynamic-color.ts"]
+}

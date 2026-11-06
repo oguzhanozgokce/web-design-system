@@ -1,0 +1,211 @@
+---
+title: Dialog
+description: Material 3 modal dialog with header, scrolling body and actions, five sizes, a centred hero icon, dismissal control and a full-screen layout with a top app bar on phones.
+---
+
+<ComponentPreview name="dialog-demo" />
+
+## Installation
+
+<InstallCommand name="dialog" />
+
+## Usage
+
+```tsx
+import { Button } from '@/components/ds/button';
+import {
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+} from '@/components/ds/dialog';
+
+<DialogTrigger>
+  <Button>Invite teammate</Button>
+  <Dialog>
+    <DialogHeader title="Invite a teammate" description="They join the Finance workspace." />
+    <DialogBody>…</DialogBody>
+    <DialogFooter>
+      <Button slot="close" variant="text">
+        Cancel
+      </Button>
+      <Button onPress={invite}>Send invite</Button>
+    </DialogFooter>
+  </Dialog>
+</DialogTrigger>;
+```
+
+`DialogTrigger` takes two children: the button that opens the dialog and the `Dialog`. Any button
+with `slot="close"` inside the dialog closes it. For actions that must finish first, pass a
+function as children: it receives `close`, so an async save can close the dialog when it resolves.
+For a yes-or-no question, use [Alert Dialog](/docs/components/overlays/alert-dialog) instead.
+
+## Examples
+
+### Sizes
+
+`size` sets the maximum width: `sm` 384px, `md` 560px (the default and the Material 3 maximum),
+`lg` 720px and `xl` 960px. The dialog never grows past the viewport. `full` covers the whole
+viewport at every width and switches the header to a top app bar.
+
+<ComponentPreview name="dialog-sizes" />
+
+### Hero icon
+
+An `icon` on `DialogHeader` sits above the title, and the title and description centre around it,
+as in Material 3. Use it when the icon adds meaning, such as a sync or security problem.
+
+<ComponentPreview name="dialog-icon" />
+
+### Scrolling content
+
+`DialogBody` scrolls when the content is taller than the screen, while the header and actions stay
+in place. Dividers appear above and below the body only when content is hidden there, and the
+body becomes focusable so keyboard users can scroll it.
+
+<ComponentPreview name="dialog-scrollable" />
+
+### Full screen on phones
+
+With `fullScreenOnMobile`, the dialog fills the screen below 600px, slides up from the bottom and
+turns its header into a 56px top app bar: a close button, the title and the `action` you pass to
+`DialogHeader`. The footer is hidden there while an action is shown, so pass the same confirm
+button to both. From 600px up it is a basic dialog and the header `action` is not rendered.
+
+<ComponentPreview name="dialog-full-screen" />
+
+### Close button
+
+`showCloseButton` adds a localised close button at the end of the header. Use it for dialogs that
+only show information, such as a list of keyboard shortcuts, where a footer would be empty.
+
+<ComponentPreview name="dialog-close-button" />
+
+### Controlled
+
+Without a `DialogTrigger`, pass `isOpen` and `onOpenChange` to `Dialog`. This suits dialogs opened
+from a table row or after another action. Focus still returns to the element that had it before
+the dialog opened.
+
+<ComponentPreview name="dialog-controlled" />
+
+### Required action
+
+`isDismissable={false}` ignores presses on the scrim and `isKeyboardDismissDisabled` ignores
+Escape, so the only way out is an action in the dialog. Keep this for states the person must
+resolve, such as an expired session.
+
+<ComponentPreview name="dialog-required" />
+
+## API
+
+### DialogTrigger
+
+React Aria [DialogTrigger](https://react-aria.adobe.com/Dialog). Its first child must be a
+pressable component such as `Button`.
+
+| Prop           | Type                        | Default |
+| -------------- | --------------------------- | ------- |
+| `isOpen`       | `boolean`                   |         |
+| `defaultOpen`  | `boolean`                   | `false` |
+| `onOpenChange` | `(isOpen: boolean) => void` |         |
+
+### Dialog
+
+| Prop                           | Type                                                               | Default            |
+| ------------------------------ | ------------------------------------------------------------------ | ------------------ |
+| `size`                         | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'full'`                           | `'md'`             |
+| `fullScreenOnMobile`           | `boolean`                                                          | `false`            |
+| `isDismissable`                | `boolean`                                                          | `true`             |
+| `isKeyboardDismissDisabled`    | `boolean`                                                          | `false`            |
+| `isOpen`                       | `boolean`                                                          | from the trigger   |
+| `defaultOpen`                  | `boolean`                                                          |                    |
+| `onOpenChange`                 | `(isOpen: boolean) => void`                                        |                    |
+| `shouldCloseOnInteractOutside` | `(element: Element) => boolean`                                    |                    |
+| `role`                         | `'dialog' \| 'alertdialog'`                                        | `'dialog'`         |
+| `aria-label`                   | `string`                                                           | the header `title` |
+| `className`                    | `string`                                                           |                    |
+| `overlayClassName`             | `string`                                                           |                    |
+| `children`                     | `ReactNode \| ((renderProps: { close: () => void }) => ReactNode)` |                    |
+
+`className` goes to the dialog surface and `overlayClassName` to the scrim. Every other
+[React Aria Dialog](https://react-aria.adobe.com/Dialog) prop is passed to the element with the
+dialog role. Use `isOpen`, `defaultOpen` and `onOpenChange` on `Dialog` only when there is no
+`DialogTrigger`.
+
+### DialogHeader
+
+| Prop              | Type        | Default |
+| ----------------- | ----------- | ------- |
+| `title`           | `ReactNode` |         |
+| `description`     | `ReactNode` |         |
+| `icon`            | `ReactNode` |         |
+| `action`          | `ReactNode` |         |
+| `showCloseButton` | `boolean`   | `false` |
+
+The title is a level 2 heading that names the dialog, and the description describes it. `icon` is
+not shown in the full-screen layout; `action` is shown only there. `children` render below the
+description. `null`, `false` and `''` render nothing, so `icon={isPaused && <SyncIcon />}` works.
+
+### DialogTitle and DialogDescription
+
+The parts `DialogHeader` uses, for custom header layouts. `DialogTitle` is a React Aria `Heading`
+in the `title` slot. `DialogDescription` is a paragraph that the dialog lists in
+`aria-describedby`. Every `DialogDescription` in the dialog is listed, after any
+`aria-describedby` you pass to `Dialog`.
+
+### DialogBody, DialogFooter
+
+`div` elements with every `div` prop. `DialogBody` scrolls and forwards its `ref`. `DialogFooter`
+places actions at the end and wraps them when they do not fit.
+
+### DialogClose
+
+An icon button in the `close` slot. Its `aria-label` defaults to the localised `close` message
+and its icon to `close` from `DSProvider` icons. Every other React Aria `Button` prop is passed
+through.
+
+### useDialogLayout
+
+Returns `{ isFullScreen }` inside a dialog, for content that should change in the full-screen
+layout.
+
+### Styles for other overlays
+
+`dialogStyles({ size, fullScreen, motion, centered, closable })` exposes the `overlay`,
+`surface`, `dialog`, `header`, `icon`, `heading`, `title`, `description`, `action`, `close`,
+`body` and `footer` slots. `motion` is `'spatial'`, `'fade'` or `'none'`; `centered` is the
+hero-icon header and `closable` reserves room for the close button.
+
+### Data attributes
+
+Surface: `data-slot="dialog-surface"`, `data-size`, `data-fullscreen`, `data-entering`,
+`data-exiting`. Body: `data-overflow-top`, `data-overflow-bottom`. Parts:
+`data-slot="dialog-overlay"`, `"dialog"`, `"dialog-header"`, `"dialog-icon"`, `"dialog-heading"`,
+`"dialog-title"`, `"dialog-description"`, `"dialog-action"`, `"dialog-body"`, `"dialog-footer"`,
+`"dialog-close"`.
+
+### Messages
+
+| Key     | English |
+| ------- | ------- |
+| `close` | `Close` |
+
+Namespace `dialog`.
+
+## Accessibility
+
+- Built on React Aria `ModalOverlay`, `Modal` and `Dialog`. Focus moves into the dialog when it
+  opens, stays inside while it is open and returns to the trigger when it closes. Content behind
+  it is hidden from screen readers and page scrolling is locked.
+- The dialog is named by its title (or `aria-label`) and described by its description.
+- Escape closes the dialog unless `isKeyboardDismissDisabled` is set. When the scrim dismisses
+  it, screen reader users also get a hidden dismiss button.
+- A body that scrolls becomes focusable, so it can be scrolled with the keyboard.
+- The portal takes its direction and language from the locale, so the close button and actions
+  sit on the correct side in Arabic.
+- The dialog scales in and the full-screen layout slides up. With reduced motion, from the system
+  or `DSProvider`, both fade instead; with motion disabled they appear at once.
+- Contrast is checked with axe in light, dark and RTL, for the basic and full-screen layouts, by
+  `dialog.test.tsx`.

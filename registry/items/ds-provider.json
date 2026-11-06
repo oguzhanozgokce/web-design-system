@@ -1,0 +1,8 @@
+{
+  "name": "ds-provider",
+  "type": "registry:ui",
+  "title": "DSProvider",
+  "description": "Supplies locale, client-side routing, message overrides, icons and the motion preference to every component.",
+  "category": "foundations",
+  "files": ["ui/ds-provider.tsx"]
+}

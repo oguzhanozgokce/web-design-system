@@ -1,0 +1,178 @@
+---
+title: Combo box
+description: Searchable select on the shared Field contract that ignores case and accents, matches item keywords, loads results as you type, accepts custom values, picks one or several options and clears with one press.
+---
+
+<ComponentPreview name="combo-box-demo" />
+
+## Installation
+
+<InstallCommand name="combo-box" />
+
+## Usage
+
+```tsx
+import { ComboBox } from '@/components/ds/combo-box';
+import { ListBoxItem } from '@/components/ds/list-box';
+
+<ComboBox label="Issuing office" defaultItems={offices}>
+  {(office) => <ListBoxItem description={office.country}>{office.city}</ListBoxItem>}
+</ComboBox>;
+```
+
+The input follows the [Field](/docs/components/inputs/field) contract, and options are
+[List box](/docs/components/inputs/list-box) items in a popover at least as wide as the field, but
+never wider than the viewport. Use a combo box when people know what they are looking for, or the
+list is long. For a short list, a [Select](/docs/components/inputs/select) is quicker.
+
+## Examples
+
+### Keywords
+
+Filtering matches anywhere in the option text and ignores case and accents, in the current locale:
+“sao” finds São Paulo and “istanbul” finds İstanbul. `keywords` on an item adds other words that
+match it, such as country codes, local names or an email address. Keywords are never shown.
+
+<ComponentPreview name="combo-box-keywords" />
+
+### Avatars
+
+Items keep their avatars and descriptions. `menuTrigger="focus"` opens the list as soon as the field
+is focused, which suits short lists of people.
+
+<ComponentPreview name="combo-box-avatars" />
+
+### Sections
+
+Sections filter with their items, and a section with no matches is hidden.
+
+<ComponentPreview name="combo-box-sections" />
+
+### Async search
+
+For server-side search, pass `items` (not `defaultItems`) and fetch in `onInputChange`. The combo box
+then shows your results as they are, without filtering them again. `isLoading` shows a spinner in the
+field and, while the list is empty, a “Loading…” row. Cancel stale requests so a slow answer cannot
+replace a newer one.
+
+<ComponentPreview name="combo-box-async" />
+
+### Multiple selection
+
+`selectionMode="multiple"` keeps the list open while people pick, and `value` becomes an array of
+keys. The input clears after each pick so the next search starts fresh, and a “2 selected” count
+shows at the end of the field. Screen readers hear the selected labels as the field's description.
+The clear button empties both the text and the selection.
+
+<ComponentPreview name="combo-box-multiple" />
+
+### Custom values
+
+`allowsCustomValue` keeps whatever was typed when the field loses focus, so the list becomes a set of
+suggestions. Read the text from `inputValue`; `value` stays `null` for text that matches no item.
+
+<ComponentPreview name="combo-box-custom-value" />
+
+### Variants and sizes
+
+The field takes the same `variant` and `size` as a text field. `sm` also tightens the list rows.
+
+<ComponentPreview name="combo-box-variants" />
+
+### Validation
+
+`isRequired` blocks native form submission until an option is chosen, and the error replaces the
+description. `name` submits the selected key; with `allowsCustomValue` it submits the text.
+
+<ComponentPreview name="combo-box-validation" />
+
+### Controlled
+
+Pass `value` and `onChange` to own the selected key, and `inputValue` and `onInputChange` to own the
+text.
+
+<ComponentPreview name="combo-box-controlled" />
+
+## API
+
+### ComboBox
+
+| Prop                    | Type                                                 | Default                 |
+| ----------------------- | ---------------------------------------------------- | ----------------------- |
+| `defaultItems`          | `Iterable<T>`                                        |                         |
+| `items`                 | `Iterable<T>`                                        |                         |
+| `children`              | `ReactNode \| ((item: T) => ReactNode)`              |                         |
+| `dependencies`          | `ReadonlyArray<unknown>`                             |                         |
+| `selectionMode`         | `'single' \| 'multiple'`                             | `'single'`              |
+| `value`                 | `Key \| null`, or `Key[]` when multiple              |                         |
+| `defaultValue`          | `Key \| null`, or `Key[]` when multiple              |                         |
+| `onChange`              | `(value: Key \| null) => void`, or `(value: Key[])`  |                         |
+| `inputValue`            | `string`                                             |                         |
+| `defaultInputValue`     | `string`                                             |                         |
+| `onInputChange`         | `(value: string) => void`                            |                         |
+| `placeholder`           | `string`                                             |                         |
+| `startAdornment`        | `ReactNode`                                          |                         |
+| `isLoading`             | `boolean`                                            | `false`                 |
+| `isClearable`           | `boolean`                                            | `true`                  |
+| `onClear`               | `() => void`                                         |                         |
+| `allowsCustomValue`     | `boolean`                                            | `false`                 |
+| `menuTrigger`           | `'input' \| 'focus' \| 'manual'`                     | `'input'`               |
+| `defaultFilter`         | `(textValue: string, inputValue: string) => boolean` | contains, with keywords |
+| `renderEmptyState`      | `(renderProps: ListBoxRenderProps) => ReactNode`     | “No results”            |
+| `allowsEmptyCollection` | `boolean`                                            | `true`                  |
+| `inputRef`              | `Ref<HTMLInputElement>`                              |                         |
+| `labels`                | `Partial<ComboBoxLabels & FieldLabels>`              |                         |
+
+Plus the [shared Field props](/docs/components/inputs/field#shared-props) and every other
+[React Aria ComboBox](https://react-aria.adobe.com/ComboBox) prop, such as `name`, `formValue`,
+`disabledKeys`, `validate` and `onOpenChange`. `className` styles the root.
+
+`defaultFilter` replaces the built-in matching, keywords included. Build one with
+[`useFilter`](https://react-aria.adobe.com/useFilter) so it stays locale-aware.
+
+### comboBoxStyles
+
+`comboBoxStyles({ animated })` returns class functions for `count`, `value`, `loading`, `arrow`,
+`popover` and `list`. `animated` (default `true`) turns the arrow with the spatial spring; ComboBox
+sets it to `false` when `DSProvider` motion is reduced or off. The field itself uses the
+[`fieldStyles`](/docs/components/inputs/field#fieldstyles) parts.
+
+### Data attributes
+
+The root has `data-slot="combo-box"`, `data-size`, `data-variant`, `data-loading`, `data-open`,
+`data-invalid`, `data-disabled`, `data-readonly` and `data-required`. Parts:
+`data-slot="container"`, `"input"`, `"selected-value"` (the hidden description, with
+`data-placeholder` while nothing is selected), `"selected-count"`, `"loading"`, `"clear-button"`,
+`"trigger"` (the arrow button, with `data-pressed` while open) and `"popover"`. The list parts are listed on
+[List box](/docs/components/inputs/list-box#data-attributes).
+
+### Labels
+
+Text the combo box writes on its own. Pass `labels` to one combo box, or set them for every combo
+box with `<DSProvider labels={{ comboBox: { … } }}>`. `labels` also takes the
+[Field](/docs/components/inputs/field) keys, such as `optional` for the label's “(optional)”
+marker, which `DSProvider` sets under `field`.
+
+| Key               | Default            | Used for                                                                 |
+| ----------------- | ------------------ | ------------------------------------------------------------------------ |
+| `noResults`       | `No results`       | the open list when nothing matches                                       |
+| `loading`         | `Loading…`         | the spinner's accessible name and the row of an empty list while loading |
+| `clear`           | `Clear`            | the accessible name of the clear button                                  |
+| `showSuggestions` | `Show suggestions` | the accessible name of the arrow button                                  |
+| `selectedCount`   | `{count} selected` | the count at the end of a multiple-selection field                       |
+
+`{count}` arrives formatted with the locale's number format. A template can also be a function of
+it, for languages with plural forms: `selectedCount: ({ count }) => …`.
+
+## Accessibility
+
+- Built on React Aria `ComboBox`: focus stays in the input while the arrow keys move through the
+  options, Enter selects, and Escape closes the list and puts back the selected option's text. The
+  number of matches is announced as it changes.
+- While the list is open, React Aria hides the rest of the page from screen readers so the virtual
+  cursor stays in the field and its options.
+- The popover takes its direction from the locale, so the list mirrors in right-to-left languages
+  even when only part of the page is right-to-left.
+- The arrow and clear buttons are out of the tab order, like the browser's own controls; both are
+  named from `labels`, and clearing puts focus back in the input.
+- Contrast is checked with axe in light, dark and RTL, with the list open, by `combo-box.test.tsx`.

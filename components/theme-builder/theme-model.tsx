@@ -1,0 +1,182 @@
+import type { CSSProperties } from 'react';
+import {
+  brandColors,
+  colorDeclarations,
+  colorRoleNames,
+  lightDarkDeclarations,
+  type BrandColors,
+  type ColorMode,
+  type ContrastLevel,
+  type PaletteStyle,
+} from '@/registry/ds/lib/color-scheme';
+import { parseSeed } from '@/registry/ds/lib/dynamic-color';
+import tokenConfig from '@/tokens/config.json';
+
+export interface PaletteStyleOption {
+  id: PaletteStyle;
+  name: string;
+  description: string;
+}
+
+export const paletteStyleOptions: PaletteStyleOption[] = [
+  {
+    id: 'tonal-spot',
+    name: 'Tonal spot',
+    description: 'Material’s default: calm, low-chroma accents',
+  },
+  { id: 'vibrant', name: 'Vibrant', description: 'Saturated accents; the catalogue default' },
+  { id: 'expressive', name: 'Expressive', description: 'Shifts hues for playful palettes' },
+  {
+    id: 'fidelity',
+    name: 'Fidelity',
+    description: 'Keeps primary-container closest to the seed',
+  },
+  {
+    id: 'neutral',
+    name: 'Neutral',
+    description: 'Nearly grey, for tools and dense admin screens',
+  },
+  { id: 'monochrome', name: 'Monochrome', description: 'Grey only' },
+];
+
+export interface ContrastOption {
+  id: ContrastLevel;
+  name: string;
+}
+
+export const contrastOptions: ContrastOption[] = [
+  { id: 'standard', name: 'Standard' },
+  { id: 'medium', name: 'Medium' },
+  { id: 'high', name: 'High' },
+];
+
+const colorModes: ColorMode[] = ['light', 'dark'];
+
+const contrastLevels = contrastOptions.map((option) => option.id);
+
+export function isPaletteStyle(value: unknown): value is PaletteStyle {
+  return paletteStyleOptions.some((option) => option.id === value);
+}
+
+export function isContrastLevel(value: unknown): value is ContrastLevel {
+  return contrastOptions.some((option) => option.id === value);
+}
+
+function configuredSeed() {
+  const seed = parseSeed(tokenConfig.seed);
+  if (!seed) throw new Error(`tokens/config.json has an invalid seed: ${tokenConfig.seed}`);
+  return seed;
+}
+
+export interface ThemeSettings {
+  seed: string;
+  style: PaletteStyle;
+  contrast: ContrastLevel;
+  mode: ColorMode;
+}
+
+export const defaultSettings: ThemeSettings = {
+  seed: configuredSeed(),
+  style: isPaletteStyle(tokenConfig.style) ? tokenConfig.style : 'tonal-spot',
+  contrast: 'standard',
+  mode: 'light',
+};
+
+export type SchemeSet = Record<ColorMode, Record<ContrastLevel, BrandColors>>;
+
+export function buildSchemes(seed: string, style: PaletteStyle): SchemeSet {
+  return Object.fromEntries(
+    colorModes.map((mode) => [
+      mode,
+      Object.fromEntries(
+        contrastLevels.map((contrast) => [contrast, brandColors({ seed, mode, style, contrast })]),
+      ),
+    ]),
+  ) as SchemeSet;
+}
+
+export function formatSeed(seed: string) {
+  return seed.toUpperCase();
+}
+
+export function paletteStyleName(style: PaletteStyle) {
+  return paletteStyleOptions.find((option) => option.id === style)?.name ?? style;
+}
+
+export function contrastName(contrast: ContrastLevel) {
+  return contrastOptions.find((option) => option.id === contrast)?.name ?? contrast;
+}
+
+export function schemeStyle(colors: BrandColors, mode: ColorMode): CSSProperties {
+  const properties: Record<string, string> = { colorScheme: mode };
+  for (const role of colorRoleNames) properties[`--${role}`] = colors[role];
+  return properties as CSSProperties;
+}
+
+const raisedContrasts = ['medium', 'high'] as const;
+
+function lightDarkBlocks(schemes: SchemeSet) {
+  const both = (contrast: ContrastLevel, indent = '    ') =>
+    lightDarkDeclarations(schemes.light[contrast], schemes.dark[contrast], indent);
+
+  return [
+    `@supports (color: light-dark(red, red)) {`,
+    `  :root {\n    color-scheme: light;\n${both('standard')}\n  }`,
+    '',
+    `  .light,\n  [data-theme='light'] {\n    color-scheme: light;\n  }`,
+    '',
+    `  .dark,\n  [data-theme='dark'] {\n    color-scheme: dark;\n  }`,
+    '',
+    ...raisedContrasts.flatMap((contrast) => [
+      `  :root[data-contrast='${contrast}'] {\n${both(contrast)}\n  }`,
+      '',
+    ]),
+    `  @media (prefers-contrast: more) {\n    :root:not([data-contrast]) {\n${both('high', '      ')}\n    }\n  }`,
+    `}`,
+  ];
+}
+
+function fallbackBlocks(schemes: SchemeSet) {
+  const declarations = (mode: ColorMode, contrast: ContrastLevel, indent = '    ') =>
+    colorDeclarations(schemes[mode][contrast], indent);
+
+  return [
+    `@supports not (color: light-dark(red, red)) {`,
+    `  :root,\n  .light,\n  [data-theme='light'] {\n    color-scheme: light;\n${declarations('light', 'standard')}\n  }`,
+    '',
+    `  .dark,\n  [data-theme='dark'] {\n    color-scheme: dark;\n${declarations('dark', 'standard')}\n  }`,
+    '',
+    ...raisedContrasts.flatMap((contrast) => [
+      `  :root[data-contrast='${contrast}'] {\n${declarations('light', contrast)}\n  }`,
+      '',
+      `  :root.dark[data-contrast='${contrast}'],\n  :root[data-theme='dark'][data-contrast='${contrast}'] {\n${declarations('dark', contrast)}\n  }`,
+      '',
+    ]),
+    `  @media (prefers-contrast: more) {\n    :root:not([data-contrast]) {\n${declarations('light', 'high', '      ')}\n    }\n\n    :root.dark:not([data-contrast]),\n    :root[data-theme='dark']:not([data-contrast]) {\n${declarations('dark', 'high', '      ')}\n    }\n  }`,
+    `}`,
+  ];
+}
+
+export function tokensCss(schemes: SchemeSet) {
+  const header = '/* Generated from tokens/config.json. Do not edit. */';
+
+  return [header, '', ...lightDarkBlocks(schemes), '', ...fallbackBlocks(schemes), ''].join('\n');
+}
+
+export function configJson(seed: string, style: PaletteStyle) {
+  return `${JSON.stringify({ ...tokenConfig, seed: formatSeed(seed), style }, null, 2)}\n`;
+}
+
+function kotlinEnum(value: string) {
+  return value.toUpperCase().replaceAll('-', '_');
+}
+
+export function composeCall(seed: string, style: PaletteStyle, contrast: ContrastLevel) {
+  return [
+    'rememberDSBrandColors(',
+    `    seed = Color(0xFF${formatSeed(seed).slice(1)}),`,
+    `    style = DSPaletteStyle.${kotlinEnum(style)},`,
+    `    contrast = DSContrast.${kotlinEnum(contrast)},`,
+    ')',
+  ].join('\n');
+}

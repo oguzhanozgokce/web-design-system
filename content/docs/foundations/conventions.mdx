@@ -1,0 +1,31 @@
+---
+title: Conventions
+description: The rules every component follows, so they read the same wherever they are used.
+---
+
+## API
+
+- **Props follow React Aria.** `isDisabled`, `isPending`, `isSelected`, `onPress`, `value`,
+  `defaultValue`, `onChange`. Controlled and uncontrolled both work.
+- **Variants are named after Material 3.** `variant`: `filled`, `tonal`, `outlined`, `text`,
+  `elevated`. `size`: `xs` to `xl`. `tone`: `default` or `destructive`.
+- **A different look is a variant. A different behaviour is a new component** named after what it
+  does: `HoldToConfirmButton`, `SplitButton`. Never `ButtonV2`.
+- **Async actions are promises.** `onPress`, `onConfirm` and `onSubmit` may return a promise and the
+  component shows its own pending state.
+- **Icon-only actions are `IconButton`**, which requires an `aria-label`.
+- **State is visible as data attributes**: `data-variant`, `data-size`, `data-pending`,
+  `data-selected`, plus React Aria's `data-hovered`, `data-pressed`, `data-focus-visible`. Restyle
+  with Tailwind data variants instead of new props.
+- **Parts carry `data-slot`** so a project can target them.
+- **Every style export is public**: `buttonStyles`, `cardStyles`. Style a link or a custom element
+  with them instead of nesting a button in a link.
+
+## Code
+
+- No comments in code. Reasoning goes in commit messages, `AGENTS.md` and these pages.
+- Registry files import each other through `@/registry/ds/...`, never relative paths, so the shadcn
+  CLI can rewrite them.
+- No `next/*`, `next-intl` or other framework imports in the registry. Routing comes from
+  `DSProvider`.
+- Colours are roles. Directions are logical. Strings are messages.

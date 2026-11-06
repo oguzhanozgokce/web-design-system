@@ -1,0 +1,8 @@
+{
+  "name": "link",
+  "type": "registry:ui",
+  "title": "Link",
+  "description": "Text link in an inline and a standalone style, with an optional forward arrow, external links that announce the new tab, router navigation and a disabled state.",
+  "category": "actions",
+  "files": ["ui/link.tsx"]
+}

@@ -1,0 +1,78 @@
+---
+title: Spinner
+description: A small decorative spinner that inherits the current text colour and size, for pending buttons, chips and inline status text.
+---
+
+<ComponentPreview name="spinner-demo" />
+
+## Installation
+
+<InstallCommand name="spinner" />
+
+## Usage
+
+```tsx
+import { Spinner } from '@/components/ds/spinner';
+
+<p role="status">
+  <Spinner /> Syncing 3 bank accounts
+</p>;
+```
+
+`Spinner` is the glyph that `Button`, `IconButton`, `Fab`, `Chip` and `Toast` show while they are
+pending. Reach for it when you build something similar. For a loading state that stands on its own,
+use [`CircularProgress`](/docs/components/feedback/progress) with `isIndeterminate` instead: it has
+a name, a track and the Material 3 motion.
+
+## Examples
+
+### Sizes
+
+The spinner is `1em` square, so it follows the font size of its parent like an icon. Set a text
+size on it or on a parent, or pass `size` in pixels or any CSS length.
+
+<ComponentPreview name="spinner-sizes" />
+
+### Colour
+
+It draws with `currentColor`: the arc at full strength and the ring at 24%. Put it in a surface with
+an `on-` text role and it matches the label next to it.
+
+<ComponentPreview name="spinner-colors" />
+
+### Giving it a name
+
+The spinner is `aria-hidden`. When nothing nearby says what is loading, wrap it in a React Aria
+`ProgressBar` with `isIndeterminate` and an `aria-label`, the way `Button` does.
+
+<ComponentPreview name="spinner-progress-bar" />
+
+## API
+
+### Spinner
+
+| Prop        | Type               | Default |
+| ----------- | ------------------ | ------- |
+| `size`      | `number \| string` | `'1em'` |
+| `className` | `string`           |         |
+
+Every other SVG attribute is passed through.
+
+### Styles
+
+`spinnerStyles` takes a `motion` variant: `full` (one turn a second), `reduced` (one turn every 2.4
+seconds) or `none`. A class you pass, such as `animate-none`, replaces the built-in animation.
+
+### Data attributes
+
+`data-slot="spinner"`.
+
+## Accessibility
+
+- The spinner is decorative: `aria-hidden="true"` and `focusable="false"`. It never becomes the
+  only sign that something is loading for a screen reader user. Pair it with visible text in a
+  `role="status"` element, or with a named `ProgressBar`.
+- With reduced motion from the operating system or `DSProvider motion="reduced"` it turns slowly,
+  once every 2.4 seconds, instead of stopping, so it still reads as busy. `motion="disabled"` stops
+  it.
+- Contrast and structure are checked with axe in light, dark and RTL by `spinner.test.tsx`.

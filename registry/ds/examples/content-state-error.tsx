@@ -1,0 +1,46 @@
+import { LockIcon } from '@/registry/ds/lib/icons';
+import { ButtonLink } from '@/registry/ds/ui/button';
+import { ContentState } from '@/registry/ds/ui/content-state';
+import { EmptyState } from '@/registry/ds/ui/empty-state';
+
+class HttpError extends Error {
+  constructor(readonly status: number) {
+    super(`HTTP ${status}`);
+  }
+}
+
+export default function ContentStateError() {
+  return (
+    <div className="grid w-full gap-3 md:grid-cols-2">
+      <ContentState
+        error={new HttpError(503)}
+        headingLevel={3}
+        errorTitle={(error) =>
+          error instanceof HttpError && error.status === 503
+            ? 'Reports are being rebuilt'
+            : 'Reports are unavailable'
+        }
+        errorDescription="This takes a few minutes after a large import. The page updates by itself."
+        className="rounded-lg border border-outline-variant bg-surface"
+      />
+      <ContentState
+        error={new HttpError(403)}
+        headingLevel={3}
+        errorContent={(error) => (
+          <EmptyState
+            headingLevel={3}
+            icon={<LockIcon />}
+            title="You don’t have access to Billing"
+            description={
+              error instanceof HttpError && error.status === 403
+                ? 'Ask a workspace owner to give you the Billing role.'
+                : 'Ask a workspace owner for access.'
+            }
+            primaryAction={<ButtonLink href="#accessibility">Request access</ButtonLink>}
+          />
+        )}
+        className="rounded-lg border border-outline-variant bg-surface"
+      />
+    </div>
+  );
+}

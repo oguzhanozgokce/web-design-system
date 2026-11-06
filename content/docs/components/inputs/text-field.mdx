@@ -1,0 +1,119 @@
+---
+title: Text field
+description: Single-line input on the shared Field contract, with start and end adornments, a clear button, a character counter and native types for email, URL and phone.
+---
+
+<ComponentPreview name="text-field-demo" />
+
+## Installation
+
+<InstallCommand name="text-field" />
+
+## Usage
+
+```tsx
+import { TextField } from '@/components/ds/text-field';
+
+<TextField label="Work email" type="email" autoComplete="email" isRequired />;
+```
+
+Label, description, errors, sizes, variants and the required indicator follow the
+[Field](/docs/components/inputs/field) contract.
+
+## Examples
+
+### Adornments
+
+`startAdornment` and `endAdornment` hold icons, prefixes such as `https://` and units such as `kg`.
+They are sized to the field, and pressing one focuses the input. Adornments are not read as part of
+the value, so put anything a screen reader must hear in the label or description.
+
+<ComponentPreview name="text-field-adornments" />
+
+### Clearable
+
+`isClearable` shows a clear button while the field has a value and is editable. It sits at the very
+end, after any `endAdornment`, so a unit stays next to the value. Escape clears too, and passes
+through to dialogs once the field is empty. The button stays out of the tab order, like the
+browser's own search clear. `onClear` runs after the value is emptied.
+
+<ComponentPreview name="text-field-clearable" />
+
+### Character counter
+
+Setting `maxLength` limits the input and shows a counter. Screen readers hear the count with the
+description and a polite update once typing pauses. Set `showCounter={false}` for limits that need
+no counter, such as postcodes.
+
+<ComponentPreview name="text-field-counter" />
+
+### Types and autofill
+
+`type="email"`, `"url"` and `"tel"` bring the right mobile keyboard and native validation.
+`autoComplete` and `inputMode` pass straight to the input, so password managers and address autofill
+work. In right-to-left locales these three types lay out the control left to right, so phone
+numbers and addresses are not reordered and a prefix such as `https://` stays before the value. The
+label and supporting text keep the page direction.
+
+<ComponentPreview name="text-field-types" />
+
+### Controlled
+
+Pass `value` and `onChange` to own the value. `onChange` receives the string, not an event.
+
+<ComponentPreview name="text-field-controlled" />
+
+## API
+
+### TextField
+
+| Prop             | Type                                                            | Default  |
+| ---------------- | --------------------------------------------------------------- | -------- |
+| `value`          | `string`                                                        |          |
+| `defaultValue`   | `string`                                                        | `''`     |
+| `onChange`       | `(value: string) => void`                                       |          |
+| `placeholder`    | `string`                                                        |          |
+| `type`           | `'text' \| 'email' \| 'url' \| 'tel' \| 'search' \| 'password'` | `'text'` |
+| `autoComplete`   | `string`                                                        |          |
+| `inputMode`      | `string`                                                        |          |
+| `startAdornment` | `ReactNode`                                                     |          |
+| `endAdornment`   | `ReactNode`                                                     |          |
+| `isClearable`    | `boolean`                                                       | `false`  |
+| `onClear`        | `() => void`                                                    |          |
+| `maxLength`      | `number`                                                        |          |
+| `showCounter`    | `boolean`                                                       | `true`   |
+| `inputRef`       | `Ref<HTMLInputElement>`                                         |          |
+| `labels`         | `Partial<TextFieldLabels & FieldLabels>`                        |          |
+
+Plus the [shared Field props](/docs/components/inputs/field#shared-props) and every other
+[React Aria TextField](https://react-aria.adobe.com/TextField) prop, such as `name`, `pattern`,
+`validate` and `onBlur`. `className` styles the root.
+
+### Data attributes
+
+The root has `data-slot="text-field"`, `data-size`, `data-variant`, `data-invalid`,
+`data-disabled`, `data-readonly` and `data-required`. The clear button is
+`data-slot="clear-button"`. With `type="email"`, `"url"` or `"tel"` the control
+(`data-slot="container"`) has `dir="ltr"`. The other parts are listed on
+[Field](/docs/components/inputs/field#data-attributes).
+
+### Labels
+
+Text the field writes on its own. Pass `labels` to one field, or set them for every text field with
+`<DSProvider labels={{ textField: { … } }}>`.
+
+| Key     | Default | Used for                                |
+| ------- | ------- | --------------------------------------- |
+| `clear` | `Clear` | the accessible name of the clear button |
+
+`labels` also takes the [Field labels](/docs/components/inputs/field#labels) for the counter and the
+optional marker, which `DSProvider` sets under `field`.
+
+## Accessibility
+
+- Built on React Aria `TextField`: the label, description and error are wired to the input, and
+  native form validation focuses the first invalid field on submit.
+- The clear button is named by the `clear` label and keeps focus on the input after clearing.
+  Escape clears without reaching it.
+- Pressing an adornment focuses the input, so the whole control is one target.
+- Contrast is checked with axe in light, dark and RTL by `text-field.test.tsx`.

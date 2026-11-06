@@ -1,0 +1,162 @@
+---
+title: Slider
+description: Material 3 Expressive slider with one value or a range, three track sizes, stop indicators, labelled marks, a centred fill, a value bubble while dragging, vertical orientation and locale-aware formatting.
+---
+
+<ComponentPreview name="slider-demo" />
+
+## Installation
+
+<InstallCommand name="slider" />
+
+## Usage
+
+```tsx
+import { Slider } from '@/components/ds/slider';
+
+<Slider
+  label="Monthly spending limit"
+  defaultValue={1500}
+  maxValue={5000}
+  step={100}
+  formatOptions={{ style: 'currency', currency: 'USD', maximumFractionDigits: 0 }}
+/>;
+```
+
+Use a slider when the rough position matters more than the exact number: limits, thresholds,
+weights and ranges. When people know the exact number they want, a number field is faster.
+
+## Examples
+
+### Range
+
+Pass an array to `defaultValue` or `value` to get one thumb per entry. The header shows the range
+formatted for the locale, and each thumb is announced as Minimum or Maximum. Name the thumbs of one
+slider with `thumbLabels`, or change the defaults with `labels`.
+
+<ComponentPreview name="slider-range" />
+
+### Sizes
+
+`sm` (16px track) is the standard Material 3 slider and the default. `md` (24px) and `lg` (40px)
+are the expressive sizes for settings screens and marketing pages where the slider is the main
+control. The handle is 44px tall for `sm` and `md`, and 52px for `lg`.
+
+<ComponentPreview name="slider-sizes" />
+
+### Stops
+
+When `step` divides the range into 20 or fewer intervals and there are no `marks`, the track shows
+a stop at each position so people can see where the thumb will land. With `marks`, the stops sit at
+the marks instead. `showStops` turns the step stops on or off explicitly. A continuous slider still
+gets a stop at the end of its track.
+
+<ComponentPreview name="slider-stops" />
+
+### Marks
+
+`marks` adds labelled positions under the track. A plain number is formatted like the value, so
+`[7, 30, 60, 90]` with a `day` unit reads "7 days" in English and "7 Tage" in German. Pass
+`{ value, label }` for words instead of numbers.
+
+<ComponentPreview name="slider-marks" />
+
+### Centred
+
+`fillOffset` sets the value the active track grows from. Set it to `0` on a range that crosses zero
+for adjustments that can go either way, such as a markup or a discount.
+
+<ComponentPreview name="slider-centered" />
+
+### Vertical
+
+`orientation="vertical"` centres the label and value above the track in a column 240px tall.
+Change the height with `className`. Up and Page Up increase the value.
+
+<ComponentPreview name="slider-vertical" />
+
+### Controlled
+
+Use `value` and `onChange` when something else on the page reacts to the value as it moves. Use
+`onChangeEnd` to save only when the thumb is released.
+
+<ComponentPreview name="slider-controlled" />
+
+### Disabled
+
+Disabled sliders keep showing their value so people can see what a plan or policy has fixed.
+
+<ComponentPreview name="slider-disabled" />
+
+## API
+
+### Slider
+
+| Prop                 | Type                                  | Default          |
+| -------------------- | ------------------------------------- | ---------------- |
+| `label`              | `ReactNode`                           |                  |
+| `description`        | `ReactNode`                           |                  |
+| `size`               | `'sm' \| 'md' \| 'lg'`                | `'sm'`           |
+| `orientation`        | `'horizontal' \| 'vertical'`          | `'horizontal'`   |
+| `value`              | `number \| number[]`                  |                  |
+| `defaultValue`       | `number \| number[]`                  | `minValue`       |
+| `onChange`           | `(value: number \| number[]) => void` |                  |
+| `onChangeEnd`        | `(value: number \| number[]) => void` |                  |
+| `minValue`           | `number`                              | `0`              |
+| `maxValue`           | `number`                              | `100`            |
+| `step`               | `number`                              | `1`              |
+| `formatOptions`      | `Intl.NumberFormatOptions`            |                  |
+| `marks`              | `ReadonlyArray<number \| SliderMark>` |                  |
+| `showStops`          | `boolean`                             | automatic        |
+| `fillOffset`         | `number`                              | `minValue`       |
+| `showValueLabel`     | `boolean`                             | `true`           |
+| `showValueIndicator` | `boolean`                             | `true`           |
+| `thumbLabels`        | `ReadonlyArray<string \| undefined>`  | Minimum, Maximum |
+| `labels`             | `Partial<SliderLabels>`               |                  |
+| `name`               | `string`                              |                  |
+| `form`               | `string`                              |                  |
+| `isDisabled`         | `boolean`                             | `false`          |
+
+`SliderMark` is `{ value: number; label?: ReactNode }`. A mark without a label draws a stop and no
+text. `fillOffset` applies to single-value sliders; a range always fills between its thumbs. `name`
+and `form` are set on every thumb's input, so a range submits one entry per thumb. Without a
+visible `label`, pass `aria-label`. Every other [React Aria Slider](https://react-aria.adobe.com/Slider)
+prop except `render` is passed through.
+
+### Data attributes
+
+Root (`data-slot="slider"`): `data-size`, `data-orientation`, `data-disabled`. Thumbs
+(`data-slot="thumb"`): `data-dragging`, `data-focused`, `data-focus-visible`, `data-hovered`,
+`data-disabled`. Track segments and stops (`data-slot="segment"`, `"stop"`): `data-tone` is
+`active` or `inactive`. Other parts: `"header"`, `"label"`, `"output"`, `"control"`, `"track"`,
+`"rail"`, `"stops"`, `"value-indicator"`, `"bubble"`, `"marks"`, `"mark"`, `"description"`.
+
+### Labels
+
+Text the slider writes on its own. Pass `labels` to one slider, or set them for every slider with
+`<DSProvider labels={{ slider: { … } }}>`. `thumbLabels` wins over both for the thumbs it names.
+
+| Key       | Default   | Used for                                                       |
+| --------- | --------- | -------------------------------------------------------------- |
+| `minimum` | `Minimum` | the accessible name of a range's first thumb, before the label |
+| `maximum` | `Maximum` | the accessible name of a range's last thumb, before the label  |
+
+## Accessibility
+
+- Built on React Aria `Slider`: each thumb is a native range input, so arrow keys, Page Up, Page
+  Down, Home and End work, and screen readers hear the formatted value through `aria-valuetext`.
+- The label names the group and every thumb; a range adds Minimum and Maximum so the two thumbs
+  can be told apart. The description is linked with `aria-describedby`.
+- The slider takes its direction from the `DSProvider` locale, the same source React Aria uses for
+  arrow keys, and sets `dir` on its root, so in Arabic the track fills from the right and Right
+  Arrow lowers the value.
+- The value bubble appears while dragging and on keyboard focus, never on hover, and is hidden from
+  screen readers because the value is already announced. With the system's reduced motion setting
+  or `DSProvider motion="reduced"` it fades without scaling and the handle stops animating its
+  width. With `motion="disabled"` it appears instantly.
+- A disabled slider marks its group `aria-disabled`, so assistive technology reports the whole
+  control as unavailable.
+- In forced colours mode (Windows High Contrast) the active track uses `Highlight`, the inactive
+  track gets an outline, and the handle and stops switch to system colours, so the slider stays
+  visible. A disabled slider uses `GrayText`.
+- Contrast is checked with axe in light, dark and RTL by `slider.test.tsx`.

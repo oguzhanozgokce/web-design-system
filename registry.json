@@ -1,0 +1,1297 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "ds",
+  "homepage": "https://github.com/oguzhanozgokce/web-design-system",
+  "items": [
+    {
+      "name": "alert-dialog",
+      "type": "registry:ui",
+      "title": "Alert Dialog",
+      "description": "Confirmation dialog with confirm and cancel actions, a destructive tone, an async onConfirm that stays open while pending and shows failures inline, and an optional type-to-confirm phrase.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/dialog",
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/alert-dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "Material 3 avatar that falls back from a photo to initials to a person glyph, with a stable tonal colour from the name, five sizes, two shapes, a presence dot, a button twin and an overlapping group with a +N overflow.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/avatar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "Material 3 badge as a small dot or a count that caps at 99+, in five tones, with a screen reader label and an anchor that pins it to the top-end corner of an icon or avatar.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/badge.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "banner",
+      "type": "registry:ui",
+      "title": "Banner",
+      "description": "Inline message and top-of-page banner in five status tones, tonal or outlined, with a default glyph per tone, text-button actions, a dismiss button and a polite status region that becomes an alert for announced errors.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/banner.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button-group",
+      "type": "registry:ui",
+      "title": "Button Group",
+      "description": "Material 3 button group, standard or connected, horizontal or vertical, that gives its buttons a shared size, variant and tone.",
+      "categories": [
+        "actions"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/button-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Material 3 button in five variants and five sizes, with icons, a destructive tone, a link twin and automatic pending state for async actions.",
+      "categories": [
+        "actions"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "Card",
+      "description": "Material 3 elevated, filled and outlined cards with header, media, content and footer parts, link and button cards, selectable checkbox and radio cards, and automatic surface steps when cards nest.",
+      "categories": [
+        "layout"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "description": "Material 3 checkbox with an animated check mark, indeterminate state, labels and descriptions, plus a checkbox group with validation and a built-in select-all checkbox.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/checkbox.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "chip",
+      "type": "registry:ui",
+      "title": "Chip",
+      "description": "Material 3 chips for filtering, choosing and entering values, as a keyboard-navigable group with single or multiple selection and removable input chips, plus standalone assist and filter chips.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/chip.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "color-scheme",
+      "type": "registry:lib",
+      "title": "Colour scheme",
+      "description": "Generates every Material 3 role plus success, warning and info from one seed colour at runtime, matching MaterialKolor on mobile.",
+      "categories": [
+        "foundations"
+      ],
+      "dependencies": [
+        "@material/material-color-utilities"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/lib/color-scheme.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "combo-box",
+      "type": "registry:ui",
+      "title": "Combo box",
+      "description": "Searchable select on the shared Field contract that ignores case and accents, matches item keywords, loads results as you type, accepts custom values, picks one or several options and clears with one press.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/field",
+        "@ds/list-box",
+        "@ds/popover",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/combo-box.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "content-state",
+      "type": "registry:ui",
+      "title": "Content State",
+      "description": "Switches between loading, error, empty and content for data you fetch, from an explicit status or from data and error, with default copy you can replace, an async retry, a skeleton slot and a refresh-error banner over stale content.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/banner",
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/empty-state",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/content-state.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "copy-button",
+      "type": "registry:ui",
+      "title": "Copy Button",
+      "description": "Copies a string or an async value to the clipboard, confirms with a check and a screen-reader announcement, and reports failures; icon-only or with a label.",
+      "categories": [
+        "actions"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/copy-button.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/ds/hooks/use-copy-to-clipboard.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "Material 3 modal dialog with header, scrolling body and actions, five sizes, a centred hero icon, dismissal control and a full-screen layout with a top app bar on phones.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/card",
+        "@ds/ds-provider",
+        "@ds/theme-scope",
+        "@ds/use-media-query",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "disclosure",
+      "type": "registry:ui",
+      "title": "Disclosure",
+      "description": "Expandable section with a heading trigger, optional icon and description, and an animated panel, plus an Accordion that groups disclosures as plain, outlined or separated lists.",
+      "categories": [
+        "layout"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/disclosure.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "divider",
+      "type": "registry:ui",
+      "title": "Divider",
+      "description": "Material 3 divider on React Aria Separator, horizontal or vertical, full width or with a start or middle inset, and an optional centred label such as a localised “or”.",
+      "categories": [
+        "layout"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/divider.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "ds-provider",
+      "type": "registry:ui",
+      "title": "DSProvider",
+      "description": "Supplies locale, client-side routing, message overrides, icons and the motion preference to every component.",
+      "categories": [
+        "foundations"
+      ],
+      "dependencies": [
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/i18n",
+        "@ds/icons",
+        "@ds/motion",
+        "@ds/use-media-query"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/ds-provider.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dynamic-color",
+      "type": "registry:lib",
+      "title": "Dynamic colour",
+      "description": "Runtime Material 3 schemes as scoped CSS, seed colours ranked from an image with Material's content-based quantizer and score, and a boot script that paints a stored theme before hydration.",
+      "categories": [
+        "foundations"
+      ],
+      "dependencies": [
+        "@material/material-color-utilities"
+      ],
+      "registryDependencies": [
+        "@ds/color-scheme"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/lib/dynamic-color.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "dynamic-theme",
+      "type": "registry:ui",
+      "title": "Dynamic theme",
+      "description": "Applies a scheme generated from a seed colour to a subtree or to the whole page, following light, dark and contrast, with a cached boot script for user-chosen themes and an animated theme switch.",
+      "categories": [
+        "foundations"
+      ],
+      "registryDependencies": [
+        "@ds/color-scheme",
+        "@ds/ds-provider",
+        "@ds/dynamic-color",
+        "@ds/theme-scope"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/dynamic-theme.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/ds/ui/dynamic-theme-script.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "empty-state",
+      "type": "registry:ui",
+      "title": "Empty State",
+      "description": "Centred placeholder for empty tables, lists and whole pages, with an icon or illustration, a real heading, a description and primary and secondary actions in three sizes.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/empty-state.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "fab",
+      "type": "registry:ui",
+      "title": "FAB",
+      "description": "Material 3 floating action button in three sizes and four colours, with an extended form that shrinks on scroll and a FAB menu for two to six related actions.",
+      "categories": [
+        "actions"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/spinner",
+        "@ds/theme-scope",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/fab.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "field",
+      "type": "registry:ui",
+      "title": "Field",
+      "description": "The shared contract every input follows, with a label and necessity indicator, description, error message, character counter and outlined and filled controls in three sizes.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "i18n",
+      "type": "registry:lib",
+      "title": "Localisation helpers",
+      "description": "The 18 supported locales, per-component message catalogues, locale resolution and direction.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/lib/i18n.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "icon-button",
+      "type": "registry:ui",
+      "title": "Icon Button",
+      "description": "Material 3 icon button in four variants, five sizes and two shapes, with a toggle twin, a link twin, a destructive tone and automatic pending state for async actions.",
+      "categories": [
+        "actions"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/icon-button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "icons",
+      "type": "registry:lib",
+      "title": "Icons",
+      "description": "The Material Symbols Rounded glyphs the library draws itself; every one can be replaced through DSProvider.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/lib/icons.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "kbd",
+      "type": "registry:ui",
+      "title": "Kbd",
+      "description": "Keyboard key hints, one key or a shortcut combination that shows ⌘ on Apple platforms and Ctrl elsewhere, with full key names for screen readers.",
+      "categories": [
+        "data-display"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/kbd.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/ds/hooks/use-kbd-platform.ts",
+          "type": "registry:hook"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Astryx",
+            "url": "https://github.com/meta/astryx/blob/main/packages/core/src/Kbd/Kbd.tsx",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Meta Platforms, Inc."
+          }
+        ]
+      }
+    },
+    {
+      "name": "link",
+      "type": "registry:ui",
+      "title": "Link",
+      "description": "Text link in an inline and a standalone style, with an optional forward arrow, external links that announce the new tab, router navigation and a disabled state.",
+      "categories": [
+        "actions"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/link.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "list-box",
+      "type": "registry:ui",
+      "title": "List box",
+      "description": "Selectable list on React Aria ListBox, with sections, start icons or avatars, descriptions, a check mark for selected rows, two densities, an empty state and load-more.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/list-box.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "menu",
+      "type": "registry:ui",
+      "title": "Menu",
+      "description": "Material 3 menu that opens from a button or a right click, with icons, descriptions, shortcut hints that follow the platform, sections, check-mark selection, nested submenus, link items and a destructive tone.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/card",
+        "@ds/ds-provider",
+        "@ds/popover",
+        "@ds/theme-scope",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "motion",
+      "type": "registry:lib",
+      "title": "Motion tokens",
+      "description": "Spatial and effect springs, durations and easings shared with the Compose design system.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/lib/motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "number-field",
+      "type": "registry:ui",
+      "title": "Number field",
+      "description": "Counter and quantity stepper on the shared Field contract, with minus and plus or stacked chevrons, locale-aware currency, percent and unit formats, a checkout-sized display size and an optional rolling odometer.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "@number-flow/react",
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/field",
+        "@ds/motion",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/number-field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "password-field",
+      "type": "registry:ui",
+      "title": "Password field",
+      "description": "Password input on the shared Field contract, with a reveal toggle, a Caps Lock warning, the right autocomplete hint and an optional strength meter and requirements checklist for new passwords.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/field",
+        "@ds/tooltip",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/password-field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "Material 3 popover surface anchored to a trigger, with placement, an optional arrow, motion that grows from the trigger, and a dialog part with a title and close button for small forms.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/card",
+        "@ds/ds-provider",
+        "@ds/theme-scope",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/popover.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "title": "Progress",
+      "description": "Material 3 linear and circular progress indicators, determinate or indeterminate, with a track gap, a stop dot, four tones, two thicknesses, an expressive wavy variant and value labels formatted for the locale.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/progress.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:ui",
+      "title": "Radio Group",
+      "description": "Material 3 radio group with per-option descriptions, vertical or horizontal layout and a card variant for plan and option pickers.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/radio-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "search-field",
+      "type": "registry:ui",
+      "title": "Search field",
+      "description": "Search input on the shared Field contract, with a clear button and Escape to clear, submit on Enter, a pending spinner for async search, a focus shortcut with its key hint and a Material 3 pill shape for top bars.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/field",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/search-field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "segmented-control",
+      "type": "registry:ui",
+      "title": "Segmented Control",
+      "description": "Material 3 segmented button for one or several choices, with a check on selected segments, plus a thumb style whose filled thumb slides to the selection.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/segmented-control.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "BoardUI",
+            "url": "https://github.com/BoardUI/boardui/blob/main/components/base/segmented-control/segmented-control.tsx",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "Field-styled select on the shared Field contract, with icons and avatars in the value, sections, single or multiple selection shown as text, a count or chips, and async loading.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/field",
+        "@ds/list-box",
+        "@ds/popover",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/select.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "title": "Sheet",
+      "description": "Material 3 sheet that slides in from the start, end, top or bottom edge, with sizes per side, header, body and footer parts, and bottom sheets that drag to dismiss, rest at snap points or stay open beside the page.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/card",
+        "@ds/ds-provider",
+        "@ds/motion",
+        "@ds/theme-scope",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/sheet.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "EasyUI",
+            "url": "https://github.com/Surajmaurya1/easyui/blob/main/src/components/ui/sheet.tsx",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Suraj Maurya"
+          }
+        ]
+      }
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "Loading placeholders in text, circle and rectangle shapes that follow the line height, shimmer in the reading direction and can wrap real content until it has loaded.",
+      "categories": [
+        "feedback"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "title": "Slider",
+      "description": "Material 3 Expressive slider with one value or a range, three track sizes, stop indicators, labelled marks, a centred fill, a value bubble while dragging, vertical orientation and locale-aware formatting.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/slider.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "spinner",
+      "type": "registry:ui",
+      "title": "Spinner",
+      "description": "A small decorative spinner that inherits the current text colour and size, for pending buttons, chips and inline status text.",
+      "categories": [
+        "feedback"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/spinner.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "Switch",
+      "description": "Material 3 switch with a growing handle, optional handle icons, label at either side, descriptions and a full-width row layout for settings pages.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/switch.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "Tabs",
+      "description": "Material 3 primary and secondary tabs plus a pill variant, with a spring indicator that follows the selection, icons, badges, scrolling with fade edges and a vertical layout.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/badge",
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/tabs.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tag",
+      "type": "registry:ui",
+      "title": "Tag",
+      "description": "Compact status labels for tables and lists in six tones and three variants, with an optional dot or icon, plus a keyboard-navigable TagGroup for removable or selectable tags in forms.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/tag.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "text-area",
+      "type": "registry:ui",
+      "title": "Text area",
+      "description": "Multi-line input on the shared Field contract that grows with its content between a minimum and maximum number of rows, with a character counter.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/field",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/text-area.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "text-field",
+      "type": "registry:ui",
+      "title": "Text field",
+      "description": "Single-line input on the shared Field contract, with start and end adornments, a clear button, a character counter and native types for email, URL and phone.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/field",
+        "@ds/use-controllable-state"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/text-field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "theme-scope",
+      "type": "registry:lib",
+      "title": "Theme scope",
+      "description": "Carries the nearest dynamic theme scope to overlays that portal out of it, so popovers, menus and dialogs keep the scheme of the element that opened them.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/lib/theme-scope.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "theme",
+      "type": "registry:style",
+      "title": "Theme",
+      "description": "Material 3 colour roles, type scale, shapes, elevation, motion tokens and the state-layer and focus-ring utilities, generated from one seed colour.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/styles/theme.css",
+          "type": "registry:file",
+          "target": "~/styles/ds/theme.css"
+        },
+        {
+          "path": "registry/ds/styles/tokens.css",
+          "type": "registry:file",
+          "target": "~/styles/ds/tokens.css"
+        }
+      ]
+    },
+    {
+      "name": "toast",
+      "type": "registry:ui",
+      "title": "Toast",
+      "description": "Material 3 snackbar toasts with a global toast() API, status tones, actions, promise and in-place updates, six logical placements and a stack that fans out on hover or keyboard focus.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/toast.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "toggle-button",
+      "type": "registry:ui",
+      "title": "Toggle Button",
+      "description": "Material 3 Expressive toggle button whose shape morphs between a capsule and a rounded square, plus a group for single or multiple selection.",
+      "categories": [
+        "actions"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/button-group",
+        "@ds/ds-provider",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/toggle-button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "title": "Tooltip",
+      "description": "Material 3 plain and rich tooltips that open on hover and keyboard focus, with keyboard shortcut hints, a shared group for toolbars and an interactive rich variant with an action.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/card",
+        "@ds/ds-provider",
+        "@ds/kbd",
+        "@ds/popover",
+        "@ds/theme-scope",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/tooltip.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "use-controllable-state",
+      "type": "registry:hook",
+      "title": "useControllableState",
+      "description": "State that works controlled through value and onChange, or uncontrolled from a default.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/hooks/use-controllable-state.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-image-seed",
+      "type": "registry:hook",
+      "title": "useImageSeed",
+      "description": "Ranks seed colours from an image URL, file or element, for themes that follow a photo, cover or avatar.",
+      "categories": [
+        "foundations"
+      ],
+      "registryDependencies": [
+        "@ds/dynamic-color"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/hooks/use-image-seed.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-local-storage-state",
+      "type": "registry:hook",
+      "title": "useLocalStorageState",
+      "description": "State kept in localStorage, synchronised across components and tabs, with a server value for static rendering.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/hooks/use-local-storage-state.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-media-query",
+      "type": "registry:hook",
+      "title": "useMediaQuery",
+      "description": "Subscribes to a CSS media query, with a server value for static rendering.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/hooks/use-media-query.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "utils",
+      "type": "registry:lib",
+      "title": "Utilities",
+      "description": "cn() and a tv() preconfigured to merge the Material 3 type scale and elevation utilities.",
+      "categories": [
+        "foundations"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@ds/theme"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ]
+    }
+  ]
+}

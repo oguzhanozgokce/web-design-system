@@ -1,0 +1,177 @@
+---
+title: FAB
+description: Material 3 floating action button in three sizes and four colours, with an extended form that shrinks on scroll and a FAB menu for two to six related actions.
+---
+
+<ComponentPreview name="fab-demo" />
+
+## Installation
+
+<InstallCommand name="fab" />
+
+## Usage
+
+```tsx
+import { ExtendedFab, Fab, FabMenu, FabMenuItem } from '@/components/ds/fab';
+
+<Fab aria-label="New invoice" icon={<AddIcon />} onPress={createInvoice} />;
+```
+
+A FAB is the single most important action on a screen, such as writing a message or adding a
+transaction. Use at most one per screen and position it yourself, usually with
+`className="fixed bottom-4 inset-e-4"`, so it follows the reading direction.
+
+## Examples
+
+### Sizes
+
+`md` (56px) is the default. `sm` (40px) suits compact layouts and grows its hit area to 48px on
+touch screens. `lg` (96px) suits large screens and marketing pages where the action is the point of
+the page.
+
+<ComponentPreview name="fab-sizes" />
+
+### Colours
+
+`primary` uses `primary-container` and is the default. `secondary` and `tertiary` use their
+containers. `surface` uses `surface-container-high` with a `primary` icon, for screens that already
+carry a lot of colour. All four rest at elevation 3 and lift to 4 on hover.
+
+<ComponentPreview name="fab-colors" />
+
+### Extended
+
+`ExtendedFab` adds a visible label. Prefer it when the icon alone is not obvious. The label is the
+accessible name, so it needs no `aria-label`. It comes in `md` (56px) and `lg` (96px).
+
+<ComponentPreview name="fab-extended" />
+
+### Shrink on scroll
+
+`isExtended={false}` collapses the label into a square FAB with a spring width transition, and
+the label stays the accessible name. Collapse it while the reader scrolls down and extend it again
+when they scroll up. With reduced motion the change is instant.
+
+<ComponentPreview name="fab-scroll" />
+
+### FAB menu
+
+`FabMenu` opens a vertical list of two to six labelled actions above the FAB, which turns into a
+close button. It is a React Aria menu: arrow keys move between actions, typing jumps to one, Enter
+runs one, Escape closes the menu and focus returns to the FAB. Choosing an action calls `onAction`
+with the item's `id`. When `onAction` (on the menu or on an item) returns a promise, the FAB shows a
+spinner and stays closed until it settles. The actions line up with the FAB edge that `placement`
+names, and `start` and `end` follow the reading direction.
+
+<ComponentPreview name="fab-menu" />
+
+### Async actions
+
+When `onPress` returns a promise, the FAB sets `isPending` until it settles. The icon is replaced
+by a spinner after 300 ms, the label stays, and repeat presses are ignored.
+
+<ComponentPreview name="fab-async" />
+
+## API
+
+### Fab
+
+| Prop         | Type                                                  | Default     |
+| ------------ | ----------------------------------------------------- | ----------- |
+| `aria-label` | `string`                                              | required    |
+| `icon`       | `ReactNode`                                           | required    |
+| `color`      | `'primary' \| 'secondary' \| 'tertiary' \| 'surface'` | `'primary'` |
+| `size`       | `'sm' \| 'md' \| 'lg'`                                | `'md'`      |
+| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>`     |             |
+| `isPending`  | `boolean`                                             | automatic   |
+| `isDisabled` | `boolean`                                             | `false`     |
+| `labels`     | `Partial<FabLabels>`                                  |             |
+| `ref`        | `Ref<HTMLButtonElement>`                              |             |
+
+Every other [React Aria Button](https://react-aria.adobe.com/Button) prop is passed through.
+
+### ExtendedFab
+
+| Prop         | Type                                                  | Default     |
+| ------------ | ----------------------------------------------------- | ----------- |
+| `children`   | `ReactNode`                                           | required    |
+| `icon`       | `ReactNode`                                           | required    |
+| `isExtended` | `boolean`                                             | `true`      |
+| `color`      | `'primary' \| 'secondary' \| 'tertiary' \| 'surface'` | `'primary'` |
+| `size`       | `'md' \| 'lg'`                                        | `'md'`      |
+| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>`     |             |
+| `isPending`  | `boolean`                                             | automatic   |
+| `isDisabled` | `boolean`                                             | `false`     |
+| `labels`     | `Partial<FabLabels>`                                  |             |
+| `ref`        | `Ref<HTMLButtonElement>`                              |             |
+
+Every other [React Aria Button](https://react-aria.adobe.com/Button) prop is passed through.
+
+### FabMenu
+
+| Prop           | Type                                                                              | Default       |
+| -------------- | --------------------------------------------------------------------------------- | ------------- |
+| `aria-label`   | `string`                                                                          | required      |
+| `children`     | `FabMenuItem` elements                                                            | required      |
+| `icon`         | `ReactNode`                                                                       | `icons.add`   |
+| `closeIcon`    | `ReactNode`                                                                       | `icons.close` |
+| `onAction`     | `(key: Key) => void \| Promise<unknown>`                                          |               |
+| `isPending`    | `boolean`                                                                         | automatic     |
+| `isOpen`       | `boolean`                                                                         |               |
+| `defaultOpen`  | `boolean`                                                                         | `false`       |
+| `onOpenChange` | `(isOpen: boolean) => void`                                                       |               |
+| `placement`    | `'top end' \| 'top start' \| 'top' \| 'bottom end' \| 'bottom start' \| 'bottom'` | `'top end'`   |
+| `color`        | `'primary' \| 'secondary' \| 'tertiary' \| 'surface'`                             | `'primary'`   |
+| `size`         | `'sm' \| 'md' \| 'lg'`                                                            | `'md'`        |
+| `isDisabled`   | `boolean`                                                                         | `false`       |
+| `labels`       | `Partial<FabLabels>`                                                              |               |
+| `className`    | `string \| ((values: ButtonRenderProps) => string)`                               |               |
+
+`className` styles the FAB that opens the menu. The open FAB uses the strong role of its colour
+(`primary`, `secondary` or `tertiary`; `surface` uses `primary`), and the items use the FAB's
+container colour.
+
+### FabMenuItem
+
+| Prop        | Type                             | Default                  |
+| ----------- | -------------------------------- | ------------------------ |
+| `children`  | `ReactNode`                      | required                 |
+| `id`        | `Key`                            |                          |
+| `icon`      | `ReactNode`                      |                          |
+| `onAction`  | `() => void \| Promise<unknown>` |                          |
+| `textValue` | `string`                         | `children` when a string |
+
+Every other [React Aria MenuItem](https://react-aria.adobe.com/Menu) prop is passed through,
+including `href` for an action that navigates.
+
+### Data attributes
+
+`Fab`: `data-color`, `data-size`, `data-pending`, `data-hovered`, `data-pressed`,
+`data-focus-visible`, `data-disabled`. `ExtendedFab` adds `data-extended`. The `FabMenu` trigger
+adds `data-open`, and its popover carries `data-placement`. All three, and the menu popover, set
+`data-reduced-motion` when `DSProvider` sets `motion` to `reduced` or `disabled`. Parts:
+`data-slot="fab"`, `"extended-fab"`, `"fab-menu-trigger"`, `"fab-menu"`, `"fab-menu-popover"`,
+`"fab-menu-item"`, `"icon"`, `"label"`, `"pending"`.
+
+### Labels
+
+Text the FAB writes on its own. Pass `labels` to one `Fab`, `ExtendedFab` or `FabMenu`, or set them
+for every FAB with `<DSProvider labels={{ fab: { … } }}>`.
+
+| Key       | Default   | Used for                                   |
+| --------- | --------- | ------------------------------------------ |
+| `pending` | `Loading` | the accessible name of the pending spinner |
+
+## Accessibility
+
+- `Fab` and `FabMenu` are icon-only, so `aria-label` is required by the types. `ExtendedFab` is
+  named by its label, which stays in the accessible name while collapsed.
+- `FabMenu` is a React Aria `MenuTrigger`: the FAB has `aria-haspopup` and `aria-expanded`, the
+  menu is labelled by the FAB, Enter, Space, ArrowDown and ArrowUp open it, and focus moves into
+  the menu and back to the FAB when it closes. Content behind the open menu is inert.
+- While pending, the FAB stays focusable and announces a progress bar, so focus never jumps.
+- The menu renders in a portal and takes `dir` and `lang` from `DSProvider`'s locale, so it reads
+  and lines up correctly in right-to-left languages.
+- The width, icon and menu transitions follow `prefers-reduced-motion` and `DSProvider`'s `motion`.
+- Contrast is checked with axe in light, dark and RTL, with the menu open in every colour, by
+  `fab.test.tsx`.

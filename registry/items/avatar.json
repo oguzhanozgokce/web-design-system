@@ -1,0 +1,8 @@
+{
+  "name": "avatar",
+  "type": "registry:ui",
+  "title": "Avatar",
+  "description": "Material 3 avatar that falls back from a photo to initials to a person glyph, with a stable tonal colour from the name, five sizes, two shapes, a presence dot, a button twin and an overlapping group with a +N overflow.",
+  "category": "data-display",
+  "files": ["ui/avatar.tsx"]
+}

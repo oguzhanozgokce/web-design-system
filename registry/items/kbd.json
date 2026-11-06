@@ -1,0 +1,16 @@
+{
+  "name": "kbd",
+  "type": "registry:ui",
+  "title": "Kbd",
+  "description": "Keyboard key hints, one key or a shortcut combination that shows ⌘ on Apple platforms and Ctrl elsewhere, with full key names for screen readers.",
+  "category": "data-display",
+  "files": ["ui/kbd.tsx", "hooks/use-kbd-platform.ts"],
+  "credits": [
+    {
+      "source": "Astryx",
+      "url": "https://github.com/meta/astryx/blob/main/packages/core/src/Kbd/Kbd.tsx",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Meta Platforms, Inc."
+    }
+  ]
+}

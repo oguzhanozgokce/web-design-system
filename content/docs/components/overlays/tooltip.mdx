@@ -1,0 +1,156 @@
+---
+title: Tooltip
+description: Material 3 plain and rich tooltips that open on hover and keyboard focus, with keyboard shortcut hints, a shared group for toolbars and an interactive rich variant with an action.
+---
+
+<ComponentPreview name="tooltip-demo" />
+
+## Installation
+
+<InstallCommand name="tooltip" />
+
+## Usage
+
+```tsx
+import { IconButton } from '@/components/ds/icon-button';
+import { Tooltip, TooltipTrigger } from '@/components/ds/tooltip';
+import { ArchiveIcon } from '@/lib/ds/icons';
+
+<TooltipTrigger>
+  <IconButton aria-label="Archive" icon={<ArchiveIcon />} />
+  <Tooltip>Archive invoice</Tooltip>
+</TooltipTrigger>;
+```
+
+`TooltipTrigger` takes two children: a focusable trigger and a `Tooltip` or `RichTooltip`. A
+tooltip adds a description; it never replaces the trigger's own label, so icon-only buttons still
+need `aria-label`.
+
+## Examples
+
+### Toolbar with shortcuts
+
+`TooltipGroup` sets `delay`, `closeDelay`, `placement` and `isDisabled` for every tooltip inside
+it. After the first tooltip opens, moving to a neighbouring button shows its tooltip at once and
+without animation, for half a second after the pointer leaves the last one, or `closeDelay` if that
+is longer. `shortcut` takes the same keys as
+[KbdCombo](/docs/components/data-display/kbd): `'mod'` shows ⌘ on Apple platforms and Ctrl
+elsewhere, named keys such as `'shift'` and `'backspace'` show their symbol and are read out by
+their localised name, and any other string, such as `'Z'`, renders as written. The keys always run
+left to right.
+
+<ComponentPreview name="tooltip-toolbar" />
+
+### Placement and arrow
+
+`placement` defaults to `top`. `start` and `end` follow the reading direction, and the tooltip
+flips when it does not fit. Plain Material 3 tooltips have no arrow; add `showArrow` when the
+trigger is small or sits among other targets.
+
+<ComponentPreview name="tooltip-placement" />
+
+### Rich tooltip
+
+`RichTooltip` explains a control, a term or a number with a `title` and a body on the
+`surface-container` role. Without an action it is still a tooltip: it describes the trigger and
+holds nothing interactive. Put it on a control that does something on its own, as here, so people
+on touch screens, who never see tooltips, lose nothing.
+
+<ComponentPreview name="tooltip-rich" />
+
+### Rich tooltip with an action
+
+Give `RichTooltip` an `action` and `TooltipTrigger` turns it into a non-modal dialog. It opens on
+hover, on keyboard focus after `delay` and on long press, stays open while the pointer moves onto
+it, and Tab moves from the trigger into it. The switch also happens when the `RichTooltip` sits inside a component of
+your own. The trigger keeps its own press action; for an info button whose only job is to show the
+text, use a [Popover](/docs/components/overlays/popover) instead.
+
+<ComponentPreview name="tooltip-rich-action" />
+
+## API
+
+### TooltipTrigger
+
+| Prop                 | Type                        | Default   |
+| -------------------- | --------------------------- | --------- |
+| `delay`              | `number`                    | `500`     |
+| `closeDelay`         | `number`                    | `200`     |
+| `trigger`            | `'hover' \| 'focus'`        | `'hover'` |
+| `isDisabled`         | `boolean`                   | `false`   |
+| `shouldCloseOnPress` | `boolean`                   | `true`    |
+| `isOpen`             | `boolean`                   |           |
+| `defaultOpen`        | `boolean`                   | `false`   |
+| `onOpenChange`       | `(isOpen: boolean) => void` |           |
+
+`trigger="hover"` opens on hover and on keyboard focus; `trigger="focus"` opens on keyboard focus
+only. `trigger` and `shouldCloseOnPress` do not apply to a rich tooltip with an action. Values set
+here win over `TooltipGroup`.
+
+### Tooltip
+
+| Prop          | Type                                     | Default            |
+| ------------- | ---------------------------------------- | ------------------ |
+| `children`    | `ReactNode`                              |                    |
+| `shortcut`    | `readonly KbdKey[]`                      |                    |
+| `placement`   | `'top' \| 'bottom' \| 'start' \| 'end'…` | `'top'`            |
+| `offset`      | `number`                                 | `6`, `10` if arrow |
+| `crossOffset` | `number`                                 | `0`                |
+| `showArrow`   | `boolean`                                | `false`            |
+| `shouldFlip`  | `boolean`                                | `true`             |
+
+Every other [React Aria Tooltip](https://react-aria.adobe.com/Tooltip) prop is passed through.
+
+### RichTooltip
+
+| Prop               | Type                                     | Default            |
+| ------------------ | ---------------------------------------- | ------------------ |
+| `title`            | `ReactNode`                              |                    |
+| `children`         | `ReactNode`                              |                    |
+| `action`           | `ReactNode`                              |                    |
+| `placement`        | `'top' \| 'bottom' \| 'start' \| 'end'…` | `'top'`            |
+| `offset`           | `number`                                 | `8`, `12` if arrow |
+| `crossOffset`      | `number`                                 | `0`                |
+| `showArrow`        | `boolean`                                | `false`            |
+| `shouldFlip`       | `boolean`                                | `true`             |
+| `containerPadding` | `number`                                 | `12`               |
+| `className`        | `string`                                 |                    |
+
+### TooltipGroup
+
+| Prop         | Type               | Default |
+| ------------ | ------------------ | ------- |
+| `delay`      | `number`           | `500`   |
+| `closeDelay` | `number`           | `200`   |
+| `placement`  | `TooltipPlacement` | `'top'` |
+| `isDisabled` | `boolean`          | `false` |
+
+Groups nest; an inner group inherits what it does not set.
+
+### Data attributes
+
+Tooltip: `data-slot="tooltip"`, `data-placement`, `data-entering`, `data-exiting`. Parts:
+`data-slot="label"`, `"shortcut"` and `"arrow"`; each key is a `Kbd` with `data-slot="kbd"`.
+RichTooltip: `data-slot="rich-tooltip"` with `"title"`, `"body"` and `"actions"`, plus
+`data-trigger="PreviewTrigger"` when it has an action. `tooltipStyles` and `richTooltipStyles`
+expose the slots.
+
+### Messages
+
+Tooltip has no messages of its own. The spoken names of shortcut keys come from `Kbd`, namespace
+`kbd`, so a key reads the same in a tooltip, a menu and help text.
+
+## Accessibility
+
+- Built on React Aria `TooltipTrigger` and `Tooltip`. The tooltip has `role="tooltip"` and is
+  linked to the trigger with `aria-describedby` while it is open.
+- It opens on keyboard focus straight away, closes on Escape, blur or a press, and stays open
+  while the pointer is over it, so its text can be read and selected.
+- Tooltips do not open on touch or on disabled triggers. Never put information only in a tooltip;
+  for a disabled action, say why in visible text.
+- A rich tooltip with an action is a React Aria `PreviewTrigger` popover: a non-modal dialog named
+  by its title, reachable with Tab, closed with Escape, and opened by long press on touch.
+- Tooltips take their direction and `lang` from the locale; shortcut keys stay left to right.
+- A shortcut hint only describes the shortcut. Put `aria-keyshortcuts` on the control that owns
+  it, for example with `toAriaKeyShortcuts` from `Kbd`.
+- Contrast is checked with axe in light, dark and RTL by `tooltip.test.tsx`.

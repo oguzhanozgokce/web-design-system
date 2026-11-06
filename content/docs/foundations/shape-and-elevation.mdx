@@ -1,0 +1,38 @@
+---
+title: Shape and elevation
+description: The Material 3 corner scale, elevation shadows, state layers and the focus ring.
+---
+
+## Corners
+
+Tailwind's radius names map to the Material 3 shape scale.
+
+| Utility        | Radius | Material 3 name       | Typical use                |
+| -------------- | ------ | --------------------- | -------------------------- |
+| `rounded-xs`   | 4      | Extra small           | Badges, small chips        |
+| `rounded-sm`   | 8      | Small                 | Chips, menus, text fields  |
+| `rounded-md`   | 12     | Medium                | Cards, snackbars           |
+| `rounded-lg`   | 16     | Large                 | Navigation drawers, sheets |
+| `rounded-xl`   | 28     | Extra large           | Dialogs, large cards       |
+| `rounded-2xl`  | 32     | Extra large increased | Hero containers            |
+| `rounded-3xl`  | 48     | Extra extra large     | Expressive surfaces        |
+| `rounded-full` | full   | Full                  | Buttons, FABs, switches    |
+
+Buttons are capsules and icon surfaces are circles, as in the Compose library.
+
+## Elevation
+
+`shadow-elevation-1` to `shadow-elevation-5` follow the Material 3 levels and use the `shadow` role.
+Prefer tonal elevation (a higher `surface-container`) and use shadows for things that float: menus,
+dialogs, FABs and dragged items.
+
+## State layers
+
+`state-layer` draws Material's interaction overlay in the current text colour: 8% on hover, 10% on
+focus and press, 16% while dragging. It reads React Aria's `data-hovered`, `data-pressed` and
+`data-focus-visible` attributes, so touch never leaves a sticky hover.
+
+## Focus
+
+`focus-ring` draws a 3px `secondary` outline only for keyboard focus. `focus-ring-inset` draws it
+inside, for list rows and table cells.

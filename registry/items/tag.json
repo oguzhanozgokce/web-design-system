@@ -1,0 +1,8 @@
+{
+  "name": "tag",
+  "type": "registry:ui",
+  "title": "Tag",
+  "description": "Compact status labels for tables and lists in six tones and three variants, with an optional dot or icon, plus a keyboard-navigable TagGroup for removable or selectable tags in forms.",
+  "category": "data-display",
+  "files": ["ui/tag.tsx"]
+}

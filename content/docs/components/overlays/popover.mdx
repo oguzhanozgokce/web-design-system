@@ -1,0 +1,140 @@
+---
+title: Popover
+description: Material 3 popover surface anchored to a trigger, with placement, an optional arrow, motion that grows from the trigger, and a dialog part with a title and close button for small forms.
+---
+
+<ComponentPreview name="popover-demo" />
+
+## Installation
+
+<InstallCommand name="popover" />
+
+## Usage
+
+```tsx
+import { Button } from '@/components/ds/button';
+import { Popover, PopoverDialog, PopoverTrigger } from '@/components/ds/popover';
+
+<PopoverTrigger>
+  <Button>Billing cycle</Button>
+  <Popover>
+    <PopoverDialog title="Next invoice" showCloseButton>
+      Your Team plan renews on 1 December.
+    </PopoverDialog>
+  </Popover>
+</PopoverTrigger>;
+```
+
+`PopoverTrigger` takes two children: the element that opens the popover and the `Popover`. Put a
+`PopoverDialog` inside for content that people read or fill in. Select, ComboBox and Menu reuse the
+same `Popover` surface with a list inside instead.
+
+## Examples
+
+### Placement and arrow
+
+`placement` accepts `top`, `bottom`, `start`, `end` and the combined forms such as `bottom start`.
+`start` and `end` follow the reading direction, so they swap sides in Arabic. The popover flips to
+the other side when it does not fit. `showArrow` points at the trigger and adds 4px to the default
+`offset`.
+
+<ComponentPreview name="popover-placement" />
+
+### With a form
+
+`PopoverDialog` accepts a function as children. It receives `close`, so a form can close the
+popover after it saves. Focus moves into the popover when it opens and returns to the trigger when
+it closes. Keep popover forms to one or two fields; anything longer belongs in a dialog or a sheet.
+
+<ComponentPreview name="popover-form" />
+
+### Anchored to another element
+
+Without a `PopoverTrigger`, pass `triggerRef` and control `isOpen` yourself. The popover then
+points at any element, such as a chart or a meter, while focus still returns to the button that
+opened it.
+
+<ComponentPreview name="popover-anchored" align="start" />
+
+## API
+
+### PopoverTrigger
+
+React Aria [DialogTrigger](https://react-aria.adobe.com/Dialog). Its first child must be a
+pressable component such as `Button`.
+
+| Prop           | Type                        | Default |
+| -------------- | --------------------------- | ------- |
+| `isOpen`       | `boolean`                   |         |
+| `defaultOpen`  | `boolean`                   | `false` |
+| `onOpenChange` | `(isOpen: boolean) => void` |         |
+
+### Popover
+
+| Prop               | Type                                                       | Default            |
+| ------------------ | ---------------------------------------------------------- | ------------------ |
+| `placement`        | `'top' \| 'bottom' \| 'start' \| 'end' \| 'bottom start'…` | `'bottom'`         |
+| `offset`           | `number`                                                   | `8`, `12` if arrow |
+| `crossOffset`      | `number`                                                   | `0`                |
+| `showArrow`        | `boolean`                                                  | `false`            |
+| `shouldFlip`       | `boolean`                                                  | `true`             |
+| `containerPadding` | `number`                                                   | `12`               |
+| `isNonModal`       | `boolean`                                                  | `false`            |
+| `triggerRef`       | `RefObject<Element>`                                       | from the trigger   |
+| `isOpen`           | `boolean`                                                  | from the trigger   |
+| `onOpenChange`     | `(isOpen: boolean) => void`                                |                    |
+
+Every other [React Aria Popover](https://react-aria.adobe.com/Popover) prop is passed through.
+
+### PopoverDialog
+
+| Prop              | Type                                                               | Default |
+| ----------------- | ------------------------------------------------------------------ | ------- |
+| `title`           | `ReactNode`                                                        |         |
+| `showCloseButton` | `boolean`                                                          | `false` |
+| `children`        | `ReactNode \| ((renderProps: { close: () => void }) => ReactNode)` |         |
+| `aria-label`      | `string`                                                           |         |
+| `className`       | `string`                                                           |         |
+
+Without a `title`, the dialog takes its accessible name from the trigger. A standalone popover
+without a trigger needs `title` or `aria-label`.
+
+### PopoverArrow
+
+The arrow `Popover` renders with `showArrow`. Use it in custom overlays; set its colour with a
+`text-` role class, for example `<PopoverArrow className="text-inverse-surface" />`.
+
+### Styles for other overlays
+
+`popoverStyles({ motion, className })` returns the surface classes: `surface-container-high`,
+`rounded-md`, `shadow-elevation-2`, the transform origin at the trigger and the enter and exit
+animations. `usePopoverMotion()` returns `'spatial'`, `'fade'` or `'none'` from the `DSProvider`
+motion setting and the system preference, so a custom overlay animates the same way.
+`popoverDialogStyles` exposes the `base`, `header`, `title`, `close` and `body` slots.
+
+### Data attributes
+
+Popover: `data-slot="popover"`, `data-placement`, `data-arrow`, `data-entering`, `data-exiting`,
+`data-trigger`. Parts: `data-slot="arrow"`, `"popover-dialog"`, `"header"`, `"title"`, `"close"`,
+`"body"`.
+
+### Messages
+
+| Key     | English |
+| ------- | ------- |
+| `close` | `Close` |
+
+Namespace `popover`.
+
+## Accessibility
+
+- Built on React Aria `Popover` and `Dialog`. The trigger gets `aria-expanded` and
+  `aria-controls`, and the popover is a dialog named by its title or by the trigger.
+- Focus moves into the popover when it opens, stays inside while it is open, and returns to the
+  trigger on close. Escape and a press outside close it.
+- Screen reader users get hidden dismiss buttons at both ends of the popover.
+- The popover takes its direction and `lang` from the locale, so `start` and `end` placements and
+  the arrow are correct in Arabic, and screen readers pick the right voice.
+- Motion scales from the trigger. With reduced motion, from the system or `DSProvider`, it fades
+  instead.
+- Contrast is checked with axe in light, dark and RTL by `popover.test.tsx`.

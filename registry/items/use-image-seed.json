@@ -1,0 +1,8 @@
+{
+  "name": "use-image-seed",
+  "type": "registry:hook",
+  "title": "useImageSeed",
+  "description": "Ranks seed colours from an image URL, file or element, for themes that follow a photo, cover or avatar.",
+  "category": "foundations",
+  "files": ["hooks/use-image-seed.ts"]
+}

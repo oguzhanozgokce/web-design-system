@@ -1,0 +1,168 @@
+---
+title: Progress
+description: Material 3 linear and circular progress indicators, determinate or indeterminate, with a track gap, a stop dot, four tones, two thicknesses, an expressive wavy variant and value labels formatted for the locale.
+---
+
+<ComponentPreview name="progress-demo" />
+
+## Installation
+
+<InstallCommand name="progress" />
+
+## Usage
+
+```tsx
+import { CircularProgress, LinearProgress } from '@/components/ds/progress';
+
+<LinearProgress label="Uploading statements.csv" value={uploaded} showValueLabel />;
+
+<CircularProgress aria-label="Loading invoices" isIndeterminate />;
+```
+
+The keyframes and animated custom properties ship inside the component as a React 19 hoisted
+`<style>`, so there is nothing to add to your CSS beyond the theme. A Content Security Policy that
+blocks inline styles blocks them too; allow `'unsafe-inline'` in `style-src` on pages that show
+progress.
+
+## Examples
+
+### Indeterminate
+
+Use `isIndeterminate` when you cannot tell how long the work will take. The linear indicator runs
+two bars with gaps cut into the track, and the circular one grows and shrinks an arc while it
+turns. Switch to a determinate value as soon as you know the size of the job.
+
+<ComponentPreview name="progress-indeterminate" />
+
+### Thickness
+
+`thickness={4}` is the default and suits forms, cards and table rows. `thickness={8}` gives a goal
+or quota more weight on a dashboard.
+
+<ComponentPreview name="progress-thickness" />
+
+### Tones
+
+`primary` is for neutral progress. `success`, `warning` and `error` carry a status, such as a quota
+that is nearly used up. Do not rely on colour alone: say the same thing in the label or nearby text.
+
+<ComponentPreview name="progress-tones" />
+
+### Value label
+
+`showValueLabel` prints the value at the end of the header. It is formatted with `formatOptions` in
+the viewer's locale, as a percentage by default. Pass `minValue` and `maxValue` with a currency or
+unit format to show the real quantity, or `valueLabel` for text that a number format cannot express.
+Screen readers hear the same text.
+
+<ComponentPreview name="progress-value-label" />
+
+### Steps
+
+Use `maxValue` for a count of steps. Every change of `value` animates, so the bar fills smoothly as
+the person moves through a flow.
+
+<ComponentPreview name="progress-steps" />
+
+### Wavy
+
+`variant="wavy"` is the Material 3 Expressive indicator: the filled part travels as a wave and the
+track stays flat. It flattens near the start and the end, where a wave would be too short to read.
+Use it for long, friendly waits such as exports and backups, and keep the flat variant for dense
+admin screens.
+
+<ComponentPreview name="progress-wavy" />
+
+### Circular sizes
+
+`CircularProgress` comes in `xs` (16px), `sm` (24px), `md` (40px, the default), `lg` (48px) and
+`xl` (64px). Use `xs` and `sm` inside buttons and table cells, `md` and `lg` for a panel that is
+loading.
+
+<ComponentPreview name="progress-circular" />
+
+### Circular value label
+
+`showValueLabel` puts the formatted value in the middle of the ring. It fits `lg` and `xl`. Name the
+indicator with `aria-labelledby` when a visible title sits next to it.
+
+<ComponentPreview name="progress-circular-value" />
+
+## API
+
+### LinearProgress
+
+| Prop              | Type                                             | Default                |
+| ----------------- | ------------------------------------------------ | ---------------------- |
+| `value`           | `number`                                         | `0`                    |
+| `minValue`        | `number`                                         | `0`                    |
+| `maxValue`        | `number`                                         | `100`                  |
+| `isIndeterminate` | `boolean`                                        | `false`                |
+| `label`           | `ReactNode`                                      |                        |
+| `showValueLabel`  | `boolean`                                        | `false`                |
+| `formatOptions`   | `Intl.NumberFormatOptions`                       | `{ style: 'percent' }` |
+| `valueLabel`      | `string`                                         |                        |
+| `tone`            | `'primary' \| 'success' \| 'warning' \| 'error'` | `'primary'`            |
+| `thickness`       | `4 \| 8`                                         | `4`                    |
+| `variant`         | `'flat' \| 'wavy'`                               | `'flat'`               |
+| `labels`          | `Partial<ProgressLabels>`                        |                        |
+
+Every other [React Aria ProgressBar](https://react-aria.adobe.com/ProgressBar) prop is passed
+through, such as `aria-label`, `aria-labelledby` and `id`.
+
+### CircularProgress
+
+| Prop              | Type                                             | Default                |
+| ----------------- | ------------------------------------------------ | ---------------------- |
+| `value`           | `number`                                         | `0`                    |
+| `minValue`        | `number`                                         | `0`                    |
+| `maxValue`        | `number`                                         | `100`                  |
+| `isIndeterminate` | `boolean`                                        | `false`                |
+| `size`            | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`           | `'md'`                 |
+| `tone`            | `'primary' \| 'success' \| 'warning' \| 'error'` | `'primary'`            |
+| `showValueLabel`  | `boolean`                                        | `false`                |
+| `formatOptions`   | `Intl.NumberFormatOptions`                       | `{ style: 'percent' }` |
+| `valueLabel`      | `string`                                         |                        |
+| `labels`          | `Partial<ProgressLabels>`                        |                        |
+
+### Styles
+
+`linearProgressStyles` exposes the slots `root`, `header`, `label`, `value`, `bar`, `lane`, `track`,
+`indicator`, `stop`, `fill`, `wave` and `pulse`, with the variants `tone`, `thickness` and
+`variant`. `circularProgressStyles` exposes `root`, `svg`, `track`, `indicator` and `value`, with
+`size` and `tone`.
+
+### Data attributes
+
+`LinearProgress`: `data-slot="linear-progress"`, `data-tone`, `data-thickness`, `data-variant`,
+`data-indeterminate`. Parts: `data-slot="header"`, `"label"`, `"value"`, `"bar"`, `"track"`,
+`"stop"`, `"fill"`, `"indicator"`, `"wave"`, `"lane"`, `"pulse"`.
+
+`CircularProgress`: `data-slot="circular-progress"`, `data-tone`, `data-size`,
+`data-indeterminate`. Parts: `data-slot="track"`, `"indicator"`, `"value"`.
+
+### Labels
+
+Fallback names for an indicator without `label`, `aria-label` or `aria-labelledby`. Pass `labels`
+to one indicator, or set them for every one with `<DSProvider labels={{ progress: { … } }}>`.
+
+| Key        | Default    | Used for                               |
+| ---------- | ---------- | -------------------------------------- |
+| `loading`  | `Loading`  | the name of an indeterminate indicator |
+| `progress` | `Progress` | the name of a determinate indicator    |
+
+## Accessibility
+
+- Built on React Aria `ProgressBar`: `role="progressbar"` with `aria-valuenow`, `aria-valuemin`,
+  `aria-valuemax` and an `aria-valuetext` formatted for the locale. Indeterminate indicators leave
+  out the value, which is how screen readers know the length is unknown.
+- `label` becomes the accessible name. Without `label`, `aria-label` or `aria-labelledby` the
+  indicator falls back to the `loading` or `progress` label, but a specific name such as
+  "Uploading statements.csv" is always better.
+- A progress bar is not a live region. When a long task finishes, move focus or announce the result
+  with a toast or a status message.
+- The bar mirrors in right-to-left languages; the circle keeps turning clockwise.
+- With reduced motion, from the operating system or `DSProvider motion="reduced"`, value changes
+  jump instead of sliding, the wave stops travelling and indeterminate indicators become a slow
+  pulse. `motion="disabled"` stops the pulse too.
+- Contrast and structure are checked with axe in light, dark and RTL by `progress.test.tsx`.

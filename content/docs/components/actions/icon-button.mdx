@@ -1,0 +1,167 @@
+---
+title: Icon Button
+description: Material 3 icon button in four variants, five sizes and two shapes, with a toggle twin, a link twin, a destructive tone and automatic pending state for async actions.
+---
+
+<ComponentPreview name="icon-button-demo" />
+
+## Installation
+
+<InstallCommand name="icon-button" />
+
+## Usage
+
+```tsx
+import { IconButton } from '@/components/ds/icon-button';
+
+<IconButton aria-label="Edit invoice" icon={<EditIcon />} onPress={edit} />;
+```
+
+An action that shows only an icon is always an `IconButton`, never a `Button` with no label. The
+same rule holds in the Compose library. `aria-label` is required by the types, because the icon
+says nothing to a screen reader. Pair it with a [tooltip](/docs/components/overlays/tooltip) when
+the icon is not obvious.
+
+Inside a [ButtonGroup](/docs/components/actions/button-group) or `ToggleButtonGroup`, icon buttons
+take `size`, `tone`, `isDisabled` and the variant from the group, so a toolbar is set up once. The
+group's `text` variant maps to `standard`; a prop on the icon button still wins.
+
+## Examples
+
+### Variants
+
+`standard` has no container and suits toolbars, table rows and app bars. `filled` is the strongest
+and marks the one main action in a group. `tonal` sits between the two. `outlined` suits secondary
+actions next to a filled one.
+
+<ComponentPreview name="icon-button-variants" />
+
+### Sizes
+
+`md` (40px) is the default. `xs` (28px) and `sm` (32px) suit dense tables and toolbars; on touch
+screens their hit area grows to 48px without changing the layout. `lg` (48px) and `xl` (56px) suit
+media controls and marketing pages.
+
+<ComponentPreview name="icon-button-sizes" />
+
+### Shapes
+
+`round` is the default. `square` uses rounded corners and lines up better with inputs and cards in
+admin panels. Its corner grows with the size: 8px for `xs` and `sm`, 12px for `md` and `lg`, 16px
+for `xl`. Both shapes morph slightly while pressed.
+
+<ComponentPreview name="icon-button-shapes" />
+
+### Destructive
+
+`tone="destructive"` works with every variant. Keep it for actions that delete or revoke something,
+and confirm the action when it cannot be undone.
+
+<ComponentPreview name="icon-button-destructive" />
+
+### Toggle
+
+`IconToggleButton` keeps a selected state and announces it with `aria-pressed`. Pass `selectedIcon`
+to swap the glyph, such as an outlined heart for a filled one. The `filled`, `tonal` and `outlined`
+variants also swap shape when selected, round to square and square to round, so their state does
+not rest on colour alone. A `standard` toggle has no container to show that shape, so always give
+it a `selectedIcon`. Keep the `aria-label` the same in both states; the pressed state already tells
+assistive technology which one is active.
+
+<ComponentPreview name="icon-button-toggle" />
+
+### Async actions
+
+When `onPress` returns a promise, the button sets `isPending` until it settles. The icon is
+replaced by a spinner after 300 ms, repeat presses are ignored, focus stays on the button and screen
+readers hear the pending label.
+
+<ComponentPreview name="icon-button-async" />
+
+### As a link
+
+`IconButtonLink` renders an anchor with the same styles. Use it for navigation, such as a help
+link in a header or an external profile. Say in the label when it opens a new tab.
+
+<ComponentPreview name="icon-button-link" />
+
+## API
+
+### IconButton
+
+| Prop         | Type                                              | Default      |
+| ------------ | ------------------------------------------------- | ------------ |
+| `aria-label` | `string`                                          | required     |
+| `icon`       | `ReactNode`                                       | required     |
+| `variant`    | `'standard' \| 'filled' \| 'tonal' \| 'outlined'` | `'standard'` |
+| `tone`       | `'default' \| 'destructive'`                      | `'default'`  |
+| `size`       | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`            | `'md'`       |
+| `shape`      | `'round' \| 'square'`                             | `'round'`    |
+| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>` |              |
+| `isPending`  | `boolean`                                         | automatic    |
+| `isDisabled` | `boolean`                                         | `false`      |
+| `labels`     | `Partial<IconButtonLabels>`                       |              |
+| `ref`        | `Ref<HTMLButtonElement>`                          |              |
+
+Every other [React Aria Button](https://react-aria.adobe.com/Button) prop is passed through, so an
+`IconButton` works as the trigger of a menu, popover, dialog or tooltip.
+
+### IconToggleButton
+
+| Prop              | Type                                              | Default      |
+| ----------------- | ------------------------------------------------- | ------------ |
+| `aria-label`      | `string`                                          | required     |
+| `icon`            | `ReactNode`                                       | required     |
+| `selectedIcon`    | `ReactNode`                                       | `icon`       |
+| `isSelected`      | `boolean`                                         |              |
+| `defaultSelected` | `boolean`                                         | `false`      |
+| `onChange`        | `(isSelected: boolean) => void`                   |              |
+| `variant`         | `'standard' \| 'filled' \| 'tonal' \| 'outlined'` | `'standard'` |
+| `size`            | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`            | `'md'`       |
+| `shape`           | `'round' \| 'square'`                             | `'round'`    |
+| `isDisabled`      | `boolean`                                         | `false`      |
+| `ref`             | `Ref<HTMLButtonElement>`                          |              |
+
+Every other [React Aria ToggleButton](https://react-aria.adobe.com/ToggleButton) prop is passed
+through, including `id` inside a `ToggleButtonGroup`.
+
+| Variant    | Unselected                                             | Selected                                             |
+| ---------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| `standard` | `on-surface-variant` icon                              | `primary` icon                                       |
+| `filled`   | `surface-container-highest`, `primary` icon            | `primary`, `on-primary` icon                         |
+| `tonal`    | `surface-container-highest`, `on-surface-variant` icon | `secondary-container`, `on-secondary-container` icon |
+| `outlined` | `outline-variant` border, `on-surface-variant` icon    | `inverse-surface`, `inverse-on-surface` icon         |
+
+### IconButtonLink
+
+The same style props, `aria-label`, `icon` and `ref`, plus every
+[React Aria Link](https://react-aria.adobe.com/Link) prop, such as `href`, `target`,
+`routerOptions` and `isDisabled`.
+
+### Data attributes
+
+`data-variant`, `data-tone`, `data-size`, `data-shape`, `data-pending`, `data-selected`,
+`data-hovered`, `data-pressed`, `data-focus-visible`, `data-disabled`, and `data-reduced-motion`
+when `DSProvider` sets `motion` to `reduced` or `disabled`. Parts: `data-slot="icon-button"` or
+`"icon-toggle-button"`, `"icon"`, `"pending"`.
+
+### Labels
+
+Text the icon button writes on its own. Pass `labels` to one `IconButton`, or set them for every
+icon button with `<DSProvider labels={{ iconButton: { … } }}>`.
+
+| Key       | Default   | Used for                                   |
+| --------- | --------- | ------------------------------------------ |
+| `pending` | `Loading` | the accessible name of the pending spinner |
+
+## Accessibility
+
+- Built on React Aria `Button`, `ToggleButton` and `Link`: Enter and Space activate them, and press
+  events normalise mouse, touch and keyboard.
+- `aria-label` is required by the types. Toggles keep one label and expose their state with
+  `aria-pressed`.
+- While pending, the button stays focusable, its name gains the pending label and a progress bar is
+  announced, so focus never jumps.
+- On coarse pointers `xs`, `sm` and `md` extend their hit area to 48px, the Material 3 touch target.
+- The press and selection shape morphs follow `prefers-reduced-motion` and `DSProvider`'s `motion`.
+- Contrast is checked with axe in light, dark and RTL by `icon-button.test.tsx`.

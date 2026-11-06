@@ -1,0 +1,8 @@
+{
+  "name": "skeleton",
+  "type": "registry:ui",
+  "title": "Skeleton",
+  "description": "Loading placeholders in text, circle and rectangle shapes that follow the line height, shimmer in the reading direction and can wrap real content until it has loaded.",
+  "category": "feedback",
+  "files": ["ui/skeleton.tsx"]
+}

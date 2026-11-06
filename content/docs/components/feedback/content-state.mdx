@@ -1,0 +1,158 @@
+---
+title: Content State
+description: Switches between loading, error, empty and content for data you fetch, from an explicit status or from data and error, with default copy you can replace, an async retry, a skeleton slot and a refresh-error banner over stale content.
+---
+
+<ComponentPreview name="content-state-demo" />
+
+## Installation
+
+<InstallCommand name="content-state" />
+
+## Usage
+
+Pass what your data hook returns. Children can be a function that receives the loaded data.
+
+```tsx
+import { ContentState } from '@/components/ds/content-state';
+
+const invoices = useQuery({ queryKey: ['invoices'], queryFn: fetchInvoices });
+
+<ContentState data={invoices.data} error={invoices.error} onRetry={() => invoices.refetch()}>
+  {(rows) => <InvoiceTable rows={rows} />}
+</ContentState>;
+```
+
+Or set the status yourself:
+
+```tsx
+<ContentState status={status} onRetry={reload}>
+  <InvoiceTable rows={rows} />
+</ContentState>
+```
+
+The status comes from the props in this order:
+
+| Data                 | Error   | Shows                               |
+| -------------------- | ------- | ----------------------------------- |
+| `undefined`          | none    | loading                             |
+| `undefined` or empty | present | error                               |
+| empty (`[]`, `null`) | none    | empty                               |
+| anything else        | none    | content                             |
+| anything else        | present | content with a refresh-error banner |
+
+`isEmpty` replaces the empty check, for example `(page) => page.total === 0`. An explicit `status`
+wins over all of it; with `status="content"` and a function child, pass `data` too, because the
+function receives it as is.
+
+## Examples
+
+### Every status
+
+The defaults need no copy: a delayed spinner, an error with Try again, and an empty state.
+Replace any part with the props below.
+
+<ComponentPreview name="content-state-status" />
+
+### Skeleton while loading
+
+`loadingContent` replaces the spinner. Draw the skeleton in the shape of the real rows so nothing
+jumps when they arrive. It sits inside a progress bar labelled by `loadingLabel`, so screen readers
+hear "Loading customers" instead of empty shapes.
+
+<ComponentPreview name="content-state-skeleton" />
+
+### Empty
+
+`emptyTitle`, `emptyDescription`, `emptyIcon` and `emptyAction` fill the built-in `EmptyState`.
+`emptyContent` replaces it entirely.
+
+<ComponentPreview name="content-state-empty" />
+
+### Error copy
+
+`errorTitle` and `errorDescription` take a node or a function of the error, so a 503 and a 403 can
+say different things. `errorContent` replaces the whole error view and receives the error and the
+retry handler. Leave out `onRetry` when trying again cannot help, such as a missing permission.
+
+<ComponentPreview name="content-state-error" align="stretch" />
+
+### Refresh errors over stale content
+
+When a refresh fails but you still have data, the content stays and an error `Banner` with Try
+again appears above it. People keep working with what they had.
+
+<ComponentPreview name="content-state-refresh-error" />
+
+### Sizes
+
+`size` is passed to the built-in empty and error states and sets the loading area's height.
+`compact` suits dashboard cards, `default` a table or a section, `page` a whole screen.
+
+<ComponentPreview name="content-state-sizes" align="stretch" />
+
+## API
+
+### ContentState
+
+| Prop               | Type                                           | Default                   |
+| ------------------ | ---------------------------------------------- | ------------------------- |
+| `status`           | `'loading' \| 'error' \| 'empty' \| 'content'` | from data and error       |
+| `data`             | `T`                                            |                           |
+| `error`            | `unknown`                                      |                           |
+| `isEmpty`          | `(data: T) => boolean`                         | `null` or `[]`            |
+| `isRefreshing`     | `boolean`                                      | `false`                   |
+| `onRetry`          | `() => void \| Promise<unknown>`               |                           |
+| `size`             | `'compact' \| 'default' \| 'page'`             | `'default'`               |
+| `headingLevel`     | `1 \| 2 \| 3 \| 4 \| 5 \| 6`                   | `2`                       |
+| `loadingLabel`     | `string`                                       | `labels.loading`          |
+| `loadingContent`   | `ReactNode`                                    | spinner                   |
+| `errorTitle`       | `ReactNode \| ((error) => ReactNode)`          | `labels.errorTitle`       |
+| `errorDescription` | `ReactNode \| ((error) => ReactNode)`          | `labels.errorDescription` |
+| `errorContent`     | `ReactNode \| ((error, retry?) => ReactNode)`  |                           |
+| `emptyTitle`       | `ReactNode`                                    | `labels.emptyTitle`       |
+| `emptyDescription` | `ReactNode`                                    |                           |
+| `emptyIcon`        | `ReactNode`                                    | inbox glyph               |
+| `emptyAction`      | `ReactNode`                                    |                           |
+| `emptyContent`     | `ReactNode`                                    |                           |
+| `labels`           | `Partial<ContentStateLabels>`                  |                           |
+| `children`         | `ReactNode \| ((data: T) => ReactNode)`        |                           |
+
+Every other `div` prop, including `ref`, goes to the root. `contentStateStyles` is exported.
+
+### Data attributes
+
+`data-status`, `data-size`, `data-refreshing`. Parts: `data-slot="content-state"`,
+`"loading-view"`, `"loading"`, `"error-view"`, `"empty-view"`, `"refresh-error"`,
+`"content-view"`.
+
+### Labels
+
+Copy the component writes when you pass none. The props above, such as `errorTitle` and
+`loadingLabel`, win for one instance. Pass `labels` to one `ContentState`, or set them for every
+one with `<DSProvider labels={{ contentState: { … } }}>`.
+
+| Key                | Default                         | Used for                                      |
+| ------------------ | ------------------------------- | --------------------------------------------- |
+| `loading`          | `Loading`                       | the accessible name of the loading indicator  |
+| `errorTitle`       | `Something went wrong`          | the error heading and the refresh-error title |
+| `errorDescription` | `Please try again in a moment.` | the text under the error heading              |
+| `retry`            | `Try again`                     | the retry button                              |
+| `emptyTitle`       | `Nothing here yet`              | the empty heading                             |
+
+The refresh-error banner's hidden "Error:" prefix comes from the
+[Banner labels](/docs/components/feedback/banner#labels), and the pending name of Try again from
+the [Button labels](/docs/components/actions/button#labels).
+
+## Accessibility
+
+- While loading, the region has `aria-busy="true"` and shows a progress bar named by
+  `loadingLabel`. `isRefreshing` sets `aria-busy` too, without replacing the content.
+- The error view is `role="alert"`, so a failed fetch is announced without moving focus. The empty
+  view is `role="status"`, which most screen readers read politely when it replaces the content.
+- Try again is a `Button`: a returned promise keeps it pending and ignores repeat presses.
+- If the view that had focus goes away, for example after Try again or when a reload replaces the
+  content, focus moves to the region itself instead of being lost to the page.
+- The spinner fades in after 300 ms, so fast responses never flash. Views fade in after the first
+  change and not at all when motion is disabled.
+- Contrast is checked with axe in light, dark and RTL by `content-state.test.tsx`.

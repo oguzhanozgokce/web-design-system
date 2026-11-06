@@ -1,0 +1,8 @@
+{
+  "name": "text-area",
+  "type": "registry:ui",
+  "title": "Text area",
+  "description": "Multi-line input on the shared Field contract that grows with its content between a minimum and maximum number of rows, with a character counter.",
+  "category": "inputs",
+  "files": ["ui/text-area.tsx"]
+}

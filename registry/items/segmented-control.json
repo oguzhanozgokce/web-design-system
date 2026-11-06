@@ -1,0 +1,16 @@
+{
+  "name": "segmented-control",
+  "type": "registry:ui",
+  "title": "Segmented Control",
+  "description": "Material 3 segmented button for one or several choices, with a check on selected segments, plus a thumb style whose filled thumb slides to the selection.",
+  "category": "navigation",
+  "files": ["ui/segmented-control.tsx"],
+  "credits": [
+    {
+      "source": "BoardUI",
+      "url": "https://github.com/BoardUI/boardui/blob/main/components/base/segmented-control/segmented-control.tsx",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+    }
+  ]
+}

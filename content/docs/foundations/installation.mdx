@@ -1,0 +1,93 @@
+---
+title: Installation
+description: Add the registry to a project, install the theme and wrap the app in DSProvider.
+---
+
+The library ships as a [shadcn registry](https://ui.shadcn.com/docs/registry). Components are
+copied into your project as source, so each project owns its copy and can change it.
+
+<Steps>
+<Step>
+
+### Point the project at the registry
+
+The project needs a `components.json`. Add the `@ds` namespace and choose where the files go.
+Keeping them under `components/ds` avoids clashing with components the project already has.
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "tsx": true,
+  "rsc": true,
+  "tailwind": { "css": "app/global.css", "baseColor": "neutral", "cssVariables": true },
+  "aliases": {
+    "components": "@/components",
+    "ui": "@/components/ds",
+    "lib": "@/lib/ds",
+    "hooks": "@/hooks/ds",
+    "utils": "@/lib/ds/utils"
+  },
+  "registries": {
+    "@ds": "https://github.com/oguzhanozgokce/web-design-system"
+  }
+}
+```
+
+</Step>
+<Step>
+
+### Install the theme
+
+<InstallCommand name="theme" />
+
+Import it after Tailwind in the global stylesheet:
+
+```css title="app/global.css"
+@import 'tailwindcss';
+@import '../styles/ds/theme.css';
+```
+
+To use your own brand colour, run the generator with your seed and replace `tokens.css`, or
+create the scheme at runtime with [`brandColors`](/docs/foundations/theming).
+
+</Step>
+<Step>
+
+### Wrap the app in DSProvider
+
+<InstallCommand name="ds-provider" />
+
+`DSProvider` gives components the locale, client-side navigation, message overrides, icons and
+the motion preference. With next-intl:
+
+```tsx title="app/[locale]/providers.tsx"
+'use client';
+
+import { useLocale } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
+import { DSProvider } from '@/components/ds/ds-provider';
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const locale = useLocale();
+  const router = useRouter();
+
+  return (
+    <DSProvider locale={locale} navigate={(href) => router.push(href)}>
+      {children}
+    </DSProvider>
+  );
+}
+```
+
+</Step>
+<Step>
+
+### Add components
+
+<InstallCommand name="button" />
+
+Dependencies such as `utils`, `i18n` and `spinner` install with it.
+
+</Step>
+</Steps>
