@@ -1,12 +1,12 @@
 # Web Design System
 
-Material 3 components for React: marketing sites, admin panels and signed-in user panels. The web
-twin of the Compose Multiplatform [mobile design system](https://github.com/oguzhanozgokce/mobile-design-system).
+React components for marketing sites, admin panels and signed-in user panels: HeroUI's soft shapes
+on neutral surfaces, built on React Aria and themed from a single colour.
 
-- **One seed, every role.** `tokens/config.json` holds a brand colour; the generator produces all
-  Material 3 roles plus success, warning and info, in light and dark, at three contrast levels. It
-  runs the same algorithm and colour spec (2025, phone) as MaterialKolor 6 on mobile, so the same
-  seed gives the same hex values on Android, iOS and the web.
+- **One seed, every role.** `tokens/config.json` holds a brand colour; the generator produces every
+  colour role plus success, warning and info, in light and dark, at three contrast levels, with
+  neutral surfaces and accents from the seed. The same engine themes a card or the whole page at
+  runtime, from a colour or a photo.
 - **Source you own.** Components install with the shadcn CLI from the `@ds` registry. Each project
   owns its copy; `--diff` brings upstream changes.
 - **Accessible.** Interactive components are built on React Aria Components. Every component is
@@ -31,9 +31,9 @@ primitive libraries leave to the app. HeroUI v3 and BoardUI, the two closest ref
 
 ## Why the theme is generated
 
-The Compose library already builds its `ColorScheme` from one brand colour with MaterialKolor.
-Hand-copying hex values into CSS drifts. Generating both sides from the same seed, style, spec and
-platform cannot drift.
+Hand-picked palettes drift and need a designer for every new brand. A generated scheme keeps every
+foreground readable on its background at every contrast level, and the same code builds a tenant's
+or a user's theme at runtime.
 
 ## Working on the library
 

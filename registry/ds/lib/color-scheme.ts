@@ -21,11 +21,14 @@ export type ContrastLevel = 'standard' | 'medium' | 'high';
 
 export type ColorMode = 'light' | 'dark';
 
+export type SurfaceStyle = 'neutral' | 'tinted';
+
 export interface BrandColorsOptions {
   seed: string;
   mode: ColorMode;
   style?: PaletteStyle;
   contrast?: ContrastLevel;
+  surfaces?: SurfaceStyle;
 }
 
 const contrastValues: Record<ContrastLevel, number> = {
@@ -164,12 +167,41 @@ function feedbackColors(seed: number, dark: boolean): Record<FeedbackRole, strin
   return result;
 }
 
+export const neutralRoleNames: SchemeRole[] = [
+  'background',
+  'on-background',
+  'surface',
+  'on-surface',
+  'surface-variant',
+  'on-surface-variant',
+  'inverse-surface',
+  'inverse-on-surface',
+  'outline',
+  'outline-variant',
+  'shadow',
+  'scrim',
+  'surface-bright',
+  'surface-dim',
+  'surface-container-lowest',
+  'surface-container-low',
+  'surface-container',
+  'surface-container-high',
+  'surface-container-highest',
+];
+
 export function brandColors({
   seed,
   mode,
   style = 'tonal-spot',
   contrast = 'standard',
+  surfaces = 'tinted',
 }: BrandColorsOptions): BrandColors {
+  if (surfaces === 'neutral' && style !== 'monochrome') {
+    const accents = brandColors({ seed, mode, style, contrast });
+    const neutrals = brandColors({ seed, mode, style: 'monochrome', contrast });
+    for (const role of neutralRoleNames) accents[role] = neutrals[role];
+    return accents;
+  }
   const argb = argbFromHex(seed);
   const dark = mode === 'dark';
   const scheme: DynamicScheme = createScheme(

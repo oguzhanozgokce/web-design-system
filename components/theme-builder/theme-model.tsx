@@ -89,7 +89,10 @@ export function buildSchemes(seed: string, style: PaletteStyle): SchemeSet {
     colorModes.map((mode) => [
       mode,
       Object.fromEntries(
-        contrastLevels.map((contrast) => [contrast, brandColors({ seed, mode, style, contrast })]),
+        contrastLevels.map((contrast) => [
+          contrast,
+          brandColors({ seed, mode, style, contrast, surfaces: 'neutral' }),
+        ]),
       ),
     ]),
   ) as SchemeSet;

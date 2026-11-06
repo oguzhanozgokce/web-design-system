@@ -32,6 +32,7 @@ function defaults(overrides: Partial<Parameters<typeof brandColors>[0]> = {}) {
     seed: defaultSettings.seed,
     style: defaultSettings.style,
     mode: 'light',
+    surfaces: 'neutral',
     ...overrides,
   });
 }

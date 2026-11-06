@@ -1,14 +1,11 @@
 ---
 title: Dynamic colour
-description: Build the whole Material 3 scheme at runtime from a brand colour, a user's choice or a photo, for one card or the whole page, in light, dark and every contrast level.
+description: Build the whole colour scheme at runtime from a brand colour, a user's choice or a photo, for one card or the whole page, in light, dark and every contrast level.
 ---
 
-On Android 12 and later the mobile library can take its colours from the wallpaper
-(`DSTheme(dynamicColor = true)`). A browser has no wallpaper, so on the web the seed comes from the
-product instead: a tenant's brand colour in an admin panel, an accent the user picks in their
-settings, or the cover image of whatever is on screen. The engine is the one that generates the
-static tokens, and it matches `rememberDSBrandColors` on mobile role for role in every style except
-two, listed under [Compose counterpart](#compose-counterpart).
+A seed colour can come from anywhere in the product: a tenant's brand colour in an admin panel, an
+accent the user picks in their settings, or the cover image of whatever is on screen. The engine is
+the one that generates the static tokens, so a dynamic scheme has every role the components use.
 
 <ComponentPreview name="dynamic-theme-demo" align="start" />
 
@@ -49,7 +46,7 @@ and the nearest one wins.
 ### From an image
 
 `useImageSeed` downsizes the image to 128 pixels, quantizes it and ranks the colours with Material's
-content-based scoring, the same `QuantizerCelebi` and `Score` that pick wallpaper colours on Android.
+content-based scoring (`QuantizerCelebi` and `Score` from Material Color Utilities).
 It returns up to four candidates, best first, so the user can choose as they do on a phone. The same
 image always gives the same seeds. A file the user picks or drops is read in the browser and never
 uploaded.
@@ -63,8 +60,7 @@ the hook compares sources by identity, so it does not notice an `<img>` whose `s
 
 ### Palette styles
 
-The same seed in each style. `tonal-spot`, Material's default and the default here, matches
-`dsBrandColors` on mobile. The static tokens of this site are generated as `vibrant`; pass
+The same seed in each style. `tonal-spot` is the default here. The static tokens of this site are generated as `vibrant`; pass
 `paletteStyle="vibrant"` to match them. `fidelity` keeps the container closest to the seed, which
 suits a brand colour that must appear as it is.
 
@@ -164,15 +160,16 @@ step, update the seed in `startTransition` so dragging stays smooth, as the demo
 
 ### DynamicTheme
 
-| Prop           | Type                                                                                   | Default        |
-| -------------- | -------------------------------------------------------------------------------------- | -------------- |
-| `seed`         | `string \| null`, a 3- or 6-digit hex colour                                           | —              |
-| `paletteStyle` | `'tonal-spot' \| 'vibrant' \| 'expressive' \| 'fidelity' \| 'neutral' \| 'monochrome'` | `'tonal-spot'` |
-| `contrast`     | `'auto' \| 'standard' \| 'medium' \| 'high'`                                           | `'auto'`       |
-| `scope`        | `'element' \| 'root'`                                                                  | `'element'`    |
-| `mode`         | `'light' \| 'dark'`, element scope only; leave it unset to follow the page             | —              |
-| `storageKey`   | `string`, root scope only                                                              | —              |
-| `nonce`        | `string`, for a nonce-based Content Security Policy                                    | —              |
+| Prop           | Type                                                                                                | Default        |
+| -------------- | --------------------------------------------------------------------------------------------------- | -------------- |
+| `seed`         | `string \| null`, a 3- or 6-digit hex colour                                                        | —              |
+| `paletteStyle` | `'tonal-spot' \| 'vibrant' \| 'expressive' \| 'fidelity' \| 'neutral' \| 'monochrome'`              | `'tonal-spot'` |
+| `contrast`     | `'auto' \| 'standard' \| 'medium' \| 'high'`                                                        | `'auto'`       |
+| `scope`        | `'element' \| 'root'`                                                                               | `'element'`    |
+| `mode`         | `'light' \| 'dark'`, element scope only; leave it unset to follow the page                          | —              |
+| `storageKey`   | `string`, root scope only                                                                           | —              |
+| `surfaces`     | `'neutral' \| 'tinted'`; neutral keeps backgrounds and borders grey and only accents carry the seed | `'neutral'`    |
+| `nonce`        | `string`, for a nonce-based Content Security Policy                                                 | —              |
 
 The element scope renders a `div` and accepts its attributes. A missing or invalid seed renders the
 children without a theme.
@@ -251,17 +248,4 @@ Every role pair is generated with Material's contrast curves, so `on-primary` on
 readable whatever the seed, photos included. Text placed directly on a photo is not covered: put it
 on a role colour or a scrim. Leave `contrast` on `auto` and `mode` unset except on surfaces that
 must not change, so users who ask for more contrast get it. Success, warning and info keep the same
-tones at every contrast level, on the web and on mobile alike.
-
-## Compose counterpart
-
-| Web                                         | Compose                                                                                                                                                    |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `<DynamicTheme seed paletteStyle contrast>` | `val brand = rememberDSBrandColors(seed, style = …, contrast = …)`, then `DSTheme(colorScheme = brand.colorScheme, extendedColors = brand.extendedColors)` |
-| `useImageSeed`                              | none yet                                                                                                                                                   |
-| none                                        | `DSTheme(dynamicColor = true)`, Android 12+ wallpaper colours                                                                                              |
-
-Every role matches MaterialKolor 6.0.0 for `tonal-spot`, `vibrant`, `fidelity`, `neutral` and
-`monochrome`, with two exceptions where the npm package still ships an older 2025 colour spec:
-`expressive` in dark mode, and the light surfaces of `vibrant` with yellow seeds. A test in the
-library fails when they start to match.
+tones at every contrast level.

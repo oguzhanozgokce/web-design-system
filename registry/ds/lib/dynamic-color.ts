@@ -12,6 +12,7 @@ import {
   type ColorMode,
   type ContrastLevel,
   type PaletteStyle,
+  type SurfaceStyle,
 } from '@/registry/ds/lib/color-scheme';
 
 export type DynamicContrast = ContrastLevel | 'auto';
@@ -21,6 +22,7 @@ export interface DynamicSchemeOptions {
   paletteStyle?: PaletteStyle;
   contrast?: DynamicContrast;
   mode?: ColorMode;
+  surfaces?: SurfaceStyle;
 }
 
 export type DynamicScope = { scope: 'root' } | { scope: 'element'; key: string };
@@ -62,7 +64,7 @@ export function parseSeed(value: unknown): string | null {
   return `#${digits.toLowerCase()}`;
 }
 
-function resolveOptions({ seed, paletteStyle, contrast, mode }: DynamicSchemeOptions) {
+function resolveOptions({ seed, paletteStyle, contrast, mode, surfaces }: DynamicSchemeOptions) {
   const parsed = parseSeed(seed);
   if (!parsed) throw new Error(`Invalid seed colour: ${String(seed)}`);
   const style = paletteStyle ?? 'tonal-spot';
@@ -72,12 +74,16 @@ function resolveOptions({ seed, paletteStyle, contrast, mode }: DynamicSchemeOpt
   if (mode !== undefined && !colorModes.includes(mode)) {
     throw new Error(`Unknown mode: ${String(mode)}`);
   }
-  return { seed: parsed, paletteStyle: style, contrast: level, mode };
+  const surfaceStyle = surfaces ?? 'neutral';
+  if (surfaceStyle !== 'neutral' && surfaceStyle !== 'tinted') {
+    throw new Error(`Unknown surfaces: ${String(surfaceStyle)}`);
+  }
+  return { seed: parsed, paletteStyle: style, contrast: level, mode, surfaces: surfaceStyle };
 }
 
 export function schemeKey(options: DynamicSchemeOptions) {
-  const { seed, paletteStyle, contrast, mode } = resolveOptions(options);
-  return `s${seed.slice(1)}-${paletteStyle}-${contrast}-${mode ?? 'page'}`;
+  const { seed, paletteStyle, contrast, mode, surfaces } = resolveOptions(options);
+  return `s${seed.slice(1)}-${paletteStyle}-${contrast}-${mode ?? 'page'}-${surfaces}`;
 }
 
 function cssString(value: string) {
@@ -98,7 +104,7 @@ function lightDark(light: BrandColors, dark: BrandColors) {
 }
 
 export function dynamicSchemeCss(options: DynamicSchemeOptions, target: DynamicScope) {
-  const { seed, paletteStyle, contrast, mode } = resolveOptions(options);
+  const { seed, paletteStyle, contrast, mode, surfaces } = resolveOptions(options);
   const isRoot = target.scope === 'root';
   if (!isRoot && !target.key) throw new Error('An element scope needs a key');
 
@@ -107,7 +113,13 @@ export function dynamicSchemeCss(options: DynamicSchemeOptions, target: DynamicS
     const id = `${colorMode}-${level}`;
     let result = cache.get(id);
     if (!result) {
-      result = brandColors({ seed, mode: colorMode, style: paletteStyle, contrast: level });
+      result = brandColors({
+        seed,
+        mode: colorMode,
+        style: paletteStyle,
+        contrast: level,
+        surfaces,
+      });
       cache.set(id, result);
     }
     return result;

@@ -7,11 +7,13 @@ import {
   type BrandColors,
   type ContrastLevel,
   type PaletteStyle,
+  type SurfaceStyle,
 } from '../registry/ds/lib/color-scheme.ts';
 
 interface TokenConfig {
   seed: string;
   style: PaletteStyle;
+  surfaces?: SurfaceStyle;
 }
 
 interface SpringSpec {
@@ -94,6 +96,7 @@ for (const mode of ['light', 'dark'] as const) {
     schemes[mode][contrast] = brandColors({
       seed: config.seed,
       style: config.style,
+      surfaces: config.surfaces ?? 'neutral',
       mode,
       contrast,
     });

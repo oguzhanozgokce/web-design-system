@@ -20,7 +20,7 @@ import {
   schemeKey,
   type DynamicContrast,
 } from '@/registry/ds/lib/dynamic-color';
-import type { ColorMode, PaletteStyle } from '@/registry/ds/lib/color-scheme';
+import type { ColorMode, PaletteStyle, SurfaceStyle } from '@/registry/ds/lib/color-scheme';
 import { ThemeScopeContext } from '@/registry/ds/lib/theme-scope';
 import { useMotionPreference } from '@/registry/ds/ui/ds-provider';
 
@@ -29,6 +29,7 @@ export interface DynamicThemeValue {
   paletteStyle: PaletteStyle;
   contrast: DynamicContrast;
   mode?: ColorMode;
+  surfaces: SurfaceStyle;
 }
 
 const DynamicThemeContext = createContext<DynamicThemeValue | null>(null);
@@ -41,6 +42,7 @@ interface DynamicThemeBaseProps {
   seed?: string | null;
   paletteStyle?: PaletteStyle;
   contrast?: DynamicContrast;
+  surfaces?: SurfaceStyle;
   nonce?: string;
   children?: ReactNode;
 }
@@ -104,27 +106,29 @@ function useScheme(
   paletteStyle: PaletteStyle,
   contrast: DynamicContrast,
   mode: ColorMode | undefined,
+  surfaces: SurfaceStyle,
   scope: 'root' | 'element',
 ) {
   const parsed = parseSeed(seed);
-  const key = parsed ? schemeKey({ seed: parsed, paletteStyle, contrast, mode }) : null;
+  const key = parsed ? schemeKey({ seed: parsed, paletteStyle, contrast, mode, surfaces }) : null;
   return useMemo(() => {
     if (!parsed || !key) return { key: null, value: null, css: null };
-    const value: DynamicThemeValue = { seed: parsed, paletteStyle, contrast, mode };
+    const value: DynamicThemeValue = { seed: parsed, paletteStyle, contrast, mode, surfaces };
     const target = scope === 'root' ? ({ scope: 'root' } as const) : { scope, key };
     return { key, value, css: dynamicSchemeCss(value, target) };
-  }, [key, parsed, paletteStyle, contrast, mode, scope]);
+  }, [key, parsed, paletteStyle, contrast, mode, surfaces, scope]);
 }
 
 function RootTheme({
   seed,
   paletteStyle = 'tonal-spot',
   contrast = 'auto',
+  surfaces = 'neutral',
   storageKey,
   nonce,
   children,
 }: DynamicThemeRootProps) {
-  const { key, value, css } = useScheme(seed, paletteStyle, contrast, undefined, 'root');
+  const { key, value, css } = useScheme(seed, paletteStyle, contrast, undefined, surfaces, 'root');
   const hydrated = useHydrated();
 
   useLayoutEffect(() => {
@@ -157,12 +161,13 @@ function ElementTheme({
   seed,
   paletteStyle = 'tonal-spot',
   contrast = 'auto',
+  surfaces = 'neutral',
   mode,
   nonce,
   children,
   ...props
 }: Omit<DynamicThemeElementProps, 'scope'>) {
-  const { key, value, css } = useScheme(seed, paletteStyle, contrast, mode, 'element');
+  const { key, value, css } = useScheme(seed, paletteStyle, contrast, mode, surfaces, 'element');
   const hydrated = useHydrated();
   const scope = useMemo(() => (key ? { key, mode } : null), [key, mode]);
 

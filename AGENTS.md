@@ -1,10 +1,12 @@
 # Web design system
 
 React component library for every web project: marketing sites, admin panels and signed-in user
-panels. It is the web twin of the Compose Multiplatform library in
-`~/AndroidStudioProjects/mobile-design-system`: same Material 3 roles, same seed-generated colours,
-same motion springs, same rule that a decision reads the same on both platforms. Treat it as an SDK:
-every public name, default and behaviour is a promise to several apps.
+panels. It is a web library in its own right, separate from the mobile design system: never argue a
+web decision from Material 3 or from the Compose library. Its look follows the web component
+libraries in `docs/research/` — HeroUI's shapes and liveliness on Astryx's neutral surfaces, with
+40px controls by default — and its colours are roles generated from one seed colour, which is what
+makes dynamic colour possible. Treat it as an SDK: every public name, default and behaviour is a
+promise to several apps.
 
 Components ship as a shadcn registry (`@ds` namespace). A project installs a component and owns the
 copy, so the source in `registry/ds` must work after the shadcn CLI copies it somewhere else.
