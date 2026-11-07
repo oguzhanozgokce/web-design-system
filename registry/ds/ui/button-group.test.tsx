@@ -20,25 +20,16 @@ function separator(element: Element) {
   return { shown, width: style.width, height: style.height };
 }
 
+function pressScale(element: Element) {
+  const scaling = element
+    .getAnimations()
+    .some((animation) => (animation as CSSTransition).transitionProperty === 'scale');
+  return scaling ? 'animating' : getComputedStyle(element).scale;
+}
+
 const pill = 9999;
 
 describe('ButtonGroup', () => {
-  it('renders a labelled, attached group by default', async () => {
-    const screen = await renderWithDS(
-      <ButtonGroup aria-label="Project actions">
-        <Button>Open</Button>
-        <Button>Share</Button>
-      </ButtonGroup>,
-    );
-    const group = screen.getByRole('group', { name: 'Project actions' });
-    await expect.element(group).toBeVisible();
-    await expect.element(group).toHaveAttribute('data-slot', 'button-group');
-    await expect.element(group).toHaveAttribute('data-variant', 'attached');
-    await expect.element(group).toHaveAttribute('data-orientation', 'horizontal');
-    await expect.element(group).toHaveAttribute('data-size', 'md');
-    expect(getComputedStyle(group.element()).columnGap).toBe('0px');
-  });
-
   it('gives its buttons a default size, variant and tone that explicit props override', async () => {
     const screen = await renderWithDS(
       <ButtonGroup aria-label="Member" size="sm" buttonVariant="soft" tone="error">
@@ -113,14 +104,6 @@ describe('ButtonGroup', () => {
     await expect.element(photos).toHaveAttribute('data-variant', 'outline');
     await expect.element(photos).toHaveAttribute('data-tone', 'error');
     await expect.element(photos).toBeEnabled();
-  });
-
-  it('keeps Button defaults outside a group', async () => {
-    const screen = await renderWithDS(<Button>Save</Button>);
-    const button = screen.getByRole('button', { name: 'Save' });
-    await expect.element(button).toHaveAttribute('data-variant', 'solid');
-    await expect.element(button).toHaveAttribute('data-size', 'md');
-    await expect.element(button).toHaveAttribute('data-tone', 'primary');
   });
 
   it('disables every button when the group is disabled, unless a button opts back in', async () => {
@@ -203,8 +186,7 @@ describe('ButtonGroup', () => {
     today.element().focus();
     await userEvent.keyboard('[Space>]');
     await expect.element(today).toHaveAttribute('data-pressed', 'true');
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    expect(getComputedStyle(today.element()).scale).toBe('1');
+    await expect.poll(() => pressScale(today.element())).toBe('1');
     await userEvent.keyboard('[/Space]');
     await expect.element(today).not.toHaveAttribute('data-pressed');
   });

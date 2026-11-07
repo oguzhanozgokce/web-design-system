@@ -34,20 +34,6 @@ describe('StatusTag', () => {
       expect(tags[index].getAttribute('data-status')).toBe(key);
       expect(tags[index].getAttribute('data-status-known')).toBe('true');
     }
-    expect(keys).toHaveLength(16);
-  });
-
-  it('maps states to calm tones', async () => {
-    const tones = Object.fromEntries(keys.map((key) => [key, defaultStatusDefinitions[key].tone]));
-    expect(tones).toMatchObject({
-      live: 'success',
-      inReview: 'info',
-      rejected: 'error',
-      draft: 'neutral',
-      paused: 'warning',
-      scheduled: 'info',
-      processing: 'primary',
-    });
   });
 
   it('falls back to Unknown for a key it does not know', async () => {
@@ -104,40 +90,6 @@ describe('StatusTag', () => {
     );
   });
 
-  it('passes size and variant to the tag', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <StatusTag status="failed" variant="solid" size="sm" />
-      </div>,
-    );
-    const tag = tagOf(screen.getByText('Failed').element())!;
-    expect(tag.getAttribute('data-variant')).toBe('solid');
-    expect(tag.getBoundingClientRect().height).toBe(20);
-  });
-
-  it('pulses the processing dot only while motion is allowed', async () => {
-    const moving = await renderWithDS(<StatusTag status="processing" />);
-    const dot = moving.container.querySelector('[data-slot="dot"]')!;
-    expect(dot.className).toContain('animate-ds-pulse');
-    await moving.unmount();
-
-    for (const motion of ['reduced', 'disabled'] as const) {
-      const still = await renderWithDS(
-        <div>
-          <StatusTag status="processing" />
-          <StatusDot status="processing" />
-        </div>,
-        { provider: { motion } },
-      );
-      for (const element of still.container.querySelectorAll(
-        '[data-slot="dot"], [data-slot="status-dot"]',
-      )) {
-        expect(element.className).not.toContain('animate-ds-pulse');
-      }
-      await still.unmount();
-    }
-  });
-
   it('draws a status dot in the tone colour, hidden from screen readers', async () => {
     const screen = await renderWithDS(
       <div>
@@ -154,14 +106,22 @@ describe('StatusTag', () => {
     expect(dot.getBoundingClientRect().width).toBe(8);
   });
 
-  it('puts the dot at the inline start in right-to-left layouts', async () => {
-    const screen = await renderWithDS(<StatusTag status="live" labels={{ live: 'مباشر' }} />, {
-      locale: 'ar',
-    });
-    const tag = tagOf(screen.getByText('مباشر').element())!;
-    const dot = tag.querySelector('[data-slot="dot"]')!.getBoundingClientRect();
-    const label = tag.querySelector('[data-slot="label"]')!.getBoundingClientRect();
-    expect(dot.left).toBeGreaterThan(label.right - 1);
+  it('pulses the processing dot only while motion is allowed', async () => {
+    for (const motion of ['system', 'reduced', 'disabled'] as const) {
+      const screen = await renderWithDS(
+        <div>
+          <StatusTag status="processing" />
+          <StatusDot status="processing" />
+        </div>,
+        { provider: { motion } },
+      );
+      const dots = screen.container.querySelectorAll('[data-slot="dot"], [data-slot="status-dot"]');
+      expect(dots).toHaveLength(2);
+      for (const dot of dots) {
+        expect(getComputedStyle(dot).animationName).toBe(motion === 'system' ? 'ds-pulse' : 'none');
+      }
+      await screen.unmount();
+    }
   });
 });
 

@@ -47,6 +47,9 @@ describe('useLocalStorageState', () => {
     localStorage.setItem('ds-test-density', JSON.stringify({ density: 'compact' }));
     window.dispatchEvent(new StorageEvent('storage', { key: 'ds-test-density' }));
     await expect.element(screen.getByTestId('a')).toHaveTextContent('compact');
+    localStorage.clear();
+    window.dispatchEvent(new StorageEvent('storage', { key: null }));
+    await expect.element(screen.getByTestId('a')).toHaveTextContent('comfortable');
   });
 
   it('removes the key when set to undefined', async () => {
@@ -66,15 +69,6 @@ describe('useLocalStorageState', () => {
     expect(localStorage.getItem('ds-test-clear')).toBeNull();
   });
 
-  it('follows a storage event that clears everything', async () => {
-    localStorage.setItem('ds-test-density', JSON.stringify({ density: 'compact' }));
-    const screen = await render(<Density id="a" />);
-    await expect.element(screen.getByTestId('a')).toHaveTextContent('compact');
-    localStorage.clear();
-    window.dispatchEvent(new StorageEvent('storage', { key: null }));
-    await expect.element(screen.getByTestId('a')).toHaveTextContent('comfortable');
-  });
-
   it('keeps the setter stable with an inline default', async () => {
     const setters = new Set<unknown>();
     function Inline() {
@@ -91,5 +85,23 @@ describe('useLocalStorageState', () => {
     localStorage.setItem('ds-test-density', '{not json');
     const screen = await render(<Density id="a" />);
     await expect.element(screen.getByTestId('a')).toHaveTextContent('comfortable');
+  });
+
+  it('keeps the default and does not throw when storage is blocked', async () => {
+    const blocked = () => {
+      throw new DOMException('blocked', 'SecurityError');
+    };
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(blocked);
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(blocked);
+    try {
+      const screen = await render(<Density id="a" />);
+      await expect.element(screen.getByTestId('a')).toHaveTextContent('comfortable');
+      await screen.getByTestId('a').click();
+      expect(setItem).toHaveBeenCalled();
+      await expect.element(screen.getByTestId('a')).toHaveTextContent('comfortable');
+    } finally {
+      getItem.mockRestore();
+      setItem.mockRestore();
+    }
   });
 });

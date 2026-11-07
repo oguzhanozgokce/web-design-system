@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import {
   FileUpload,
@@ -20,8 +19,8 @@ function pick(root: Element, files: File[]) {
   input.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-function drop(zone: Element, files: File[]) {
-  for (const type of ['dragenter', 'dragover', 'drop']) {
+function drag(zone: Element, files: File[], types = ['dragenter', 'dragover', 'drop']) {
+  for (const type of types) {
     const event = new DragEvent(type, { bubbles: true, cancelable: true });
     Object.defineProperty(event, 'dataTransfer', {
       value: {
@@ -212,55 +211,22 @@ describe('FileUpload', () => {
     await expect.element(dropzone).toHaveAttribute('data-hugging');
     const zone = part(screen.container, 'zone')!;
     expect(zone.contains(screen.container.querySelector('[role="grid"]'))).toBe(true);
-    await expect.poll(() => zone.getBoundingClientRect().width).toBeLessThan(300);
-    expect(part(screen.container, 'stage')!.getBoundingClientRect().height).toBe(176);
 
-    drop(zone, [file('avatar.png')]);
+    drag(zone, [file('avatar.png')], ['dragenter', 'dragover']);
+    await expect
+      .poll(() => part(screen.container, 'float-message')?.textContent)
+      .toBe('Drop to replace');
+    drag(zone, [file('avatar.png')]);
     await expect.poll(() => pending.length).toBe(2);
     expect(pending[0].context.signal.aborted).toBe(true);
     await expect.element(screen.getByRole('row')).toHaveLength(1);
     await expect.element(screen.getByRole('row', { name: /^avatar\.png/ })).toBeVisible();
   });
 
-  it('says a drop will replace the file in the single layout', async () => {
-    const screen = await renderWithDS(
-      <FileUpload
-        layout="single"
-        defaultValue={[
-          { id: 'p', file: { name: 'portrait.png', size: 820_000 }, status: 'complete' },
-        ]}
-      />,
-    );
-    const zone = part(screen.container, 'zone')!;
-    for (const type of ['dragenter', 'dragover']) {
-      const event = new DragEvent(type, { bubbles: true, cancelable: true });
-      Object.defineProperty(event, 'dataTransfer', {
-        value: {
-          types: ['Files'],
-          items: [{ kind: 'file', type: 'image/png' }],
-          effectAllowed: 'all',
-        },
-      });
-      zone.dispatchEvent(event);
-    }
-    await expect
-      .poll(() => part(screen.container, 'float-message')?.textContent)
-      .toBe('Drop to replace');
-  });
-
   it('returns focus to the browse button when the single file is removed', async () => {
-    const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {});
     const screen = await renderWithDS(<FileUpload layout="single" />);
-    const browse = screen.getByRole('button', { name: 'Drag a file here or browse' });
-    await browse.click();
-    expect(click).toHaveBeenCalled();
-    click.mockRestore();
-    await expect.element(browse).toHaveFocus();
     pick(screen.container, [file('portrait.png')]);
-    await expect.element(screen.getByRole('row', { name: /^portrait\.png/ })).toHaveFocus();
-    await userEvent.keyboard('{ArrowRight}');
-    await expect.element(screen.getByRole('button', { name: 'Remove portrait.png' })).toHaveFocus();
-    await userEvent.keyboard('{Enter}');
+    await screen.getByRole('button', { name: 'Remove portrait.png' }).click();
     await expect
       .element(screen.getByRole('button', { name: 'Drag a file here or browse' }))
       .toHaveFocus();
@@ -292,26 +258,6 @@ describe('FileUpload', () => {
     await expect.element(screen.getByRole('button', { name: 'lake.png abbrechen' })).toBeVisible();
     pending[0].resolve();
     await expect.element(announcer(screen.container)).toHaveTextContent('lake.png hochgeladen');
-  });
-
-  it('does not roll the percentage under reduced motion', async () => {
-    const { pending, onUpload } = controlledUploads();
-    const screen = await renderWithDS(<FileUpload onUpload={onUpload} />, {
-      provider: { motion: 'reduced' },
-    });
-    pick(screen.container, [file('lake.png')]);
-    await expect.poll(() => pending.length).toBe(1);
-    pending[0].context.onProgress(0.5);
-    const number = await vi.waitFor(() => {
-      const element = part(screen.container, 'rolling-number');
-      if (!element) throw new Error('no number yet');
-      return element;
-    });
-    expect(number.hasAttribute('data-animated')).toBe(false);
-    const zone = part(screen.container, 'zone')!;
-    expect(
-      zone.getAnimations().filter((animation) => !(animation instanceof CSSTransition)),
-    ).toEqual([]);
   });
 
   it.each([

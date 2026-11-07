@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { SearchField as AriaSearchField, TextField as AriaTextField } from 'react-aria-components';
-import { cdp, page, userEvent } from 'vitest/browser';
+import { cdp, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { LinkIcon, SearchIcon } from '@/registry/ds/lib/icons';
 import {
@@ -26,27 +26,26 @@ function characterPositions(element: Element) {
 
 describe('Field', () => {
   it('marks required fields with a hidden asterisk and keeps the name clean', async () => {
-    const screen = await renderWithDS(<TextField label="Work email" isRequired />);
-    const input = screen.getByRole('textbox', { name: 'Work email' });
-    await expect.element(input).toBeRequired();
+    const screen = await renderWithDS(
+      <div>
+        <TextField label="Work email" isRequired />
+        <TextField label="Team" necessityIndicator="label" />
+        <TextField label="Billing email" necessityIndicator="label" isRequired />
+        <TextField label="Search folders" isLabelHidden />
+      </div>,
+    );
+    await expect.element(screen.getByRole('textbox', { name: 'Work email' })).toBeRequired();
     const indicator = screen.container.querySelector('[data-slot="necessity-indicator"]');
     expect(indicator?.textContent).toBe('*');
     expect(indicator?.getAttribute('aria-hidden')).toBe('true');
-  });
-
-  it('marks optional fields with (optional) when necessityIndicator is label', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <TextField label="Team" necessityIndicator="label" />
-        <TextField label="Work email" necessityIndicator="label" isRequired />
-      </div>,
-    );
     await expect
       .element(screen.getByRole('textbox', { name: 'Team (optional)' }))
       .toBeInTheDocument();
-    await expect.element(screen.getByRole('textbox', { name: 'Work email' })).toBeRequired();
+    await expect.element(screen.getByRole('textbox', { name: 'Billing email' })).toBeRequired();
+    const hidden = screen.getByRole('textbox', { name: 'Search folders' }).element();
+    const root = hidden.closest('[data-slot="text-field"]')!;
+    expect(root.getBoundingClientRect().height).toBe(40);
   });
-
   it('takes its text from labels, then DSProvider, then the English default', async () => {
     const screen = await renderWithDS(
       <div>
@@ -97,15 +96,6 @@ describe('Field', () => {
       .element(screen.getByRole('textbox', { name: 'Team (not required)' }))
       .toHaveAccessibleDescription('6 typed, 40 at most');
     await expect.element(screen.getByText('6/40', { exact: true })).toBeInTheDocument();
-  });
-
-  it('hides the label visually but keeps it as the accessible name', async () => {
-    const screen = await renderWithDS(<TextField label="Search folders" isLabelHidden />);
-    await expect
-      .element(screen.getByRole('textbox', { name: 'Search folders' }))
-      .toBeInTheDocument();
-    const label = screen.container.querySelector('[data-slot="label"]');
-    expect(label?.className).toContain('sr-only');
   });
 
   it('describes the input and swaps the description for the error when invalid', async () => {
@@ -241,14 +231,20 @@ describe('Field', () => {
         </Field>
       </AriaSearchField>,
     );
+
+    const soft = document.createElement('span');
+    soft.className = 'bg-neutral-soft';
+    screen.getByTestId('ds-root').element().append(soft);
+    const container = screen.container.querySelector('[data-slot="container"]')!;
+    expect(getComputedStyle(container).backgroundColor).toBe(
+      getComputedStyle(soft).backgroundColor,
+    );
     const input = screen.getByRole('searchbox', { name: 'Search folders' });
     await expect.element(input).toHaveAccessibleDescription('Searches names and references.');
     const action = screen.getByRole('button', { name: 'Run search' });
     await expect.element(action).toHaveAttribute('data-slot', 'action');
     await action.click();
     expect(onPress).toHaveBeenCalledOnce();
-    const container = screen.container.querySelector('[data-slot="container"]');
-    expect(container?.className).toContain('bg-neutral-soft');
   });
 
   it('focuses the input when an adornment is pressed', async () => {
@@ -280,7 +276,7 @@ describe('Field', () => {
         >
           <Field
             label="Note"
-            counter={<FieldCounter id="note-count" count={value.length} max={40} />}
+            counter={<FieldCounter id="note-count" count={value.length} max={6} />}
           >
             <FieldGroup>
               <FieldInput />
@@ -291,13 +287,18 @@ describe('Field', () => {
     }
     const screen = await renderWithDS(<Example />);
     const input = screen.getByRole('textbox', { name: 'Note' });
-    await expect.element(input).toHaveAccessibleDescription('Character count: 0 of 40');
+    await expect.element(input).toHaveAccessibleDescription('Character count: 0 of 6');
     await input.click();
     await userEvent.keyboard('Done');
-    await expect.element(screen.getByText('4/40')).toBeInTheDocument();
+    await expect.element(screen.getByText('4/6')).toBeInTheDocument();
     const live = screen.container.querySelector('[aria-live="polite"]');
     expect(live?.textContent).toBe('');
-    await expect.poll(() => live?.textContent, { timeout: 2000 }).toBe('Character count: 4 of 40');
+    await expect.poll(() => live?.textContent, { timeout: 2000 }).toBe('Character count: 4 of 6');
+    const counter = screen.container.querySelector('[data-slot="counter"]');
+    expect(counter).not.toHaveAttribute('data-over');
+    await userEvent.keyboard(' now');
+    await expect.element(screen.getByText('8/6')).toBeInTheDocument();
+    expect(counter).toHaveAttribute('data-over', 'true');
   });
 
   it('does not announce counts that change while the input is not focused', async () => {
@@ -359,12 +360,6 @@ describe('Field', () => {
     } finally {
       await cdp().send('Emulation.setEmulatedMedia', { features: [] });
     }
-  });
-
-  it('flags a count over the limit', async () => {
-    await renderWithDS(<FieldCounter count={42} max={40} />);
-    const counter = page.getByText('42/40').element().closest('[data-slot="counter"]');
-    expect(counter?.getAttribute('data-over')).toBe('true');
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

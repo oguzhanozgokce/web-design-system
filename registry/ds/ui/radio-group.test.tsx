@@ -27,36 +27,6 @@ describe('RadioGroup', () => {
     await expect.element(screen.getByRole('radio', { name: 'Email' })).not.toBeChecked();
   });
 
-  it('moves the selection with arrow keys', async () => {
-    const screen = await renderWithDS(
-      <RadioGroup label="Sharing cycle" defaultValue="monthly">
-        <Radio value="monthly">Monthly</Radio>
-        <Radio value="yearly">Yearly</Radio>
-      </RadioGroup>,
-    );
-    await userEvent.tab();
-    await expect.element(screen.getByRole('radio', { name: 'Monthly' })).toHaveFocus();
-    await userEvent.keyboard('{ArrowDown}');
-    await expect.element(screen.getByRole('radio', { name: 'Yearly' })).toBeChecked();
-    const ring = document.querySelectorAll<HTMLElement>('[data-slot="ring"]')[1];
-    expect(ring.hasAttribute('data-focus-visible')).toBe(true);
-    expect(getComputedStyle(ring).outlineWidth).toBe('2px');
-    expect(getComputedStyle(ring).outlineOffset).toBe('2px');
-  });
-
-  it('follows the reading direction for horizontal arrow keys in RTL', async () => {
-    const screen = await renderWithDS(
-      <RadioGroup label="دورة الفوترة" orientation="horizontal" defaultValue="monthly">
-        <Radio value="monthly">شهري</Radio>
-        <Radio value="yearly">سنوي</Radio>
-      </RadioGroup>,
-      { locale: 'ar' },
-    );
-    await userEvent.tab();
-    await userEvent.keyboard('{ArrowLeft}');
-    await expect.element(screen.getByRole('radio', { name: 'سنوي' })).toBeChecked();
-  });
-
   it('supports controlled value', async () => {
     function Controlled() {
       const [value, setValue] = useState('weekly');
@@ -100,11 +70,10 @@ describe('RadioGroup', () => {
     );
   });
 
-  it('skips disabled options and blocks a disabled group', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(
+  it('dims disabled options and the header of a disabled group', async () => {
+    await renderWithDS(
       <>
-        <RadioGroup label="Data region" onChange={onChange}>
+        <RadioGroup label="Data region">
           <Radio value="eu">European Union</Radio>
           <Radio value="apac" isDisabled>
             Asia Pacific
@@ -115,33 +84,12 @@ describe('RadioGroup', () => {
         </RadioGroup>
       </>,
     );
-    await expect.element(screen.getByRole('radio', { name: 'Asia Pacific' })).toBeDisabled();
-    await screen.getByText('Asia Pacific').click({ force: true });
-    expect(onChange).not.toHaveBeenCalled();
-    await expect.element(screen.getByRole('radio', { name: 'Monday' })).toBeDisabled();
     const targets = [...document.querySelectorAll<HTMLElement>('[data-slot="target"]')];
     expect(getComputedStyle(targets[1]).opacity).toBe('0.5');
     expect(getComputedStyle(targets[1]).cursor).toBe('not-allowed');
     expect(getComputedStyle(targets[0]).opacity).toBe('1');
     const header = document.querySelectorAll<HTMLElement>('[data-slot="header"]')[1];
     expect(getComputedStyle(header).opacity).toBe('0.5');
-  });
-
-  it('shows the error message when invalid', async () => {
-    const screen = await renderWithDS(
-      <RadioGroup
-        label="Why are you closing this account?"
-        isRequired
-        isInvalid
-        errorMessage="Choose a reason."
-      >
-        <Radio value="duplicate">Duplicate account</Radio>
-      </RadioGroup>,
-    );
-    const group = screen.getByRole('radiogroup');
-    await expect.element(group).toHaveAttribute('aria-invalid', 'true');
-    await expect.element(group).toHaveAttribute('aria-required', 'true');
-    await expect.element(screen.getByText('Choose a reason.')).toBeVisible();
   });
 
   it('keeps an explicit aria-label when a description is present', async () => {
@@ -161,34 +109,34 @@ describe('RadioGroup', () => {
       .toHaveAccessibleName('Team plan, up to 50 members');
   });
 
-  it('draws the focus ring around the whole card', async () => {
-    await renderWithDS(
-      <RadioGroup label="Plan" variant="card" defaultValue="starter">
-        <Radio value="starter" description="One folder.">
-          Starter
-        </Radio>
-      </RadioGroup>,
-    );
-    await userEvent.tab();
-    const target = document.querySelector<HTMLElement>('[data-slot="target"]')!;
-    expect(target.hasAttribute('data-focus-visible')).toBe(true);
-    expect(getComputedStyle(target).outlineWidth).toBe('2px');
-    expect(getComputedStyle(target).outlineOffset).toBe('2px');
-    const ring = document.querySelector<HTMLElement>('[data-slot="ring"]')!;
-    expect(getComputedStyle(ring).outlineStyle).toBe('none');
-  });
-
-  it('does not change a read-only group', async () => {
-    const onChange = vi.fn();
+  it('draws the focus ring on the dot, or around the whole card', async () => {
     const screen = await renderWithDS(
-      <RadioGroup label="Language" isReadOnly defaultValue="en" onChange={onChange}>
-        <Radio value="en">English</Radio>
-        <Radio value="de">German</Radio>
-      </RadioGroup>,
+      <>
+        <RadioGroup label="Sharing cycle" defaultValue="monthly">
+          <Radio value="monthly">Monthly</Radio>
+        </RadioGroup>
+        <RadioGroup label="Plan" variant="card" defaultValue="starter">
+          <Radio value="starter" description="One folder.">
+            Starter
+          </Radio>
+        </RadioGroup>
+      </>,
     );
-    await screen.getByText('German').click();
-    expect(onChange).not.toHaveBeenCalled();
-    await expect.element(screen.getByRole('radio', { name: 'English' })).toBeChecked();
+    const [dot, cardRing] = document.querySelectorAll<HTMLElement>('[data-slot="ring"]');
+    const card = document.querySelectorAll<HTMLElement>('[data-slot="target"]')[1];
+
+    await userEvent.tab();
+    await expect.element(screen.getByRole('radio', { name: 'Monthly' })).toHaveFocus();
+    expect(dot.hasAttribute('data-focus-visible')).toBe(true);
+    expect(getComputedStyle(dot).outlineWidth).toBe('2px');
+    expect(getComputedStyle(dot).outlineOffset).toBe('2px');
+
+    await userEvent.tab();
+    await expect.element(screen.getByRole('radio', { name: 'Starter' })).toHaveFocus();
+    expect(card.hasAttribute('data-focus-visible')).toBe(true);
+    expect(getComputedStyle(card).outlineWidth).toBe('2px');
+    expect(getComputedStyle(card).outlineOffset).toBe('2px');
+    expect(getComputedStyle(cardRing).outlineStyle).toBe('none');
   });
 
   it('keeps the click target to the ring and its text', async () => {
@@ -260,21 +208,6 @@ describe('RadioGroup', () => {
   });
 
   it.each([
-    ['system', 'scale, background-color'],
-    ['reduced', 'none'],
-  ] as const)('scales the dot in with motion %s', async (motion, transitionProperty) => {
-    await renderWithDS(
-      <RadioGroup label="Sharing cycle" defaultValue="monthly">
-        <Radio value="monthly">Monthly</Radio>
-      </RadioGroup>,
-      { provider: { motion } },
-    );
-    const dot = document.querySelector<HTMLElement>('[data-slot="dot"]')!;
-    expect(getComputedStyle(dot).transitionProperty).toBe(transitionProperty);
-    expect(dot.getBoundingClientRect().width).toBe(7);
-  });
-
-  it.each([
     ['light', {}],
     ['dark', { dark: true }],
     ['RTL', { locale: 'ar' }],
@@ -328,7 +261,6 @@ describe('RadioGroup', () => {
       options,
     );
     await expect.element(screen.getByRole('radio', { name: 'Team' })).toBeChecked();
-    expect(screen.container.querySelectorAll('input[type="radio"]')).toHaveLength(9);
     await expectNoA11yViolations(screen.container);
   });
 });

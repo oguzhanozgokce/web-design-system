@@ -14,14 +14,11 @@ function shown(element: Element) {
 describe('Badge', () => {
   it('shows a count and reads it with the English default label', async () => {
     const screen = await renderWithDS(<Badge count={3} data-testid="badge" />);
-    const badge = screen.getByTestId('badge');
-    await expect.element(badge).toHaveAttribute('data-variant', 'solid');
-    await expect.element(badge).toHaveAttribute('data-tone', 'error');
-    await expect.element(badge).toHaveAttribute('data-size', 'md');
-    await expect.element(badge).not.toHaveAttribute('data-dot');
     await expect.element(screen.getByText('3 new')).toBeInTheDocument();
-    expect(badge.element().getBoundingClientRect().height).toBe(20);
-    const visible = badge.element().querySelector('[data-slot="badge-label"]');
+    const visible = screen
+      .getByTestId('badge')
+      .element()
+      .querySelector('[data-slot="badge-label"]');
     expect(visible?.textContent).toBe('3');
     expect(visible?.getAttribute('aria-hidden')).toBe('true');
   });
@@ -50,58 +47,40 @@ describe('Badge', () => {
     expect(shown(screen.getByTestId('shown').element())).toBe('0');
   });
 
-  it('renders a dot without a count', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <Badge data-testid="dot" />
-        <Badge size="sm" data-testid="small" />
-      </div>,
-      still,
-    );
-    const dot = screen.getByTestId('dot');
-    await expect.element(dot).toHaveAttribute('data-dot', 'true');
-    expect(dot.element().getBoundingClientRect().width).toBe(8);
-    expect(dot.element().getBoundingClientRect().height).toBe(8);
-    expect(screen.getByTestId('small').element().getBoundingClientRect().width).toBe(6);
-    await expect.element(screen.getByText('New').first()).toBeInTheDocument();
-  });
-
-  it('is 20px tall at md and 16px at sm', async () => {
+  it('renders a dot without a count, at the size scale of a count', async () => {
     const screen = await renderWithDS(
       <div className="flex items-start gap-2">
+        <Badge data-testid="dot" />
+        <Badge size="sm" data-testid="small-dot" />
         <Badge count={4} data-testid="md" />
         <Badge count={4} size="sm" data-testid="sm" />
       </div>,
+      still,
     );
-    const md = screen.getByTestId('md').element().getBoundingClientRect();
-    const sm = screen.getByTestId('sm').element().getBoundingClientRect();
-    expect(md.height).toBe(20);
-    expect(md.width).toBe(20);
-    expect(sm.height).toBe(16);
-    expect(sm.width).toBe(16);
-    await expect.element(screen.getByTestId('sm')).toHaveAttribute('data-size', 'sm');
+    await expect.element(screen.getByTestId('dot')).toHaveAttribute('data-dot', 'true');
+    await expect.element(screen.getByText('New').first()).toBeInTheDocument();
+    const box = (testId: string) => screen.getByTestId(testId).element().getBoundingClientRect();
+    expect([box('dot').width, box('dot').height]).toEqual([8, 8]);
+    expect([box('small-dot').width, box('small-dot').height]).toEqual([6, 6]);
+    expect([box('md').width, box('md').height]).toEqual([20, 20]);
+    expect([box('sm').width, box('sm').height]).toEqual([16, 16]);
   });
 
-  it.each([{}, { dark: true }])(
-    'fills solid badges with the solid roles and soft badges with the soft roles %o',
-    async (options) => {
-      const screen = await renderWithDS(
-        <div>
-          <Badge count={4} tone="success" data-testid="solid" />
-          <Badge count={4} tone="success" variant="soft" data-testid="soft" />
-          <span data-testid="solid-ref" className="bg-success-solid text-on-success-solid" />
-          <span data-testid="soft-ref" className="bg-success-soft text-on-success-soft" />
-        </div>,
-        options,
-      );
-      const style = (testId: string) => getComputedStyle(screen.getByTestId(testId).element());
-      expect(style('solid').backgroundColor).toBe(style('solid-ref').backgroundColor);
-      expect(style('solid').color).toBe(style('solid-ref').color);
-      expect(style('soft').backgroundColor).toBe(style('soft-ref').backgroundColor);
-      expect(style('soft').color).toBe(style('soft-ref').color);
-      await expect.element(screen.getByTestId('soft')).toHaveAttribute('data-variant', 'soft');
-    },
-  );
+  it('fills solid badges with the solid roles and soft badges with the soft roles', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <Badge count={4} tone="success" data-testid="solid" />
+        <Badge count={4} tone="success" variant="soft" data-testid="soft" />
+        <span data-testid="solid-ref" className="bg-success-solid text-on-success-solid" />
+        <span data-testid="soft-ref" className="bg-success-soft text-on-success-soft" />
+      </div>,
+    );
+    const style = (testId: string) => getComputedStyle(screen.getByTestId(testId).element());
+    expect(style('solid').backgroundColor).toBe(style('solid-ref').backgroundColor);
+    expect(style('solid').color).toBe(style('solid-ref').color);
+    expect(style('soft').backgroundColor).toBe(style('soft-ref').backgroundColor);
+    expect(style('soft').color).toBe(style('soft-ref').color);
+  });
 
   it('keeps a soft dot visible with the solid fill', async () => {
     const screen = await renderWithDS(
@@ -115,55 +94,47 @@ describe('Badge', () => {
     );
   });
 
-  it('uses a custom label with a count placeholder', async () => {
-    const screen = await renderWithDS(
-      <Badge count={4} label="{count} open tasks" tone="warning" />,
-    );
-    await expect.element(screen.getByText('4 open tasks')).toBeInTheDocument();
-  });
-
-  it('shows a short text label as is', async () => {
-    const screen = await renderWithDS(
-      <Badge tone="primary" data-testid="badge">
-        Beta
-      </Badge>,
-    );
-    const badge = screen.getByTestId('badge');
-    await expect.element(badge).not.toHaveAttribute('data-dot');
-    expect(shown(badge.element())).toBe('Beta');
-    expect(badge.element().querySelector('[aria-hidden]')).toBeNull();
-  });
-
   it('reads a custom label instead of its short text', async () => {
     const screen = await renderWithDS(
-      <Badge tone="primary" label="New feature" data-testid="badge">
-        New
-      </Badge>,
+      <div>
+        <Badge tone="primary" data-testid="short">
+          Beta
+        </Badge>
+        <Badge tone="primary" label="New feature" data-testid="labelled">
+          New
+        </Badge>
+        <Badge count={4} label="{count} open tasks" tone="warning" />
+        <Badge count={4} data-testid="counted">
+          New
+        </Badge>
+      </div>,
     );
-    const badge = screen.getByTestId('badge');
+    const short = screen.getByTestId('short').element();
+    expect(shown(short)).toBe('Beta');
+    expect(short.querySelector('[aria-hidden]')).toBeNull();
     await expect.element(screen.getByText('New feature')).toBeInTheDocument();
-    const visible = badge.element().querySelector('[data-slot="badge-label"]');
-    expect(visible?.textContent).toBe('New');
-    expect(visible?.getAttribute('aria-hidden')).toBe('true');
-  });
-
-  it('shows the count rather than children when both are given', async () => {
-    const screen = await renderWithDS(
-      <Badge count={4} data-testid="badge">
-        New
-      </Badge>,
-    );
+    const labelled = screen
+      .getByTestId('labelled')
+      .element()
+      .querySelector('[data-slot="badge-label"]');
+    expect(labelled?.textContent).toBe('New');
+    expect(labelled?.getAttribute('aria-hidden')).toBe('true');
+    await expect.element(screen.getByText('4 open tasks')).toBeInTheDocument();
     await expect.element(screen.getByText('4 new')).toBeInTheDocument();
-    expect(shown(screen.getByTestId('badge').element())).toBe('4');
+    expect(shown(screen.getByTestId('counted').element())).toBe('4');
   });
 
   it('takes its text from labels, then DSProvider, then the English default', async () => {
+    const replies: BadgeLabels['count'] = ({ count }) =>
+      `${count} new ${count === '1' ? 'reply' : 'replies'}`;
     const screen = await renderWithDS(
       <div>
         <Badge count={5} />
         <Badge count={7} labels={{ count: '{count} okunmamış' }} />
         <Badge count={120} labels={{ overflow: '{max} üstü' }} data-testid="overflow" />
         <Badge tone="primary" />
+        <Badge count={1} labels={{ count: replies }} />
+        <Badge count={4} labels={{ count: replies }} />
       </div>,
       { provider: { labels: { badge: { count: '{count} yeni', dot: 'Yeni' } } } },
     );
@@ -172,17 +143,6 @@ describe('Badge', () => {
     await expect.element(screen.getByText('99 üstü yeni')).toBeInTheDocument();
     expect(shown(screen.getByTestId('overflow').element())).toBe('99 üstü');
     await expect.element(screen.getByText('Yeni', { exact: true })).toBeInTheDocument();
-  });
-
-  it('accepts a function as a label template for plural rules', async () => {
-    const replies: BadgeLabels['count'] = ({ count }) =>
-      `${count} new ${count === '1' ? 'reply' : 'replies'}`;
-    const screen = await renderWithDS(
-      <div>
-        <Badge count={1} labels={{ count: replies }} />
-        <Badge count={4} labels={{ count: replies }} />
-      </div>,
-    );
     await expect.element(screen.getByText('1 new reply')).toBeInTheDocument();
     await expect.element(screen.getByText('4 new replies')).toBeInTheDocument();
   });
@@ -207,21 +167,39 @@ describe('Badge', () => {
   });
 
   it.each(['en', 'ar'])(
-    'pins a dot over the top-end corner of its anchor in %s',
+    'pins a dot over the top-end corner of its anchor and a count a quarter outside it in %s',
     async (locale) => {
       const screen = await renderWithDS(
-        <BadgeAnchor data-testid="anchor" badge={<Badge data-testid="dot" />}>
-          <NotificationsIcon className="size-6" />
-        </BadgeAnchor>,
+        <div className="flex gap-8 p-8">
+          <BadgeAnchor data-testid="dot-anchor" badge={<Badge data-testid="dot" />}>
+            <NotificationsIcon className="size-6" />
+          </BadgeAnchor>
+          <BadgeAnchor data-testid="count-anchor" badge={<Badge count={8} data-testid="count" />}>
+            <NotificationsIcon className="size-6" />
+          </BadgeAnchor>
+        </div>,
         { locale, ...still },
       );
       await expect.element(screen.getByTestId('dot')).toHaveAttribute('data-size', 'sm');
-      const anchor = screen.getByTestId('anchor').element().getBoundingClientRect();
-      const dot = screen.getByTestId('dot').element().getBoundingClientRect();
+      const rect = (testId: string) => screen.getByTestId(testId).element().getBoundingClientRect();
+      const dotAnchor = rect('dot-anchor');
+      const dot = rect('dot');
       expect(dot.width).toBe(6);
-      expect(dot.top).toBeCloseTo(anchor.top - 1.5, 1);
-      if (locale === 'ar') expect(dot.left).toBeCloseTo(anchor.left - 1.5, 1);
-      else expect(dot.right).toBeCloseTo(anchor.right + 1.5, 1);
+      expect(dot.top).toBeCloseTo(dotAnchor.top - 1.5, 1);
+      if (locale === 'ar') expect(dot.left).toBeCloseTo(dotAnchor.left - 1.5, 1);
+      else expect(dot.right).toBeCloseTo(dotAnchor.right + 1.5, 1);
+
+      const countAnchor = rect('count-anchor');
+      const count = rect('count');
+      expect(count.height).toBe(16);
+      if (locale === 'ar') {
+        expect(count.right).toBe(countAnchor.left + 12);
+        expect(count.left).toBe(countAnchor.left - 4);
+      } else {
+        expect(count.left).toBe(countAnchor.right - 12);
+        expect(count.right).toBe(countAnchor.right + 4);
+      }
+      expect(count.top).toBe(countAnchor.top - 4);
     },
   );
 
@@ -244,56 +222,30 @@ describe('Badge', () => {
   });
 
   it('animates only when anchored and motion is allowed', async () => {
-    const screen = await renderWithDS(
+    const anchored = (
       <div>
         <Badge count={2} data-testid="inline" />
         <BadgeAnchor badge={<Badge count={2} data-testid="anchored" />}>
           <NotificationsIcon className="size-6" />
         </BadgeAnchor>
-      </div>,
+      </div>
     );
-    await expect.element(screen.getByTestId('anchored')).toBeInTheDocument();
+    const moving = await renderWithDS(anchored);
+    await expect.element(moving.getByTestId('anchored')).toBeInTheDocument();
     const duration = (testId: string) =>
-      parseFloat(getComputedStyle(screen.getByTestId(testId).element()).transitionDuration);
+      parseFloat(
+        getComputedStyle(document.querySelector(`[data-testid="${testId}"]`)!).transitionDuration,
+      );
     expect(duration('inline')).toBe(0);
     expect(duration('anchored')).toBeGreaterThan(0);
+    await moving.unmount();
+
+    const stillScreen = await renderWithDS(anchored, still);
+    await expect.element(stillScreen.getByTestId('anchored')).toBeInTheDocument();
+    expect(duration('anchored')).toBe(0);
   });
 
-  it('does not animate when motion is disabled', async () => {
-    const screen = await renderWithDS(
-      <BadgeAnchor badge={<Badge count={2} data-testid="anchored" />}>
-        <NotificationsIcon className="size-6" />
-      </BadgeAnchor>,
-      still,
-    );
-    await expect.element(screen.getByTestId('anchored')).toBeInTheDocument();
-    expect(
-      parseFloat(getComputedStyle(screen.getByTestId('anchored').element()).transitionDuration),
-    ).toBe(0);
-  });
-
-  it.each(['en', 'ar'])('moves a count a quarter outside the corner in %s', async (locale) => {
-    const screen = await renderWithDS(
-      <BadgeAnchor data-testid="anchor" badge={<Badge count={8} data-testid="badge" />}>
-        <NotificationsIcon className="size-6" />
-      </BadgeAnchor>,
-      { locale, ...still },
-    );
-    await expect.element(screen.getByTestId('anchor')).toBeInTheDocument();
-    const anchor = screen.getByTestId('anchor').element().getBoundingClientRect();
-    const badge = screen.getByTestId('badge').element().getBoundingClientRect();
-    expect(badge.height).toBe(16);
-    if (locale === 'ar') {
-      expect(badge.right).toBe(anchor.left + 12);
-      expect(badge.left).toBe(anchor.left - 4);
-    } else {
-      expect(badge.left).toBe(anchor.right - 12);
-      expect(badge.right).toBe(anchor.right + 4);
-    }
-    expect(badge.top).toBe(anchor.top - 4);
-  });
-
-  it('mirrors a circular anchor in RTL', async () => {
+  it.each(['en', 'ar'])('centres on the rim of a circular anchor in %s', async (locale) => {
     const screen = await renderWithDS(
       <BadgeAnchor
         data-testid="anchor"
@@ -302,30 +254,13 @@ describe('Badge', () => {
       >
         <span className="block size-10 rounded-full bg-neutral-soft" />
       </BadgeAnchor>,
-      { locale: 'ar', ...still },
+      { locale, ...still },
     );
     await expect.element(screen.getByText('Online')).toBeInTheDocument();
     const anchor = screen.getByTestId('anchor').element().getBoundingClientRect();
     const dot = screen.getByTestId('dot').element().getBoundingClientRect();
-    expect(dot.left + dot.width / 2).toBeCloseTo(anchor.left + anchor.width * 0.146, 0);
-    expect(dot.top + dot.height / 2).toBeCloseTo(anchor.top + anchor.height * 0.146, 0);
-  });
-
-  it('centres on the rim of a circular anchor', async () => {
-    const screen = await renderWithDS(
-      <BadgeAnchor
-        data-testid="anchor"
-        overlap="circular"
-        badge={<Badge tone="success" data-testid="dot" />}
-      >
-        <span className="block size-10 rounded-full bg-neutral-soft" />
-      </BadgeAnchor>,
-      still,
-    );
-    await expect.element(screen.getByTestId('anchor')).toBeInTheDocument();
-    const anchor = screen.getByTestId('anchor').element().getBoundingClientRect();
-    const dot = screen.getByTestId('dot').element().getBoundingClientRect();
-    expect(dot.left + dot.width / 2).toBeCloseTo(anchor.left + anchor.width * 0.854, 0);
+    const inlineFraction = locale === 'ar' ? 0.146 : 0.854;
+    expect(dot.left + dot.width / 2).toBeCloseTo(anchor.left + anchor.width * inlineFraction, 0);
     expect(dot.top + dot.height / 2).toBeCloseTo(anchor.top + anchor.height * 0.146, 0);
   });
 

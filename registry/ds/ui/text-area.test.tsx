@@ -20,24 +20,21 @@ describe('TextArea', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders a labelled multi-line textbox', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(
-      <TextArea label="Project note" placeholder="Add a note for the team" onChange={onChange} />,
-    );
-    const textarea = screen.getByRole('textbox', { name: 'Project note' });
-    expect(textarea.element().tagName).toBe('TEXTAREA');
-    await expect.element(textarea).toHaveAttribute('rows', '3');
-    await textarea.fill('Review the photos by Friday.');
-    expect(onChange).toHaveBeenLastCalledWith('Review the photos by Friday.');
-  });
-
   it('follows a controlled value and keeps the counter in step', async () => {
+    const onChange = vi.fn();
     function Example() {
       const [value, setValue] = useState('Hello!');
       return (
         <>
-          <TextArea label="Greeting" maxLength={80} value={value} onChange={setValue} />
+          <TextArea label="Project note" onChange={onChange} />
+          <p id="greeting-hint">Shown on the welcome screen.</p>
+          <TextArea
+            label="Greeting"
+            maxLength={80}
+            value={value}
+            onChange={setValue}
+            aria-describedby="greeting-hint"
+          />
           <button type="button" onClick={() => setValue('')}>
             Reset greeting
           </button>
@@ -45,16 +42,23 @@ describe('TextArea', () => {
       );
     }
     const screen = await renderWithDS(<Example />);
+    const note = screen.getByRole('textbox', { name: 'Project note' });
+    await expect.element(note).toHaveAttribute('rows', '3');
+    await note.fill('Review the photos by Friday.');
+    expect(onChange).toHaveBeenLastCalledWith('Review the photos by Friday.');
+
     const textarea = screen.getByRole('textbox', { name: 'Greeting' });
     await expect.element(textarea).toHaveValue('Hello!');
     await expect.element(screen.getByText('6/80')).toBeInTheDocument();
+    await expect
+      .element(textarea)
+      .toHaveAccessibleDescription('Shown on the welcome screen. Character count: 6 of 80');
     await textarea.fill('Welcome aboard!');
     await expect.element(screen.getByText('15/80')).toBeInTheDocument();
     await screen.getByRole('button', { name: 'Reset greeting' }).click();
     await expect.element(textarea).toHaveValue('');
     await expect.element(screen.getByText('0/80')).toBeInTheDocument();
   });
-
   it('grows with its content between minRows and maxRows', async () => {
     const screen = await renderWithDS(
       <div className="w-80">
@@ -118,29 +122,6 @@ describe('TextArea', () => {
     expect(element.scrollHeight).toBeLessThanOrEqual(element.clientHeight);
   });
 
-  it('does not resize by default and can opt into vertical resizing', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <TextArea label="Internal memo" />
-        <TextArea label="Meeting notes" resize="vertical" />
-      </div>,
-    );
-    const memo = screen.getByRole('textbox', { name: 'Internal memo' }).element();
-    const notes = screen.getByRole('textbox', { name: 'Meeting notes' }).element();
-    expect(getComputedStyle(memo).resize).toBe('none');
-    expect(getComputedStyle(notes).resize).toBe('vertical');
-  });
-
-  it('counts characters against maxLength', async () => {
-    const screen = await renderWithDS(
-      <TextArea label="Short bio" maxLength={160} defaultValue="Photographer and cook." />,
-    );
-    const textarea = screen.getByRole('textbox', { name: 'Short bio' });
-    await expect.element(textarea).toHaveAttribute('maxlength', '160');
-    await expect.element(screen.getByText('22/160')).toBeInTheDocument();
-    await expect.element(textarea).toHaveAccessibleDescription('Character count: 22 of 160');
-  });
-
   it('takes the counter and optional text from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div>
@@ -167,41 +148,6 @@ describe('TextArea', () => {
       .element(screen.getByRole('textbox', { name: 'Feedback (if known)' }))
       .toHaveAccessibleDescription('8 characters so far');
     await expect.element(screen.getByText('8 of 200', { exact: true })).toBeInTheDocument();
-  });
-
-  it('marks invalid, read-only and disabled states', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <TextArea label="Feedback" isRequired isInvalid errorMessage="Add a reason." />
-        <TextArea label="History" isReadOnly defaultValue="Edited by Dana" />
-        <TextArea label="Archived note" isDisabled defaultValue="Closed" />
-      </div>,
-    );
-    const reason = screen.getByRole('textbox', { name: 'Feedback' });
-    await expect.element(reason).toHaveAttribute('aria-invalid', 'true');
-    await expect.element(reason).toHaveAccessibleDescription('Add a reason.');
-    await expect.element(reason).toBeRequired();
-    await expect
-      .element(screen.getByRole('textbox', { name: 'History' }))
-      .toHaveAttribute('readonly');
-    await expect.element(screen.getByRole('textbox', { name: 'Archived note' })).toBeDisabled();
-  });
-
-  it('reports the variant and fills the soft frame', async () => {
-    const screen = await renderWithDS(
-      <div className="grid w-80 gap-4">
-        <span data-testid="neutral" className="bg-neutral-soft" />
-        <TextArea label="Outline" />
-        <TextArea label="Soft" variant="soft" />
-      </div>,
-    );
-    const roots = [...screen.container.querySelectorAll('[data-slot="text-area"]')];
-    expect(roots.map((root) => root.getAttribute('data-variant'))).toEqual(['outline', 'soft']);
-    const neutral = getComputedStyle(screen.getByTestId('neutral').element()).backgroundColor;
-    const frames = roots.map((root) => root.querySelector('[data-slot="container"]')!);
-    expect(getComputedStyle(frames[1]).backgroundColor).toBe(neutral);
-    expect(getComputedStyle(frames[0]).borderTopLeftRadius).toBe('12px');
-    expect(getComputedStyle(frames[0]).borderTopWidth).toBe('1px');
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

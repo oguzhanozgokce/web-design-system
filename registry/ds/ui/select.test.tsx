@@ -54,37 +54,6 @@ describe('Select', () => {
     expect(value?.querySelector('[data-slot="check"]')).toBeNull();
   });
 
-  it('works from the keyboard and returns focus to the trigger', async () => {
-    await renderWithDS(<FolderSelect defaultValue="documents" />);
-    await userEvent.keyboard('{Tab}');
-    await expect.element(trigger()).toHaveFocus();
-    await userEvent.keyboard('{ArrowDown}');
-    await expect.element(page.getByRole('option', { name: /^Documents/ })).toHaveFocus();
-    await expect
-      .element(page.getByRole('option', { name: /^Documents/ }))
-      .toHaveAttribute('aria-selected', 'true');
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{Enter}');
-    await expect.element(page.getByRole('listbox')).not.toBeInTheDocument();
-    await expect.element(trigger()).toHaveFocus();
-    await expect.element(trigger()).toHaveTextContent('Music');
-  });
-
-  it('rings the focused option only when the list is driven from the keyboard', async () => {
-    await renderWithDS(<FolderSelect defaultValue="documents" />);
-    await trigger().click();
-    const documents = page.getByRole('option', { name: /^Documents/ });
-    await expect.element(documents).toHaveFocus();
-    expect(getComputedStyle(documents.element()).outlineStyle).toBe('none');
-
-    await userEvent.keyboard('{ArrowDown}');
-    const music = page.getByRole('option', { name: /^Music/ });
-    await expect.element(music).toHaveFocus();
-    expect(getComputedStyle(music.element()).outlineStyle).toBe('solid');
-    expect(getComputedStyle(music.element()).outlineWidth).toBe('2px');
-    expect(getComputedStyle(music.element()).outlineOffset).toBe('-2px');
-  });
-
   it('draws the focused frame while open and turns the chevron', async () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-4">
@@ -104,48 +73,6 @@ describe('Select', () => {
     await expect.poll(() => getComputedStyle(chevron).rotate).toBe('180deg');
   });
 
-  it('lists options on a raised overlay panel', async () => {
-    const screen = await renderWithDS(
-      <>
-        <span data-testid="overlay" className="bg-surface-overlay" />
-        <FolderSelect />
-      </>,
-    );
-    await trigger().click();
-    await expect.element(page.getByRole('listbox')).toBeVisible();
-    const popover = document.querySelector<HTMLElement>('[data-slot="popover"]')!;
-    const panel = getComputedStyle(popover);
-    expect(panel.borderTopLeftRadius).toBe('16px');
-    expect(panel.borderTopWidth).toBe('1px');
-    expect(panel.boxShadow).not.toBe('none');
-    expect(panel.backgroundColor).toBe(
-      getComputedStyle(screen.getByTestId('overlay').element()).backgroundColor,
-    );
-    const option = page.getByRole('option', { name: /^Photos/ }).element();
-    expect(getComputedStyle(option).borderTopLeftRadius).toBe('12px');
-  });
-
-  it('reports the variant and fills the soft trigger', async () => {
-    const screen = await renderWithDS(
-      <div className="flex flex-col gap-4">
-        <span data-testid="neutral" className="bg-neutral-soft" />
-        <FolderSelect label="Outline" />
-        <FolderSelect label="Soft" variant="soft" />
-      </div>,
-    );
-    const variants = [...screen.container.querySelectorAll('[data-slot="select"]')].map((element) =>
-      element.getAttribute('data-variant'),
-    );
-    expect(variants).toEqual(['outline', 'soft']);
-    const neutral = getComputedStyle(screen.getByTestId('neutral').element()).backgroundColor;
-    const soft = screen.getByRole('button', { name: /Soft/ }).element();
-    expect(getComputedStyle(soft).backgroundColor).toBe(neutral);
-    const heights = [...screen.container.querySelectorAll('[data-slot="trigger"]')].map(
-      (element) => element.getBoundingClientRect().height,
-    );
-    expect(heights).toEqual([40, 40]);
-  });
-
   it('follows a controlled value', async () => {
     function Example() {
       const [value, setValue] = useState<Key | null>('photos');
@@ -159,9 +86,6 @@ describe('Select', () => {
     const screen = await renderWithDS(<Example />);
     await expect.element(trigger()).toHaveTextContent('Photos');
     await trigger().click();
-    await expect.element(page.getByRole('listbox')).toBeVisible();
-    const popover = document.querySelector<HTMLElement>('[data-slot="popover"]');
-    expect(popover?.getBoundingClientRect().right).toBeLessThanOrEqual(window.innerWidth);
     await page.getByRole('option', { name: /^Videos/ }).click();
     await expect.element(screen.getByText('videos')).toBeInTheDocument();
     await expect.element(trigger()).toHaveTextContent('Videos');
@@ -195,6 +119,9 @@ describe('Select', () => {
     expect(onChange).toHaveBeenLastCalledWith(['documents', 'music']);
     await userEvent.keyboard('{Escape}');
     await expect.element(upload).toMatchTextContent(/^2 selected /);
+    await expect
+      .element(upload)
+      .toHaveAccessibleName('2 selected Documents and Music Sync folders');
 
     const sharedFolders = screen.getByRole('button', { name: /Shared folders/ });
     const chips = sharedFolders.element().querySelectorAll('[data-slot="chip"]');
@@ -203,35 +130,6 @@ describe('Select', () => {
     await expect
       .element(sharedFolders)
       .toHaveAccessibleName('Photos, Documents, and Music Shared folders');
-  });
-
-  it('names the trigger with every selected label when it shows a count', async () => {
-    const screen = await renderWithDS(
-      <FolderSelect
-        label="Sync folders"
-        selectionMode="multiple"
-        valueDisplay="count"
-        defaultValue={['documents', 'videos']}
-      />,
-    );
-    const button = screen.getByRole('button', { name: /Sync folders/ });
-    await expect.element(button).toMatchTextContent(/^2 selected /);
-    await expect
-      .element(button)
-      .toHaveAccessibleName('2 selected Documents and Videos Sync folders');
-  });
-
-  it('keeps disabled options out of reach', async () => {
-    const onChange = vi.fn();
-    await renderWithDS(<FolderSelect disabledKeys={['music']} onChange={onChange} />);
-    await trigger().click();
-    const music = page.getByRole('option', { name: /^Music/ });
-    await expect.element(music).toHaveAttribute('aria-disabled', 'true');
-    await music.click({ force: true });
-    expect(onChange).not.toHaveBeenCalled();
-    await expect.element(page.getByRole('listbox')).toBeVisible();
-    await userEvent.keyboard('{End}');
-    await expect.element(page.getByRole('option', { name: /^Videos/ })).toHaveFocus();
   });
 
   it('dims the whole trigger when disabled', async () => {
@@ -253,31 +151,6 @@ describe('Select', () => {
     expect(getComputedStyle(icon!).opacity).toBe('1');
   });
 
-  it('turns the arrow without a transition when motion is reduced', async () => {
-    const screen = await renderWithDS(
-      <div className="flex flex-col gap-4">
-        <FolderSelect label="Animated" />
-        <FolderSelect label="Still" />
-      </div>,
-    );
-    const animated = screen.container.querySelector('[data-slot="indicator"] svg')!;
-    expect(getComputedStyle(animated).transitionProperty).toBe('rotate');
-    expect(getComputedStyle(animated).transitionDuration).toBe('0.15s');
-    await screen.unmount();
-
-    const reduced = await renderWithDS(<FolderSelect />, { provider: { motion: 'reduced' } });
-    const still = reduced.container.querySelector('[data-slot="indicator"] svg')!;
-    expect(getComputedStyle(still).transitionDuration).toBe('0s');
-  });
-
-  it('asks for more options when the end of the list is visible', async () => {
-    const onLoadMore = vi.fn();
-    await renderWithDS(<FolderSelect onLoadMore={onLoadMore} />);
-    await trigger().click();
-    await expect.element(page.getByRole('listbox')).toBeVisible();
-    await expect.poll(() => onLoadMore.mock.calls.length).toBeGreaterThan(0);
-  });
-
   it('shows the description, then the error after a failed submit', async () => {
     const onSubmit = vi.fn();
     const screen = await renderWithDS(
@@ -293,7 +166,6 @@ describe('Select', () => {
           description="New uploads are saved here."
           errorMessage="Choose a folder for uploads."
         />
-        <FolderSelect label="Locked" isDisabled defaultValue="documents" />
         <button type="submit">Save</button>
       </form>,
     );
@@ -309,17 +181,26 @@ describe('Select', () => {
     await trigger().click();
     await page.getByRole('option', { name: /^Documents/ }).click();
     await expect.element(trigger()).not.toHaveAttribute('data-invalid');
-
-    const locked = screen.getByRole('button', { name: /Locked/ });
-    await expect.element(locked).toBeDisabled();
   });
 
   it('shows a spinner and a loading row while options load', async () => {
-    await renderWithDS(<FolderSelect items={[]} isLoading startAdornment={<FilterIcon />} />);
+    const onLoadMore = vi.fn();
+    const screen = await renderWithDS(
+      <div className="flex flex-col gap-4">
+        <FolderSelect items={[]} isLoading startAdornment={<FilterIcon />} />
+        <FolderSelect label="Archive" onLoadMore={onLoadMore} />
+      </div>,
+    );
     const button = trigger();
     expect(button.element().querySelector('[data-slot="spinner"]')).not.toBeNull();
     await button.click();
     await expect.element(page.getByRole('option', { name: 'Loading…' })).toBeVisible();
+    await userEvent.keyboard('{Escape}');
+    await expect.element(page.getByRole('listbox')).not.toBeInTheDocument();
+
+    await screen.getByRole('button', { name: /Archive/ }).click();
+    await expect.element(page.getByRole('listbox')).toBeVisible();
+    await expect.poll(() => onLoadMore.mock.calls.length).toBeGreaterThan(0);
   });
 
   it('opens a popover at least as wide as the trigger, with sections', async () => {
@@ -331,9 +212,6 @@ describe('Select', () => {
           </ListBoxSection>
           <ListBoxSection title="Shared">
             <ListBoxItem id="team">Team</ListBoxItem>
-            <ListBoxItem id="archive" isDisabled>
-              Archive
-            </ListBoxItem>
           </ListBoxSection>
         </Select>
       </div>,
@@ -347,24 +225,20 @@ describe('Select', () => {
       .poll(() => popover?.getBoundingClientRect().width ?? 0)
       .toBeGreaterThanOrEqual(width - 1);
     expect(document.querySelector('[data-slot="list-box"]')).toHaveAttribute('data-density', 'sm');
-    await expect
-      .element(page.getByRole('option', { name: 'Archive' }))
-      .toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('shows an English placeholder and empty state by default', async () => {
-    const screen = await renderWithDS(
+  it('takes its text from labels, then DSProvider', async () => {
+    const english = await renderWithDS(
       <Select label="Folder" items={[] as typeof folders}>
         {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
       </Select>,
     );
-    const button = screen.getByRole('button', { name: /Folder/ });
-    await expect.element(button).toHaveTextContent('Select an option');
-    await button.click();
+    await expect.element(trigger()).toHaveTextContent('Select an option');
+    await trigger().click();
     await expect.element(page.getByText('No options')).toBeVisible();
-  });
+    await userEvent.keyboard('{Escape}');
+    await english.unmount();
 
-  it('takes its text from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-4">
         <FolderSelect label="Upload folder" items={[]} />

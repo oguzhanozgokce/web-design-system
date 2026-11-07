@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { Selection, SortDescriptor } from 'react-aria-components';
 import { page, userEvent, type Locator } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
-import { EmptyState } from '@/registry/ds/ui/empty-state';
 import {
   Cell,
   Column,
@@ -75,54 +74,30 @@ describe('Table', () => {
     await page.viewport(1024, 768);
   });
 
-  it('renders a grid with column and row headers', async () => {
-    const screen = await renderWithDS(<Folders />);
-    await expect.element(screen.getByRole('grid', { name: 'Folders' })).toBeVisible();
-    expect(screen.getByRole('columnheader').all()).toHaveLength(2);
-    expect(
-      screen
-        .getByRole('rowheader')
-        .all()
-        .map((cell) => cell.element().textContent),
-    ).toEqual(['Documents', 'Music', 'Photos']);
-    const table = screen.getByRole('grid').element();
-    expect(table.getAttribute('data-density')).toBe('md');
-  });
-
-  it('sorts from a header with the pointer and the keyboard and reports aria-sort', async () => {
+  it('sorts from a header, turns the sort chevron and keeps it out of the accessible name', async () => {
     const screen = await renderWithDS(<Folders sortable />);
     const name = screen.getByRole('columnheader', { name: /Folder/ });
     const items = screen.getByRole('columnheader', { name: /Items/ });
-    await expect.element(name).toHaveAttribute('aria-sort', 'ascending');
-    await expect.element(items).toHaveAttribute('aria-sort', 'none');
-    await items.click();
-    await expect.element(items).toHaveAttribute('aria-sort', 'ascending');
-    expect(names(screen.container)).toEqual(['Documents', 'Music', 'Photos']);
-    await items.click();
-    await expect.element(items).toHaveAttribute('aria-sort', 'descending');
-    expect(names(screen.container)).toEqual(['Photos', 'Music', 'Documents']);
-
-    name.element().focus();
-    await userEvent.keyboard('{Enter}');
-    await expect.element(name).toHaveAttribute('aria-sort', 'ascending');
-    expect(names(screen.container)).toEqual(['Documents', 'Music', 'Photos']);
-  });
-
-  it('turns the sort chevron and keeps it out of the accessible name', async () => {
-    const screen = await renderWithDS(<Folders sortable />);
-    const name = screen.getByRole('columnheader', { name: /Folder/ });
     await expect.element(name).toHaveAccessibleName('Folder');
+    await expect.element(name).toHaveAttribute('aria-sort', 'ascending');
     const indicator = name.element().querySelector('[data-slot="table-sort-indicator"]')!;
     expect(indicator.getAttribute('aria-hidden')).toBe('true');
     expect(indicator.getAttribute('data-direction')).toBe('ascending');
     await expect.poll(() => getComputedStyle(indicator).rotate).toBe('180deg');
-    await name.click();
-    expect(indicator.getAttribute('data-direction')).toBe('descending');
-    await expect.poll(() => getComputedStyle(indicator).rotate).toBe('none');
-    const items = screen.getByRole('columnheader', { name: /Items/ }).element();
-    const itemsIndicator = items.querySelector('[data-slot="table-sort-indicator"]')!;
+    const itemsIndicator = items.element().querySelector('[data-slot="table-sort-indicator"]')!;
     expect(itemsIndicator.hasAttribute('data-direction')).toBe(false);
     expect(Number(getComputedStyle(itemsIndicator).opacity)).toBeLessThan(1);
+
+    await name.click();
+    await expect.element(name).toHaveAttribute('aria-sort', 'descending');
+    expect(names(screen.container)).toEqual(['Photos', 'Music', 'Documents']);
+    expect(indicator.getAttribute('data-direction')).toBe('descending');
+    await expect.poll(() => getComputedStyle(indicator).rotate).toBe('none');
+
+    await items.click();
+    await expect.element(items).toHaveAttribute('aria-sort', 'ascending');
+    await expect.element(name).toHaveAttribute('aria-sort', 'none');
+    expect(names(screen.container)).toEqual(['Documents', 'Music', 'Photos']);
   });
 
   it('selects rows with checkboxes, select-all and the keyboard', async () => {
@@ -162,21 +137,25 @@ describe('Table', () => {
     rows[2].element().focus();
     await userEvent.keyboard(' ');
     await expect.element(rows[2]).toHaveAttribute('aria-selected', 'true');
-    await userEvent.keyboard('{ArrowUp}');
-    await expect.element(rows[1]).toHaveFocus();
   });
 
-  it('tints selected rows with the pale primary fill', async () => {
+  it('tints the header neutral, rounds its ends and tints selected rows primary', async () => {
     const screen = await renderWithDS(
       <div>
-        <span data-testid="tint" className="bg-primary-soft" />
+        <span data-testid="primary" className="bg-primary-soft" />
+        <span data-testid="neutral" className="bg-neutral-soft" />
         <Folders selectionMode="multiple" defaultSelectedKeys={['photos']} />
       </div>,
     );
+    const role = (testId: string) =>
+      getComputedStyle(screen.getByTestId(testId).element()).backgroundColor;
     const selected = screen.getByRole('row', { selected: true }).element();
-    expect(getComputedStyle(selected).backgroundColor).toBe(
-      getComputedStyle(screen.getByTestId('tint').element()).backgroundColor,
-    );
+    expect(getComputedStyle(selected).backgroundColor).toBe(role('primary'));
+    const first = screen.getByRole('columnheader').first().element();
+    const tint = getComputedStyle(first, '::before');
+    expect(tint.backgroundColor).toBe(role('neutral'));
+    expect(tint.borderTopLeftRadius).toBe('12px');
+    expect(tint.borderTopRightRadius).toBe('0px');
   });
 
   it('shows a radio-free single selection column with a hidden header', async () => {
@@ -197,6 +176,7 @@ describe('Table', () => {
     );
     const normal = screen.getByRole('grid', { name: 'Normal' }).element();
     const compact = screen.getByRole('grid', { name: 'Compact' }).element();
+    expect(normal.getAttribute('data-density')).toBe('md');
     expect(normal.querySelector('tbody tr')!.getBoundingClientRect().height).toBe(52);
     expect(normal.querySelector('thead th')!.getBoundingClientRect().height).toBe(40);
     expect(compact.querySelector('tbody tr')!.getBoundingClientRect().height).toBe(40);
@@ -204,22 +184,6 @@ describe('Table', () => {
     expect(compact.getAttribute('data-density')).toBe('sm');
     const box = compact.querySelector('[data-slot="checkbox"]')!;
     expect(box.getAttribute('data-size')).toBe('sm');
-  });
-
-  it('tints the header and rounds its ends', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <span data-testid="neutral" className="bg-neutral-soft" />
-        <Folders />
-      </div>,
-    );
-    const first = screen.getByRole('columnheader').first().element();
-    const tint = getComputedStyle(first, '::before');
-    expect(tint.backgroundColor).toBe(
-      getComputedStyle(screen.getByTestId('neutral').element()).backgroundColor,
-    );
-    expect(tint.borderTopLeftRadius).toBe('12px');
-    expect(tint.borderTopRightRadius).toBe('0px');
   });
 
   it('aligns end columns to the end, mirrored in right-to-left layouts', async () => {
@@ -236,11 +200,17 @@ describe('Table', () => {
     }
   });
 
-  it('keeps the row header column in view while scrolling sideways', async () => {
+  it('keeps the row header column and the header row in view while scrolling', async () => {
     for (const locale of ['en', 'ar']) {
       const screen = await renderWithDS(
         <div className="w-72">
-          <Table aria-label="Wide" selectionMode="multiple" stickyRowHeader>
+          <Table
+            aria-label="Wide"
+            selectionMode="multiple"
+            stickyRowHeader
+            stickyHeader
+            containerClassName="max-h-24"
+          >
             <TableHeader>
               <Column isRowHeader>Folder</Column>
               <Column>Owner</Column>
@@ -275,6 +245,12 @@ describe('Table', () => {
       const side = locale === 'ar' ? 'right' : 'left';
       expect(getComputedStyle(header)[side]).toBe(`${selection.getBoundingClientRect().width}px`);
       expect(getComputedStyle(header).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+      const columnHeader = screen.getByRole('columnheader', { name: 'Owner' }).element();
+      const top = columnHeader.getBoundingClientRect().top;
+      expect(container.scrollHeight).toBeGreaterThan(container.clientHeight);
+      container.scrollTop = 40;
+      await expect.poll(() => container.scrollTop).toBe(40);
+      expect(columnHeader.getBoundingClientRect().top).toBe(top);
       await screen.unmount();
     }
   });
@@ -298,29 +274,6 @@ describe('Table', () => {
     expect(getComputedStyle(row).outlineStyle).toBe('solid');
   });
 
-  it('keeps the header in view in a scrolling container when asked', async () => {
-    const screen = await renderWithDS(<Folders stickyHeader containerClassName="max-h-24" />);
-    const header = screen.getByRole('columnheader').first().element();
-    expect(getComputedStyle(header).position).toBe('sticky');
-    expect(getComputedStyle(header).top).toBe('0px');
-  });
-
-  it('renders an empty state', async () => {
-    const screen = await renderWithDS(
-      <Table aria-label="Shared">
-        <TableHeader>
-          <Column isRowHeader>Project</Column>
-        </TableHeader>
-        <TableBody
-          renderEmptyState={() => <EmptyState size="sm" headingLevel={3} title="No projects" />}
-        >
-          {[]}
-        </TableBody>
-      </Table>,
-    );
-    await expect.element(screen.getByRole('heading', { name: 'No projects' })).toBeVisible();
-  });
-
   it('loads more rows and labels the loader', async () => {
     const onLoadMore = vi.fn();
     const screen = await renderWithDS(
@@ -333,7 +286,7 @@ describe('Table', () => {
             <Row id="lisbon">
               <Cell>Lisbon</Cell>
             </Row>
-            <TableLoadMore isLoading onLoadMore={onLoadMore} />
+            <TableLoadMore isLoading />
           </TableBody>
         </Table>
         <Table aria-label="Städte" labels={{ loadingMore: 'Lädt weitere…' }}>
@@ -347,51 +300,22 @@ describe('Table', () => {
             <TableLoadMore isLoading />
           </TableBody>
         </Table>
-      </div>,
-    );
-    await expect.element(screen.getByText('Loading more…')).toBeVisible();
-    await expect.element(screen.getByText('Lädt weitere…')).toBeVisible();
-    expect(screen.container.querySelectorAll('[data-slot="table-load-more"]')).toHaveLength(2);
-  });
-
-  it('fades new rows in one after another unless motion is reduced', async () => {
-    function Paged() {
-      return (
-        <Table aria-label="Indexed">
+        <Table aria-label="Towns">
           <TableHeader>
-            <Column isRowHeader>Folder</Column>
+            <Column isRowHeader>Town</Column>
           </TableHeader>
-          <TableBody items={folders}>
-            {(folder) => (
-              <Row id={folder.id} index={folders.indexOf(folder)}>
-                <Cell>{folder.name}</Cell>
-              </Row>
-            )}
+          <TableBody>
+            <Row id="porto">
+              <Cell>Porto</Cell>
+            </Row>
+            <TableLoadMore onLoadMore={onLoadMore} />
           </TableBody>
         </Table>
-      );
-    }
-    const moving = await renderWithDS(<Paged />);
-    const rows = bodyRows(moving.container) as HTMLElement[];
-    expect(rows[0].className).toContain('starting:opacity-0');
-    expect(rows[2].style.getPropertyValue('--table-row-index')).toBe('2');
-    expect(getComputedStyle(rows[2]).transitionDelay).toBe('0s, 0.048s');
-    await moving.unmount();
-
-    const still = await renderWithDS(<Paged />, { provider: { motion: 'reduced' } });
-    for (const row of bodyRows(still.container)) {
-      expect(row.className).not.toContain('starting:opacity-0');
-    }
-  });
-
-  it('turns the sort chevron without a transition when motion is reduced', async () => {
-    const moving = await renderWithDS(<Folders sortable />);
-    const indicator = moving.container.querySelector('[data-slot="table-sort-indicator"]')!;
-    expect(getComputedStyle(indicator).transitionDuration).not.toBe('0s');
-    await moving.unmount();
-    const still = await renderWithDS(<Folders sortable />, { provider: { motion: 'reduced' } });
-    const instant = still.container.querySelector('[data-slot="table-sort-indicator"]')!;
-    expect(getComputedStyle(instant).transitionProperty).toBe('none');
+      </div>,
+    );
+    await expect.poll(() => onLoadMore.mock.calls.length).toBeGreaterThan(0);
+    await expect.element(screen.getByText('Loading more…')).toBeVisible();
+    await expect.element(screen.getByText('Lädt weitere…')).toBeVisible();
   });
 });
 

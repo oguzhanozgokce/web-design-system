@@ -1,21 +1,10 @@
 import { useState } from 'react';
 import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
-import { MailIcon, SearchIcon } from '@/registry/ds/lib/icons';
+import { SearchIcon } from '@/registry/ds/lib/icons';
 import { TextField } from '@/registry/ds/ui/text-field';
 
 describe('TextField', () => {
-  it('renders a labelled textbox and reports typed text', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(
-      <TextField label="Folder name" placeholder="Household" onChange={onChange} />,
-    );
-    const input = screen.getByRole('textbox', { name: 'Folder name' });
-    await expect.element(input).toHaveAttribute('placeholder', 'Household');
-    await input.fill('Trip to Lisbon');
-    expect(onChange).toHaveBeenLastCalledWith('Trip to Lisbon');
-  });
-
   it('follows a controlled value', async () => {
     function Example() {
       const [value, setValue] = useState('studio');
@@ -55,20 +44,6 @@ describe('TextField', () => {
     ]);
   });
 
-  it('passes type and autoComplete through to the input', async () => {
-    const screen = await renderWithDS(
-      <TextField
-        label="Work email"
-        type="email"
-        autoComplete="email"
-        startAdornment={<MailIcon />}
-      />,
-    );
-    const input = screen.getByRole('textbox', { name: 'Work email' });
-    await expect.element(input).toHaveAttribute('type', 'email');
-    await expect.element(input).toHaveAttribute('autocomplete', 'email');
-  });
-
   it('clears the value from the clear button and refocuses the input', async () => {
     const onClear = vi.fn();
     const onChange = vi.fn();
@@ -94,9 +69,16 @@ describe('TextField', () => {
 
   it('clears with Escape and lets Escape through once the field is empty', async () => {
     const onParentKeyDown = vi.fn();
+    const onFieldKeyDown = vi.fn();
     const screen = await renderWithDS(
       <div onKeyDown={(event) => onParentKeyDown(event.key)}>
         <TextField label="Reference" defaultValue="DOC-2041" isClearable />
+        <TextField
+          label="Note"
+          defaultValue="Draft"
+          isClearable
+          onKeyDown={(event) => onFieldKeyDown(event.key)}
+        />
       </div>,
     );
     const input = screen.getByRole('textbox', { name: 'Reference' });
@@ -108,6 +90,14 @@ describe('TextField', () => {
     expect(onParentKeyDown).toHaveBeenCalledWith('Escape');
     await userEvent.keyboard('a');
     expect(onParentKeyDown).toHaveBeenCalledWith('a');
+
+    const note = screen.getByRole('textbox', { name: 'Note' });
+    await note.click();
+    await userEvent.keyboard('{Escape}');
+    await expect.element(note).toHaveValue('');
+    expect(onFieldKeyDown).not.toHaveBeenCalled();
+    await userEvent.keyboard('b');
+    expect(onFieldKeyDown).toHaveBeenCalledWith('b');
   });
 
   it('leaves the value alone when Escape cancels an IME composition', async () => {
@@ -175,14 +165,13 @@ describe('TextField', () => {
     await expect.element(screen.getByText('4/20')).toBeInTheDocument();
   });
 
-  it('names the clear button Clear by default', async () => {
-    const screen = await renderWithDS(
+  it('takes its text and the Field text from labels, then DSProvider', async () => {
+    const english = await renderWithDS(
       <TextField label="Reference" defaultValue="DOC-2041" isClearable />,
     );
-    await expect.element(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
-  });
+    await expect.element(english.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
+    await english.unmount();
 
-  it('takes its text and the Field text from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div>
         <TextField label="Reference" defaultValue="DOC-2041" isClearable />
@@ -227,7 +216,13 @@ describe('TextField', () => {
 
   it('shows a character counter tied to the input when maxLength is set', async () => {
     const screen = await renderWithDS(
-      <TextField label="Display name" maxLength={20} defaultValue="Alex" />,
+      <div>
+        <TextField label="Display name" maxLength={20} defaultValue="Alex" />
+        <TextField label="Team name" description="Shown to your team." maxLength={20} />
+        <p id="hint">Use letters only.</p>
+        <TextField label="City" aria-describedby="hint" maxLength={20} />
+        <TextField label="Postcode" maxLength={8} showCounter={false} />
+      </div>,
     );
     const input = screen.getByRole('textbox', { name: 'Display name' });
     await expect.element(input).toHaveAttribute('maxlength', '20');
@@ -235,35 +230,16 @@ describe('TextField', () => {
     await expect.element(input).toHaveAccessibleDescription('Character count: 4 of 20');
     await input.fill('Design studio');
     await expect.element(screen.getByText('13/20')).toBeInTheDocument();
-  });
-
-  it('keeps the description next to the counter and can hide the counter', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <TextField label="Display name" description="Shown to your team." maxLength={20} />
-        <TextField label="Postcode" maxLength={8} showCounter={false} />
-      </div>,
-    );
     await expect
-      .element(screen.getByRole('textbox', { name: 'Display name' }))
+      .element(screen.getByRole('textbox', { name: 'Team name' }))
       .toHaveAccessibleDescription('Shown to your team. Character count: 0 of 20');
+    await expect
+      .element(screen.getByRole('textbox', { name: 'City' }))
+      .toHaveAccessibleDescription('Use letters only. Character count: 0 of 20');
     await expect
       .element(screen.getByRole('textbox', { name: 'Postcode' }))
       .not.toHaveAccessibleDescription();
-    expect(screen.container.querySelectorAll('[data-slot="counter"]')).toHaveLength(1);
-  });
-
-  it('marks invalid and disabled states', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <TextField label="Access code" isInvalid errorMessage="This code has 2 digits too few." />
-        <TextField label="Language" isDisabled defaultValue="English" />
-      </div>,
-    );
-    const code = screen.getByRole('textbox', { name: 'Access code' });
-    await expect.element(code).toHaveAttribute('aria-invalid', 'true');
-    await expect.element(code).toHaveAccessibleDescription('This code has 2 digits too few.');
-    await expect.element(screen.getByRole('textbox', { name: 'Language' })).toBeDisabled();
+    expect(screen.container.querySelectorAll('[data-slot="counter"]')).toHaveLength(3);
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

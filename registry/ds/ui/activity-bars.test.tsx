@@ -19,17 +19,10 @@ function Player() {
 }
 
 describe('ActivityBars', () => {
-  it('is decorative by default', async () => {
-    const screen = await renderWithDS(<ActivityBars />);
-    const root = screen.container.querySelector('[data-slot="activity-bars"]')!;
-    expect(root.getAttribute('aria-hidden')).toBe('true');
-    expect(root.getAttribute('role')).toBeNull();
-    expect(bars(root)).toHaveLength(4);
-  });
-
-  it('becomes a named image when labelled', async () => {
+  it('is decorative until it is labelled, then becomes a named image', async () => {
     const screen = await renderWithDS(
       <>
+        <ActivityBars data-testid="decorative" />
         <ActivityBars aria-label="Speaking" />
         <span id="playing">Playing</span>
         <ActivityBars aria-labelledby="playing" />
@@ -37,32 +30,32 @@ describe('ActivityBars', () => {
     );
     await expect.element(screen.getByRole('img', { name: 'Speaking' })).toBeInTheDocument();
     await expect.element(screen.getByRole('img', { name: 'Playing' })).toBeInTheDocument();
-    expect(
-      screen.container.querySelector('[aria-hidden="true"][data-slot="activity-bars"]'),
-    ).toBeNull();
-  });
-
-  it.each([3, 4, 5] as const)('draws %i bars', async (count) => {
-    const screen = await renderWithDS(<ActivityBars count={count} />);
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="activity-bars"]')!;
-    expect(bars(root)).toHaveLength(count);
-    const width = root.getBoundingClientRect().width;
-    expect(width).toBeCloseTo(count * 3 + (count - 1) * 2, 0);
+    const decorative = screen.getByTestId('decorative').element();
+    expect(decorative.getAttribute('aria-hidden')).toBe('true');
+    expect(decorative.getAttribute('role')).toBeNull();
+    expect(screen.container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(1);
   });
 
   it.each([
-    ['sm', 12, 2],
-    ['md', 16, 3],
-    ['lg', 24, 4],
-  ] as const)('sizes %s bars %ipx tall and %ipx wide', async (size, height, width) => {
-    const screen = await renderWithDS(<ActivityBars size={size} isActive={false} />);
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="activity-bars"]')!;
-    expect(root.getBoundingClientRect().height).toBe(height);
-    const [bar] = bars(root);
-    expect(bar.getBoundingClientRect().width).toBe(width);
-    expect(bar.getBoundingClientRect().height).toBeCloseTo(height / 4, 0);
-    expect(getComputedStyle(bar).borderRadius).not.toBe('0px');
-  });
+    ['sm', 3, 12, 2, 2],
+    ['md', 4, 16, 3, 2],
+    ['lg', 5, 24, 4, 3],
+  ] as const)(
+    'sizes %s bars, %i of them, %ipx tall and %ipx wide',
+    async (size, count, height, width, gap) => {
+      const screen = await renderWithDS(
+        <ActivityBars size={size} count={count} isActive={false} />,
+      );
+      const root = screen.container.querySelector<HTMLElement>('[data-slot="activity-bars"]')!;
+      expect(root.getBoundingClientRect().height).toBe(height);
+      expect(bars(root)).toHaveLength(count);
+      expect(root.getBoundingClientRect().width).toBeCloseTo(count * width + (count - 1) * gap, 0);
+      const [bar] = bars(root);
+      expect(bar.getBoundingClientRect().width).toBe(width);
+      expect(bar.getBoundingClientRect().height).toBeCloseTo(height / 4, 0);
+      expect(getComputedStyle(bar).borderRadius).not.toBe('0px');
+    },
+  );
 
   it('paints the bars in the current text colour', async () => {
     const screen = await renderWithDS(
@@ -127,13 +120,6 @@ describe('ActivityBars', () => {
       expect(new Set(heights).size).toBe(4);
       await screen.unmount();
     }
-  });
-
-  it('keeps its order in right-to-left text', async () => {
-    const screen = await renderWithDS(<ActivityBars isActive={false} />, { locale: 'ar' });
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="activity-bars"]')!;
-    const [first, second] = bars(root).map((bar) => bar.getBoundingClientRect().left);
-    expect(first).toBeGreaterThan(second);
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

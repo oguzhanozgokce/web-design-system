@@ -86,7 +86,7 @@ describe('DynamicTheme', () => {
     expect(schemeStyles()).toHaveLength(0);
   });
 
-  it('follows a dark ancestor, by class or by data-theme', async () => {
+  it('follows a dark ancestor or its own class, by class or by data-theme', async () => {
     const screen = await render(
       <>
         <div className="dark">
@@ -99,10 +99,14 @@ describe('DynamicTheme', () => {
             <Swatch id="attribute" />
           </DynamicTheme>
         </div>
+        <DynamicTheme seed={seedTeal} className="dark">
+          <Swatch id="own" />
+        </DynamicTheme>
       </>,
     );
     expect(background(screen.getByTestId('class').element())).toBe(expected(seedTeal, 'dark'));
     expect(background(screen.getByTestId('attribute').element())).toBe(expected(seedTeal, 'dark'));
+    expect(background(screen.getByTestId('own').element())).toBe(expected(seedTeal, 'dark'));
   });
 
   it('follows the nearest mode, not any dark ancestor', async () => {
@@ -140,15 +144,6 @@ describe('DynamicTheme', () => {
     expect(background(screen.getByTestId('light').element())).toBe(expected(seedTeal, 'light'));
   });
 
-  it('follows a mode class on its own element', async () => {
-    const screen = await renderWithDS(
-      <DynamicTheme seed={seedTeal} className="dark">
-        <Swatch />
-      </DynamicTheme>,
-    );
-    expect(background(screen.getByTestId('swatch').element())).toBe(expected(seedTeal, 'dark'));
-  });
-
   it('pins a mode for its subtree and marks it with data-theme', async () => {
     const screen = await renderWithDS(
       <DynamicTheme seed={seedTeal} mode="dark" data-testid="scope">
@@ -159,15 +154,23 @@ describe('DynamicTheme', () => {
     await expect.element(screen.getByTestId('scope')).toHaveAttribute('data-theme', 'dark');
   });
 
-  it('follows data-contrast on the root when contrast is auto', async () => {
+  it('follows data-contrast on the root when contrast is auto, unless it pins a level', async () => {
     document.documentElement.setAttribute('data-contrast', 'high');
     const screen = await renderWithDS(
-      <DynamicTheme seed={seedTeal}>
-        <Swatch />
-      </DynamicTheme>,
+      <>
+        <DynamicTheme seed={seedTeal}>
+          <Swatch />
+        </DynamicTheme>
+        <DynamicTheme seed={seedTeal} contrast="medium">
+          <Swatch id="pinned" />
+        </DynamicTheme>
+      </>,
     );
     expect(background(screen.getByTestId('swatch').element())).toBe(
       expected(seedTeal, 'light', 'high'),
+    );
+    expect(background(screen.getByTestId('pinned').element())).toBe(
+      expected(seedTeal, 'light', 'medium'),
     );
   });
 
@@ -191,43 +194,6 @@ describe('DynamicTheme', () => {
         brandColors({ seed: '#5B4BFF', mode: 'light', contrast: 'high', style: 'vibrant' }).primary,
       ),
     );
-  });
-
-  it('pins a contrast level', async () => {
-    document.documentElement.setAttribute('data-contrast', 'high');
-    const screen = await renderWithDS(
-      <DynamicTheme seed={seedTeal} contrast="medium">
-        <Swatch />
-      </DynamicTheme>,
-      { dark: true },
-    );
-    expect(background(screen.getByTestId('swatch').element())).toBe(
-      expected(seedTeal, 'dark', 'medium'),
-    );
-  });
-
-  it('uses the palette style', async () => {
-    const screen = await renderWithDS(
-      <DynamicTheme seed={seedTeal} paletteStyle="vibrant">
-        <Swatch />
-      </DynamicTheme>,
-    );
-    expect(background(screen.getByTestId('swatch').element())).toBe(
-      expected(seedTeal, 'light', 'standard', 'vibrant'),
-    );
-  });
-
-  it('lets an inner scope override an outer one', async () => {
-    const screen = await renderWithDS(
-      <DynamicTheme seed={seedTeal}>
-        <Swatch id="outer" />
-        <DynamicTheme seed={seedCoral}>
-          <Swatch id="inner" />
-        </DynamicTheme>
-      </DynamicTheme>,
-    );
-    expect(background(screen.getByTestId('outer').element())).toBe(expected(seedTeal, 'light'));
-    expect(background(screen.getByTestId('inner').element())).toBe(expected(seedCoral, 'light'));
   });
 
   it('renders children untouched for a missing or invalid seed', async () => {
@@ -255,24 +221,32 @@ describe('DynamicTheme', () => {
       const overlay = useThemeScopeProps();
       return (
         <span data-testid="probe" {...overlay}>
-          {theme ? `${theme.seed} ${theme.paletteStyle}` : 'none'}
+          {theme ? `${theme.seed} ${theme.paletteStyle} ${theme.surfaces}` : 'none'}
         </span>
       );
     }
     const screen = await renderWithDS(
       <>
-        <DynamicTheme seed={seedTeal} paletteStyle="vibrant" mode="dark">
+        <DynamicTheme seed={seedTeal} paletteStyle="vibrant" mode="dark" surfaces="tinted">
           <Probe />
+          <div data-testid="surface" className="size-4 bg-surface-container" />
         </DynamicTheme>
         <Probe />
       </>,
     );
     const [inside, outside] = screen.getByTestId('probe').elements();
-    expect(inside.textContent).toBe(`${seedTeal.toLowerCase()} vibrant`);
+    expect(inside.textContent).toBe(`${seedTeal.toLowerCase()} vibrant tinted`);
     expect(inside.getAttribute('data-ds-scheme')).toMatch(/^s0b8f6a-vibrant/);
     expect(inside.getAttribute('data-theme')).toBe('dark');
     expect(outside.textContent).toBe('none');
     expect(outside.hasAttribute('data-ds-scheme')).toBe(false);
+    expect(background(screen.getByTestId('surface').element())).toBe(
+      rgb(
+        brandColors({ seed: seedTeal, mode: 'dark', style: 'vibrant', surfaces: 'tinted' })[
+          'surface-container'
+        ],
+      ),
+    );
   });
 
   it('keeps its scheme in popovers and dialogs that render outside it', async () => {
@@ -493,26 +467,25 @@ describe('DynamicTheme', () => {
     });
   });
 
-  it.each([
-    ['light', {}],
-    ['dark', { dark: true }],
-    ['ar', { locale: 'ar' }],
-  ] as const)('has no accessibility violations (%s)', async (_, options) => {
-    const screen = await renderWithDS(
-      <DynamicTheme seed={seedCoral} paletteStyle="vibrant" className="bg-canvas p-4">
-        <div className="rounded-container bg-surface-raised p-3 text-on-surface">
-          <p className="text-base font-semibold">Workspace</p>
-          <p className="text-xs text-on-surface-variant">Last synced on 1 December</p>
-        </div>
-        <button
-          type="button"
-          className="mt-2 rounded-control bg-primary-solid px-4 py-2 text-on-primary-solid"
-        >
-          Open
-        </button>
-      </DynamicTheme>,
-      options,
-    );
-    await expectNoA11yViolations(screen.container);
+  it('has no accessibility violations in light, dark and RTL', async () => {
+    for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
+      const screen = await renderWithDS(
+        <DynamicTheme seed={seedCoral} paletteStyle="vibrant" className="bg-canvas p-4">
+          <div className="rounded-container bg-surface-raised p-3 text-on-surface">
+            <p className="text-base font-semibold">Workspace</p>
+            <p className="text-xs text-on-surface-variant">Last synced on 1 December</p>
+          </div>
+          <button
+            type="button"
+            className="mt-2 rounded-control bg-primary-solid px-4 py-2 text-on-primary-solid"
+          >
+            Open
+          </button>
+        </DynamicTheme>,
+        options,
+      );
+      await expectNoA11yViolations(screen.container);
+      await screen.unmount();
+    }
   });
 });

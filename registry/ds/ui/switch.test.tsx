@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { page, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { CheckIcon, CloseIcon, MailIcon } from '@/registry/ds/lib/icons';
@@ -35,48 +34,6 @@ function contrastRatio(first: string, second: string) {
 const still = { provider: { motion: 'disabled' as const } };
 
 describe('Switch', () => {
-  it('renders an accessible switch that toggles on click', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(<Switch onChange={onChange}>Auto-update apps</Switch>);
-    const control = screen.getByRole('switch', { name: 'Auto-update apps' });
-    await expect.element(control).not.toBeChecked();
-
-    await screen.getByText('Auto-update apps').click();
-    await expect.element(control).toBeChecked();
-    expect(onChange).toHaveBeenLastCalledWith(true);
-    expect(part('switch')?.getAttribute('data-variant')).toBe('default');
-    expect(part('switch')?.getAttribute('data-size')).toBe('md');
-    expect(part('switch')?.getAttribute('data-label-placement')).toBe('end');
-  });
-
-  it('toggles with the keyboard and shows the focus ring on the track', async () => {
-    const screen = await renderWithDS(<Switch>Maintenance mode</Switch>);
-    await userEvent.tab();
-    await userEvent.keyboard('[Space]');
-    await expect.element(screen.getByRole('switch', { name: 'Maintenance mode' })).toBeChecked();
-    const track = part('track')!;
-    expect(track.hasAttribute('data-focus-visible')).toBe(true);
-    expect(getComputedStyle(track).outlineWidth).toBe('2px');
-    expect(getComputedStyle(track).outlineOffset).toBe('2px');
-  });
-
-  it('supports controlled state', async () => {
-    function Controlled() {
-      const [selected, setSelected] = useState(true);
-      return (
-        <>
-          <Switch isSelected={selected} onChange={setSelected}>
-            Upload alerts
-          </Switch>
-          <output>{selected ? 'on' : 'off'}</output>
-        </>
-      );
-    }
-    const screen = await renderWithDS(<Controlled />);
-    await screen.getByText('Upload alerts').click();
-    await expect.element(screen.getByRole('status')).toHaveTextContent('off');
-  });
-
   it('sizes the track at 48 by 24 and 40 by 20 pixels', async () => {
     await renderWithDS(
       <>
@@ -91,6 +48,8 @@ describe('Switch', () => {
     expect([mdThumb.width, mdThumb.height]).toEqual([28, 20]);
     expect([smThumb.width, smThumb.height]).toEqual([22, 16]);
     expect(parts('switch').map((root) => root.getAttribute('data-size'))).toEqual(['md', 'sm']);
+    expect(part('switch')?.getAttribute('data-variant')).toBe('default');
+    expect(part('switch')?.getAttribute('data-label-placement')).toBe('end');
   });
 
   it('fills the track with the solid primary when on and a grey when off', async () => {
@@ -163,34 +122,30 @@ describe('Switch', () => {
 
   it('toggles a settings row from its description and keeps the name short', async () => {
     const screen = await renderWithDS(
-      <Switch variant="row" icon={<MailIcon />} description="A summary of last week every Monday.">
-        Weekly summary email
-      </Switch>,
+      <>
+        <Switch
+          variant="row"
+          icon={<MailIcon />}
+          description="A summary of last week every Monday."
+        >
+          Weekly summary email
+        </Switch>
+        <Switch aria-label="Monthly report for the Design team" description="First of the month.">
+          Monthly report
+        </Switch>
+      </>,
     );
-    const control = screen.getByRole('switch');
-    await expect.element(control).toHaveAccessibleName('Weekly summary email');
+    const control = screen.getByRole('switch', { name: 'Weekly summary email', exact: true });
     await expect
       .element(control)
       .toHaveAccessibleDescription('A summary of last week every Monday.');
     await screen.getByText('A summary of last week every Monday.').click();
     await expect.element(control).toBeChecked();
     expect(part('icon')).not.toBeNull();
+    await expect
+      .element(screen.getByRole('switch', { name: 'Monthly report for the Design team' }))
+      .toHaveAccessibleDescription('First of the month.');
   });
-
-  it('does not toggle when disabled, and dims the whole switch', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(
-      <Switch isDisabled onChange={onChange}>
-        Allow guest access
-      </Switch>,
-    );
-    await expect.element(screen.getByRole('switch')).toBeDisabled();
-    await screen.getByText('Allow guest access').click({ force: true });
-    expect(onChange).not.toHaveBeenCalled();
-    expect(getComputedStyle(part('target')!).opacity).toBe('0.5');
-    expect(getComputedStyle(part('target')!).cursor).toBe('not-allowed');
-  });
-
   it('widens the thumb by 4px while pressed', async () => {
     await renderWithDS(<Switch defaultSelected>Show seconds</Switch>, still);
     const track = part('track')!;
@@ -203,61 +158,34 @@ describe('Switch', () => {
     expect(part('thumb')?.getBoundingClientRect().width).toBe(28);
   });
 
-  it.each([
-    ['system', 'inset-inline-start, width'],
-    ['reduced', 'none'],
-  ] as const)('slides the thumb with motion %s', async (motion, transitionProperty) => {
-    await renderWithDS(<Switch defaultSelected>Dark theme</Switch>, { provider: { motion } });
-    expect(getComputedStyle(part('thumb')!).transitionProperty).toBe(transitionProperty);
+  it('slides the thumb without a transition when motion is reduced', async () => {
+    await renderWithDS(<Switch defaultSelected>Dark theme</Switch>, {
+      provider: { motion: 'reduced' },
+    });
+    expect(getComputedStyle(part('thumb')!).transitionProperty).toBe('none');
   });
-
-  it('slides the thumb on the fluid curve and fades the track colour', async () => {
-    await renderWithDS(<Switch defaultSelected>Dark theme</Switch>);
-    const thumb = getComputedStyle(part('thumb')!);
-    expect(thumb.transitionDuration).toBe('0.3s');
-    expect(thumb.transitionTimingFunction).toBe('cubic-bezier(0.32, 0.72, 0, 1)');
-    const track = getComputedStyle(part('track')!);
-    expect(track.transitionProperty).toBe('background-color, box-shadow');
-    expect(track.transitionDuration).toBe('0.25s');
-  });
-
-  it('draws the focus ring inside a settings row', async () => {
+  it('draws the focus ring on the track, and inside a settings row', async () => {
     await renderWithDS(
-      <Switch variant="row" description="Every Monday.">
-        Weekly summary email
-      </Switch>,
+      <>
+        <Switch>Maintenance mode</Switch>
+        <Switch variant="row" description="Every Monday.">
+          Weekly summary email
+        </Switch>
+      </>,
     );
+    const [inline, row] = parts('switch');
     await userEvent.tab();
-    const target = part('target')!;
+    const track = part('track', inline)!;
+    expect(track.hasAttribute('data-focus-visible')).toBe(true);
+    expect(getComputedStyle(track).outlineWidth).toBe('2px');
+
+    await userEvent.tab();
+    const target = part('target', row)!;
     expect(target.hasAttribute('data-focus-visible')).toBe(true);
     expect(getComputedStyle(target).outlineWidth).toBe('2px');
     expect(getComputedStyle(target).outlineOffset).toBe('-2px');
-    expect(part('track')?.hasAttribute('data-focus-visible')).toBe(false);
+    expect(part('track', row)?.hasAttribute('data-focus-visible')).toBe(false);
   });
-
-  it('keeps an explicit aria-label when a description is present', async () => {
-    const screen = await renderWithDS(
-      <Switch aria-label="Weekly summary email for the Design team" description="Every Monday.">
-        Weekly summary
-      </Switch>,
-    );
-    await expect
-      .element(screen.getByRole('switch'))
-      .toHaveAccessibleName('Weekly summary email for the Design team');
-  });
-
-  it('does not toggle when read-only', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(
-      <Switch isReadOnly defaultSelected onChange={onChange}>
-        Single sign-on
-      </Switch>,
-    );
-    await screen.getByText('Single sign-on').click();
-    expect(onChange).not.toHaveBeenCalled();
-    await expect.element(screen.getByRole('switch')).toBeChecked();
-  });
-
   it('keeps a default switch to its own width and stretches a settings row', async () => {
     const onChange = vi.fn();
     await renderWithDS(
@@ -344,37 +272,36 @@ describe('Switch', () => {
     }
   });
 
-  it.each([
-    ['light', {}],
-    ['dark', { dark: true }],
-    ['RTL', { locale: 'ar' }],
-  ])('has no accessibility violations in %s', async (_, options) => {
-    const screen = await renderWithDS(
-      <div className="flex flex-col gap-6 p-6">
-        <Switch defaultSelected>Auto-update apps</Switch>
-        <Switch description="Members confirm a code when they sign in.">
-          Require two-factor sign-in
-        </Switch>
-        <Switch labelPlacement="start" size="sm" unselectedIcon={<CloseIcon />}>
-          Round corners
-        </Switch>
-        <Switch isDisabled defaultSelected>
-          Single sign-on
-        </Switch>
-        <Switch isDisabled>Guest access</Switch>
-        <Switch isInvalid errorMessage="Accept the terms before going live.">
-          Publish the site
-        </Switch>
-        <div className="rounded-container bg-surface-raised p-1">
-          <Switch variant="row" icon={<MailIcon />} description="Every Monday." defaultSelected>
-            Weekly summary email
+  it('has no accessibility violations in light, dark and RTL', async () => {
+    for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
+      const screen = await renderWithDS(
+        <div className="flex flex-col gap-6 p-6">
+          <Switch defaultSelected>Auto-update apps</Switch>
+          <Switch description="Members confirm a code when they sign in.">
+            Require two-factor sign-in
           </Switch>
-        </div>
-      </div>,
-      options,
-    );
-    await expect.element(screen.getByRole('switch', { name: 'Auto-update apps' })).toBeChecked();
-    expect(screen.container.querySelectorAll('[role="switch"]')).toHaveLength(7);
-    await expectNoA11yViolations(screen.container);
+          <Switch labelPlacement="start" size="sm" unselectedIcon={<CloseIcon />}>
+            Round corners
+          </Switch>
+          <Switch isDisabled defaultSelected>
+            Single sign-on
+          </Switch>
+          <Switch isDisabled>Guest access</Switch>
+          <Switch isInvalid errorMessage="Accept the terms before going live.">
+            Publish the site
+          </Switch>
+          <div className="rounded-container bg-surface-raised p-1">
+            <Switch variant="row" icon={<MailIcon />} description="Every Monday." defaultSelected>
+              Weekly summary email
+            </Switch>
+          </div>
+        </div>,
+        options,
+      );
+      await expect.element(screen.getByRole('switch', { name: 'Auto-update apps' })).toBeChecked();
+      expect(screen.container.querySelectorAll('[role="switch"]')).toHaveLength(7);
+      await expectNoA11yViolations(screen.container);
+      await screen.unmount();
+    }
   });
 });

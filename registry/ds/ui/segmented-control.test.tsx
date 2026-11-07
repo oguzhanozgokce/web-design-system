@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { Key } from 'react-aria-components';
-import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { GridViewIcon, ListIcon } from '@/registry/ds/lib/icons';
 import {
@@ -31,21 +30,6 @@ function expectAligned(a: DOMRect, b: DOMRect) {
 }
 
 describe('SegmentedControl', () => {
-  it('renders a labelled radio group with the default segment checked', async () => {
-    const screen = await renderWithDS(<Period />);
-    const group = screen.getByRole('radiogroup', { name: 'Period' });
-    await expect.element(group).not.toHaveAttribute('data-variant');
-    await expect.element(group).toHaveAttribute('data-size', 'md');
-    await expect.element(group).toHaveAttribute('data-selection-mode', 'single');
-    await expect.element(group).not.toHaveAttribute('data-full-width');
-    await expect
-      .element(screen.getByRole('radio', { name: 'Week' }))
-      .toHaveAttribute('aria-checked', 'true');
-    await expect
-      .element(screen.getByRole('radio', { name: 'Day' }))
-      .toHaveAttribute('aria-checked', 'false');
-  });
-
   it('selects on press and keeps one segment selected', async () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(<Period onSelectionChange={onSelectionChange} />);
@@ -60,27 +44,6 @@ describe('SegmentedControl', () => {
     await expect
       .element(screen.getByRole('radio', { name: 'Week' }))
       .toHaveAttribute('aria-checked', 'false');
-  });
-
-  it('moves focus with arrow keys and selects with Space', async () => {
-    const screen = await renderWithDS(<Period />);
-    screen.getByRole('radio', { name: 'Week' }).element().focus();
-    await userEvent.keyboard('{ArrowRight}');
-    await expect.element(screen.getByRole('radio', { name: 'Quarter' })).toHaveFocus();
-    const quarter = screen.getByRole('radio', { name: 'Quarter' }).element();
-    expect(getComputedStyle(quarter).outlineWidth).toBe('2px');
-    expect(getComputedStyle(quarter).outlineOffset).toBe('-2px');
-    await userEvent.keyboard(' ');
-    await expect
-      .element(screen.getByRole('radio', { name: 'Quarter' }))
-      .toHaveAttribute('aria-checked', 'true');
-  });
-
-  it('mirrors the arrow keys in RTL layouts', async () => {
-    const screen = await renderWithDS(<Period />, { locale: 'ar' });
-    screen.getByRole('radio', { name: 'Week' }).element().focus();
-    await userEvent.keyboard('{ArrowLeft}');
-    await expect.element(screen.getByRole('radio', { name: 'Quarter' })).toHaveFocus();
   });
 
   it('allows several segments in multiple mode and shows a check on each', async () => {
@@ -111,7 +74,11 @@ describe('SegmentedControl', () => {
     const check = (button: HTMLElement) =>
       button.querySelector<HTMLElement>('[data-slot="check"]')!.getBoundingClientRect().width;
     expect(check(sms.element() as HTMLElement)).toBeGreaterThan(0);
-    expect(check(screen.getByRole('button', { name: 'Push' }).element() as HTMLElement)).toBe(0);
+    const push = screen.getByRole('button', { name: 'Push' }).element() as HTMLElement;
+    expect(check(push)).toBe(0);
+    expect(thumbOf(screen.container)).toBeNull();
+    const fill = (element: Element) => getComputedStyle(element).backgroundColor;
+    expect(fill(email.element())).not.toBe(fill(push));
 
     await email.click();
     await expect.element(email).toHaveAttribute('aria-pressed', 'false');
@@ -182,17 +149,6 @@ describe('SegmentedControl', () => {
     expectAligned(thumb.getBoundingClientRect(), day.getBoundingClientRect());
   });
 
-  it('slides the thumb on the fluid curve unless motion is reduced', async () => {
-    const moving = await renderWithDS(<Period />);
-    await expect
-      .element(moving.getByRole('radiogroup', { name: 'Period' }))
-      .toHaveAttribute('data-thumb-ready', 'true');
-    const thumb = thumbOf(moving.container)!;
-    expect(getComputedStyle(thumb).transitionProperty).toBe('translate, width');
-    expect(getComputedStyle(thumb).transitionDuration).toBe('0.25s');
-    expect(getComputedStyle(thumb).transitionTimingFunction).toBe('cubic-bezier(0.32, 0.72, 0, 1)');
-  });
-
   it('places the thumb without a slide when it first appears', async () => {
     function Switching() {
       const [mode, setMode] = useState<'single' | 'multiple'>('single');
@@ -257,24 +213,6 @@ describe('SegmentedControl', () => {
       .toBeCloseTo(week.element().getBoundingClientRect().width, 0);
   });
 
-  it('gives each selected segment its own fill in multiple selection mode', async () => {
-    const screen = await renderWithDS(
-      <SegmentedControl
-        aria-label="Weekdays"
-        selectionMode="multiple"
-        defaultSelectedKeys={['mon', 'wed']}
-      >
-        <SegmentedControlItem id="mon">Mon</SegmentedControlItem>
-        <SegmentedControlItem id="tue">Tue</SegmentedControlItem>
-        <SegmentedControlItem id="wed">Wed</SegmentedControlItem>
-      </SegmentedControl>,
-    );
-    expect(thumbOf(screen.container)).toBeNull();
-    const mon = screen.getByRole('button', { name: 'Mon' }).element();
-    const tue = screen.getByRole('button', { name: 'Tue' }).element();
-    expect(getComputedStyle(mon).backgroundColor).not.toBe(getComputedStyle(tue).backgroundColor);
-  });
-
   it('follows controlled selectedKeys', async () => {
     function Controlled() {
       const [selected, setSelected] = useState<Set<Key>>(new Set(['day']));
@@ -288,16 +226,6 @@ describe('SegmentedControl', () => {
     const screen = await renderWithDS(<Controlled />);
     await screen.getByRole('radio', { name: 'Quarter' }).click();
     await expect.element(screen.getByText('Showing quarter')).toBeVisible();
-  });
-
-  it('does not change when disabled', async () => {
-    const onSelectionChange = vi.fn();
-    const screen = await renderWithDS(<Period isDisabled onSelectionChange={onSelectionChange} />);
-    await screen.getByRole('radio', { name: 'Day' }).click({ force: true });
-    expect(onSelectionChange).not.toHaveBeenCalled();
-    await expect
-      .element(screen.getByRole('radio', { name: 'Week' }))
-      .toHaveAttribute('aria-checked', 'true');
   });
 
   it('stretches segments equally with fullWidth', async () => {

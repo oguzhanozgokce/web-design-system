@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { Selection } from 'react-aria-components';
 import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { CalendarIcon, FilterIcon, ScheduleIcon } from '@/registry/ds/lib/icons';
@@ -42,6 +41,9 @@ describe('ChipGroup', () => {
       <ChipGroup label="Status" description="Filter projects by status">
         <Chip id="active">Active</Chip>
         <Chip id="archived">Archived</Chip>
+        <Chip id="recent" onAction={() => {}}>
+          Show recent projects
+        </Chip>
       </ChipGroup>,
     );
     const grid = screen.getByRole('grid', { name: 'Status' });
@@ -55,6 +57,9 @@ describe('ChipGroup', () => {
     expect(style.height).toBe('32px');
     expect(style.borderTopLeftRadius).toBe('9999px');
     expect(style.backgroundColor).toBe(probe('bg-neutral-soft'));
+    expect(
+      getComputedStyle(screen.getByRole('row', { name: 'Show recent projects' }).element()).cursor,
+    ).toBe('pointer');
   });
 
   it('selects several chips in multiple mode and shows a check', async () => {
@@ -95,45 +100,14 @@ describe('ChipGroup', () => {
     expect(check?.getBoundingClientRect().width).toBe(0);
   });
 
-  it('keeps one chip selected in single mode', async () => {
-    function Period() {
-      const [selected, setSelected] = useState<Selection>(new Set(['month']));
-      return (
-        <ChipGroup
-          aria-label="Period"
-          selectionMode="single"
-          disallowEmptySelection
-          selectedKeys={selected}
-          onSelectionChange={setSelected}
-        >
-          <Chip id="week">This week</Chip>
-          <Chip id="month">This month</Chip>
-        </ChipGroup>
-      );
-    }
-    const screen = await renderWithDS(<Period />);
-    const week = screen.getByRole('row', { name: 'This week' });
-    const month = screen.getByRole('row', { name: 'This month' });
-    await expect.element(month).toHaveAttribute('aria-selected', 'true');
-    await week.click();
-    await expect.element(week).toHaveAttribute('aria-selected', 'true');
-    await expect.element(month).toHaveAttribute('aria-selected', 'false');
-    await week.click();
-    await expect.element(week).toHaveAttribute('aria-selected', 'true');
-  });
-
-  it('removes a chip from its remove button and from the keyboard', async () => {
-    const screen = await renderWithDS(<Labels initial={['Design', 'Sharing', 'Urgent']} />);
+  it('removes a chip from its remove button', async () => {
+    const screen = await renderWithDS(<Labels initial={['Design', 'Sharing']} />);
     await screen.getByRole('button', { name: 'Remove Design' }).click();
     await expect.element(screen.getByRole('row', { name: 'Design' })).not.toBeInTheDocument();
-
-    screen.getByRole('row', { name: 'Sharing' }).element().focus();
-    await userEvent.keyboard('{Delete}');
-    await expect.element(screen.getByRole('row', { name: 'Sharing' })).not.toBeInTheDocument();
-    await expect.element(screen.getByRole('row', { name: 'Urgent' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('row', { name: 'Sharing' })).toBeInTheDocument();
   });
 
-  it("reaches the focused chip's remove button with Tab, then leaves the group", async () => {
+  it('tabs to the remove button, then moves focus to the next chip once it is pressed', async () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-2">
         <button type="button">Before</button>
@@ -146,18 +120,13 @@ describe('ChipGroup', () => {
     await expect.element(screen.getByRole('row', { name: 'Design' })).toHaveFocus();
     await userEvent.keyboard('{Tab}');
     await expect.element(screen.getByRole('button', { name: 'Remove Design' })).toHaveFocus();
-    await userEvent.keyboard('{Tab}');
-    await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
-  });
-
-  it('moves focus to the next chip after its remove button is pressed', async () => {
-    const screen = await renderWithDS(<Labels initial={['Design', 'Sharing']} />);
-    screen.getByRole('row', { name: 'Design' }).element().focus();
-    await userEvent.keyboard('{Tab}');
-    await expect.element(screen.getByRole('button', { name: 'Remove Design' })).toHaveFocus();
     await userEvent.keyboard('{Enter}');
     await expect.element(screen.getByRole('row', { name: 'Design' })).not.toBeInTheDocument();
     await expect.element(screen.getByRole('row', { name: 'Sharing' })).toHaveFocus();
+    await userEvent.keyboard('{Tab}');
+    await expect.element(screen.getByRole('button', { name: 'Remove Sharing' })).toHaveFocus();
+    await userEvent.keyboard('{Tab}');
+    await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
   });
 
   it('shows a focus ring on the empty group after the last chip is removed', async () => {
@@ -218,44 +187,22 @@ describe('ChipGroup', () => {
     await expect.element(screen.getByRole('button', { name: 'Drop Sharing' })).toBeInTheDocument();
   });
 
-  it('moves focus with ArrowRight, Home and End', async () => {
-    const screen = await renderWithDS(
-      <ChipGroup aria-label="Status" selectionMode="multiple" items={statuses}>
-        {(item) => <Chip id={item.id}>{item.name}</Chip>}
-      </ChipGroup>,
-    );
-    screen.getByRole('row', { name: 'Active' }).element().focus();
-    await userEvent.keyboard('{ArrowRight}');
-    await expect.element(screen.getByRole('row', { name: 'Draft' })).toHaveFocus();
-    await userEvent.keyboard('{End}');
-    await expect.element(screen.getByRole('row', { name: 'Archived' })).toHaveFocus();
-    await userEvent.keyboard('{Home}');
-    await expect.element(screen.getByRole('row', { name: 'Active' })).toHaveFocus();
-  });
-
-  it('moves focus to the next chip with ArrowLeft in RTL', async () => {
-    const screen = await renderWithDS(
-      <ChipGroup aria-label="الحالة" selectionMode="multiple" items={statuses}>
-        {(item) => <Chip id={item.id}>{item.name}</Chip>}
-      </ChipGroup>,
-      { locale: 'ar' },
-    );
-    screen.getByRole('row', { name: 'Active' }).element().focus();
-    await userEvent.keyboard('{ArrowLeft}');
-    await expect.element(screen.getByRole('row', { name: 'Draft' })).toHaveFocus();
-  });
-
   it('disables every chip when the group is disabled', async () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
-      <ChipGroup
-        aria-label="Status"
-        selectionMode="multiple"
-        isDisabled
-        onSelectionChange={onSelectionChange}
-      >
-        <Chip id="active">Active</Chip>
-      </ChipGroup>,
+      <div className="flex flex-col gap-2">
+        <button type="button">Before</button>
+        <ChipGroup
+          aria-label="Status"
+          selectionMode="multiple"
+          isDisabled
+          onSelectionChange={onSelectionChange}
+        >
+          <Chip id="active">Active</Chip>
+          <Chip id="draft">Draft</Chip>
+        </ChipGroup>
+        <button type="button">After</button>
+      </div>,
     );
     const active = screen.getByRole('row', { name: 'Active' });
     await expect.element(active).toHaveAttribute('data-disabled', 'true');
@@ -263,19 +210,6 @@ describe('ChipGroup', () => {
     expect(getComputedStyle(active.element()).cursor).toBe('not-allowed');
     await active.click({ force: true });
     expect(onSelectionChange).not.toHaveBeenCalled();
-  });
-
-  it('leaves a disabled group out of the tab order', async () => {
-    const screen = await renderWithDS(
-      <div className="flex flex-col gap-2">
-        <button type="button">Before</button>
-        <ChipGroup aria-label="Teams" selectionMode="multiple" isDisabled>
-          <Chip id="design">Design</Chip>
-          <Chip id="research">Research</Chip>
-        </ChipGroup>
-        <button type="button">After</button>
-      </div>,
-    );
     screen.getByRole('button', { name: 'Before' }).element().focus();
     await userEvent.keyboard('{Tab}');
     await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
@@ -340,21 +274,6 @@ describe('ChipGroup', () => {
     warn.mockRestore();
   });
 
-  it('runs onAction and takes a pointer cursor on action chips', async () => {
-    const onAction = vi.fn();
-    const screen = await renderWithDS(
-      <ChipGroup aria-label="Suggestions">
-        <Chip id="recent" onAction={onAction}>
-          Show recent projects
-        </Chip>
-      </ChipGroup>,
-    );
-    const chip = screen.getByRole('row', { name: 'Show recent projects' });
-    expect(getComputedStyle(chip.element()).cursor).toBe('pointer');
-    await chip.click();
-    expect(onAction).toHaveBeenCalledOnce();
-  });
-
   it('passes size and variant to its chips', async () => {
     const screen = await renderWithDS(
       <ChipGroup aria-label="Status" size="sm" variant="outline">
@@ -393,22 +312,16 @@ describe('ChipGroup', () => {
 });
 
 describe('AssistChip', () => {
-  it('renders a 32px button and calls onPress', async () => {
-    const onPress = vi.fn();
-    const screen = await renderWithDS(
-      <AssistChip startIcon={<CalendarIcon />} onPress={onPress}>
-        Add to calendar
-      </AssistChip>,
-    );
-    const chip = screen.getByRole('button', { name: 'Add to calendar' });
-    expect(chip.element().getBoundingClientRect().height).toBe(32);
-    await chip.click();
-    expect(onPress).toHaveBeenCalledOnce();
-  });
-
-  it('shows a pending state while an async onPress runs', async () => {
+  it('shows a pending state while an async onPress runs, until it settles or rejects', async () => {
     let finish: () => void = () => {};
-    const onPress = vi.fn(() => new Promise<void>((resolve) => (finish = resolve)));
+    let fail: (reason: Error) => void = () => {};
+    const onPress = vi.fn(
+      () =>
+        new Promise<void>((resolve, reject) => {
+          finish = resolve;
+          fail = reject;
+        }),
+    );
     const screen = await renderWithDS(
       <AssistChip startIcon={<ScheduleIcon />} onPress={onPress}>
         Remind me tomorrow
@@ -422,7 +335,14 @@ describe('AssistChip', () => {
     expect(onPress).toHaveBeenCalledOnce();
     finish();
     await expect.element(chip).not.toHaveAttribute('data-pending');
+
+    await chip.click();
+    await expect.element(chip).toHaveAttribute('data-pending', 'true');
+    fail(new Error('Calendar unavailable'));
+    await expect.element(chip).not.toHaveAttribute('data-pending');
+    expect(onPress).toHaveBeenCalledTimes(2);
   });
+
   it('shows the pending spinner over an avatar', async () => {
     const onPress = vi.fn(() => new Promise<void>(() => {}));
     const screen = await renderWithDS(
@@ -457,20 +377,6 @@ describe('AssistChip', () => {
       .element(screen.getByRole('progressbar', { name: 'Kaydediliyor' }))
       .toBeInTheDocument();
   });
-
-  it('ignores presses when disabled', async () => {
-    const onPress = vi.fn();
-    const screen = await renderWithDS(
-      <AssistChip isDisabled onPress={onPress}>
-        Share with team
-      </AssistChip>,
-    );
-    const chip = screen.getByRole('button', { name: 'Share with team' });
-    await expect.element(chip).toBeDisabled();
-    await expect.element(chip).toHaveAttribute('data-disabled', 'true');
-    await chip.click({ force: true });
-    expect(onPress).not.toHaveBeenCalled();
-  });
 });
 
 describe('FilterChip', () => {
@@ -488,35 +394,6 @@ describe('FilterChip', () => {
     await expect.element(chip).toHaveAttribute('aria-pressed', 'true');
     expect(onChange).toHaveBeenLastCalledWith(true);
     await expect.element(screen.getByTestId('icon')).not.toBeInTheDocument();
-  });
-
-  it('is toggled from the keyboard and ignores presses when disabled', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(
-      <div className="flex gap-2">
-        <FilterChip onChange={onChange}>Unread</FilterChip>
-        <FilterChip isDisabled onChange={onChange}>
-          Archived
-        </FilterChip>
-      </div>,
-    );
-    screen.getByRole('button', { name: 'Unread' }).element().focus();
-    await userEvent.keyboard(' ');
-    expect(onChange).toHaveBeenLastCalledWith(true);
-    await screen.getByRole('button', { name: 'Archived' }).click({ force: true });
-    expect(onChange).toHaveBeenCalledOnce();
-  });
-  it('follows isSelected when controlled', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(
-      <FilterChip isSelected={false} onChange={onChange}>
-        Starred only
-      </FilterChip>,
-    );
-    const chip = screen.getByRole('button', { name: 'Starred only' });
-    await chip.click();
-    expect(onChange).toHaveBeenLastCalledWith(true);
-    await expect.element(chip).toHaveAttribute('aria-pressed', 'false');
   });
 });
 

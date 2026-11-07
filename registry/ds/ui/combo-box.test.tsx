@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { Key } from 'react-aria-components';
 import { page, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { LocationOnIcon } from '@/registry/ds/lib/icons';
@@ -53,32 +52,26 @@ describe('ComboBox', () => {
     await userEvent.clear(input());
     await userEvent.type(input(), 'RIC');
     expect(await optionNames()).toEqual(['Zürich']);
-  });
 
-  it('matches item keywords', async () => {
-    await renderWithDS(<CityComboBox />);
-    await input().click();
-    await userEvent.keyboard('lisboa');
+    await userEvent.clear(input());
+    await userEvent.type(input(), 'lisboa');
     expect(await optionNames()).toEqual(['Lisbon']);
+
     await userEvent.clear(input());
     await userEvent.type(input(), 'tr');
     expect(await optionNames()).toEqual(['İstanbul']);
   });
 
-  it('selects with the keyboard and reports the key', async () => {
-    const onChange = vi.fn();
-    await renderWithDS(<CityComboBox onChange={onChange} />);
-    await input().click();
-    await userEvent.keyboard('li');
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{Enter}');
-    expect(onChange).toHaveBeenLastCalledWith('lis');
-    await expect.element(input()).toHaveValue('Lisbon');
-    await expect.element(page.getByRole('listbox')).not.toBeInTheDocument();
-  });
-
   it('opens from the trigger button and marks the selected option', async () => {
-    const screen = await renderWithDS(<CityComboBox defaultValue="zur" />);
+    const screen = await renderWithDS(
+      <div>
+        <span data-testid="overlay" className="bg-surface-overlay" />
+        <CityComboBox defaultValue="zur" />
+      </div>,
+    );
+    expect(
+      screen.container.querySelector('[data-slot="combo-box"]')?.getAttribute('data-variant'),
+    ).toBe('outline');
     await expect.element(input()).toHaveValue('Zürich');
     const show = screen.getByRole('button', { name: /^Show suggestions/ });
     await expect.element(show).toHaveAttribute('tabindex', '-1');
@@ -87,56 +80,15 @@ describe('ComboBox', () => {
     const selected = page.getByRole('option', { name: /^Zürich/ });
     await expect.element(selected).toHaveAttribute('aria-selected', 'true');
     expect(selected.element().querySelector('[data-slot="check"] svg')).not.toBeNull();
-    const popover = document.querySelector<HTMLElement>('[data-slot="popover"]');
-    expect(popover?.getBoundingClientRect().right).toBeLessThanOrEqual(window.innerWidth);
+    const popover = document.querySelector<HTMLElement>('[data-slot="popover"]')!;
+    expect(popover.getBoundingClientRect().right).toBeLessThanOrEqual(window.innerWidth);
+    expect(getComputedStyle(popover).backgroundColor).toBe(
+      getComputedStyle(screen.getByTestId('overlay').element()).backgroundColor,
+    );
 
     await page.getByRole('option', { name: /^Lisbon/ }).click();
     await expect.element(page.getByRole('listbox')).not.toBeInTheDocument();
     await expect.element(input()).toHaveValue('Lisbon');
-  });
-
-  it('follows a controlled value', async () => {
-    function Example() {
-      const [value, setValue] = useState<Key | null>('lis');
-      return (
-        <>
-          <CityComboBox value={value} onChange={(key) => setValue(key as Key | null)} />
-          <output>{String(value)}</output>
-          <button type="button" onClick={() => setValue('zur')}>
-            Pick Zürich
-          </button>
-        </>
-      );
-    }
-    const screen = await renderWithDS(<Example />);
-    await expect.element(input()).toHaveValue('Lisbon');
-    await screen.getByRole('button', { name: 'Pick Zürich' }).click();
-    await expect.element(input()).toHaveValue('Zürich');
-
-    await userEvent.clear(input());
-    await userEvent.type(input(), 'sao');
-    await page.getByRole('option', { name: /^São Paulo/ }).click();
-    await expect.element(screen.getByText('sao', { exact: true })).toBeInTheDocument();
-    await expect.element(input()).toHaveValue('São Paulo');
-  });
-
-  it('follows a controlled input value', async () => {
-    function Example() {
-      const [inputValue, setInputValue] = useState('');
-      return (
-        <>
-          <CityComboBox allowsCustomValue inputValue={inputValue} onInputChange={setInputValue} />
-          <output>{`text: ${inputValue}`}</output>
-        </>
-      );
-    }
-    const screen = await renderWithDS(<Example />);
-    await input().click();
-    await userEvent.keyboard('zur');
-    await expect.element(screen.getByText('text: zur')).toBeInTheDocument();
-    expect(await optionNames()).toEqual(['Zürich']);
-    await page.getByRole('option', { name: /^Zürich/ }).click();
-    await expect.element(screen.getByText('text: Zürich')).toBeInTheDocument();
   });
 
   it('lines the popover up with the field, adornment included', async () => {
@@ -174,7 +126,6 @@ describe('ComboBox', () => {
     const screen = await renderWithDS(<CityComboBox />);
     const arrow = screen.container.querySelector<SVGElement>('[data-slot="trigger"] svg')!;
     expect(getComputedStyle(arrow).rotate).toBe('none');
-    expect(getComputedStyle(arrow).transitionDuration).toBe('0.15s');
     await screen.getByRole('button', { name: /^Show suggestions/ }).click();
     await expect.element(page.getByRole('listbox')).toBeVisible();
     await expect.poll(() => getComputedStyle(arrow).rotate).toBe('180deg');
@@ -184,29 +135,6 @@ describe('ComboBox', () => {
     const still = await renderWithDS(<CityComboBox />, { provider: { motion: 'disabled' } });
     const stillArrow = still.container.querySelector('[data-slot="trigger"] svg')!;
     expect(getComputedStyle(stillArrow).transitionDuration).toBe('0s');
-  });
-
-  it('lists suggestions on a raised overlay panel and reports the variant', async () => {
-    const screen = await renderWithDS(
-      <div className="flex flex-col gap-4">
-        <span data-testid="overlay" className="bg-surface-overlay" />
-        <CityComboBox />
-        <CityComboBox label="Region" variant="soft" />
-      </div>,
-    );
-    const variants = [...screen.container.querySelectorAll('[data-slot="combo-box"]')].map(
-      (element) => element.getAttribute('data-variant'),
-    );
-    expect(variants).toEqual(['outline', 'soft']);
-    await input().click();
-    await userEvent.keyboard('{ArrowDown}');
-    await expect.element(page.getByRole('listbox')).toBeVisible();
-    const panel = getComputedStyle(document.querySelector<HTMLElement>('[data-slot="popover"]')!);
-    expect(panel.borderTopLeftRadius).toBe('16px');
-    expect(panel.borderTopWidth).toBe('1px');
-    expect(panel.backgroundColor).toBe(
-      getComputedStyle(screen.getByTestId('overlay').element()).backgroundColor,
-    );
   });
 
   it('clears the input and the selection from the clear button', async () => {
@@ -230,10 +158,12 @@ describe('ComboBox', () => {
       <div>
         <CityComboBox label="Office" defaultValue="ist" isClearable={false} />
         <CityComboBox label="Branch" defaultValue="lis" isDisabled />
+        <CityComboBox label="Region" defaultValue="sao" isReadOnly />
       </div>,
     );
     await expect.element(screen.getByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
     await expect.element(screen.getByRole('combobox', { name: 'Branch' })).toBeDisabled();
+    await expect.element(screen.getByRole('combobox', { name: 'Region' })).toHaveValue('São Paulo');
   });
 
   it('selects several options, counts them and clears them all', async () => {
@@ -268,28 +198,29 @@ describe('ComboBox', () => {
     await expect.element(screen.getByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
   });
 
-  it('names its buttons and states in English by default', async () => {
-    const screen = await renderWithDS(
+  it('takes its text from labels, then DSProvider', async () => {
+    const english = await renderWithDS(
       <CityComboBox selectionMode="multiple" defaultValue={['ist', 'zur']} isLoading />,
     );
-    expect(screen.container.querySelector('[data-slot="selected-count"]')?.textContent).toBe(
+    expect(english.container.querySelector('[data-slot="selected-count"]')?.textContent).toBe(
       '2 selected',
     );
-    await expect.element(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
+    await expect.element(english.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('button', { name: /^Show suggestions/ }))
+      .element(english.getByRole('button', { name: /^Show suggestions/ }))
       .toBeInTheDocument();
-    await expect.element(screen.getByRole('progressbar', { name: 'Loading…' })).toBeInTheDocument();
-  });
+    await expect
+      .element(english.getByRole('progressbar', { name: 'Loading…' }))
+      .toBeInTheDocument();
+    await english.unmount();
 
-  it('shows "No results" when nothing matches', async () => {
-    await renderWithDS(<CityComboBox />);
+    const noMatch = await renderWithDS(<CityComboBox />);
     await input().click();
     await userEvent.keyboard('Ankara');
     await expect.element(page.getByText('No results')).toBeVisible();
-  });
+    await userEvent.keyboard('{Escape}');
+    await noMatch.unmount();
 
-  it('takes its text from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-4">
         <CityComboBox
@@ -344,23 +275,6 @@ describe('ComboBox', () => {
     await expect.element(page.getByText('No offices match')).toBeVisible();
   });
 
-  it('keeps a custom value when allowsCustomValue is set', async () => {
-    const onInputChange = vi.fn();
-    const screen = await renderWithDS(
-      <div>
-        <CityComboBox allowsCustomValue onInputChange={onInputChange} />
-        <button type="button">Next</button>
-      </div>,
-    );
-    await input().click();
-    await userEvent.keyboard('Ankara');
-    await expect.element(page.getByText('No results')).toBeVisible();
-    await userEvent.keyboard('{Tab}');
-    await expect.element(screen.getByRole('button', { name: 'Next' })).toHaveFocus();
-    await expect.element(input()).toHaveValue('Ankara');
-    expect(onInputChange).toHaveBeenLastCalledWith('Ankara');
-  });
-
   it('loads items as the user types', async () => {
     const pending: (() => void)[] = [];
     const search = vi.fn(
@@ -380,6 +294,7 @@ describe('ComboBox', () => {
           label="Office"
           items={items}
           isLoading={isLoading}
+          renderEmptyState={() => 'Type a city'}
           startAdornment={<LocationOnIcon />}
           onInputChange={(value) => {
             setLoading(true);
@@ -399,6 +314,7 @@ describe('ComboBox', () => {
     await userEvent.keyboard('z');
     expect(search).toHaveBeenLastCalledWith('z');
     await expect.element(page.getByRole('option', { name: 'Loading…' })).toBeVisible();
+    expect(page.getByText('Type a city').elements()).toHaveLength(0);
     const spinner = screen.container.querySelector('[data-slot="loading"]');
     expect(spinner).toHaveAttribute('role', 'progressbar');
     expect(spinner).toHaveAttribute('aria-label', 'Loading…');

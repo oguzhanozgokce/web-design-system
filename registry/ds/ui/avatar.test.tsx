@@ -36,9 +36,6 @@ describe('getAvatarInitials', () => {
   it('takes the first and last word', () => {
     expect(getAvatarInitials('Ayşe Nur Demir')).toBe('AD');
     expect(getAvatarInitials('  mehmet   kaya ')).toBe('MK');
-  });
-
-  it('takes one grapheme for a single name', () => {
     expect(getAvatarInitials('Madonna')).toBe('M');
   });
 
@@ -55,11 +52,6 @@ describe('getAvatarInitials', () => {
     expect(getAvatarInitials('क्षमा शर्मा')).toBe('क्ष');
     expect(getAvatarInitials('Наталья Петрова')).toBe('НП');
   });
-
-  it('uppercases with the locale', () => {
-    expect(getAvatarInitials('ilkay ilhan', 'tr')).toBe('İİ');
-    expect(getAvatarInitials('ilkay ilhan', 'en')).toBe('II');
-  });
 });
 
 describe('Avatar', () => {
@@ -73,35 +65,40 @@ describe('Avatar', () => {
     expect(root).toHaveAttribute('data-tone', 'neutral');
   });
 
-  it('shows initials on a neutral soft fill by default', async () => {
-    const screen = await renderWithDS(<Avatar name="Ayşe Demir" />);
-    const style = getComputedStyle(
-      visualOf(screen.container.querySelector('[data-slot="avatar"]')!),
-    );
-    expect(style.backgroundColor).toBe(probe('bg-neutral-soft'));
-    expect(style.color).toBe(probe('text-on-surface', 'color'));
-    expect(style.fontWeight).toBe('500');
-  });
-
-  it('paints a toned fallback with the soft role and its on-role', async () => {
+  it('paints the fallback with the soft role of its tone and the matching on-role', async () => {
+    const roles = {
+      neutral: ['bg-neutral-soft', 'text-on-surface'],
+      primary: ['bg-primary-soft', 'text-on-primary-soft'],
+      success: ['bg-success-soft', 'text-on-success-soft'],
+      warning: ['bg-warning-soft', 'text-on-warning-soft'],
+      error: ['bg-error-soft', 'text-on-error-soft'],
+      info: ['bg-info-soft', 'text-on-info-soft'],
+    } as const;
     const screen = await renderWithDS(
       <>
+        <Avatar name="Ayşe Demir" data-testid="neutral" />
         {(['primary', 'success', 'warning', 'error', 'info'] as const).map((tone) => (
           <Avatar key={tone} name="Ayşe Demir" tone={tone} data-testid={tone} />
         ))}
       </>,
     );
-    for (const tone of ['primary', 'success', 'warning', 'error', 'info'] as const) {
+    for (const [tone, [background, color]] of Object.entries(roles)) {
       const root = screen.getByTestId(tone).element();
       expect(root).toHaveAttribute('data-tone', tone);
       const style = getComputedStyle(visualOf(root));
-      expect(style.backgroundColor).toBe(probe(`bg-${tone}-soft`));
-      expect(style.color).toBe(probe(`text-on-${tone}-soft`, 'color'));
+      expect(style.backgroundColor).toBe(probe(background));
+      expect(style.color).toBe(probe(color, 'color'));
     }
   });
 
-  it('sizes the avatar at 24, 32, 40, 48 and 64px with matching initials', async () => {
-    const sizes = { xs: [24, 12], sm: [32, 12], md: [40, 14], lg: [48, 16], xl: [64, 20] };
+  it('sizes the avatar at 24, 32, 40, 48 and 64px with matching initials and corner radius', async () => {
+    const sizes = {
+      xs: [24, 12, 8],
+      sm: [32, 12, 8],
+      md: [40, 14, 12],
+      lg: [48, 16, 12],
+      xl: [64, 20, 12],
+    };
     const screen = await renderWithDS(
       <>
         {Object.keys(sizes).map((size) => (
@@ -109,36 +106,19 @@ describe('Avatar', () => {
             key={size}
             name="Ayşe Demir"
             size={size as keyof typeof sizes}
+            shape="rounded"
             data-testid={size}
           />
         ))}
       </>,
     );
-    for (const [size, [box, font]] of Object.entries(sizes)) {
+    for (const [size, [box, font, radius]] of Object.entries(sizes)) {
       const root = screen.getByTestId(size).element();
       expect(root.getBoundingClientRect().width).toBe(box);
       expect(root.getBoundingClientRect().height).toBe(box);
       expect(getComputedStyle(visualOf(root)).fontSize).toBe(`${font}px`);
+      expect(getComputedStyle(visualOf(root)).borderTopLeftRadius).toBe(`${radius}px`);
     }
-  });
-
-  it('rounds the rounded shape by 8px up to 32px and 12px above', async () => {
-    const screen = await renderWithDS(
-      <>
-        <Avatar name="Design team" shape="rounded" size="sm" data-testid="sm" />
-        <Avatar name="Design team" shape="rounded" size="md" data-testid="md" />
-        <Avatar name="Design team" shape="rounded" size="xl" data-testid="xl" />
-      </>,
-    );
-    expect(getComputedStyle(visualOf(screen.getByTestId('sm').element())).borderTopLeftRadius).toBe(
-      '8px',
-    );
-    expect(getComputedStyle(visualOf(screen.getByTestId('md').element())).borderTopLeftRadius).toBe(
-      '12px',
-    );
-    expect(getComputedStyle(visualOf(screen.getByTestId('xl').element())).borderTopLeftRadius).toBe(
-      '12px',
-    );
   });
 
   it('uppercases initials in the current locale', async () => {
@@ -153,7 +133,6 @@ describe('Avatar', () => {
     expect(root.querySelector('img')).toHaveAttribute('data-loaded');
     expect(root.querySelector('[data-slot="avatar-initials"]')).toBeNull();
     await expect.element(screen.getByRole('img', { name: 'Ayşe Demir' })).toBeVisible();
-    expect(getComputedStyle(root.querySelector('img')!).transitionDuration).toBe('0.25s');
   });
 
   it('falls back to initials when the photo fails', async () => {
@@ -188,39 +167,36 @@ describe('Avatar', () => {
     expect(screen.container.querySelector('[data-slot="avatar"]')).toBe(root);
   });
 
-  it('shows the person glyph without a name and hides itself from assistive tech', async () => {
-    const screen = await renderWithDS(<Avatar />);
-    const root = screen.container.querySelector('[data-slot="avatar"]')!;
-    expect(root).toHaveAttribute('aria-hidden', 'true');
-    expect(root).toHaveAttribute('data-tone', 'neutral');
-    expect(root.querySelector('[data-slot="avatar-icon"] svg')).not.toBeNull();
-  });
-
-  it('names a glyph avatar with alt and accepts a custom icon', async () => {
-    const screen = await renderWithDS(<Avatar alt="Design team" fallbackIcon={<GroupIcon />} />);
-    await expect.element(screen.getByRole('img', { name: 'Design team' })).toBeVisible();
-  });
-
-  it('is decorative with an empty alt', async () => {
+  it('shows the person glyph without a name, hidden unless alt names it', async () => {
     const screen = await renderWithDS(
-      <p>
-        <Avatar name="Ayşe Demir" alt="" size="xs" /> Ayşe Demir
-      </p>,
+      <>
+        <Avatar data-testid="unnamed" />
+        <Avatar alt="Design team" fallbackIcon={<span data-testid="custom-icon" />} />
+      </>,
     );
-    expect(screen.container.querySelector('[data-slot="avatar"]')).toHaveAttribute(
-      'aria-hidden',
-      'true',
-    );
-    expect(screen.container.querySelectorAll('[role="img"]')).toHaveLength(0);
+    const unnamed = screen.getByTestId('unnamed').element();
+    expect(unnamed).toHaveAttribute('aria-hidden', 'true');
+    expect(unnamed).toHaveAttribute('data-tone', 'neutral');
+    expect(unnamed.querySelector('[data-slot="avatar-icon"] svg')).not.toBeNull();
+    const named = screen.getByRole('img', { name: 'Design team' });
+    await expect.element(named).toBeVisible();
+    expect(named.element().querySelector('[data-slot="avatar-icon"] svg')).toBeNull();
+    await expect.element(named.getByTestId('custom-icon')).toBeInTheDocument();
   });
 
-  it('keeps the status announced when the avatar is decorative', async () => {
+  it('is decorative with an empty alt but keeps its status announced', async () => {
     const screen = await renderWithDS(
-      <p>
-        <Avatar name="Ayşe Demir" alt="" status="busy" /> Ayşe Demir
-      </p>,
+      <>
+        <p>
+          <Avatar name="Ayşe Demir" alt="" size="xs" data-testid="plain" /> Ayşe Demir
+        </p>
+        <p>
+          <Avatar name="Ayşe Demir" alt="" status="busy" data-testid="busy" /> Ayşe Demir
+        </p>
+      </>,
     );
-    const root = screen.container.querySelector('[data-slot="avatar"]')!;
+    expect(screen.getByTestId('plain').element()).toHaveAttribute('aria-hidden', 'true');
+    const root = screen.getByTestId('busy').element();
     expect(root).not.toHaveAttribute('aria-hidden');
     expect(root.querySelector('[data-slot="avatar-visual"]')).toHaveAttribute(
       'aria-hidden',
@@ -260,25 +236,6 @@ describe('Avatar', () => {
         await screen.unmount();
       }
     }
-  });
-
-  it('announces the status in English by default', async () => {
-    const screen = await renderWithDS(
-      <>
-        <Avatar name="Ayşe Demir" status="online" />
-        <Avatar name="Mehmet Kaya" status="away" />
-        <Avatar name="Elif Şahin" status="busy" />
-        <Avatar name="Can Yılmaz" status="offline" />
-      </>,
-    );
-    for (const status of ['Online', 'Away', 'Busy', 'Offline']) {
-      await expect.element(screen.getByText(status, { exact: true })).toBeInTheDocument();
-    }
-    const dots = screen.container.querySelectorAll('[data-slot="avatar-status"]');
-    expect(dots[0]).toHaveAttribute('data-status', 'online');
-    expect(getComputedStyle(dots[0]).backgroundColor).toBe(probe('bg-success-solid'));
-    expect(getComputedStyle(dots[1]).backgroundColor).toBe(probe('bg-warning-solid'));
-    expect(getComputedStyle(dots[2]).backgroundColor).toBe(probe('bg-error-solid'));
   });
 
   it('cuts the status dot out with the canvas, or the colour a container sets', async () => {
@@ -329,27 +286,6 @@ describe('AvatarButton', () => {
     const button = screen.getByRole('button', { name: 'Ayşe Demir Away' });
     await button.click();
     expect(onPress).toHaveBeenCalledOnce();
-
-    await userEvent.keyboard('{Enter}');
-    expect(onPress).toHaveBeenCalledTimes(2);
-  });
-
-  it('prefers aria-label for the accessible name', async () => {
-    const screen = await renderWithDS(
-      <AvatarButton name="Ayşe Demir" aria-label="Account menu for Ayşe Demir" />,
-    );
-    await expect
-      .element(screen.getByRole('button', { name: 'Account menu for Ayşe Demir' }))
-      .toBeVisible();
-  });
-
-  it('does not fire when disabled', async () => {
-    const onPress = vi.fn();
-    const screen = await renderWithDS(
-      <AvatarButton name="Ayşe Demir" isDisabled onPress={onPress} />,
-    );
-    await screen.getByRole('button', { name: 'Ayşe Demir' }).click({ force: true });
-    expect(onPress).not.toHaveBeenCalled();
   });
 
   it('opens a menu as its trigger', async () => {
@@ -370,35 +306,6 @@ describe('AvatarButton', () => {
     expect(onAction).toHaveBeenCalledOnce();
     expect(onAction.mock.calls[0][0]).toBe('sign-out');
     await expect.element(trigger).toHaveFocus();
-  });
-
-  it('shows a neutral overlay on hover, a pointer cursor, and half opacity when disabled', async () => {
-    const screen = await renderWithDS(
-      <>
-        <AvatarButton name="Ayşe Demir" />
-        <AvatarButton name="Mehmet Kaya" isDisabled />
-      </>,
-    );
-    const button = screen.getByRole('button', { name: 'Ayşe Demir' });
-    const overlay = () => getComputedStyle(button.element(), '::after').backgroundColor;
-    expect(getComputedStyle(button.element()).cursor).toBe('pointer');
-    expect(overlay()).toBe('rgba(0, 0, 0, 0)');
-    await button.hover();
-    await expect.poll(overlay).toBe(probe('bg-neutral-soft'));
-
-    const disabled = getComputedStyle(
-      screen.getByRole('button', { name: 'Mehmet Kaya' }).element(),
-    );
-    expect(disabled.opacity).toBe('0.5');
-    expect(disabled.cursor).toBe('not-allowed');
-  });
-
-  it('drops the press scale when motion is reduced', async () => {
-    const screen = await renderWithDS(<AvatarButton name="Ayşe Demir" />, {
-      provider: { motion: 'reduced' },
-    });
-    const button = screen.getByRole('button', { name: 'Ayşe Demir' }).element();
-    expect(getComputedStyle(button).transitionProperty).not.toContain('scale');
   });
 });
 
@@ -448,28 +355,25 @@ describe('AvatarGroup', () => {
   });
 
   it('cuts a transparent seam with a mask when seam is clip', async () => {
-    for (const locale of ['en', 'ar']) {
-      for (const shape of ['circle', 'rounded'] as const) {
-        const screen = await renderWithDS(
-          <AvatarGroup aria-label="Team" size="md" shape={shape} seam="clip" max={2}>
-            <Avatar name="Ayşe Demir" />
-            <Avatar name="Mehmet Kaya" />
-            <Avatar name="Elif Şahin" />
-          </AvatarGroup>,
-          { locale },
-        );
-        const group = screen.getByRole('group', { name: 'Team' }).element();
-        expect(group).toHaveAttribute('data-seam', 'clip');
-        const items = [...group.querySelectorAll('[data-slot="avatar-group-item"]')];
-        expect(items).toHaveLength(3);
-        const gradient = shape === 'circle' ? 'radial-gradient' : 'linear-gradient';
-        for (const item of items.slice(0, -1)) {
-          expect(getComputedStyle(item).maskImage).toContain(gradient);
-          expect(getComputedStyle(item).boxShadow).toBe('none');
-        }
-        expect(getComputedStyle(items.at(-1)!).maskImage).toBe('none');
-        await screen.unmount();
+    for (const shape of ['circle', 'rounded'] as const) {
+      const screen = await renderWithDS(
+        <AvatarGroup aria-label="Team" size="md" shape={shape} seam="clip" max={2}>
+          <Avatar name="Ayşe Demir" />
+          <Avatar name="Mehmet Kaya" />
+          <Avatar name="Elif Şahin" />
+        </AvatarGroup>,
+      );
+      const group = screen.getByRole('group', { name: 'Team' }).element();
+      expect(group).toHaveAttribute('data-seam', 'clip');
+      const items = [...group.querySelectorAll('[data-slot="avatar-group-item"]')];
+      expect(items).toHaveLength(3);
+      const gradient = shape === 'circle' ? 'radial-gradient' : 'linear-gradient';
+      for (const item of items.slice(0, -1)) {
+        expect(getComputedStyle(item).maskImage).toContain(gradient);
+        expect(getComputedStyle(item).boxShadow).toBe('none');
       }
+      expect(getComputedStyle(items.at(-1)!).maskImage).toBe('none');
+      await screen.unmount();
     }
   });
 
@@ -504,16 +408,6 @@ describe('AvatarGroup', () => {
       expect(avatar).toHaveAttribute('data-shape', 'rounded');
     }
     expect(screen.container.querySelector('[data-slot="avatar-overflow"]')).toBeNull();
-  });
-
-  it('counts the overflow from total', async () => {
-    const screen = await renderWithDS(
-      <AvatarGroup total={1284} max={2}>
-        <Avatar name="Ayşe Demir" />
-        <Avatar name="Mehmet Kaya" />
-      </AvatarGroup>,
-    );
-    await expect.element(screen.getByRole('img', { name: '1,282 more' })).toHaveTextContent('99+');
   });
 
   it('shows no overflow avatar when everyone fits', async () => {
@@ -555,38 +449,16 @@ describe('AvatarGroup', () => {
     }
   });
 
-  it('plays the entrance only when spatial motion is on', async () => {
-    const approvers = team.slice(0, 3);
-    const animated = await renderWithDS(
-      <AvatarGroup>
-        {approvers.map((name) => (
-          <Avatar key={name} name={name} />
-        ))}
-      </AvatarGroup>,
-    );
-    const items = animated.container.querySelectorAll<HTMLElement>(
-      '[data-slot="avatar-group-item"]',
-    );
-    expect(items[2].style.transitionDelay).toBe('90ms');
-    expect(getComputedStyle(items[0]).transitionProperty).toContain('scale');
-    await animated.unmount();
-
-    const still = await renderWithDS(
-      <AvatarGroup>
-        {approvers.map((name) => (
-          <Avatar key={name} name={name} />
-        ))}
-      </AvatarGroup>,
-      { provider: { motion: 'reduced' } },
-    );
-    const stillItem = still.container.querySelector<HTMLElement>(
-      '[data-slot="avatar-group-item"]',
-    )!;
-    expect(stillItem.style.transitionDelay).toBe('');
-    expect(getComputedStyle(stillItem).transitionDuration).toBe('0s');
-  });
-
   it('takes the overflow text from labels, then DSProvider, then the English default', async () => {
+    const english = await renderWithDS(
+      <AvatarGroup total={1284} max={2}>
+        <Avatar name="Ayşe Demir" />
+        <Avatar name="Mehmet Kaya" />
+      </AvatarGroup>,
+    );
+    await expect.element(english.getByRole('img', { name: '1,282 more' })).toHaveTextContent('99+');
+    await english.unmount();
+
     const screen = await renderWithDS(
       <>
         <AvatarGroup

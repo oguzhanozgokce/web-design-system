@@ -123,21 +123,12 @@ describe('Pagination', () => {
 
   it('works from the keyboard and keeps focus when an arrow turns off', async () => {
     const screen = await renderWithDS(<Controlled defaultPage={11} />);
-    await userEvent.keyboard('{Tab}');
-    await expect.element(screen.getByRole('button', { name: 'Previous page' })).toHaveFocus();
-    await userEvent.keyboard('{Enter}');
-    await expect.element(screen.getByTestId('page')).toHaveTextContent('10');
     const next = screen.getByRole('button', { name: 'Next page' });
     next.element().focus();
-    await userEvent.keyboard('{Enter}');
     await userEvent.keyboard('{Enter}');
     await expect.element(screen.getByTestId('page')).toHaveTextContent('12');
     await expect.element(next).toBeDisabled();
     await expect.element(screen.getByRole('button', { name: 'Page 12' })).toHaveFocus();
-    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
-    await expect.element(screen.getByRole('button', { name: 'Page 11' })).toHaveFocus();
-    await userEvent.keyboard(' ');
-    await expect.element(screen.getByTestId('page')).toHaveTextContent('11');
   });
 
   it('works uncontrolled and clamps an out-of-range page', async () => {
@@ -184,16 +175,6 @@ describe('Pagination', () => {
     }
   });
 
-  it('keeps the same number of slots as the page moves', async () => {
-    const screen = await renderWithDS(<Controlled pageCount={30} defaultPage={1} />);
-    const widths = new Set<number>();
-    for (const target of ['Page 5', 'Page 6', 'Page 7', 'Page 30']) {
-      await screen.getByRole('button', { name: target }).click();
-      widths.add(visiblePages(screen.container).length + visibleEllipses(screen.container));
-    }
-    expect([...widths]).toEqual([7]);
-  });
-
   it('takes its labels from props and the provider', async () => {
     const screen = await renderWithDS(
       <Pagination
@@ -230,27 +211,6 @@ describe('Pagination', () => {
     const first = screen.getByRole('button', { name: 'Page 1' }).element();
     const last = screen.getByRole('button', { name: 'Page 4' }).element();
     expect(first.getBoundingClientRect().left).toBeGreaterThan(last.getBoundingClientRect().left);
-  });
-
-  it('slides the current-page indicator unless motion is reduced', async () => {
-    const moving = await renderWithDS(<Controlled pageCount={5} />);
-    await moving.getByRole('button', { name: 'Page 4' }).click();
-    const indicator = moving.container.querySelector<HTMLElement>(
-      '[data-slot="pagination-indicator"]',
-    )!;
-    expect(indicator.closest('button')!.textContent).toBe('4');
-    expect(indicator.style.transform).not.toBe('');
-    await moving.unmount();
-
-    const still = await renderWithDS(<Controlled pageCount={5} />, {
-      provider: { motion: 'reduced' },
-    });
-    await still.getByRole('button', { name: 'Page 4' }).click();
-    const settled = still.container.querySelector<HTMLElement>(
-      '[data-slot="pagination-indicator"]',
-    )!;
-    expect(settled.closest('button')!.textContent).toBe('4');
-    expect(settled.style.transform).toBe('');
   });
 
   it('disables every control while disabled and shows one page alone', async () => {

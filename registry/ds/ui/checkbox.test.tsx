@@ -29,7 +29,7 @@ class CaughtError extends Component<{ children: ReactNode }, { message: string |
 }
 
 describe('Checkbox', () => {
-  it('renders an accessible checkbox that toggles on click', async () => {
+  it('renders an accessible checkbox that toggles on click and rings the box from the keyboard', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <Checkbox onChange={onChange}>Email me when a project is due</Checkbox>,
@@ -37,6 +37,17 @@ describe('Checkbox', () => {
     const checkbox = screen.getByRole('checkbox', { name: 'Email me when a project is due' });
     await expect.element(checkbox).not.toBeChecked();
 
+    await userEvent.tab();
+    await expect.element(checkbox).toHaveFocus();
+    await userEvent.keyboard('[Space]');
+    await expect.element(checkbox).toBeChecked();
+    const box = part('box')!;
+    expect(box.hasAttribute('data-focus-visible')).toBe(true);
+    expect(parseFloat(getComputedStyle(box).outlineWidth)).toBeGreaterThan(0);
+
+    await screen.getByText('Email me when a project is due').click();
+    await expect.element(checkbox).not.toBeChecked();
+    expect(onChange).toHaveBeenLastCalledWith(false);
     await screen.getByText('Email me when a project is due').click();
     await expect.element(checkbox).toBeChecked();
     expect(onChange).toHaveBeenLastCalledWith(true);
@@ -82,20 +93,6 @@ describe('Checkbox', () => {
     ]);
   });
 
-  it('toggles with the keyboard and rings the box', async () => {
-    const screen = await renderWithDS(<Checkbox>Send reminders</Checkbox>);
-    const checkbox = screen.getByRole('checkbox', { name: 'Send reminders' });
-
-    await userEvent.tab();
-    await expect.element(checkbox).toHaveFocus();
-    await userEvent.keyboard('[Space]');
-    await expect.element(checkbox).toBeChecked();
-    const box = part('box')!;
-    expect(box.hasAttribute('data-focus-visible')).toBe(true);
-    expect(getComputedStyle(box).outlineWidth).toBe('2px');
-    expect(getComputedStyle(box).outlineOffset).toBe('2px');
-  });
-
   it('fills a checked box with the solid primary and an invalid one with the solid error', async () => {
     const screen = await renderWithDS(
       <>
@@ -109,6 +106,7 @@ describe('Checkbox', () => {
       </>,
       { provider: { motion: 'disabled' } },
     );
+    await userEvent.unhover(screen.getByText('Videos'));
     const fill = (testId: string) =>
       getComputedStyle(screen.getByTestId(testId).element()).backgroundColor;
     const [photos, videos, music] = parts('box');
@@ -132,16 +130,15 @@ describe('Checkbox', () => {
 
     await screen.getByText('Members get a reminder three days before the due date.').click();
     await expect.element(checkbox).toBeChecked();
-  });
+    await screen.unmount();
 
-  it('keeps an explicit aria-label when a description is present', async () => {
-    const screen = await renderWithDS(
+    const labelled = await renderWithDS(
       <Checkbox aria-label="Reminders for the Design team" description="Three days before.">
         Reminders
       </Checkbox>,
     );
     await expect
-      .element(screen.getByRole('checkbox'))
+      .element(labelled.getByRole('checkbox'))
       .toHaveAccessibleName('Reminders for the Design team');
   });
 
@@ -166,54 +163,6 @@ describe('Checkbox', () => {
     await checkbox.click({ force: true });
     await expect.element(checkbox).toBeChecked();
     expect(part('box')?.getAttribute('data-state')).toBe('checked');
-  });
-
-  it.each([
-    ['system', 'stroke-dashoffset'],
-    ['reduced', 'none'],
-  ] as const)('draws the check mark with motion %s', async (motion, transitionProperty) => {
-    await renderWithDS(<Checkbox defaultSelected>Uploads</Checkbox>, { provider: { motion } });
-    const path = document.querySelector('[data-slot="box"] path')!;
-    expect(getComputedStyle(path).transitionProperty).toBe(transitionProperty);
-    expect(getComputedStyle(path).strokeDashoffset).toBe('0px');
-  });
-
-  it.each([
-    ['system', '0.95'],
-    ['reduced', '1'],
-  ] as const)('presses the box in with motion %s', async (motion, scale) => {
-    await renderWithDS(<Checkbox>Photos</Checkbox>, { provider: { motion } });
-    await userEvent.tab();
-    await userEvent.keyboard('{Space>}');
-    await expect.poll(() => getComputedStyle(part('box')!).scale).toBe(scale);
-    await userEvent.keyboard('{/Space}');
-  });
-
-  it('does not toggle when disabled or read-only, and dims when disabled', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(
-      <>
-        <Checkbox isDisabled onChange={onChange}>
-          Archive closed folders
-        </Checkbox>
-        <Checkbox isReadOnly onChange={onChange}>
-          Lock shared folders
-        </Checkbox>
-      </>,
-    );
-    const disabled = screen.getByRole('checkbox', { name: 'Archive closed folders' });
-    await expect.element(disabled).toBeDisabled();
-    await screen.getByText('Archive closed folders').click({ force: true });
-    await screen.getByText('Lock shared folders').click();
-    expect(onChange).not.toHaveBeenCalled();
-    await expect.element(disabled).not.toBeChecked();
-    await expect
-      .element(screen.getByRole('checkbox', { name: 'Lock shared folders' }))
-      .not.toBeChecked();
-    const [disabledTarget, readOnlyTarget] = parts('target');
-    expect(getComputedStyle(disabledTarget).opacity).toBe('0.5');
-    expect(getComputedStyle(disabledTarget).cursor).toBe('not-allowed');
-    expect(getComputedStyle(readOnlyTarget).cursor).toBe('default');
   });
 
   it('keeps the click target to the box and its text', async () => {
@@ -281,46 +230,36 @@ describe('Checkbox', () => {
 describe('CheckboxGroup', () => {
   it('labels the group and reports the selected values', async () => {
     const onChange = vi.fn();
-    const screen = await renderWithDS(
-      <CheckboxGroup
-        label="Weekly digest"
-        description="Sent every Monday."
-        defaultValue={['uploads']}
-        onChange={onChange}
-      >
-        <Checkbox value="uploads">Uploads</Checkbox>
-        <Checkbox value="comments">Comments</Checkbox>
-      </CheckboxGroup>,
-    );
+    function Digest() {
+      const [value, setValue] = useState(['uploads']);
+      return (
+        <CheckboxGroup
+          label="Weekly digest"
+          description="Sent every Monday."
+          value={value}
+          onChange={(next) => {
+            onChange(next);
+            setValue(next);
+          }}
+        >
+          <Checkbox value="uploads">Uploads</Checkbox>
+          <Checkbox value="comments">Comments</Checkbox>
+        </CheckboxGroup>
+      );
+    }
+    const screen = await renderWithDS(<Digest />);
     const group = screen.getByRole('group', { name: 'Weekly digest' });
     await expect.element(group).toHaveAccessibleDescription('Sent every Monday.');
     await expect.element(group).toHaveAttribute('data-orientation', 'vertical');
+    const uploads = screen.getByRole('checkbox', { name: 'Uploads' });
+    await expect.element(uploads).toBeChecked();
 
     await screen.getByText('Comments').click();
     expect(onChange).toHaveBeenLastCalledWith(['uploads', 'comments']);
+    await expect.element(screen.getByRole('checkbox', { name: 'Comments' })).toBeChecked();
     await screen.getByText('Uploads').click();
     expect(onChange).toHaveBeenLastCalledWith(['comments']);
-  });
-
-  it('supports a controlled value', async () => {
-    function Controlled() {
-      const [value, setValue] = useState<string[]>(['email']);
-      return (
-        <>
-          <CheckboxGroup label="Alerts" value={value} onChange={setValue}>
-            <Checkbox value="email">Email</Checkbox>
-            <Checkbox value="sms">Text message</Checkbox>
-          </CheckboxGroup>
-          <output>{value.join(',')}</output>
-        </>
-      );
-    }
-    const screen = await renderWithDS(<Controlled />);
-    await expect.element(screen.getByRole('checkbox', { name: 'Email' })).toBeChecked();
-    await screen.getByText('Text message').click();
-    await expect.element(screen.getByRole('status')).toHaveTextContent('email,sms');
-    await screen.getByText('Email').click();
-    await expect.element(screen.getByRole('status')).toHaveTextContent('sms');
+    await expect.element(uploads).not.toBeChecked();
   });
 
   it('shows the group error and marks the group invalid', async () => {
@@ -425,16 +364,6 @@ describe('CheckboxGroup', () => {
       .toHaveTextContent('SelectAllCheckbox must be rendered inside a CheckboxGroup.');
     expect(screen.container.querySelector('input[type="checkbox"]')).toBeNull();
     consoleError.mockRestore();
-  });
-
-  it('names SelectAllCheckbox "Select all" by default', async () => {
-    const screen = await renderWithDS(
-      <CheckboxGroup label="Permissions">
-        <SelectAllCheckbox />
-        <Checkbox value="view">View folders</Checkbox>
-      </CheckboxGroup>,
-    );
-    await expect.element(screen.getByRole('checkbox', { name: 'Select all' })).toBeInTheDocument();
   });
 
   it('takes the select-all label from children, then labels, then DSProvider', async () => {

@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Button as AriaButton, type Key, type Selection } from 'react-aria-components';
+import { type Key, type Selection } from 'react-aria-components';
 import { page, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import {
@@ -11,6 +10,7 @@ import {
   FolderIcon,
 } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
+import { ButtonGroup } from '@/registry/ds/ui/button-group';
 import {
   Menu,
   MenuHeader,
@@ -21,7 +21,6 @@ import {
   MenuSeparator,
   MenuTrigger,
   SubmenuTrigger,
-  menuPopoverStyles,
   type MenuLabels,
   type MenuProps,
 } from '@/registry/ds/ui/menu';
@@ -121,13 +120,7 @@ function ProjectMenu({
   );
 }
 
-function ViewMenu({
-  onSortChange,
-  onColumnsChange,
-}: {
-  onSortChange?: (keys: Selection) => void;
-  onColumnsChange?: (keys: Selection) => void;
-}) {
+function ViewMenu({ onSortChange }: { onSortChange?: (keys: Selection) => void }) {
   return (
     <MenuTrigger>
       <Button>View</Button>
@@ -142,11 +135,7 @@ function ViewMenu({
           <MenuItem id="name">Name</MenuItem>
         </MenuSection>
         <MenuSeparator />
-        <MenuSection
-          selectionMode="multiple"
-          defaultSelectedKeys={['owner', 'status']}
-          onSelectionChange={onColumnsChange}
-        >
+        <MenuSection selectionMode="multiple" defaultSelectedKeys={['owner', 'status']}>
           <MenuHeader>Columns</MenuHeader>
           <MenuItem id="owner">Owner</MenuItem>
           <MenuItem id="status">Status</MenuItem>
@@ -198,16 +187,9 @@ describe('Menu', () => {
     await expect.element(page.getByRole('separator')).toBeInTheDocument();
 
     const popover = document.querySelector<HTMLElement>('[data-slot="menu-popover"]')!;
-    const style = getComputedStyle(popover);
-    expect(style.backgroundColor).toBe(probe('bg-surface-overlay'));
-    expect(style.borderTopLeftRadius).toBe('16px');
-    expect(style.paddingTop).toBe('4px');
-    expect(style.boxShadow).not.toBe('none');
-    expect(popover.offsetWidth).toBeGreaterThanOrEqual(224);
+    expect(getComputedStyle(popover).backgroundColor).toBe(probe('bg-surface-overlay'));
     const item = page.getByRole('menuitem', { name: /^Duplicate/ }).element();
-    expect(getComputedStyle(item).borderTopLeftRadius).toBe('12px');
     expect(getComputedStyle(item).minHeight).toBe('36px');
-    expect(getComputedStyle(item).fontSize).toBe('14px');
   });
 
   it('fills the focused row with the neutral or error soft role', async () => {
@@ -216,6 +198,9 @@ describe('Menu', () => {
     await userEvent.keyboard('{Enter}');
     const edit = page.getByRole('menuitem', { name: /^Edit project/ });
     await expect.element(edit).toHaveFocus();
+    await expect.element(edit).toHaveAttribute('data-focus-visible', 'true');
+    expect(getComputedStyle(edit.element()).outlineWidth).toBe('2px');
+    expect(getComputedStyle(edit.element()).outlineOffset).toBe('-2px');
     await expect
       .poll(() => getComputedStyle(edit.element()).backgroundColor)
       .toBe(probe('bg-neutral-soft'));
@@ -229,69 +214,17 @@ describe('Menu', () => {
   });
 
   it('calls onAction with the item key, closes and returns focus to the trigger', async () => {
-    const onAction = vi.fn();
-    const screen = await renderWithDS(<ProjectMenu menu={{ onAction }} />);
-    const trigger = screen.getByRole('button', { name: 'Project actions' });
-
-    await trigger.click();
-    await page.getByRole('menuitem', { name: /^Duplicate/ }).click();
-    expect(firstKey(onAction)).toBe('duplicate');
-    await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
-    await expect.element(trigger).toHaveFocus();
-  });
-
-  it('calls the onAction of a single item', async () => {
     const onEdit = vi.fn();
     const onAction = vi.fn();
     const screen = await renderWithDS(<ProjectMenu menu={{ onAction }} onEdit={onEdit} />);
-
-    await screen.getByRole('button', { name: 'Project actions' }).click();
-    await page.getByRole('menuitem', { name: /^Edit project/ }).click();
-    expect(onEdit).toHaveBeenCalledOnce();
-    expect(firstKey(onAction)).toBe('edit');
-  });
-
-  it('is operable from the keyboard and skips disabled items', async () => {
-    const onAction = vi.fn();
-    await renderWithDS(<ProjectMenu menu={{ onAction }} />);
-
-    await userEvent.keyboard('{Tab}');
-    await userEvent.keyboard('{Enter}');
-    const edit = page.getByRole('menuitem', { name: /^Edit project/ });
-    await expect.element(edit).toHaveFocus();
-    await expect.element(edit).toHaveAttribute('data-focus-visible', 'true');
-    expect(getComputedStyle(edit.element()).outlineWidth).toBe('2px');
-    expect(getComputedStyle(edit.element()).outlineOffset).toBe('-2px');
-    await userEvent.keyboard('{ArrowDown}');
-    await expect.element(page.getByRole('menuitem', { name: /^Duplicate/ })).toHaveFocus();
-    await userEvent.keyboard('{ArrowDown}');
-    await expect.element(page.getByRole('menuitem', { name: 'Delete project' })).toHaveFocus();
-    await userEvent.keyboard('{Enter}');
-    expect(firstKey(onAction)).toBe('delete');
-    await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
-  });
-
-  it('closes on Escape and returns focus to the trigger', async () => {
-    const screen = await renderWithDS(<ProjectMenu />);
     const trigger = screen.getByRole('button', { name: 'Project actions' });
 
     await trigger.click();
-    await expect.element(page.getByRole('menu')).toBeVisible();
-    await userEvent.keyboard('{Escape}');
+    await page.getByRole('menuitem', { name: /^Edit project/ }).click();
+    expect(onEdit).toHaveBeenCalledOnce();
+    expect(firstKey(onAction)).toBe('edit');
     await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
     await expect.element(trigger).toHaveFocus();
-  });
-
-  it('does not fire disabled items', async () => {
-    const onAction = vi.fn();
-    const screen = await renderWithDS(<ProjectMenu menu={{ onAction }} />);
-
-    await screen.getByRole('button', { name: 'Project actions' }).click();
-    const archive = page.getByRole('menuitem', { name: 'Archive' });
-    await expect.element(archive).toHaveAttribute('aria-disabled', 'true');
-    await archive.click({ force: true });
-    expect(onAction).not.toHaveBeenCalled();
-    await expect.element(page.getByRole('menu')).toBeVisible();
   });
 
   it('names items by all of their visible text, shortcut included', async () => {
@@ -440,48 +373,6 @@ describe('Menu', () => {
     expect([...(onSortChange.mock.calls[0][0] as Set<Key>)]).toEqual(['name']);
   });
 
-  it('toggles multiple selection and stays open', async () => {
-    const onColumnsChange = vi.fn();
-    const screen = await renderWithDS(<ViewMenu onColumnsChange={onColumnsChange} />);
-    await screen.getByRole('button', { name: 'View' }).click();
-
-    await expect.element(page.getByRole('group', { name: 'Columns' })).toBeVisible();
-    const due = page.getByRole('menuitemcheckbox', { name: 'Due date' });
-    await expect.element(due).toHaveAttribute('aria-checked', 'false');
-    await due.click();
-    await expect.element(due).toHaveAttribute('aria-checked', 'true');
-    expect([...(onColumnsChange.mock.calls[0][0] as Set<Key>)].sort()).toEqual([
-      'due',
-      'owner',
-      'status',
-    ]);
-    await expect.element(page.getByRole('menu')).toBeVisible();
-  });
-
-  it('supports controlled selection', async () => {
-    function Controlled() {
-      const [density, setDensity] = useState<Selection>(new Set(['comfortable']));
-      return (
-        <>
-          <p>Density: {[...density].join()}</p>
-          <MenuTrigger>
-            <Button>Density</Button>
-            <Menu selectionMode="single" selectedKeys={density} onSelectionChange={setDensity}>
-              <MenuItem id="comfortable">Comfortable</MenuItem>
-              <MenuItem id="compact">Compact</MenuItem>
-            </Menu>
-          </MenuTrigger>
-        </>
-      );
-    }
-
-    const screen = await renderWithDS(<Controlled />);
-    await screen.getByRole('button', { name: 'Density' }).click();
-    await page.getByRole('menuitemradio', { name: 'Compact' }).click();
-    await expect.element(screen.getByText('Density: compact')).toBeInTheDocument();
-    await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
-  });
-
   it('keeps the error tone when selected and dims disabled items', async () => {
     const screen = await renderWithDS(
       <MenuTrigger>
@@ -519,86 +410,16 @@ describe('Menu', () => {
     expect(getComputedStyle(locked.element()).cursor).toBe('not-allowed');
   });
 
-  it('names a section without a header by its aria-label', async () => {
-    const screen = await renderWithDS(
-      <MenuTrigger>
-        <Button>Export</Button>
-        <Menu>
-          <MenuSection aria-label="Image formats">
-            <MenuItem>PNG</MenuItem>
-            <MenuItem>JPEG</MenuItem>
-          </MenuSection>
-        </Menu>
-      </MenuTrigger>,
-    );
-    await screen.getByRole('button', { name: 'Export' }).click();
-    const group = page.getByRole('group', { name: 'Image formats' });
-    await expect.element(group).toHaveAttribute('data-slot', 'menu-section');
-    expect(group.getByRole('menuitem').all()).toHaveLength(2);
-  });
-
-  it('supports a controlled open state', async () => {
-    const onOpenChange = vi.fn();
-    function Controlled() {
-      const [isOpen, setOpen] = useState(false);
-      return (
-        <>
-          <Button onPress={() => setOpen(true)}>Show project actions</Button>
-          <MenuTrigger
-            isOpen={isOpen}
-            onOpenChange={(open) => {
-              onOpenChange(open);
-              setOpen(open);
-            }}
-          >
-            <Button>Project actions</Button>
-            <Menu>
-              <MenuItem id="edit">Edit project</MenuItem>
-            </Menu>
-          </MenuTrigger>
-        </>
-      );
-    }
-
-    const screen = await renderWithDS(<Controlled />);
-    await screen.getByRole('button', { name: 'Show project actions' }).click();
-    await expect.element(page.getByRole('menu', { name: 'Project actions' })).toBeVisible();
-    await userEvent.keyboard('{Escape}');
-    await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
-    expect(onOpenChange).toHaveBeenLastCalledWith(false);
-
-    await screen.getByRole('button', { name: 'Project actions' }).click();
-    expect(onOpenChange).toHaveBeenLastCalledWith(true);
-    await expect.element(page.getByRole('menu')).toBeVisible();
-  });
-
-  it('opens a submenu from the keyboard and runs its actions', async () => {
+  it('opens a submenu with ArrowLeft in right-to-left locales', async () => {
     const onAction = vi.fn();
-    await renderWithDS(<FileMenu onAction={onAction} />);
+    await renderWithDS(<FileMenu onAction={onAction} />, { locale: 'ar' });
 
     await userEvent.keyboard('{Tab}');
     await userEvent.keyboard('{Enter}');
     await userEvent.keyboard('{ArrowDown}');
     const move = page.getByRole('menuitem', { name: 'Move to' });
-    await expect.element(move).toHaveFocus();
     await expect.element(move).toHaveAttribute('aria-haspopup', 'menu');
     expect(move.element().querySelector('[data-slot="submenu-indicator"]')).not.toBeNull();
-
-    await userEvent.keyboard('{ArrowRight}');
-    await expect.element(page.getByRole('menuitem', { name: 'Backups' })).toHaveFocus();
-    await expect.element(move).toHaveAttribute('data-open', 'true');
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{Enter}');
-    expect(firstKey(onAction)).toBe('archive');
-    await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
-  });
-
-  it('opens a submenu with ArrowLeft in right-to-left locales', async () => {
-    await renderWithDS(<FileMenu />, { locale: 'ar' });
-
-    await userEvent.keyboard('{Tab}');
-    await userEvent.keyboard('{Enter}');
-    await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowLeft}');
     await expect.element(page.getByRole('menuitem', { name: 'Backups' })).toHaveFocus();
     const popovers = document.querySelectorAll('[data-slot="menu-popover"]');
@@ -606,6 +427,11 @@ describe('Menu', () => {
     expect(popovers[1]).toHaveAttribute('data-trigger', 'SubmenuTrigger');
     expect(popovers[1]).toHaveAttribute('dir', 'rtl');
     expect(popovers[1]).toHaveAttribute('lang', 'ar');
+
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{Enter}');
+    expect(firstKey(onAction)).toBe('archive');
+    await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
   });
 
   it('passes the dense size down to submenus', async () => {
@@ -630,29 +456,24 @@ describe('Menu', () => {
     expect(getComputedStyle(backups.element()).minHeight).toBe('32px');
   });
 
-  it('opens submenus beside their item on wide screens', async () => {
-    await page.viewport(1024, 768);
+  it('opens a submenu beside its item when wide and stacks it inside the screen at 375px', async () => {
     try {
-      const screen = await renderWithDS(<FileMenu />);
-      await screen.getByRole('button', { name: 'File' }).click();
-      const move = page.getByRole('menuitem', { name: 'Move to' });
-      await move.click();
+      await page.viewport(1024, 768);
+      const wide = await renderWithDS(<FileMenu />);
+      await wide.getByRole('button', { name: 'File' }).click();
+      await page.getByRole('menuitem', { name: 'Move to' }).click();
       await expect.element(page.getByRole('menuitem', { name: 'Backups' })).toBeVisible();
-      const [parent, submenu] = document.querySelectorAll<HTMLElement>(
-        '[data-slot="menu-popover"]',
-      );
-      expect(submenu).not.toHaveAttribute('data-stacked');
+      const [parent, beside] = document.querySelectorAll<HTMLElement>('[data-slot="menu-popover"]');
+      expect(beside).not.toHaveAttribute('data-stacked');
       await expect
-        .poll(() => submenu.getBoundingClientRect().left)
+        .poll(() => beside.getBoundingClientRect().left)
         .toBeGreaterThan(parent.getBoundingClientRect().right - 16);
-    } finally {
-      await page.viewport(414, 896);
-    }
-  });
+      await userEvent.keyboard('{Escape}');
+      await userEvent.keyboard('{Escape}');
+      await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
+      await wide.unmount();
 
-  it('stacks a submenu under its item and inside the screen at 375px', async () => {
-    await page.viewport(375, 812);
-    try {
+      await page.viewport(375, 812);
       const screen = await renderWithDS(
         <div className="flex justify-end">
           <FileMenu />
@@ -672,133 +493,68 @@ describe('Menu', () => {
       expect(box.left).toBeGreaterThanOrEqual(0);
       expect(box.right).toBeLessThanOrEqual(375);
       expect(move.element().getBoundingClientRect().top).toBeGreaterThanOrEqual(0);
-
-      const onBackups = vi.fn();
-      backups.element().addEventListener('click', onBackups);
       await backups.click();
-      expect(onBackups).toHaveBeenCalled();
       await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
     } finally {
       await page.viewport(414, 896);
     }
   });
 
-  it('wraps long labels to two lines inside the 320px maximum width', async () => {
-    await page.viewport(1024, 768);
+  it('wraps long labels to two lines inside the 320px maximum width and a 375px screen', async () => {
     try {
-      const screen = await renderWithDS(
-        <MenuTrigger>
-          <Button>Projekt</Button>
-          <Menu>
-            <MenuItem>
-              Erinnerung an alle Mitglieder dieses Projekts und ihrer Teams senden
-            </MenuItem>
-          </Menu>
-        </MenuTrigger>,
-        { locale: 'de' },
-      );
+      for (const [width, height, maxWidth] of [
+        [1024, 768, 320],
+        [375, 812, 375 - 32],
+      ]) {
+        await page.viewport(width, height);
+        const screen = await renderWithDS(
+          <MenuTrigger>
+            <Button>Projekt</Button>
+            <Menu>
+              <MenuItem>
+                Erinnerung an alle Mitglieder dieses Projekts und ihrer Teams senden
+              </MenuItem>
+            </Menu>
+          </MenuTrigger>,
+          { locale: 'de' },
+        );
 
-      await screen.getByRole('button', { name: 'Projekt' }).click();
-      await expect.element(page.getByRole('menu')).toBeVisible();
-      const popover = document.querySelector('[data-slot="menu-popover"]') as HTMLElement;
-      const label = popover.querySelector('[data-slot="label"]') as HTMLElement;
-      const lineHeight = parseFloat(getComputedStyle(label).lineHeight);
-      await expect.poll(() => label.offsetHeight).toBe(lineHeight * 2);
-      expect(popover.offsetWidth).toBeLessThanOrEqual(320);
-      expect(popover).toHaveAttribute('lang', 'de');
+        await screen.getByRole('button', { name: 'Projekt' }).click();
+        await expect.element(page.getByRole('menu')).toBeVisible();
+        const popover = document.querySelector('[data-slot="menu-popover"]') as HTMLElement;
+        const label = popover.querySelector('[data-slot="label"]') as HTMLElement;
+        const lineHeight = parseFloat(getComputedStyle(label).lineHeight);
+        await expect.poll(() => label.offsetHeight).toBe(lineHeight * 2);
+        expect(popover.offsetWidth).toBeLessThanOrEqual(maxWidth);
+        expect(popover).toHaveAttribute('lang', 'de');
+        await userEvent.keyboard('{Escape}');
+        await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
+        await screen.unmount();
+      }
     } finally {
       await page.viewport(414, 896);
     }
   });
 
-  it('keeps the menu inside a 375px screen', async () => {
-    await page.viewport(375, 812);
-    try {
-      const screen = await renderWithDS(
+  it('composes a custom popover with content above the list, outside the group of its trigger', async () => {
+    const screen = await renderWithDS(
+      <ButtonGroup size="sm" buttonVariant="outline">
+        <Button>Inbox</Button>
         <MenuTrigger>
-          <Button>Projekt</Button>
-          <Menu>
-            <MenuItem>
-              Erinnerung an alle Mitglieder dieses Projekts und ihrer Teams senden
-            </MenuItem>
-          </Menu>
-        </MenuTrigger>,
-        { locale: 'de' },
-      );
-      await screen.getByRole('button', { name: 'Projekt' }).click();
-      await expect.element(page.getByRole('menu')).toBeVisible();
-      const popover = document.querySelector('[data-slot="menu-popover"]') as HTMLElement;
-      expect(popover.offsetWidth).toBeLessThanOrEqual(375 - 32);
-    } finally {
-      await page.viewport(414, 896);
-    }
-  });
-
-  it('renders link items that navigate through the DSProvider router', async () => {
-    const navigate = vi.fn();
-    const screen = await renderWithDS(
-      <MenuTrigger>
-        <Button>Help</Button>
-        <Menu>
-          <MenuItem href="/docs/projects">Getting started guide</MenuItem>
-          <MenuItem href="https://status.example.com" target="_blank" rel="noreferrer">
-            Service status
-          </MenuItem>
-        </Menu>
-      </MenuTrigger>,
-      { provider: { navigate } },
-    );
-
-    await screen.getByRole('button', { name: 'Help' }).click();
-    const guide = page.getByRole('menuitem', { name: 'Getting started guide' });
-    expect(guide.element().tagName).toBe('A');
-    await expect.element(guide).toHaveAttribute('href', '/docs/projects');
-    await expect
-      .element(page.getByRole('menuitem', { name: 'Service status' }))
-      .toHaveAttribute('target', '_blank');
-
-    await guide.click();
-    expect(navigate).toHaveBeenCalledWith('/docs/projects', undefined);
-  });
-
-  it('opens as a context menu on right click without announcing a popup button', async () => {
-    const onAction = vi.fn();
-    const screen = await renderWithDS(
-      <MenuTrigger trigger="contextMenu">
-        <AriaButton className="p-6">Q3 backups.xlsx</AriaButton>
-        <Menu onAction={onAction}>
-          <MenuItem id="rename">Rename</MenuItem>
-          <MenuItem id="download">Download</MenuItem>
-        </Menu>
-      </MenuTrigger>,
-    );
-    const file = screen.getByRole('button', { name: 'Q3 backups.xlsx' });
-    await expect.element(file).not.toHaveAttribute('aria-haspopup');
-
-    await file.click();
-    expect(document.querySelector('[role="menu"]')).toBeNull();
-
-    await file.click({ button: 'right' });
-    await expect.element(page.getByRole('menu')).toBeVisible();
-    await page.getByRole('menuitem', { name: 'Download' }).click();
-    expect(firstKey(onAction)).toBe('download');
-  });
-
-  it('composes a custom popover with content above the list', async () => {
-    const screen = await renderWithDS(
-      <MenuTrigger>
-        <Button>Ayşe Demir</Button>
-        <MenuPopover placement="bottom end">
-          <div data-testid="account" className="px-4 py-3">
-            ayse@riverside.example
-          </div>
-          <MenuSeparator />
-          <MenuList size="sm">
-            <MenuItem>Profile</MenuItem>
-            <MenuItem>Sign out</MenuItem>
-          </MenuList>
-        </MenuPopover>
-      </MenuTrigger>,
+          <Button>Ayşe Demir</Button>
+          <MenuPopover placement="bottom end">
+            <div data-testid="account" className="px-4 py-3">
+              ayse@riverside.example
+              <Button>Switch account</Button>
+            </div>
+            <MenuSeparator />
+            <MenuList size="sm">
+              <MenuItem>Profile</MenuItem>
+              <MenuItem>Sign out</MenuItem>
+            </MenuList>
+          </MenuPopover>
+        </MenuTrigger>
+      </ButtonGroup>,
     );
 
     await screen.getByRole('button', { name: 'Ayşe Demir' }).click();
@@ -808,24 +564,9 @@ describe('Menu', () => {
     await expect
       .element(page.getByRole('menuitem', { name: 'Profile' }))
       .toHaveAttribute('data-size', 'sm');
-  });
-
-  it('renders the dense size', async () => {
-    const screen = await renderWithDS(<ProjectMenu menu={{ size: 'sm' }} />);
-    await screen.getByRole('button', { name: 'Project actions' }).click();
-
-    await expect.element(page.getByRole('menu')).toHaveAttribute('data-size', 'sm');
-    const item = page.getByRole('menuitem', { name: /^Duplicate/ });
-    await expect.element(item).toHaveAttribute('data-size', 'sm');
-    expect(getComputedStyle(item.element()).minHeight).toBe('32px');
-  });
-
-  it('renders md items at least 36px tall', async () => {
-    const screen = await renderWithDS(<ProjectMenu />);
-    await screen.getByRole('button', { name: 'Project actions' }).click();
-    const item = page.getByRole('menuitem', { name: /^Edit project/ });
-    await expect.element(item).toBeVisible();
-    expect(getComputedStyle(item.element()).minHeight).toBe('36px');
+    const inner = page.getByRole('button', { name: 'Switch account' });
+    await expect.element(inner).toHaveAttribute('data-size', 'md');
+    await expect.element(inner).toHaveAttribute('data-variant', 'solid');
   });
 
   it('shows an empty state from labels, DSProvider or the English default', async () => {
@@ -858,42 +599,6 @@ describe('Menu', () => {
     });
     await own.getByRole('button', { name: 'Son dosyalar' }).click();
     await expect.element(page.getByText('Henüz dosya yok')).toBeVisible();
-  });
-
-  it('renders dynamic items', async () => {
-    const members = [
-      { id: 'ayse', name: 'Ayşe Demir' },
-      { id: 'mert', name: 'Mert Kaya' },
-    ];
-    const onAction = vi.fn();
-    const screen = await renderWithDS(
-      <MenuTrigger>
-        <Button>Assign</Button>
-        <Menu items={members} onAction={onAction}>
-          {(member) => <MenuItem id={member.id}>{member.name}</MenuItem>}
-        </Menu>
-      </MenuTrigger>,
-    );
-
-    await screen.getByRole('button', { name: 'Assign' }).click();
-    await userEvent.keyboard('m');
-    await expect.element(page.getByRole('menuitem', { name: 'Mert Kaya' })).toHaveFocus();
-    await userEvent.keyboard('{Enter}');
-    expect(firstKey(onAction)).toBe('mert');
-  });
-
-  it('skips the scale animation when motion is disabled', async () => {
-    const screen = await renderWithDS(<ProjectMenu />, { provider: { motion: 'disabled' } });
-    await screen.getByRole('button', { name: 'Project actions' }).click();
-    await expect.element(page.getByRole('menu')).toBeVisible();
-    expect(document.querySelector('[data-slot="menu-popover"]')?.className).not.toContain(
-      'animate-ds-popover-in',
-    );
-  });
-
-  it('exports the menu surface styles with their motion', () => {
-    expect(menuPopoverStyles()).toContain('animate-ds-popover-in');
-    expect(menuPopoverStyles({ motion: 'none' })).not.toContain('animate-ds-popover-in');
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

@@ -1,3 +1,4 @@
+import { cdp } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { Button } from '@/registry/ds/ui/button';
 import { Divider, OrDivider } from '@/registry/ds/ui/divider';
@@ -22,7 +23,7 @@ describe('Divider', () => {
     expect(box.height).toBe(1);
   });
 
-  it('draws a 1px fill in the subtle or strong outline role', async () => {
+  it('draws a 1px fill in the outline role, and in CanvasText under forced colours', async () => {
     const screen = await renderWithDS(
       <div className="flex w-80 flex-col gap-2">
         <Divider data-testid="subtle" />
@@ -45,9 +46,17 @@ describe('Divider', () => {
       .querySelector('[data-slot="divider-line"]')!;
     expect(getComputedStyle(line).backgroundColor).toBe(style('strong-probe').backgroundColor);
     expect(line.getBoundingClientRect().height).toBe(1);
-    const label = screen.getByText('Older').element();
-    expect(getComputedStyle(label).fontSize).toBe('12px');
-    expect(getComputedStyle(label).paddingInlineStart).toBe('12px');
+
+    await cdp().send('Emulation.setEmulatedMedia', {
+      features: [{ name: 'forced-colors', value: 'active' }],
+    });
+    try {
+      const canvas = getComputedStyle(document.body).backgroundColor;
+      expect(style('subtle').backgroundColor).not.toBe(canvas);
+      expect(getComputedStyle(line).backgroundColor).not.toBe(canvas);
+    } finally {
+      await cdp().send('Emulation.setEmulatedMedia', { features: [] });
+    }
   });
 
   it('renders a vertical separator that stretches to the row height', async () => {
@@ -64,11 +73,20 @@ describe('Divider', () => {
     expect(separator.element().getBoundingClientRect().width).toBe(1);
   });
 
-  it('insets by the logical start or both sides', async () => {
+  it('insets by the logical start or both sides in either orientation', async () => {
     const screen = await renderWithDS(
-      <div className="flex w-80 flex-col" data-testid="list">
-        <Divider inset="start" data-testid="start" />
-        <Divider inset="middle" data-testid="middle" />
+      <div>
+        <div className="flex w-80 flex-col" data-testid="list">
+          <Divider inset="start" data-testid="start" />
+          <Divider inset="middle" data-testid="middle" />
+        </div>
+        <div className="flex h-10 items-center gap-2" data-testid="row">
+          <span>Draft</span>
+          <Divider orientation="vertical" inset="start" data-testid="vertical-start" />
+          <span>Review</span>
+          <Divider orientation="vertical" inset="middle" data-testid="vertical-middle" />
+          <span>Published</span>
+        </div>
       </div>,
       { locale: 'ar' },
     );
@@ -80,26 +98,15 @@ describe('Divider', () => {
     expect(start.right).toBe(list.right - 16);
     expect(middle.width).toBe(288);
     await expect.element(screen.getByTestId('start')).toHaveAttribute('data-inset', 'start');
-  });
 
-  it('shortens a vertical divider at the top or at both ends', async () => {
-    const screen = await renderWithDS(
-      <div className="flex h-10 items-center gap-2" data-testid="row">
-        <span>Draft</span>
-        <Divider orientation="vertical" inset="start" data-testid="start" />
-        <span>Review</span>
-        <Divider orientation="vertical" inset="middle" data-testid="middle" />
-        <span>Published</span>
-      </div>,
-    );
     const row = screen.getByTestId('row').element().getBoundingClientRect();
-    const start = screen.getByTestId('start').element().getBoundingClientRect();
-    const middle = screen.getByTestId('middle').element().getBoundingClientRect();
-    expect(start.top).toBe(row.top + 8);
-    expect(start.bottom).toBe(row.bottom);
-    expect(middle.top).toBe(row.top + 8);
-    expect(middle.bottom).toBe(row.bottom - 8);
-    expect(start.width).toBe(1);
+    const top = screen.getByTestId('vertical-start').element().getBoundingClientRect();
+    const both = screen.getByTestId('vertical-middle').element().getBoundingClientRect();
+    expect(top.top).toBe(row.top + 8);
+    expect(top.bottom).toBe(row.bottom);
+    expect(both.top).toBe(row.top + 8);
+    expect(both.bottom).toBe(row.bottom - 8);
+    expect(top.width).toBe(1);
   });
 
   it('names a vertical labelled divider and keeps it vertical', async () => {
@@ -118,28 +125,25 @@ describe('Divider', () => {
     expect(lines[0].getBoundingClientRect().height).toBeGreaterThan(8);
   });
 
-  it('prefers an explicit aria-label over the visible label', async () => {
+  it('names a labelled divider by its label, or by an explicit aria-label first', async () => {
     const screen = await renderWithDS(
       <div className="flex w-80 flex-col">
+        <Divider labelPosition="start">Archived folders</Divider>
         <Divider aria-label="Entries older than 30 days">Older</Divider>
       </div>,
     );
+    const labelled = screen.getByRole('separator', { name: 'Archived folders' });
+    await expect.element(labelled).toHaveAttribute('data-label-position', 'start');
+    expect(labelled.element().querySelectorAll('[data-slot=divider-line]')).toHaveLength(1);
     const separator = screen.getByRole('separator', { name: 'Entries older than 30 days' });
     await expect.element(separator).not.toHaveAttribute('aria-labelledby');
   });
 
-  it('names a labelled divider by its label', async () => {
-    const screen = await renderWithDS(
-      <div className="flex w-80 flex-col">
-        <Divider labelPosition="start">Archived folders</Divider>
-      </div>,
-    );
-    const separator = screen.getByRole('separator', { name: 'Archived folders' });
-    await expect.element(separator).toHaveAttribute('data-label-position', 'start');
-    expect(separator.element().querySelectorAll('[data-slot=divider-line]')).toHaveLength(1);
-  });
-
   it('takes the or word from labels, then DSProvider, then the English default', async () => {
+    const english = await renderWithDS(<OrDivider />);
+    await expect.element(english.getByRole('separator', { name: 'or' })).toBeVisible();
+    await english.unmount();
+
     const screen = await renderWithDS(
       <>
         <OrDivider />
@@ -149,11 +153,6 @@ describe('Divider', () => {
     );
     await expect.element(screen.getByRole('separator', { name: 'veya' })).toBeInTheDocument();
     await expect.element(screen.getByRole('separator', { name: 'ya da' })).toBeInTheDocument();
-  });
-
-  it('says or by default', async () => {
-    const screen = await renderWithDS(<OrDivider />);
-    await expect.element(screen.getByRole('separator', { name: 'or' })).toBeVisible();
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

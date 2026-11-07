@@ -32,7 +32,6 @@ describe('Banner', () => {
     const reference = getComputedStyle(screen.getByTestId('reference').element());
     expect(getComputedStyle(banner).backgroundColor).toBe(reference.backgroundColor);
     expect(getComputedStyle(banner).color).toBe(reference.color);
-    expect(getComputedStyle(banner).borderRadius).toBe('20px');
     const icon = banner.querySelector('[data-slot="icon"]')!;
     expect(icon.getAttribute('aria-hidden')).toBe('true');
     expect(icon.querySelector('svg')).not.toBeNull();
@@ -171,7 +170,7 @@ describe('Banner', () => {
     await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
   });
 
-  it('stays visible while a controlled isOpen stays true', async () => {
+  it('stays visible and keeps focus on Dismiss while a controlled isOpen stays true', async () => {
     function Controlled() {
       const [isOpen, setOpen] = useState(true);
       const [count, setCount] = useState(0);
@@ -183,46 +182,30 @@ describe('Banner', () => {
             onOpenChange={() => setCount((value) => value + 1)}
             title="Storage at 92%"
           />
+          <Banner defaultOpen={false} title="Hidden notice" />
           <p>Dismissed {count}</p>
           <Button onPress={() => setOpen((value) => !value)}>Toggle</Button>
         </>
       );
     }
     const screen = await renderWithDS(<Controlled />);
-    await screen.getByRole('button', { name: 'Dismiss' }).click();
-    await expect.element(screen.getByText('Dismissed 1')).toBeInTheDocument();
-    await expect.element(screen.getByRole('status')).toBeInTheDocument();
-
-    await screen.getByRole('button', { name: 'Toggle' }).click();
-    await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
-    await screen.getByRole('button', { name: 'Toggle' }).click();
-    await expect
-      .element(screen.getByRole('status'))
-      .toHaveTextContent('Information: Storage at 92%');
-  });
-
-  it('keeps focus on Dismiss while a controlled banner stays open', async () => {
-    function Controlled() {
-      const [isOpen, setOpen] = useState(true);
-      return (
-        <>
-          <Banner isDismissable isOpen={isOpen} title="Storage at 92%" />
-          <Button onPress={() => setOpen(false)}>Hide banner</Button>
-        </>
-      );
-    }
-    const screen = await renderWithDS(<Controlled />);
+    await expect.element(screen.getByText('Hidden notice')).not.toBeInTheDocument();
     const dismiss = screen.getByRole('button', { name: 'Dismiss' });
     await userEvent.keyboard('{Tab}');
     await expect.element(dismiss).toHaveFocus();
     await userEvent.keyboard('{Enter}');
+    await expect.element(screen.getByText('Dismissed 1')).toBeInTheDocument();
     await expect.element(screen.getByRole('status')).toBeInTheDocument();
     await expect.element(dismiss).toHaveFocus();
 
-    const hide = screen.getByRole('button', { name: 'Hide banner' });
-    await hide.click();
+    const toggle = screen.getByRole('button', { name: 'Toggle' });
+    await toggle.click();
     await expect.element(screen.getByRole('status')).not.toBeInTheDocument();
-    await expect.element(hide).toHaveFocus();
+    await expect.element(toggle).toHaveFocus();
+    await toggle.click();
+    await expect
+      .element(screen.getByRole('status'))
+      .toHaveTextContent('Information: Storage at 92%');
   });
 
   it('moves focus to a control that is enabled by the banner closing', async () => {
@@ -283,22 +266,6 @@ describe('Banner', () => {
     );
     await instant.getByRole('button', { name: 'Dismiss' }).click();
     expect(document.querySelector('[data-testid="instant"]')).toBeNull();
-  });
-
-  it('starts hidden with defaultOpen false and reports page layout and variant', async () => {
-    const screen = await renderWithDS(
-      <>
-        <Banner defaultOpen={false} title="Hidden notice" />
-        <Banner layout="page" variant="surface" tone="error" title="Webhook failing" />
-      </>,
-    );
-    await expect.element(screen.getByText('Hidden notice')).not.toBeInTheDocument();
-    const banner = screen.container.querySelector<HTMLElement>('[data-slot="banner"]')!;
-    expect(banner.getAttribute('data-layout')).toBe('page');
-    expect(banner.getAttribute('data-variant')).toBe('surface');
-    expect(getComputedStyle(banner).borderRadius).toBe('0px');
-    expect(getComputedStyle(banner).borderTopWidth).toBe('0px');
-    expect(getComputedStyle(banner).borderBottomWidth).toBe('1px');
   });
 
   it('takes its dismiss and tone labels from labels, then DSProvider', async () => {

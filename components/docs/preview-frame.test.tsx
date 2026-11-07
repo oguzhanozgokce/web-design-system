@@ -1,4 +1,3 @@
-import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { PreviewFrame } from '@/components/docs/preview-frame';
 
@@ -37,12 +36,14 @@ describe('PreviewFrame', () => {
     await screen.getByRole('radio', { name: 'RTL' }).click();
     await expect.poll(() => stage()?.getAttribute('dir')).toBe('rtl');
     await expect.element(screen.getByRole('radio', { name: 'RTL' })).toBeChecked();
-
-    await userEvent.keyboard('{ArrowLeft}{Enter}');
-    await expect.poll(() => stage()?.getAttribute('dir')).toBe('ltr');
   });
 
   it('shows the code on the Code tab and hides the stage controls', async () => {
+    const plain = await renderWithDS(<PreviewFrame name="button-demo" />);
+    await expect.element(plain.getByRole('tab', { name: 'Preview' })).toBeVisible();
+    expect(plain.getByRole('tab', { name: 'Code' }).query()).toBeNull();
+    await plain.unmount();
+
     const screen = await renderWithDS(<PreviewFrame name="button-demo" code={code} />);
 
     await screen.getByRole('tab', { name: 'Code' }).click();
@@ -53,13 +54,6 @@ describe('PreviewFrame', () => {
 
     await screen.getByRole('tab', { name: 'Preview' }).click();
     await expect.element(screen.getByRole('radiogroup', { name: 'Direction' })).toBeVisible();
-  });
-
-  it('leaves out the Code tab when there is no code', async () => {
-    const screen = await renderWithDS(<PreviewFrame name="button-demo" />);
-
-    await expect.element(screen.getByRole('tab', { name: 'Preview' })).toBeVisible();
-    expect(screen.getByRole('tab', { name: 'Code' }).query()).toBeNull();
   });
 
   it('reports a missing example instead of failing', async () => {

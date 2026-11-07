@@ -130,20 +130,40 @@ shared file blocks you, say so in your final report instead of editing it.
 
 ## 4. Tests (`*.test.tsx`)
 
-Use `renderWithDS` and `expectNoA11yViolations` from `@/test/utils`. Vitest globals are on. Cover:
+Use `renderWithDS` and `expectNoA11yViolations` from `@/test/utils`. Vitest globals are on.
 
-- Rendering with the right role and accessible name.
-- The main interactions with `await locator.click()`, `userEvent.keyboard('{ArrowDown}')` from
-  `vitest/browser` (`import { userEvent } from 'vitest/browser'`), and callbacks via `vi.fn()`.
-- Controlled and uncontrolled value where relevant.
-- Disabled and invalid states.
-- If the component has labels: the English defaults, a `labels` prop override and a
-  `DSProvider labels` override (`renderWithDS(ui, { provider: { labels: { thing: {...} } } })`).
-- `expectNoA11yViolations` in light, `{ dark: true }` and `{ locale: 'ar' }`. Axe checks real
-  colour contrast against the real theme, so a failure here is a real defect. Fix the colours, never
-  disable the rule.
-- Overlays render in a portal: query them from `page` (`import { page } from 'vitest/browser'`) and
-  check axe on `document.body`.
+A test earns its place only if it can fail for a reason nobody would catch otherwise. Every test
+runs in a real browser and costs time on every run, so fewer, stronger tests beat many small ones.
+
+Write a test for:
+
+- Behaviour this component adds: what it does on press, on keys, on change; controlled and
+  uncontrolled value where both exist; what disabled and invalid change in _our_ code.
+- Contracts a consumer relies on: the accessible name and role, the `data-*` attributes and props
+  that are public API, the labels contract (one test: English defaults, `DSProvider labels`, then
+  the `labels` prop winning).
+- Accessibility: one axe test per component that renders its richest state (open, selected,
+  invalid) and loops over light, `{ dark: true }` and `{ locale: 'ar' }`. Axe checks real contrast,
+  so a failure is a real defect: fix the colours, never disable the rule. Overlays render in a
+  portal: query them from `page` and check axe on `document.body`.
+- A bug that happened: name the bug in the test title so nobody deletes it as noise.
+
+Do not write a test for:
+
+- React Aria, motion or the browser doing their job (a RAC button is focusable, Escape closes a
+  RAC dialog, a disabled RAC button ignores presses) unless our code wires or changes it.
+- What TypeScript already enforces, constants, or class strings. Assert computed styles or data
+  attributes, and only when the value is the contract (the size scale, a colour role on a state).
+- Each variant or size on its own when one table-driven test, or one render of them all, proves
+  the same thing.
+- The same assertion twice: if test B repeats a check of test A on the way to its own point, cut
+  the repeat or fold the two into one scenario.
+- Axe once per variant or per mode: one sweep covers them.
+- Timing, pixel offsets or animation frames unless the motion is the product (a rolling carry, a
+  morph that must not jump), and then assert the end state, not the frames.
+
+Prefer one scenario that walks through a real use (open, pick, close, the value is set) over five
+tests that each set up the same render to check one line. Keep test copy neutral, like examples.
 
 Run only your files: `npx vitest run registry/ds/ui/thing.test.tsx`.
 

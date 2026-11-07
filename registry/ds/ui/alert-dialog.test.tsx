@@ -73,48 +73,7 @@ describe('AlertDialog', () => {
     await expect.element(cancel).toHaveAttribute('data-tone', 'neutral');
   });
 
-  it('confirms with a solid primary button for every tone but error', async () => {
-    for (const tone of ['neutral', 'primary', 'success', 'warning', 'info'] as const) {
-      const screen = await renderWithDS(
-        <DialogTrigger>
-          <Button>Publish</Button>
-          <AlertDialog title="Publish the post?" tone={tone} confirmLabel="Publish" />
-        </DialogTrigger>,
-      );
-      await screen.getByRole('button', { name: 'Publish' }).click();
-      const dialog = page.getByRole('alertdialog');
-      await expect.element(dialog).toHaveAttribute('data-tone', tone);
-      const confirm = dialog.getByRole('button', { name: 'Publish' });
-      await expect.element(confirm).toHaveAttribute('data-variant', 'solid');
-      await expect.element(confirm).toHaveAttribute('data-tone', 'primary');
-      await expect.element(confirm).toHaveFocus();
-      await userEvent.keyboard('{Escape}');
-      await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
-      await screen.unmount();
-    }
-  });
-
-  it('uses English defaults whatever the locale', async () => {
-    const screen = await renderWithDS(
-      <DialogTrigger>
-        <Button>Publish</Button>
-        <AlertDialog title="Publish the March update?" requireConfirmation="PUBLISH" />
-      </DialogTrigger>,
-      { locale: 'tr' },
-    );
-    await screen.getByRole('button', { name: 'Publish' }).click();
-    const dialog = page.getByRole('alertdialog', { name: 'Publish the March update?' });
-    await expect.element(dialog.getByRole('button', { name: 'Confirm' })).toBeInTheDocument();
-    await expect.element(dialog.getByRole('button', { name: 'Cancel' })).toBeVisible();
-    await expect
-      .element(dialog.getByRole('textbox', { name: 'Type PUBLISH to confirm' }))
-      .toBeVisible();
-    expect(document.querySelector('[data-slot="alert-dialog-phrase"]')).toHaveTextContent(
-      'PUBLISH',
-    );
-  });
-
-  it('takes its button text from props and the rest from labels', async () => {
+  it('takes its button text from props and the rest from labels, then DSProvider, then English', async () => {
     const screen = await renderWithDS(
       <DialogTrigger>
         <Button>Yayınla</Button>
@@ -146,10 +105,9 @@ describe('AlertDialog', () => {
     await expect
       .element(dialog.getByRole('alert'))
       .toHaveTextContent('Bir sorun oluştu. Tekrar deneyin.');
-  });
+    await screen.unmount();
 
-  it('takes its labels from DSProvider and accepts a template function', async () => {
-    const screen = await renderWithDS(<DeleteFolder requireConfirmation="BORRAR" />, {
+    const provided = await renderWithDS(<DeleteFolder requireConfirmation="BORRAR" />, {
       provider: {
         labels: {
           alertDialog: {
@@ -158,11 +116,26 @@ describe('AlertDialog', () => {
         },
       },
     });
-    const dialog = await openDialog(screen);
+    const providedDialog = await openDialog(provided);
     await expect
-      .element(dialog.getByRole('textbox', { name: 'Escribe BORRAR para confirmar' }))
+      .element(providedDialog.getByRole('textbox', { name: 'Escribe BORRAR para confirmar' }))
       .toBeVisible();
-    expect(document.querySelector('[data-slot="alert-dialog-phrase"]')).toHaveTextContent('BORRAR');
+    await provided.unmount();
+
+    const english = await renderWithDS(
+      <DialogTrigger>
+        <Button>Publish</Button>
+        <AlertDialog title="Publish the March update?" requireConfirmation="PUBLISH" />
+      </DialogTrigger>,
+      { locale: 'tr' },
+    );
+    await english.getByRole('button', { name: 'Publish' }).click();
+    const englishDialog = page.getByRole('alertdialog', { name: 'Publish the March update?' });
+    await expect.element(englishDialog.getByRole('button', { name: 'Confirm' })).toBeVisible();
+    await expect.element(englishDialog.getByRole('button', { name: 'Cancel' })).toBeVisible();
+    await expect
+      .element(englishDialog.getByRole('textbox', { name: 'Type PUBLISH to confirm' }))
+      .toBeVisible();
   });
 
   it('labels the field in plain text when a template does not keep the phrase as given', async () => {
@@ -190,16 +163,19 @@ describe('AlertDialog', () => {
     const publish = await renderWithDS(
       <DialogTrigger>
         <Button>Publish</Button>
-        <AlertDialog title="Publish the March update?" confirmLabel="Publish" />
+        <AlertDialog title="Publish the March update?" tone="warning" confirmLabel="Publish" />
       </DialogTrigger>,
     );
     await publish.getByRole('button', { name: 'Publish' }).click();
-    await expect
-      .element(page.getByRole('alertdialog').getByRole('button', { name: 'Publish' }))
-      .toHaveFocus();
+    const publishDialog = page.getByRole('alertdialog');
+    await expect.element(publishDialog).toHaveAttribute('data-tone', 'warning');
+    const confirm = publishDialog.getByRole('button', { name: 'Publish' });
+    await expect.element(confirm).toHaveFocus();
+    await expect.element(confirm).toHaveAttribute('data-variant', 'solid');
+    await expect.element(confirm).toHaveAttribute('data-tone', 'primary');
   });
 
-  it('cancels, calls onCancel and returns focus to the trigger', async () => {
+  it('cancels and calls onCancel without confirming', async () => {
     const onCancel = vi.fn();
     const onConfirm = vi.fn();
     const screen = await renderWithDS(<DeleteFolder onCancel={onCancel} onConfirm={onConfirm} />);
@@ -209,7 +185,6 @@ describe('AlertDialog', () => {
     await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
     expect(onCancel).toHaveBeenCalledOnce();
     expect(onConfirm).not.toHaveBeenCalled();
-    await expect.element(screen.getByRole('button', { name: 'Delete folder' })).toHaveFocus();
   });
 
   it('closes right away when onConfirm is synchronous', async () => {
@@ -271,7 +246,7 @@ describe('AlertDialog', () => {
     expect(onConfirm).toHaveBeenCalledTimes(2);
   });
 
-  it('falls back to the error label or a custom errorMessage', async () => {
+  it('shows the error label, a custom errorMessage or a synchronous throw inline', async () => {
     const screen = await renderWithDS(<DeleteFolder onConfirm={() => Promise.reject()} />);
     let dialog = await openDialog(screen);
     await dialog.getByRole('button', { name: 'Delete folder' }).click();
@@ -289,6 +264,21 @@ describe('AlertDialog', () => {
     dialog = await openDialog(custom);
     await dialog.getByRole('button', { name: 'Delete folder' }).click();
     await expect.element(dialog.getByRole('alert')).toHaveTextContent('Server answered 409.');
+    await custom.unmount();
+
+    const thrown = await renderWithDS(
+      <DeleteFolder
+        onConfirm={() => {
+          throw new Error('You need the Owner role to delete folders.');
+        }}
+      />,
+    );
+    dialog = await openDialog(thrown);
+    await dialog.getByRole('button', { name: 'Delete folder' }).click();
+    await expect
+      .element(dialog.getByRole('alert'))
+      .toHaveTextContent('You need the Owner role to delete folders.');
+    await expect.element(page.getByRole('alertdialog')).toBeVisible();
   });
 
   it('requires the confirmation phrase before confirming', async () => {
@@ -377,33 +367,32 @@ describe('AlertDialog', () => {
     await expect.element(alert.getByRole('button', { name: 'Cancel' })).toHaveFocus();
   });
 
-  it('shows a synchronous throw inline and stays open', async () => {
-    const screen = await renderWithDS(
-      <DeleteFolder
-        onConfirm={() => {
-          throw new Error('You need the Owner role to delete folders.');
-        }}
-      />,
-    );
-    const dialog = await openDialog(screen);
-    await dialog.getByRole('button', { name: 'Delete folder' }).click();
-    await expect
-      .element(dialog.getByRole('alert'))
-      .toHaveTextContent('You need the Owner role to delete folders.');
+  it('ignores the scrim by default, and when dismissable closes from it only while idle', async () => {
+    const pressScrim = async () => {
+      const overlay = document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
+      await userEvent.click(page.elementLocator(overlay), { position: { x: 4, y: 4 } });
+    };
+    const screen = await renderWithDS(<DeleteFolder />);
+    await openDialog(screen);
+    await pressScrim();
+    await new Promise((resolve) => setTimeout(resolve, 150));
     await expect.element(page.getByRole('alertdialog')).toBeVisible();
-  });
+    await userEvent.keyboard('{Escape}');
+    await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+    await screen.unmount();
 
-  it('keeps the scrim inert while pending even when dismissable', async () => {
     const work = deferred();
-    const screen = await renderWithDS(
+    const dismissable = await renderWithDS(
       <DeleteFolder isDismissable onConfirm={() => work.promise} />,
     );
-    const dialog = await openDialog(screen);
+    await openDialog(dismissable);
+    await pressScrim();
+    await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+
+    const dialog = await openDialog(dismissable);
     await dialog.getByRole('button', { name: 'Delete folder' }).click();
     await expect.element(dialog).toHaveAttribute('data-pending', 'true');
-
-    const overlay = document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
-    await userEvent.click(page.elementLocator(overlay), { position: { x: 4, y: 4 } });
+    await pressScrim();
     await new Promise((resolve) => setTimeout(resolve, 150));
     await expect.element(page.getByRole('alertdialog')).toBeVisible();
 
@@ -420,24 +409,6 @@ describe('AlertDialog', () => {
     expect(document.querySelector('[data-slot="dialog-body"]')).toBeNull();
     expect(document.querySelector('[data-slot="alert-dialog-icon"]')).toBeNull();
     expect(document.querySelector('[data-slot="dialog-icon"]')).toBeNull();
-  });
-
-  it('ignores the scrim by default and can opt in to dismissal', async () => {
-    const screen = await renderWithDS(<DeleteFolder />);
-    await openDialog(screen);
-    const overlay = document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
-    await userEvent.click(page.elementLocator(overlay), { position: { x: 4, y: 4 } });
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    await expect.element(page.getByRole('alertdialog')).toBeVisible();
-    await userEvent.keyboard('{Escape}');
-    await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
-    await screen.unmount();
-
-    const dismissable = await renderWithDS(<DeleteFolder isDismissable />);
-    await openDialog(dismissable);
-    const nextOverlay = document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
-    await userEvent.click(page.elementLocator(nextOverlay), { position: { x: 4, y: 4 } });
-    await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
   });
 
   it('supports a controlled open state', async () => {

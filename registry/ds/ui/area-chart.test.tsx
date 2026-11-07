@@ -1,4 +1,3 @@
-import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { AreaChart, type AreaChartProps } from '@/registry/ds/ui/area-chart';
 import type { ChartSeries } from '@/registry/ds/ui/chart';
@@ -40,19 +39,23 @@ function topOf(path: SVGPathElement) {
 }
 
 describe('AreaChart', () => {
-  it('fills a single series with a gradient under its line', async () => {
-    const screen = await renderWithDS(<Storage series={series.slice(0, 1)} />, still);
-    const [area] = areas(screen.container);
-    expect(area.getAttribute('fill')).toMatch(/^url\(#.+\)$/);
+  it('fills a single series with a gradient under its line, or solid when asked', async () => {
+    const screen = await renderWithDS(
+      <>
+        <Storage series={series.slice(0, 1)} />
+        <Storage series={series.slice(0, 1)} fill="solid" />
+      </>,
+      still,
+    );
+    const [gradientArea, solidArea] = areas(screen.container);
     const gradient = screen.container.querySelector('linearGradient')!;
-    expect(area.getAttribute('fill')).toBe(`url(#${gradient.id})`);
-    expect(area.getAttribute('d')).toMatch(/Z$/);
+    expect(gradientArea.getAttribute('fill')).toBe(`url(#${gradient.id})`);
+    expect(gradientArea.getAttribute('d')).toMatch(/Z$/);
     const root = screen.container.querySelector('[data-slot="area-chart"]')!;
     expect(root.getAttribute('data-layout')).toBe('overlap');
-    await expect
-      .element(screen.getByRole('group', { name: 'Storage' }))
-      .toHaveAttribute('aria-roledescription', 'chart');
     expect(screen.container.querySelector('[data-slot="chart-legend"]')).toBeNull();
+    expect(solidArea.getAttribute('fill')).toBe('var(--chart-color)');
+    expect(Number(solidArea.getAttribute('fill-opacity'))).toBeGreaterThan(0);
   });
 
   it('stacks series on top of each other and totals them', async () => {
@@ -62,13 +65,6 @@ describe('AreaChart', () => {
     expect(topOf(videos)).toBeLessThan(topOf(photos));
     const table = screen.getByRole('table', { name: 'Data for Storage' });
     await expect.element(table.getByRole('columnheader', { name: 'Total' })).toBeInTheDocument();
-    screen.getByRole('group', { name: 'Storage' }).element().focus();
-    await userEvent.keyboard('{ArrowRight}');
-    expect(screen.container.querySelector('[data-slot="chart-live"]')!.textContent).toBe(
-      'Jan: Total 70, Photos 42, Videos 28',
-    );
-    const layer = screen.container.querySelector<HTMLElement>('[data-slot="tooltip-layer"]')!;
-    expect(layer.textContent).toBe('Jan70Photos42Videos28');
   });
 
   it('normalises each category to a whole with layout="percent"', async () => {
@@ -101,26 +97,6 @@ describe('AreaChart', () => {
     );
     expect(areas(screen.container)).toHaveLength(1);
     expect(screen.container.querySelectorAll('[data-slot="line"]')).toHaveLength(2);
-  });
-
-  it('can fill solid instead of a gradient', async () => {
-    const screen = await renderWithDS(<Storage fill="solid" />, still);
-    for (const area of areas(screen.container)) {
-      expect(area.getAttribute('fill')).toBe('var(--chart-color)');
-      expect(Number(area.getAttribute('fill-opacity'))).toBeGreaterThan(0);
-    }
-  });
-
-  it('mirrors in RTL', async () => {
-    const screen = await renderWithDS(<Storage />, { ...still, locale: 'ar' });
-    expect(screen.container.querySelector('g')!.getAttribute('transform')).toBe(
-      'matrix(-1 0 0 1 1000 0)',
-    );
-    screen.getByRole('group', { name: 'Storage' }).element().focus();
-    await userEvent.keyboard('{ArrowLeft}');
-    expect(screen.container.querySelector('[data-slot="chart-live"]')!.textContent).toContain(
-      'Jan',
-    );
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

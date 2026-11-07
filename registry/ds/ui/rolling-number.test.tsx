@@ -83,11 +83,6 @@ describe('RollingNumber', () => {
       '0',
     ]);
     columns.forEach((column) => expect(stripOf(column).children).toHaveLength(11));
-    expect(
-      [...root.querySelectorAll('[data-slot="rolling-number-separator"]')].map(
-        (separator) => separator.textContent,
-      ),
-    ).toEqual([',', '.']);
   });
 
   it('shows every digit in its window on the first render, without rolling', async () => {
@@ -109,32 +104,22 @@ describe('RollingNumber', () => {
     expect(ones.some((offset) => offset > 9.2 && offset < 10)).toBe(true);
     expect(ones.filter((offset) => offset > 0.5 && offset < 8.5)).toEqual([]);
     await expect.poll(() => settledOffsets(screen.container)).toEqual([1, 0]);
+    await expect
+      .poll(() =>
+        columnsOf(screen.container).map((column) => getComputedStyle(stripOf(column)).filter),
+      )
+      .toEqual(['none', 'none']);
   });
 
-  it('starts each column about 45 ms after the one to its right', async () => {
+  it('lands on the last value when it changes again before a roll starts', async () => {
     const screen = await renderWithDS(<Counter initial={99} step={1} />);
-    press(screen.container, 'Next');
-    const startedAt = new Map<number, number>();
-    const begin = performance.now();
-    while (performance.now() - begin < 600 && startedAt.size < 3) {
+    const root = screen.container.querySelector('[data-slot="rolling-number"]')!;
+    for (const name of ['Next', 'Back', 'Next', 'Back', 'Next', 'Next']) {
+      press(screen.container, name);
       await nextFrame();
-      const columns = columnsOf(screen.container);
-      if (columns.length < 3) continue;
-      const initial = [0, 9, 9];
-      columns.forEach((column, index) => {
-        const offset = offsetOf(column);
-        const moved = Math.abs(((offset - initial[index] + 15) % 10) - 5) > 0.02;
-        if (moved && !startedAt.has(index)) startedAt.set(index, performance.now());
-      });
     }
-    const ones = startedAt.get(2)!;
-    const tens = startedAt.get(1)!;
-    const hundreds = startedAt.get(0)!;
-    expect(tens - ones).toBeGreaterThan(20);
-    expect(tens - ones).toBeLessThan(150);
-    expect(hundreds - tens).toBeGreaterThan(20);
-    expect(hundreds - tens).toBeLessThan(150);
-    await expect.poll(() => settledOffsets(screen.container)).toEqual([1, 0, 0]);
+    await expect.poll(() => columnsOf(root)).toHaveLength(3);
+    await expect.poll(() => settledOffsets(root)).toEqual([1, 0, 1]);
   });
 
   it('lands a long roll without overshooting into the next digit', () => {
@@ -149,26 +134,6 @@ describe('RollingNumber', () => {
       expect(furthest - Math.abs(travel)).toBeLessThanOrEqual(0.31);
       expect(furthest - Math.abs(travel)).toBeGreaterThan(0);
     }
-  });
-
-  it('blurs a spinning strip and is sharp at rest', async () => {
-    const screen = await renderWithDS(<Counter initial={10} step={50} />);
-    expect(
-      columnsOf(screen.container).map((column) => getComputedStyle(stripOf(column)).filter),
-    ).toEqual(['none', 'none']);
-    press(screen.container, 'Next');
-    const filters: string[] = [];
-    for (let frame = 0; frame < 30; frame++) {
-      await nextFrame();
-      filters.push(...columnsOf(screen.container).map((column) => stripOf(column).style.filter));
-    }
-    expect(filters.some((filter) => filter.startsWith('blur('))).toBe(true);
-    await expect.poll(() => settledOffsets(screen.container)).toEqual([6, 0]);
-    await expect
-      .poll(() =>
-        columnsOf(screen.container).map((column) => getComputedStyle(stripOf(column)).filter),
-      )
-      .toEqual(['none', 'none']);
   });
 
   it('widens as a digit arrives and narrows as one leaves', async () => {

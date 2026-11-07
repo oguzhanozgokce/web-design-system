@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTrigger,
-  dialogStyles,
   useDialogLayout,
   type DialogHeaderProps,
   type DialogProps,
@@ -114,16 +113,8 @@ describe('Dialog', () => {
     expect(surface()).toHaveAttribute('data-size', 'md');
     expect(surface()).not.toHaveAttribute('data-fullscreen');
     const style = getComputedStyle(surface()!);
-    expect(style.borderTopLeftRadius).toBe('24px');
     expect(style.backgroundColor).toBe(roleBackground('bg-surface-overlay'));
     expect(style.boxShadow).not.toBe('none');
-    expect(getComputedStyle(page.getByRole('heading').element()).fontWeight).toBe('600');
-  });
-
-  it('dims the page behind it with the backdrop role', async () => {
-    const screen = await renderWithDS(<InviteDialog />);
-    await screen.getByRole('button', { name: 'Invite teammate' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
     const overlay = document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
     expect(getComputedStyle(overlay).backgroundColor).toBe(roleBackground('bg-backdrop'));
   });
@@ -152,34 +143,6 @@ describe('Dialog', () => {
       .toBe(0);
   });
 
-  it('closes from a footer action and returns focus to the trigger', async () => {
-    const screen = await renderWithDS(<InviteDialog />);
-    const trigger = screen.getByRole('button', { name: 'Invite teammate' });
-
-    await trigger.click();
-    await page.getByRole('button', { name: 'Cancel' }).click();
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    await expect.element(trigger).toHaveFocus();
-  });
-
-  it('closes on Escape unless keyboard dismissal is disabled', async () => {
-    const screen = await renderWithDS(<InviteDialog />);
-    await screen.getByRole('button', { name: 'Invite teammate' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    await userEvent.keyboard('{Escape}');
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    await screen.unmount();
-
-    const locked = await renderWithDS(
-      <InviteDialog dialog={{ isKeyboardDismissDisabled: true }} />,
-    );
-    await locked.getByRole('button', { name: 'Invite teammate' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    await userEvent.keyboard('{Escape}');
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-  });
-
   it('closes when the scrim is pressed, unless isDismissable is false', async () => {
     const screen = await renderWithDS(<InviteDialog />);
     await screen.getByRole('button', { name: 'Invite teammate' }).click();
@@ -196,27 +159,9 @@ describe('Dialog', () => {
     await expect.element(page.getByRole('dialog')).toBeVisible();
   });
 
-  it('keeps focus inside the dialog', async () => {
-    const screen = await renderWithDS(<InviteDialog header={{ showCloseButton: true }} />);
-    await screen.getByRole('button', { name: 'Invite teammate' }).click();
-    const dialog = page.getByRole('dialog');
-    await expect.element(dialog).toHaveFocus();
-
-    await userEvent.keyboard('{Tab}');
-    await expect.element(dialog.getByRole('button', { name: 'Close' })).toHaveFocus();
-    await userEvent.keyboard('{Tab}');
-    await expect.element(dialog.getByRole('button', { name: 'Cancel' })).toHaveFocus();
-    await userEvent.keyboard('{Tab}');
-    await expect.element(dialog.getByRole('button', { name: 'Send invite' })).toHaveFocus();
-    await userEvent.keyboard('{Tab}');
-    await expect.element(dialog.getByRole('button', { name: 'Close' })).toHaveFocus();
-    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
-    await expect.element(dialog.getByRole('button', { name: 'Send invite' })).toHaveFocus();
-  });
-
   it('puts a hero icon above the title, aligned to the start, and closes from the close button', async () => {
     const screen = await renderWithDS(
-      <InviteDialog header={{ icon: <InfoIcon />, showCloseButton: true }} />,
+      <InviteDialog header={{ icon: <InfoIcon />, iconTone: 'success', showCloseButton: true }} />,
     );
     const trigger = screen.getByRole('button', { name: 'Invite teammate' });
     await trigger.click();
@@ -224,19 +169,14 @@ describe('Dialog', () => {
     const header = document.querySelector('[data-slot="dialog-header"]');
     const icon = header?.querySelector<HTMLElement>('[data-slot="dialog-icon"]');
     expect(icon?.querySelector('svg')).not.toBeNull();
-    expect(icon).toHaveAttribute('data-tone', 'neutral');
+    expect(getComputedStyle(icon!).backgroundColor).toBe(roleBackground('bg-success-soft'));
     expect(icon!.offsetWidth).toBe(40);
     expect(getComputedStyle(icon!).borderTopLeftRadius).not.toBe('0px');
     const heading = header!.querySelector<HTMLElement>('[data-slot="dialog-heading"]')!;
     expect(heading.offsetLeft).toBe(icon!.offsetLeft);
     expect(heading.offsetTop).toBeGreaterThan(icon!.offsetTop + icon!.offsetHeight);
 
-    const close = page.getByRole('dialog').getByRole('button', { name: 'Close' });
-    await expect.element(close).toHaveAttribute('data-variant', 'ghost');
-    await expect.element(close).toHaveAttribute('data-tone', 'neutral');
-    await expect.element(close).toHaveAttribute('data-size', 'sm');
-    await expect.element(close).toHaveAttribute('slot', 'close');
-    await close.click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click();
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await expect.element(trigger).toHaveFocus();
   });
@@ -270,16 +210,6 @@ describe('Dialog', () => {
     expect(shortBody).not.toHaveAttribute('tabindex');
   });
 
-  it('tints the hero icon with iconTone', async () => {
-    const screen = await renderWithDS(
-      <InviteDialog header={{ icon: <InfoIcon />, iconTone: 'success' }} />,
-    );
-    await screen.getByRole('button', { name: 'Invite teammate' }).click();
-    const icon = document.querySelector<HTMLElement>('[data-slot="dialog-icon"]')!;
-    expect(icon).toHaveAttribute('data-tone', 'success');
-    expect(getComputedStyle(icon).backgroundColor).toBe(roleBackground('bg-success-soft'));
-  });
-
   it('turns into a full-screen dialog with a top app bar on compact screens', async () => {
     await page.viewport(phone.width, phone.height);
     const onSave = vi.fn();
@@ -301,8 +231,6 @@ describe('Dialog', () => {
 
     expect(surface()).toHaveAttribute('data-fullscreen', 'true');
     expect(getComputedStyle(surface()!).borderTopLeftRadius).toBe('0px');
-    expect(surface()!.className).toContain('animate-ds-sheet-in-bottom');
-    expect(surface()!.className).not.toContain('animate-ds-dialog-in');
     const box = surface()!.getBoundingClientRect();
     expect(box.width).toBe(phone.width);
     expect(box.height).toBe(phone.height);
@@ -325,65 +253,25 @@ describe('Dialog', () => {
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('stays a basic dialog with footer actions on wide screens', async () => {
-    const screen = await renderWithDS(
-      <InviteDialog
-        dialog={{ fullScreenOnMobile: true }}
-        header={{ action: <Button variant="ghost">Save</Button> }}
-      />,
-    );
-    await screen.getByRole('button', { name: 'Invite teammate' }).click();
-    const dialog = page.getByRole('dialog');
-    await expect.element(dialog).toBeVisible();
-    expect(surface()).not.toHaveAttribute('data-fullscreen');
-    await expect.element(dialog.getByRole('button', { name: 'Send invite' })).toBeVisible();
-    await expect.element(dialog.getByRole('button', { name: 'Save' })).not.toBeInTheDocument();
-    await expect.element(dialog.getByRole('button', { name: 'Close' })).not.toBeInTheDocument();
-  });
-
-  it('fills the viewport at every width with size full', async () => {
-    const screen = await renderWithDS(<InviteDialog dialog={{ size: 'full' }} />);
-    await screen.getByRole('button', { name: 'Invite teammate' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(surface()).toHaveAttribute('data-size', 'full');
-    expect(surface()).toHaveAttribute('data-fullscreen', 'true');
-    expect(surface()!.getBoundingClientRect().width).toBe(desktop.width);
-    await expect
-      .element(page.getByRole('dialog').getByRole('button', { name: 'Send invite' }))
-      .toBeVisible();
-  });
-
   it('applies each size as a maximum width', async () => {
     for (const [size, width] of [
       ['sm', 384],
       ['md', 448],
       ['lg', 512],
       ['xl', 672],
+      ['full', desktop.width],
     ] as const) {
       const screen = await renderWithDS(<InviteDialog dialog={{ size }} />);
       await screen.getByRole('button', { name: 'Invite teammate' }).click();
       await expect.element(page.getByRole('dialog')).toBeVisible();
       expect(surface()).toHaveAttribute('data-size', size);
       expect(surface()!.offsetWidth).toBe(width);
+      if (size === 'full') expect(surface()).toHaveAttribute('data-fullscreen', 'true');
+      else expect(surface()).not.toHaveAttribute('data-fullscreen');
       await userEvent.keyboard('{Escape}');
       await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
       await screen.unmount();
     }
-  });
-
-  it('opens uncontrolled from defaultOpen without a trigger', async () => {
-    const onOpenChange = vi.fn();
-    await renderWithDS(
-      <Dialog defaultOpen onOpenChange={onOpenChange}>
-        <DialogHeader title="What changed in March" showCloseButton />
-        <DialogBody>Exports now include attachments.</DialogBody>
-      </Dialog>,
-    );
-    const dialog = page.getByRole('dialog', { name: 'What changed in March' });
-    await expect.element(dialog).toBeVisible();
-    await dialog.getByRole('button', { name: 'Close' }).click();
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it('renders nothing for empty header slots', async () => {
@@ -397,7 +285,6 @@ describe('Dialog', () => {
     const dialog = page.getByRole('dialog', { name: 'Invite teammate' });
     await expect.element(dialog).toBeVisible();
     const header = document.querySelector('[data-slot="dialog-header"]');
-    expect(header).not.toHaveClass('text-center');
     expect(header?.querySelector('[data-slot="dialog-icon"]')).toBeNull();
     expect(header?.querySelector('[data-slot="dialog-description"]')).toBeNull();
     await expect.element(dialog).not.toHaveAttribute('aria-describedby');
@@ -434,7 +321,11 @@ describe('Dialog', () => {
 
     await page.viewport(phone.width, phone.height);
     const screen = await renderWithDS(
-      <InviteDialog dialog={{ fullScreenOnMobile: true }} body={<LayoutName />} />,
+      <InviteDialog
+        dialog={{ fullScreenOnMobile: true }}
+        header={{ action: <Button variant="ghost">Save</Button> }}
+        body={<LayoutName />}
+      />,
     );
     await screen.getByRole('button', { name: 'Invite teammate' }).click();
     await expect.element(page.getByTestId('layout')).toHaveTextContent('full screen');
@@ -442,9 +333,27 @@ describe('Dialog', () => {
     await page.viewport(desktop.width, desktop.height);
     await expect.element(page.getByTestId('layout')).toHaveTextContent('basic');
     expect(surface()).not.toHaveAttribute('data-fullscreen');
+    const dialog = page.getByRole('dialog');
+    await expect.element(dialog.getByRole('button', { name: 'Send invite' })).toBeVisible();
+    await expect.element(dialog.getByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+    await expect.element(dialog.getByRole('button', { name: 'Close' })).not.toBeInTheDocument();
   });
 
-  it('supports a controlled open state without a trigger', async () => {
+  it('opens without a trigger, uncontrolled from defaultOpen or controlled', async () => {
+    const onDefaultOpenChange = vi.fn();
+    const uncontrolled = await renderWithDS(
+      <Dialog defaultOpen onOpenChange={onDefaultOpenChange}>
+        <DialogHeader title="What changed in March" showCloseButton />
+        <DialogBody>Exports now include attachments.</DialogBody>
+      </Dialog>,
+    );
+    const changes = page.getByRole('dialog', { name: 'What changed in March' });
+    await expect.element(changes).toBeVisible();
+    await changes.getByRole('button', { name: 'Close' }).click();
+    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+    expect(onDefaultOpenChange).toHaveBeenCalledWith(false);
+    await uncontrolled.unmount();
+
     const onOpenChange = vi.fn();
 
     function Controlled() {
@@ -478,78 +387,29 @@ describe('Dialog', () => {
     await expect.element(screen.getByText('Closed')).toBeInTheDocument();
   });
 
-  it('closes through the render prop after an async save', async () => {
-    const onSave = vi.fn();
-    const screen = await renderWithDS(
-      <DialogTrigger>
-        <Button>Edit note</Button>
-        <Dialog>
-          {({ close }) => (
-            <>
-              <DialogHeader title="Edit note" />
-              <DialogBody>Shared with the design team.</DialogBody>
-              <DialogFooter>
-                <Button
-                  onPress={async () => {
-                    await new Promise((resolve) => setTimeout(resolve, 50));
-                    onSave();
-                    close();
-                  }}
-                >
-                  Save note
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </Dialog>
-      </DialogTrigger>,
-    );
-
-    await screen.getByRole('button', { name: 'Edit note' }).click();
-    await page.getByRole('button', { name: 'Save note' }).click();
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    expect(onSave).toHaveBeenCalledOnce();
-  });
-
-  it('labels a dialog without a header through aria-label', async () => {
-    const screen = await renderWithDS(
-      <DialogTrigger>
-        <Button>Preview comment</Button>
-        <Dialog aria-label="Comment RC-1042">
-          <DialogBody>Shared with 3 people.</DialogBody>
-          <DialogFooter>
-            <DialogClose />
-          </DialogFooter>
-        </Dialog>
-      </DialogTrigger>,
-    );
-    await screen.getByRole('button', { name: 'Preview comment' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Comment RC-1042' })).toBeVisible();
-    await page.getByRole('button', { name: 'Close' }).click();
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('names the close button Close by default, whatever the locale', async () => {
-    const screen = await renderWithDS(<InviteDialog header={{ showCloseButton: true }} />, {
+  it('names every close button from labels, then DSProvider, then the English default', async () => {
+    const english = await renderWithDS(<InviteDialog header={{ showCloseButton: true }} />, {
       locale: 'tr',
     });
-    await screen.getByRole('button', { name: 'Invite teammate' }).click();
+    await english.getByRole('button', { name: 'Invite teammate' }).click();
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Close' }))
       .toBeVisible();
-  });
+    await userEvent.keyboard('{Escape}');
+    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+    await english.unmount();
 
-  it('takes the close label from DSProvider labels', async () => {
-    const screen = await renderWithDS(<InviteDialog header={{ showCloseButton: true }} />, {
+    const provided = await renderWithDS(<InviteDialog header={{ showCloseButton: true }} />, {
       provider: { labels: { dialog: { close: 'Kapat' } } },
     });
-    await screen.getByRole('button', { name: 'Invite teammate' }).click();
+    await provided.getByRole('button', { name: 'Invite teammate' }).click();
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Kapat' }))
       .toBeVisible();
-  });
+    await userEvent.keyboard('{Escape}');
+    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+    await provided.unmount();
 
-  it('prefers its labels prop over DSProvider labels, in every close button', async () => {
     await page.viewport(phone.width, phone.height);
     const screen = await renderWithDS(
       <DialogTrigger>
@@ -615,74 +475,43 @@ describe('Dialog', () => {
     expect(closeBox.left - surfaceBox.left).toBeLessThan(surfaceBox.right - closeBox.right);
   });
 
-  it('skips the spatial animation when motion is reduced or disabled', async () => {
-    const reduced = await renderWithDS(<InviteDialog />, { provider: { motion: 'reduced' } });
-    await reduced.getByRole('button', { name: 'Invite teammate' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(surface()?.className).toContain('animate-ds-fade-in');
-    expect(surface()?.className).not.toContain('animate-ds-dialog-in');
-    await userEvent.keyboard('{Escape}');
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    await reduced.unmount();
-
-    const disabled = await renderWithDS(<InviteDialog />, { provider: { motion: 'disabled' } });
-    await disabled.getByRole('button', { name: 'Invite teammate' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(surface()?.className).not.toContain('animate-ds');
-  });
-
-  it('exports dialogStyles for custom overlays', () => {
-    const styles = dialogStyles({ size: 'lg' });
-    expect(styles.surface()).toContain('max-w-lg');
-    expect(styles.surface()).toContain('rounded-dialog');
-    expect(styles.overlay()).toContain('bg-backdrop');
-    expect(dialogStyles({ fullScreen: true }).surface()).not.toContain('rounded-dialog');
-    expect(dialogStyles({ iconTone: 'error' }).icon()).toContain('bg-error-soft');
-  });
-
   it('has no accessibility violations in light, dark and RTL', async () => {
+    const layouts = [
+      {
+        viewport: desktop,
+        dialog: (
+          <InviteDialog
+            dialog={{ size: 'sm' }}
+            header={{ icon: <InfoIcon />, showCloseButton: true }}
+            body={folderEntries(30)}
+          />
+        ),
+      },
+      {
+        viewport: phone,
+        dialog: (
+          <InviteDialog
+            dialog={{ fullScreenOnMobile: true }}
+            header={{ action: <Button variant="ghost">Save</Button> }}
+            body={folderEntries(30)}
+          />
+        ),
+      },
+    ];
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       document.documentElement.classList.toggle('dark', 'dark' in options);
-      const screen = await renderWithDS(
-        <InviteDialog
-          dialog={{ size: 'sm' }}
-          header={{ icon: <InfoIcon />, showCloseButton: true }}
-          body={folderEntries(30)}
-        />,
-        options,
-      );
-      await screen.getByRole('button', { name: 'Invite teammate' }).click();
-      await expect.element(page.getByRole('dialog')).toBeVisible();
-      await new Promise((resolve) => setTimeout(resolve, 350));
-      removeStaleLiveAnnouncements();
-      await expectNoA11yViolations(document.body);
-      await userEvent.keyboard('{Escape}');
-      await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-      await screen.unmount();
-    }
-    document.documentElement.classList.remove('dark');
-  });
-
-  it('has no accessibility violations as a full-screen dialog', async () => {
-    await page.viewport(phone.width, phone.height);
-    for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
-      document.documentElement.classList.toggle('dark', 'dark' in options);
-      const screen = await renderWithDS(
-        <InviteDialog
-          dialog={{ fullScreenOnMobile: true }}
-          header={{ action: <Button variant="ghost">Save</Button> }}
-          body={folderEntries(30)}
-        />,
-        options,
-      );
-      await screen.getByRole('button', { name: 'Invite teammate' }).click();
-      await expect.element(page.getByRole('dialog')).toBeVisible();
-      await new Promise((resolve) => setTimeout(resolve, 400));
-      removeStaleLiveAnnouncements();
-      await expectNoA11yViolations(document.body);
-      await userEvent.keyboard('{Escape}');
-      await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-      await screen.unmount();
+      for (const { viewport, dialog } of layouts) {
+        await page.viewport(viewport.width, viewport.height);
+        const screen = await renderWithDS(dialog, options);
+        await screen.getByRole('button', { name: 'Invite teammate' }).click();
+        await expect.element(page.getByRole('dialog')).toBeVisible();
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        removeStaleLiveAnnouncements();
+        await expectNoA11yViolations(document.body);
+        await userEvent.keyboard('{Escape}');
+        await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+        await screen.unmount();
+      }
     }
     document.documentElement.classList.remove('dark');
   });

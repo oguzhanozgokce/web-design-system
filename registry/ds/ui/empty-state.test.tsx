@@ -8,17 +8,23 @@ const sizes: EmptyStateSize[] = ['sm', 'md', 'lg'];
 describe('EmptyState', () => {
   it('renders a heading, description and decorative icon', async () => {
     const screen = await renderWithDS(
-      <EmptyState
-        icon={<InboxIcon />}
-        title="No projects yet"
-        description="Projects you create or import appear here."
-      />,
+      <div>
+        <EmptyState
+          icon={<InboxIcon />}
+          title="No projects yet"
+          description="Projects you create or import appear here."
+        />
+        <EmptyState headingLevel={3} title="No members" />
+      </div>,
     );
     const heading = screen.getByRole('heading', { level: 2, name: 'No projects yet' });
     await expect.element(heading).toBeVisible();
     await expect
       .element(screen.getByText('Projects you create or import appear here.'))
       .toBeVisible();
+    await expect
+      .element(screen.getByRole('heading', { level: 3, name: 'No members' }))
+      .toBeInTheDocument();
     const root = screen.container.querySelector('[data-slot="empty-state"]')!;
     expect(root.getAttribute('data-size')).toBe('md');
     const media = root.querySelector('[data-slot="media"]')!;
@@ -26,20 +32,6 @@ describe('EmptyState', () => {
     expect(media.getBoundingClientRect().width).toBe(48);
     expect(getComputedStyle(media).borderRadius).not.toBe('0px');
     expect(media.querySelector('svg')!.getBoundingClientRect().width).toBe(24);
-  });
-
-  it('puts the icon in a neutral soft well with a muted glyph', async () => {
-    const screen = await renderWithDS(
-      <>
-        <EmptyState icon={<InboxIcon />} title="No projects yet" />
-        <span data-testid="reference" className="bg-neutral-soft text-on-surface-variant" />
-      </>,
-      { dark: true },
-    );
-    const media = screen.container.querySelector('[data-slot="media"]')!;
-    const reference = getComputedStyle(screen.getByTestId('reference').element());
-    expect(getComputedStyle(media).backgroundColor).toBe(reference.backgroundColor);
-    expect(getComputedStyle(media).color).toBe(reference.color);
   });
 
   it.each([
@@ -60,13 +52,6 @@ describe('EmptyState', () => {
     expect(root.querySelector('[data-slot="media"]')!.getBoundingClientRect().width).toBe(well);
   });
 
-  it('follows the heading level it is given', async () => {
-    const screen = await renderWithDS(<EmptyState headingLevel={3} title="No members" />);
-    await expect
-      .element(screen.getByRole('heading', { level: 3, name: 'No members' }))
-      .toBeInTheDocument();
-  });
-
   it('styles the primary and secondary actions for each size', async () => {
     const screen = await renderWithDS(
       <div>
@@ -79,8 +64,15 @@ describe('EmptyState', () => {
             secondaryAction={<ButtonLink href="#import">Import {size}</ButtonLink>}
           />
         ))}
+        <EmptyState
+          title="No results"
+          primaryAction={<Button variant="outline">Clear search</Button>}
+        />
       </div>,
     );
+    await expect
+      .element(screen.getByRole('button', { name: 'Clear search' }))
+      .toHaveAttribute('data-variant', 'outline');
     const expected = {
       sm: ['soft', 'neutral', 'ghost', 'sm'],
       md: ['solid', 'primary', 'soft', 'md'],
@@ -97,24 +89,6 @@ describe('EmptyState', () => {
       await expect.element(link).toHaveAttribute('data-tone', 'neutral');
       await expect.element(link).toHaveAttribute('data-size', buttonSize);
     }
-  });
-
-  it('lets an explicit button variant win and calls its handler', async () => {
-    const onPress = vi.fn();
-    const screen = await renderWithDS(
-      <EmptyState
-        title="No results for “lake”"
-        primaryAction={
-          <Button variant="outline" onPress={onPress}>
-            Clear search
-          </Button>
-        }
-      />,
-    );
-    const button = screen.getByRole('button', { name: 'Clear search' });
-    await expect.element(button).toHaveAttribute('data-variant', 'outline');
-    await button.click();
-    expect(onPress).toHaveBeenCalledOnce();
   });
 
   it('prefers an illustration over the icon and renders extra content', async () => {

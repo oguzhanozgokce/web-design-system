@@ -20,8 +20,13 @@ function spokenText(element: Element) {
 }
 
 describe('Kbd', () => {
-  it('renders a literal key in a kbd element', async () => {
-    const screen = await renderWithDS(<Kbd>K</Kbd>);
+  it('renders a literal key in a kbd element on the size scale', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <Kbd>K</Kbd>
+        <Kbd size="sm">J</Kbd>
+      </div>,
+    );
     const key = screen.getByText('K').element();
     expect(key.tagName).toBe('KBD');
     expect(key.getAttribute('data-variant')).toBe('soft');
@@ -32,6 +37,9 @@ describe('Kbd', () => {
     expect(style.fontWeight).toBe('500');
     expect(style.fontSize).toBe('12px');
     expect(style.borderTopWidth).toBe('0px');
+    const small = screen.getByText('J').element();
+    expect(small.getBoundingClientRect().height).toBe(20);
+    expect(getComputedStyle(small).borderTopLeftRadius).toBe('6px');
   });
 
   it('uses the sans font inside monospaced text', async () => {
@@ -62,13 +70,6 @@ describe('Kbd', () => {
     );
   });
 
-  it('is 20px high with a 6px corner at size sm', async () => {
-    const screen = await renderWithDS(<Kbd size="sm">K</Kbd>);
-    const key = screen.getByText('K').element();
-    expect(key.getBoundingClientRect().height).toBe(20);
-    expect(getComputedStyle(key).borderTopLeftRadius).toBe('6px');
-  });
-
   it('shows a glyph and speaks the English key name by default', async () => {
     const screen = await renderWithDS(
       <div data-testid="keys">
@@ -82,37 +83,9 @@ describe('Kbd', () => {
     expect(spokenText(keys)).toBe('EnterUp arrowEscape');
     expect(keys.querySelector('[data-key="escape"]')).not.toBeNull();
   });
-
-  it('takes key names from the labels prop', async () => {
-    const screen = await renderWithDS(
-      <div data-testid="keys">
-        <Kbd platform="other" labels={{ deleteShort: 'Entf', delete: 'Entfernen' }}>
-          delete
-        </Kbd>
-        <Kbd platform="other" labels={{ spaceShort: 'Leertaste', space: 'Leertaste' }}>
-          space
-        </Kbd>
-      </div>,
-    );
-    const keys = screen.getByTestId('keys').element();
-    expect(visibleText(keys)).toBe('Entf Leertaste');
-    expect(spokenText(keys)).toBe('EntfernenLeertaste');
-  });
 });
 
 describe('KbdCombo', () => {
-  it('renders ⌘ and speaks Command on Apple platforms', async () => {
-    const screen = await renderWithDS(
-      <KbdCombo data-testid="combo" keys={['mod', 'P']} platform="apple" />,
-    );
-    const combo = screen.getByTestId('combo').element();
-    expect(combo.tagName).toBe('KBD');
-    expect(combo.querySelectorAll('kbd')).toHaveLength(2);
-    expect(visibleText(combo)).toBe('⌘ P');
-    expect(spokenText(combo)).toBe('Command+P');
-    expect(combo.getAttribute('data-platform')).toBe('apple');
-  });
-
   it('puts modifiers in Apple order on Apple platforms and keeps the given order elsewhere', async () => {
     const screen = await renderWithDS(
       <div>
@@ -121,9 +94,14 @@ describe('KbdCombo', () => {
       </div>,
     );
     const mac = screen.getByTestId('mac').element();
+    expect(mac.tagName).toBe('KBD');
+    expect(mac.getAttribute('data-platform')).toBe('apple');
     expect(visibleText(mac)).toBe('⌃ ⌥ ⇧ ⌘ P');
     expect(spokenText(mac)).toBe('Control+Option+Shift+Command+P');
-    expect(visibleText(screen.getByTestId('windows').element())).toBe('Ctrl Shift P');
+    const windows = screen.getByTestId('windows').element();
+    expect(windows.getAttribute('data-platform')).toBe('other');
+    expect(visibleText(windows)).toBe('Ctrl Shift P');
+    expect(spokenText(windows)).toBe('Control+Shift+P');
   });
 
   it('keeps the modifier first in right-to-left text', async () => {
@@ -137,15 +115,6 @@ describe('KbdCombo', () => {
     expect(combo.getAttribute('dir')).toBe('ltr');
     const [modifier, letter] = combo.querySelectorAll('[data-slot="kbd"]');
     expect(modifier.getBoundingClientRect().left).toBeLessThan(letter.getBoundingClientRect().left);
-  });
-
-  it('renders Ctrl and speaks Control elsewhere', async () => {
-    const screen = await renderWithDS(
-      <KbdCombo data-testid="combo" keys={['mod', 'alt', 'K']} platform="other" />,
-    );
-    const combo = screen.getByTestId('combo').element();
-    expect(visibleText(combo)).toBe('Ctrl Alt K');
-    expect(spokenText(combo)).toBe('Control+Alt+K');
   });
 
   it('takes modifier names from DSProvider, with the labels prop on top', async () => {
@@ -167,6 +136,11 @@ describe('KbdCombo', () => {
           platform="other"
           labels={{ controlShort: 'Ctrl', control: 'Control' }}
         />
+        <span data-testid="key">
+          <Kbd platform="other" labels={{ deleteShort: 'Entf', delete: 'Entfernen' }}>
+            delete
+          </Kbd>
+        </span>
       </div>,
       { provider: { labels: { kbd: german } } },
     );
@@ -179,16 +153,9 @@ describe('KbdCombo', () => {
     expect(spokenText(mac)).toBe('Wahltaste+Befehlstaste+S');
     expect(visibleText(override)).toBe('Ctrl S');
     expect(spokenText(override)).toBe('Control+S');
-  });
-
-  it('detects the platform from the browser when none is given', async () => {
-    const screen = await renderWithDS(<KbdCombo data-testid="combo" keys={['mod', 'K']} />);
-    const isApple = /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
-    const combo = screen.getByTestId('combo').element();
-    await expect
-      .element(screen.getByTestId('combo'))
-      .toHaveAttribute('data-platform', isApple ? 'apple' : 'other');
-    expect(visibleText(combo)).toBe(isApple ? '⌘ K' : 'Ctrl K');
+    const key = screen.getByTestId('key').element();
+    expect(visibleText(key)).toBe('Entf');
+    expect(spokenText(key)).toBe('Entfernen');
   });
 
   it('hydrates server HTML without a mismatch, then shows the detected platform', async () => {

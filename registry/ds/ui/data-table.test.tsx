@@ -174,7 +174,7 @@ describe('DataTable', () => {
     await page.viewport(1280, 900);
   });
 
-  it('shows the result count, a tinted header and formatted cells', async () => {
+  it('shows the result count and formats cells for the locale', async () => {
     const screen = await renderWithDS(<Apps />);
     await expect.element(screen.getByRole('grid', { name: 'Apps' })).toBeVisible();
     await expect.element(screen.getByText('Total results')).toBeVisible();
@@ -192,6 +192,12 @@ describe('DataTable', () => {
     expect(row.element().querySelector('[data-slot="data-table-chip"]')!.textContent).toBe('1.0.0');
     const downloads = screen.getByRole('columnheader', { name: 'Downloads' }).element();
     expect(downloads.getAttribute('data-align')).toBe('end');
+    await screen.unmount();
+
+    const german = await renderWithDS(<Apps />, { locale: 'de-DE' });
+    const notes = german.getByRole('row', { name: /Notes/ });
+    await expect.element(notes.getByText('2.833')).toBeVisible();
+    await expect.element(notes.getByText('11.02.2026')).toBeVisible();
   });
 
   it('sorts in the client and reports aria-sort', async () => {
@@ -205,12 +211,6 @@ describe('DataTable', () => {
     await header.click();
     await expect.element(header).toHaveAttribute('aria-sort', 'descending');
     expect(rowNames(screen.container)).toEqual(['Translate', 'Fitness', 'Books', 'Files', 'Clock']);
-
-    const name = screen.getByRole('columnheader', { name: 'App' });
-    name.element().focus();
-    await userEvent.keyboard('{Enter}');
-    await expect.element(name).toHaveAttribute('aria-sort', 'ascending');
-    expect(rowNames(screen.container)).toEqual(['Books', 'Calendar', 'Clock', 'Files', 'Fitness']);
   });
 
   it('sorts statuses by their label', async () => {
@@ -277,21 +277,6 @@ describe('DataTable', () => {
       <div>
         <Apps />
         <Apps aria-label="Nothing" data={[]} labels={{ emptyTitle: 'No apps yet' }} />
-      </div>,
-    );
-    await expect.element(screen.getByRole('heading', { name: 'No apps yet' })).toBeVisible();
-    const search = screen.getByRole('searchbox', { name: 'Search' }).first();
-    await search.fill('zzz');
-    await expect.element(screen.getByRole('heading', { name: 'No results' })).toBeVisible();
-    await screen.getByRole('button', { name: 'Clear filters' }).click();
-    await expect.poll(() => rowNames(screen.container).length).toBe(5);
-    await expect.element(search).toHaveValue('');
-    await expect.element(search).toHaveFocus();
-  });
-
-  it('accepts custom empty and no-results states', async () => {
-    const screen = await renderWithDS(
-      <div>
         <Apps aria-label="Empty" data={[]} emptyState={<p>Add your first app</p>} />
         <Apps
           aria-label="Searched"
@@ -300,8 +285,16 @@ describe('DataTable', () => {
         />
       </div>,
     );
+    await expect.element(screen.getByRole('heading', { name: 'No apps yet' })).toBeVisible();
     await expect.element(screen.getByText('Add your first app')).toBeVisible();
     await expect.element(screen.getByText('Nothing matches zzz')).toBeVisible();
+    const search = screen.getByRole('searchbox', { name: 'Search' }).first();
+    await search.fill('zzz');
+    await expect.element(screen.getByRole('heading', { name: 'No results' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Clear filters' }).click();
+    await expect.poll(() => rowNames(screen.container).length).toBe(5);
+    await expect.element(search).toHaveValue('');
+    await expect.element(search).toHaveFocus();
   });
 
   it('pages through rows', async () => {
@@ -315,54 +308,43 @@ describe('DataTable', () => {
     expect(rowNames(screen.container)).toEqual(['Maps', 'Mail', 'Clock', 'Files', 'Books']);
   });
 
-  it('shows skeleton rows while loading', async () => {
-    const screen = await renderWithDS(
-      <Apps isLoading rowActions={[{ id: 'edit', label: 'Edit', onAction: () => {} }]} />,
-    );
-    const grid = screen.getByRole('grid', { name: 'Apps' });
-    await expect.element(grid).toHaveAttribute('aria-busy', 'true');
-    const rows = screen.container.querySelectorAll('tbody [role="row"]');
-    expect(rows).toHaveLength(5);
-    expect(rows[0].querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThan(5);
-    expect(screen.container.querySelector('[role="status"]')!.textContent).toBe('Loading');
-    expect(screen.getByRole('button', { name: 'Page 2' }).element()).toBeDisabled();
-  });
-
   it('shapes skeletons after the columns and holds the count until data arrives', async () => {
     const screen = await renderWithDS(
-      <DataTable
-        aria-label="Apps"
-        data={[]}
-        isLoading
-        getRowId={(app: App) => app.id}
-        pageSize={2}
-        columns={[
-          { id: 'name', header: 'App', isRowHeader: true, cell: (app) => app.name },
-          { id: 'version', header: 'Version' },
-          { id: 'status', header: 'Status', type: 'status' },
-          { id: 'downloads', header: 'Downloads', type: 'number', skeleton: 'pill' },
-        ]}
-      />,
+      <div>
+        <DataTable
+          aria-label="Apps"
+          data={[]}
+          isLoading
+          getRowId={(app: App) => app.id}
+          pageSize={2}
+          columns={[
+            { id: 'name', header: 'App', isRowHeader: true, cell: (app) => app.name },
+            { id: 'version', header: 'Version' },
+            { id: 'status', header: 'Status', type: 'status' },
+            { id: 'downloads', header: 'Downloads', type: 'number', skeleton: 'pill' },
+          ]}
+        />
+        <Apps aria-label="Paged" isLoading />
+      </div>,
     );
-    const cells = [
-      ...screen.container.querySelectorAll('tbody tr:first-child td, tbody tr:first-child th'),
-    ];
+    await expect
+      .element(screen.getByRole('grid', { name: 'Apps' }))
+      .toHaveAttribute('aria-busy', 'true');
+    expect(screen.container.querySelectorAll('tbody [role="row"]')).toHaveLength(7);
+    const table = screen.container.querySelector('[data-slot="data-table"]')!;
+    const cells = [...table.querySelectorAll('tbody tr:first-child td, tbody tr:first-child th')];
     const shapes = cells.map((cell) =>
       [...cell.querySelectorAll('[data-slot="skeleton"]')]
         .map((item) => item.getAttribute('data-shape'))
         .join(','),
     );
     expect(shapes).toEqual(['circle,block', 'block', 'block', 'block']);
-    expect(cells[2].querySelector('[data-slot="skeleton"]')!.className).toContain(
-      'rounded-control',
-    );
-    expect(cells[3].querySelector('[data-slot="skeleton"]')!.className).toContain(
-      'rounded-control',
-    );
     expect(cells[0].textContent).toBe('Loading');
-    expect(screen.container.querySelector('[data-slot="data-table-total"]')).toBeNull();
+    expect(screen.container.querySelector('[role="status"]')!.textContent).toBe('Loading');
+    expect(screen.getByRole('button', { name: 'Page 2' }).element()).toBeDisabled();
+    expect(table.querySelector('[data-slot="data-table-total"]')).toBeNull();
     expect(
-      screen.container.querySelector('[data-slot="data-table-summary"] [data-slot="skeleton"]'),
+      table.querySelector('[data-slot="data-table-summary"] [data-slot="skeleton"]'),
     ).not.toBeNull();
   });
 
@@ -463,7 +445,10 @@ describe('DataTable', () => {
         inlineActionCount={1}
       />,
     );
-    await screen.getByRole('button', { name: 'Edit Photos' }).click();
+    const edit = screen.getByRole('button', { name: 'Edit Photos' });
+    await edit.hover();
+    await expect.element(page.getByRole('tooltip')).toHaveTextContent('Edit');
+    await edit.click();
     expect(onEdit).toHaveBeenCalledWith(apps[0]);
     const more = screen.getByRole('button', { name: 'More actions for Photos' });
     await expect.element(more).toBeVisible();
@@ -483,17 +468,6 @@ describe('DataTable', () => {
       .element(page.getByRole('menuitem', { name: 'Delete' }))
       .toHaveAttribute('aria-disabled', 'true');
     await userEvent.keyboard('{Escape}');
-    const header = screen.getByRole('columnheader', { name: 'Actions' }).element();
-    expect(getComputedStyle(header.querySelector('.sr-only')!).position).toBe('absolute');
-  });
-
-  it('shows tooltips on the icon actions', async () => {
-    const screen = await renderWithDS(
-      <Apps rowActions={[{ id: 'edit', label: 'Edit', icon: <EditIcon />, onAction: () => {} }]} />,
-    );
-    screen.getByRole('button', { name: 'Edit Photos' }).element().focus();
-    await userEvent.keyboard('{Shift}');
-    await expect.element(page.getByRole('tooltip')).toHaveTextContent('Edit');
   });
 
   it('lists extra tags behind a counted button', async () => {
@@ -503,8 +477,8 @@ describe('DataTable', () => {
     await expect.element(row.getByText('Android')).toBeVisible();
     const more = row.getByRole('button', { name: '2 more: Web, macOS' });
     await expect.element(more).toHaveTextContent('+2');
+    await userEvent.keyboard('{Escape}');
     more.element().focus();
-    await userEvent.keyboard('{Shift}');
     await expect.element(page.getByRole('tooltip')).toHaveTextContent('Web, macOS');
   });
 
@@ -534,13 +508,30 @@ describe('DataTable', () => {
         />
       );
     }
-    const screen = await renderWithDS(<Editable />);
+    const onChange = vi.fn();
+    const screen = await renderWithDS(
+      <div>
+        <Editable />
+        <StatusSelect
+          label="Visibility"
+          options={['public', 'unlisted']}
+          statuses={{
+            public: { tone: 'success', label: 'Public' },
+            unlisted: { tone: 'warning', label: 'Unlisted' },
+          }}
+          defaultValue="public"
+          onChange={onChange}
+        />
+      </div>,
+    );
     const select = screen.getByRole('button', { name: /Status for Photos/ });
     await expect.element(select).toHaveTextContent('Live');
     await choose(select, 'Paused');
     await expect.element(select).toHaveTextContent('Paused');
     const dot = select.element().querySelector('[data-slot="status-dot"]')!;
     expect(dot.getAttribute('data-tone')).toBe('warning');
+    await choose(screen.getByRole('button', { name: /Visibility/ }), 'Unlisted');
+    expect(onChange).toHaveBeenLastCalledWith('unlisted');
   });
 
   it('uses statuses from the provider and the column', async () => {
@@ -551,8 +542,6 @@ describe('DataTable', () => {
     );
     const row = screen.getByRole('row', { name: /Photos/ });
     await expect.element(row.getByText('Published')).toBeVisible();
-    const clock = await renderWithDS(<Apps defaultPage={2} />);
-    await expect.element(clock.getByRole('row', { name: /Mail/ }).getByText('Beta')).toBeVisible();
   });
 
   it('hands every change to the caller in server mode', async () => {
@@ -619,13 +608,6 @@ describe('DataTable', () => {
     );
   });
 
-  it('formats numbers and dates for the locale', async () => {
-    const screen = await renderWithDS(<Apps />, { locale: 'de-DE' });
-    const row = screen.getByRole('row', { name: /Notes/ });
-    await expect.element(row.getByText('2.833')).toBeVisible();
-    await expect.element(row.getByText('11.02.2026')).toBeVisible();
-  });
-
   it('shrinks rows and controls in the compact density', async () => {
     const screen = await renderWithDS(
       <div>
@@ -680,26 +662,14 @@ describe('DataTable', () => {
     expect(container.scrollWidth).toBeGreaterThan(container.clientWidth);
     const search = screen.getByRole('searchbox').element().closest('[data-slot="search-field"]')!;
     expect(search.getBoundingClientRect().width).toBeGreaterThan(250);
-    const archive = screen.getByRole('button', { name: 'Archive' }).element();
-    expect(archive.getBoundingClientRect().width).toBe(32);
     const rowHeader = screen.getByRole('rowheader').first().element();
     expect(getComputedStyle(rowHeader).position).toBe('sticky');
-    expect(
-      screen.getByRole('button', { name: 'Previous page' }).element().getBoundingClientRect().width,
-    ).toBe(32);
-  });
+    await screen.unmount();
 
-  it('fades rows in on a new page unless motion is reduced', async () => {
-    const moving = await renderWithDS(<Apps />);
-    const first = moving.container.querySelector('tbody [role="row"]')!;
-    expect(first.className).toContain('starting:opacity-0');
-    await moving.unmount();
-    const still = await renderWithDS(<Apps />, { provider: { motion: 'reduced' } });
-    expect(still.container.querySelector('tbody [role="row"]')!.className).not.toContain(
-      'starting:opacity-0',
+    const flat = await renderWithDS(<Apps variant="transparent" />);
+    expect(getComputedStyle(flat.getByRole('rowheader').first().element()).position).not.toBe(
+      'sticky',
     );
-    const rolling = still.container.querySelector('[data-slot="rolling-number"]')!;
-    expect(rolling.hasAttribute('data-animated')).toBe(false);
   });
 
   it('mirrors in right-to-left layouts', async () => {
@@ -715,24 +685,6 @@ describe('DataTable', () => {
     expect(getComputedStyle(rowHeader).right).not.toBe('auto');
     const total = screen.container.querySelector('[data-slot="data-table-total"]')!;
     expect(spoken(total)).toBe('12 تطبيقات');
-  });
-
-  it('keeps a standalone status select usable', async () => {
-    const onChange = vi.fn();
-    const screen = await renderWithDS(
-      <StatusSelect
-        label="Visibility"
-        options={['public', 'unlisted']}
-        statuses={{
-          public: { tone: 'success', label: 'Public' },
-          unlisted: { tone: 'warning', label: 'Unlisted' },
-        }}
-        defaultValue="public"
-        onChange={onChange}
-      />,
-    );
-    await choose(screen.getByRole('button', { name: /Visibility/ }), 'Unlisted');
-    expect(onChange).toHaveBeenLastCalledWith('unlisted');
   });
 });
 

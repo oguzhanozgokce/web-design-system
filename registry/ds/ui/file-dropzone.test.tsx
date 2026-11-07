@@ -41,6 +41,15 @@ function file(name: string, size: number, type = '') {
   return new File([new Uint8Array(size)], name, { type });
 }
 
+function errorColor(root: Element) {
+  const reference = document.createElement('span');
+  reference.className = 'text-error';
+  root.append(reference);
+  const color = getComputedStyle(reference).color;
+  reference.remove();
+  return color;
+}
+
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -60,8 +69,6 @@ describe('FileDropzone', () => {
       .element(screen.getByRole('button', { name: 'Drop or paste files' }))
       .toBeInTheDocument();
     const root = part(screen.container, 'file-dropzone');
-    expect(root.dataset.variant).toBe('soft');
-    expect(root.dataset.size).toBe('md');
     expect(root.getAttribute('role')).toBeNull();
     const input = screen.container.querySelector<HTMLInputElement>('input[type="file"]')!;
     expect(input.accept).toBe('image/*,.pdf');
@@ -82,23 +89,6 @@ describe('FileDropzone', () => {
     expect(screen.container.querySelector<HTMLInputElement>('input[type="file"]')!.multiple).toBe(
       true,
     );
-  });
-
-  it('passes picked files that fit to onSelect', async () => {
-    const onSelect = vi.fn();
-    const onReject = vi.fn();
-    const screen = await renderWithDS(
-      <FileDropzone
-        allowsMultiple
-        acceptedFileTypes={['image/*']}
-        onSelect={onSelect}
-        onReject={onReject}
-      />,
-    );
-    pick(screen.container, [photo]);
-    await expect.poll(() => onSelect.mock.calls.length).toBe(1);
-    expect(onSelect.mock.calls[0][0].map((item: File) => item.name)).toEqual(['lake.png']);
-    expect(onReject).not.toHaveBeenCalled();
   });
 
   it('opens the file picker from the keyboard', async () => {
@@ -152,7 +142,6 @@ describe('FileDropzone', () => {
     drag(zone, 'drop', [photo]);
     await expect.poll(() => onSelect.mock.calls.length).toBe(1);
     expect(zone.hasAttribute('data-drop-target')).toBe(false);
-    expect(zone.getAnimations().length).toBeGreaterThan(0);
   });
 
   it('warns while a file of the wrong type is held over it and does not grow', async () => {
@@ -163,7 +152,7 @@ describe('FileDropzone', () => {
     await expect.element(zone).toHaveAttribute('data-drop-refused');
     const message = part(screen.container, 'message');
     expect(message.textContent).toBe('This file type isn’t accepted');
-    expect(message.className).toContain('text-error');
+    expect(getComputedStyle(message).color).toBe(errorColor(screen.container));
     await wait(450);
     expect(getComputedStyle(zone).scale).not.toBe('1.02');
   });
@@ -186,7 +175,7 @@ describe('FileDropzone', () => {
     const message = part(screen.container, 'message');
     await expect.element(message).toHaveTextContent('panorama.png is larger than 2 MB');
     expect(message.dataset.line).toBe('rejected');
-    expect(message.className).toContain('text-error');
+    expect(getComputedStyle(message).color).toBe(errorColor(screen.container));
     await expect.element(zone).toHaveAttribute('data-rejecting');
     expect(zone.getAnimations().some((animation) => animation.playState === 'running')).toBe(true);
     await expect

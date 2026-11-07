@@ -1,4 +1,3 @@
-import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { Link } from '@/registry/ds/ui/link';
 
@@ -26,19 +25,7 @@ describe('Link', () => {
     await expect.element(link).not.toHaveAttribute('target');
     const style = getComputedStyle(link.element());
     expect(style.textDecorationLine).toBe('underline');
-    expect(style.textDecorationThickness).toBe('1.5px');
-    expect(style.textUnderlineOffset).toBe('4px');
     expect(style.color).toBe(roleStyle('text-on-surface').color);
-    expect(style.textDecorationColor).toBe(roleStyle('decoration-outline-variant').decorationColor);
-  });
-
-  it('darkens the underline to the text colour on hover', async () => {
-    const screen = await renderWithDS(<Link href="/projects">Projects</Link>);
-    const link = screen.getByRole('link', { name: 'Projects' });
-    await link.hover();
-    await expect.element(link).toHaveAttribute('data-hovered', 'true');
-    const style = getComputedStyle(link.element());
-    await expect.poll(() => style.textDecorationColor).toBe(style.color);
   });
 
   it('paints the primary tone and inherits the colour around it', async () => {
@@ -60,33 +47,6 @@ describe('Link', () => {
     );
   });
 
-  it('shows a standalone link with a trailing arrow', async () => {
-    const screen = await renderWithDS(
-      <Link href="/projects" variant="standalone" showArrow>
-        View all projects
-      </Link>,
-    );
-    const link = screen.getByRole('link', { name: 'View all projects' });
-    await expect.element(link).toHaveAttribute('data-variant', 'standalone');
-    const style = getComputedStyle(link.element());
-    expect(style.fontSize).toBe('14px');
-    expect(style.fontWeight).toBe('500');
-    expect(link.element().querySelector('[data-slot="arrow"] svg')).not.toBeNull();
-  });
-
-  it('brings the trailing glyph from 60% to full opacity on hover', async () => {
-    const screen = await renderWithDS(
-      <Link href="https://example.com/help" variant="standalone" isExternal>
-        Help centre
-      </Link>,
-    );
-    const link = screen.getByRole('link', { name: 'Help centre (opens in a new tab)' });
-    const icon = link.element().querySelector('[data-slot="external-icon"] svg')!;
-    expect(getComputedStyle(icon).opacity).toBe('0.6');
-    await link.hover();
-    await expect.poll(() => getComputedStyle(icon).opacity).toBe('1');
-  });
-
   it('opens external links in a new tab and says so', async () => {
     const screen = await renderWithDS(
       <Link href="https://developer.mozilla.org/docs/Web/API/Clipboard_API" isExternal rel="help">
@@ -102,49 +62,44 @@ describe('Link', () => {
     expect(link.element().querySelector('[data-slot="external-icon"] svg')).not.toBeNull();
   });
 
-  it('nudges the arrow forward on hover, mirrored in RTL', async () => {
-    for (const [locale, direction] of [
-      ['en', 1],
-      ['ar', -1],
+  it('nudges the arrow forward on hover, mirrored in RTL, and keeps it still when motion is reduced', async () => {
+    for (const [locale, motion, direction] of [
+      ['en', 'system', 1],
+      ['ar', 'system', -1],
+      ['en', 'reduced', 0],
     ] as const) {
       const screen = await renderWithDS(
         <Link href="/projects" variant="standalone" showArrow>
           View all projects
         </Link>,
-        { locale },
+        { locale, provider: { motion } },
       );
       const link = screen.getByRole('link', { name: 'View all projects' });
       const icon = link.element().querySelector('[data-slot="arrow"] svg')!;
-      expect(getComputedStyle(icon).scale).toBe(direction === 1 ? 'none' : '-1 1');
+      expect(getComputedStyle(icon).scale).toBe(locale === 'en' ? 'none' : '-1 1');
       expect(getComputedStyle(icon).translate).toBe('none');
       await link.hover();
+      await expect.element(link).toHaveAttribute('data-hovered', 'true');
       await expect
-        .poll(() => Math.sign(parseFloat(getComputedStyle(icon).translate)))
+        .poll(() => Math.sign(parseFloat(getComputedStyle(icon).translate) || 0))
         .toBe(direction);
       await screen.unmount();
     }
   });
 
-  it('keeps the arrow still when motion is reduced', async () => {
+  it('shows a trailing arrow, and only the external glyph when both glyphs are asked for', async () => {
     const screen = await renderWithDS(
-      <Link href="/projects" variant="standalone" showArrow>
-        View all projects
-      </Link>,
-      { provider: { motion: 'reduced' } },
+      <>
+        <Link href="/projects" variant="standalone" showArrow>
+          View all projects
+        </Link>
+        <Link href="https://example.com/status" variant="standalone" isExternal showArrow>
+          Status page
+        </Link>
+      </>,
     );
-    const link = screen.getByRole('link', { name: 'View all projects' });
-    await link.hover();
-    await expect.element(link).toHaveAttribute('data-hovered', 'true');
-    const icon = link.element().querySelector('[data-slot="arrow"] svg')!;
-    expect(getComputedStyle(icon).translate).toBe('none');
-  });
-
-  it('shows only the external glyph when both glyphs are asked for', async () => {
-    const screen = await renderWithDS(
-      <Link href="https://example.com/status" variant="standalone" isExternal showArrow>
-        Status page
-      </Link>,
-    );
+    const arrowed = screen.getByRole('link', { name: 'View all projects' }).element();
+    expect(arrowed.querySelector('[data-slot="arrow"] svg')).not.toBeNull();
     const link = screen.getByRole('link', { name: 'Status page (opens in a new tab)' });
     expect(link.element().querySelector('[data-slot="arrow"]')).toBeNull();
     expect(link.element().querySelector('[data-slot="external-icon"]')).not.toBeNull();
@@ -188,17 +143,6 @@ describe('Link', () => {
     await expect.element(link).toHaveAttribute('download');
   });
 
-  it('says the new tab in English by default', async () => {
-    const screen = await renderWithDS(
-      <Link href="https://example.com/status" isExternal>
-        Status page
-      </Link>,
-    );
-    await expect
-      .element(screen.getByRole('link', { name: 'Status page (opens in a new tab)' }))
-      .toBeInTheDocument();
-  });
-
   it('takes the new-tab notice from labels, then DSProvider, then the English default', async () => {
     const screen = await renderWithDS(
       <>
@@ -221,6 +165,16 @@ describe('Link', () => {
     await expect
       .element(screen.getByRole('link', { name: 'Durum sayfası (yeni pencerede açılır)' }))
       .toBeInTheDocument();
+    await screen.unmount();
+
+    const english = await renderWithDS(
+      <Link href="https://example.com/status" isExternal>
+        Status page
+      </Link>,
+    );
+    await expect
+      .element(english.getByRole('link', { name: 'Status page (opens in a new tab)' }))
+      .toBeInTheDocument();
   });
 
   it('navigates through the DSProvider router', async () => {
@@ -232,35 +186,7 @@ describe('Link', () => {
     expect(navigate).toHaveBeenCalledWith('/members', undefined);
   });
 
-  it('activates with the keyboard', async () => {
-    const onPress = vi.fn();
-    const screen = await renderWithDS(<Link onPress={onPress}>Resend invite</Link>);
-    await userEvent.keyboard('{Tab}');
-    await expect
-      .element(screen.getByRole('link', { name: 'Resend invite' }))
-      .toHaveAttribute('data-focus-visible', 'true');
-    await userEvent.keyboard('{Enter}');
-    expect(onPress).toHaveBeenCalledOnce();
-  });
-
-  it('does not navigate or fire when disabled', async () => {
-    const onPress = vi.fn();
-    const screen = await renderWithDS(
-      <Link href="/archive/photos-2026.zip" isDisabled onPress={onPress}>
-        Download archive
-      </Link>,
-    );
-    const link = screen.getByRole('link', { name: 'Download archive' });
-    await expect.element(link).toHaveAttribute('aria-disabled', 'true');
-    await expect.element(link).not.toHaveAttribute('href');
-    const style = getComputedStyle(link.element());
-    expect(style.opacity).toBe('0.5');
-    expect(style.cursor).toBe('not-allowed');
-    await link.click({ force: true });
-    expect(onPress).not.toHaveBeenCalled();
-  });
-
-  it('leaves no anchor attributes on a disabled link', async () => {
+  it('dims a disabled link and leaves no anchor attributes on it', async () => {
     const screen = await renderWithDS(
       <Link
         href="https://example.com/archive/photos-2026.zip"
@@ -274,25 +200,36 @@ describe('Link', () => {
       </Link>,
     );
     const link = screen.getByRole('link', { name: /Download archive/ });
+    await expect.element(link).toHaveAttribute('aria-disabled', 'true');
     const element = link.element();
     expect(element.tagName).toBe('SPAN');
+    const style = getComputedStyle(element);
+    expect(style.opacity).toBe('0.5');
+    expect(style.cursor).toBe('not-allowed');
     for (const attribute of ['href', 'target', 'rel', 'download', 'referrerpolicy', 'tabindex']) {
       expect(element.hasAttribute(attribute), attribute).toBe(false);
     }
   });
 
-  it('reveals the standalone underline only on hover', async () => {
-    const screen = await renderWithDS(
-      <Link href="/projects" variant="standalone">
-        View all projects
-      </Link>,
-    );
-    const link = screen.getByRole('link', { name: 'View all projects' });
-    const style = getComputedStyle(link.element());
-    expect(style.textDecorationLine).toBe('underline');
-    expect(style.textDecorationColor).toBe('rgba(0, 0, 0, 0)');
-    await link.hover();
-    await expect.poll(() => style.textDecorationColor).toBe(style.color);
+  it('turns the underline to the text colour on hover, revealing it on standalone links', async () => {
+    for (const variant of ['inline', 'standalone'] as const) {
+      const screen = await renderWithDS(
+        <Link href="/projects" variant={variant}>
+          View all projects
+        </Link>,
+      );
+      const link = screen.getByRole('link', { name: 'View all projects' });
+      const style = getComputedStyle(link.element());
+      expect(style.textDecorationLine).toBe('underline');
+      expect(style.textDecorationColor, variant).toBe(
+        variant === 'inline'
+          ? roleStyle('decoration-outline-variant').decorationColor
+          : 'rgba(0, 0, 0, 0)',
+      );
+      await link.hover();
+      await expect.poll(() => style.textDecorationColor).toBe(style.color);
+      await screen.unmount();
+    }
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

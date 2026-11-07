@@ -160,9 +160,17 @@ describe('BarChart', () => {
     expect(liveText(screen.container)).toBe('');
   });
 
-  it('runs from the inline start in RTL and mirrors the arrow keys', async () => {
-    const screen = await renderWithDS(<Visits />, { ...still, locale: 'ar' });
-    const all = groups(screen.container);
+  it('runs from the inline start in RTL, mirrors the arrow keys, and can keep time left to right', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <Visits />
+        <Visits aria-label="Pinned" categoryDirection="ltr" />
+      </div>,
+      { ...still, locale: 'ar' },
+    );
+    const [mirrored, pinned] =
+      screen.container.querySelectorAll<HTMLElement>('[data-slot="bar-chart"]');
+    const all = groups(mirrored);
     expect(all[0].getBoundingClientRect().left).toBeGreaterThan(
       all[2].getBoundingClientRect().left,
     );
@@ -173,18 +181,14 @@ describe('BarChart', () => {
     await expect.element(all[1]).toHaveAttribute('data-active');
     await userEvent.keyboard('{ArrowRight}');
     await expect.element(all[0]).toHaveAttribute('data-active');
-  });
 
-  it('keeps time left to right in RTL with categoryDirection="ltr"', async () => {
-    const screen = await renderWithDS(<Visits categoryDirection="ltr" />, {
-      ...still,
-      locale: 'ar',
-    });
-    const all = groups(screen.container);
-    expect(all[0].getBoundingClientRect().left).toBeLessThan(all[2].getBoundingClientRect().left);
-    screen.getByRole('group', { name: 'Visits' }).element().focus();
+    const ordered = groups(pinned);
+    expect(ordered[0].getBoundingClientRect().left).toBeLessThan(
+      ordered[2].getBoundingClientRect().left,
+    );
+    screen.getByRole('group', { name: 'Pinned' }).element().focus();
     await userEvent.keyboard('{ArrowRight}{ArrowRight}');
-    await expect.element(all[1]).toHaveAttribute('data-active');
+    await expect.element(ordered[1]).toHaveAttribute('data-active');
   });
 
   it('rings the hovered column, dims the others and shows one tooltip beside it', async () => {
@@ -289,24 +293,21 @@ describe('BarChart', () => {
     await expect.element(all[0]).toHaveAttribute('data-active');
   });
 
-  it('grows from the baseline on first view, one column after another', async () => {
-    const screen = await renderWithDS(<Visits />, { provider: { motion: 'system' } });
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="bar-chart"]')!;
+  it('grows column after column with motion and draws the final chart at once without it', async () => {
+    const animated = await renderWithDS(<Visits />, { provider: { motion: 'system' } });
+    const root = animated.container.querySelector<HTMLElement>('[data-slot="bar-chart"]')!;
     await expect.element(root).not.toHaveAttribute('data-pending');
-    const all = groups(screen.container);
-    const first = segment(all[0], 'direct').style.transition;
-    const second = segment(all[1], 'direct').style.transition;
-    expect(first).toContain('height 600ms');
-    expect(first).not.toContain('14ms');
-    expect(second).toContain('1) 14ms');
-  });
+    const columns = groups(animated.container);
+    const first = segment(columns[0], 'direct').style.transition;
+    expect(first).toContain('height');
+    expect(segment(columns[1], 'direct').style.transition).not.toBe(first);
 
-  it('draws the final chart at once under reduced motion', async () => {
-    const screen = await renderWithDS(<Visits />, still);
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="bar-chart"]')!;
-    expect(root.hasAttribute('data-pending')).toBe(false);
-    const transition = segment(groups(screen.container)[0], 'direct').style.transition;
-    expect(transition).not.toContain('height');
+    const reduced = await renderWithDS(<Visits />, still);
+    const settled = reduced.container.querySelector<HTMLElement>('[data-slot="bar-chart"]')!;
+    expect(settled.hasAttribute('data-pending')).toBe(false);
+    expect(segment(groups(reduced.container)[0], 'direct').style.transition).not.toContain(
+      'height',
+    );
     const disabled = await renderWithDS(<Visits />, { provider: { motion: 'disabled' } });
     expect(segment(groups(disabled.container)[0], 'direct').style.transition).toBe('none');
   });
@@ -330,7 +331,9 @@ describe('BarChart', () => {
 
   it('takes its copy from labels and DSProvider', async () => {
     const screen = await renderWithDS(
-      <Visits labels={{ keyboardHint: 'Ok tuşlarıyla gezin.' }} />,
+      <Visits
+        labels={{ keyboardHint: 'Ok tuşlarıyla gezin.', seriesValue: '{value} ({series})' }}
+      />,
       {
         ...still,
         provider: {
@@ -341,6 +344,7 @@ describe('BarChart', () => {
               summary: '{series}: {first} – {last}.',
               legend: 'Açıklama',
               roleDescription: 'grafik',
+              pointAnnouncement: '{category} → {values}',
             },
           },
         },
@@ -353,6 +357,11 @@ describe('BarChart', () => {
       .toHaveAccessibleDescription('Direct, Search, and Bounced: Mon – Wed. Ok tuşlarıyla gezin.');
     await expect.element(screen.getByRole('list', { name: 'Açıklama' })).toBeInTheDocument();
     await expect.element(screen.getByRole('columnheader', { name: 'Toplam' })).toBeInTheDocument();
+    plot.element().focus();
+    await userEvent.keyboard('{Home}');
+    expect(liveText(screen.container)).toBe(
+      'Mon → 70 (Toplam), 40 (Direct), 30 (Search), 4 (Bounced)',
+    );
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

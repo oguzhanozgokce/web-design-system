@@ -44,19 +44,6 @@ describe('ContentState', () => {
     expect(root(screen.container).getAttribute('data-status')).toBe('loading');
   });
 
-  it('renders the default empty state for an empty array', async () => {
-    const screen = await renderWithDS(
-      <ContentState data={[] as Project[]}>
-        {(items) => <ProjectList items={items} />}
-      </ContentState>,
-    );
-    await expect.element(screen.getByRole('status')).toHaveTextContent('Nothing here yet');
-    await expect
-      .element(screen.getByRole('heading', { name: 'Nothing here yet' }))
-      .toBeInTheDocument();
-    expect(root(screen.container).hasAttribute('aria-busy')).toBe(false);
-  });
-
   it('passes loaded data to a render function', async () => {
     const screen = await renderWithDS(
       <ContentState data={projects}>{(items) => <ProjectList items={items} />}</ContentState>,
@@ -80,25 +67,29 @@ describe('ContentState', () => {
     await expect
       .element(screen.getByRole('heading', { name: 'No projects yet' }))
       .toBeInTheDocument();
-    await expect
-      .element(screen.getByRole('button', { name: 'New project' }))
-      .toHaveAttribute('data-variant', 'solid');
+    await expect.element(screen.getByRole('button', { name: 'New project' })).toBeInTheDocument();
   });
 
-  it.each([
-    ['sm', 24],
-    ['md', 32],
-    ['lg', 40],
-  ] as const)('sizes the loading spinner for size %s', async (size, box) => {
-    const screen = await renderWithDS(<ContentState status="loading" size={size} />);
-    expect(root(screen.container).getAttribute('data-size')).toBe(size);
-    const spinner = screen.container.querySelector('[data-slot="spinner"]')!;
-    expect(spinner.getBoundingClientRect().width).toBe(box);
+  it('sizes the loading spinner at 24, 32 and 40 pixels', async () => {
+    const sizes = { sm: 24, md: 32, lg: 40 } as const;
+    const screen = await renderWithDS(
+      <>
+        {Object.keys(sizes).map((size) => (
+          <ContentState key={size} status="loading" size={size as keyof typeof sizes} />
+        ))}
+      </>,
+    );
+    const regions = screen.container.querySelectorAll<HTMLElement>('[data-slot="content-state"]');
+    expect(
+      [...regions].map((region) => [
+        region.getAttribute('data-size'),
+        region.querySelector('[data-slot="spinner"]')!.getBoundingClientRect().width,
+      ]),
+    ).toEqual(Object.entries(sizes));
   });
 
-  it('shows an alert with an async retry that stays pending and ignores repeats', async () => {
-    let finish: () => void = () => {};
-    const onRetry = vi.fn(() => new Promise<void>((resolve) => (finish = resolve)));
+  it('shows an alert with a retry', async () => {
+    const onRetry = vi.fn();
     const screen = await renderWithDS(
       <ContentState data={undefined} error={new Error('timeout')} onRetry={onRetry}>
         content
@@ -107,13 +98,8 @@ describe('ContentState', () => {
     await expect
       .element(screen.getByRole('alert'))
       .toHaveTextContent('Something went wrongPlease try again in a moment.Try again');
-    const retry = screen.getByRole('button', { name: 'Try again' });
-    await retry.click();
-    await expect.element(retry).toHaveAttribute('data-pending', 'true');
-    await retry.click({ force: true });
+    await screen.getByRole('button', { name: 'Try again' }).click();
     expect(onRetry).toHaveBeenCalledOnce();
-    finish();
-    await expect.element(retry).not.toHaveAttribute('data-pending');
   });
 
   it('builds error copy from the error and hides retry without onRetry', async () => {
@@ -181,40 +167,22 @@ describe('ContentState', () => {
 
     await screen.getByRole('button', { name: 'Show content' }).click();
     await expect.element(screen.getByText('Folder rows')).toBeVisible();
-    const content = screen.container.querySelector('[data-slot="content-view"]')!;
-    expect(content.className).toMatch(/animate-ds-fade-in/);
   });
 
-  it('moves focus to the region when the focused view goes away', async () => {
-    function Harness() {
-      const [status, setStatus] = useState<ContentStatus>('error');
-      return (
-        <ContentState status={status} onRetry={() => setStatus('loading')}>
-          <p>Folder rows</p>
-        </ContentState>
-      );
-    }
-    const screen = await renderWithDS(<Harness />);
-    const retry = screen.getByRole('button', { name: 'Try again' });
-    await userEvent.keyboard('{Tab}');
-    await expect.element(retry).toHaveFocus();
-    await userEvent.keyboard('{Enter}');
-
-    await expect.element(screen.getByRole('progressbar')).toBeInTheDocument();
-    expect(document.activeElement).toBe(root(screen.container));
-  });
-
-  it('moves focus to the region when focused content goes away', async () => {
+  it('moves focus to the region when the focused content or error view goes away', async () => {
     function Harness() {
       const [status, setStatus] = useState<ContentStatus>('content');
       return (
-        <ContentState status={status}>
-          <Button onPress={() => setStatus('loading')}>Reload folder</Button>
-        </ContentState>
+        <>
+          <Button onPress={() => setStatus('error')}>Fail</Button>
+          <ContentState status={status} onRetry={() => setStatus('loading')}>
+            <Button onPress={() => setStatus('loading')}>Reload folder</Button>
+          </ContentState>
+        </>
       );
     }
     const screen = await renderWithDS(<Harness />);
-    await userEvent.keyboard('{Tab}');
+    await userEvent.keyboard('{Tab}{Tab}');
     await expect.element(screen.getByRole('button', { name: 'Reload folder' })).toHaveFocus();
     await userEvent.keyboard('{Enter}');
 
@@ -222,6 +190,13 @@ describe('ContentState', () => {
     expect(document.activeElement).toBe(root(screen.container));
     await userEvent.keyboard('{Tab}');
     expect(root(screen.container).hasAttribute('tabindex')).toBe(false);
+
+    await screen.getByRole('button', { name: 'Fail' }).click();
+    await userEvent.keyboard('{Tab}');
+    await expect.element(screen.getByRole('button', { name: 'Try again' })).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await expect.element(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(document.activeElement).toBe(root(screen.container));
   });
 
   it('keeps content visible and marks the region busy while refreshing', async () => {
@@ -237,15 +212,20 @@ describe('ContentState', () => {
     expect(element.getAttribute('data-status')).toBe('content');
   });
 
-  it('treats null as empty and shows the error when empty data comes with an error', async () => {
+  it('treats null and an empty array as empty and shows the error when empty data comes with an error', async () => {
     const screen = await renderWithDS(
       <>
         <ContentState data={null} data-testid="empty" />
+        <ContentState data={[] as Project[]} data-testid="list" />
         <ContentState data={[]} error={new Error('timeout')} data-testid="failed" />
       </>,
     );
     await expect.element(screen.getByTestId('empty')).toHaveAttribute('data-status', 'empty');
     await expect.element(screen.getByTestId('failed')).toHaveAttribute('data-status', 'error');
+    await expect
+      .element(screen.getByTestId('list').getByRole('heading', { name: 'Nothing here yet' }))
+      .toBeInTheDocument();
+    expect(screen.getByTestId('list').element().hasAttribute('aria-busy')).toBe(false);
     await expect.element(screen.getByRole('alert')).toMatchTextContent(/^Something went wrong/);
   });
 

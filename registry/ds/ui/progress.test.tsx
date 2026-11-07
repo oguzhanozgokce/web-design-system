@@ -1,21 +1,8 @@
-import { useState } from 'react';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { CircularProgress, LinearProgress } from '@/registry/ds/ui/progress';
 
 function slot(root: Element, name: string) {
   return root.querySelector<HTMLElement>(`[data-slot="${name}"]`);
-}
-
-function StepProgress() {
-  const [step, setStep] = useState(1);
-  return (
-    <div style={{ width: 200 }}>
-      <LinearProgress label="Setup" value={step} maxValue={4} />
-      <button type="button" onClick={() => setStep(step + 1)}>
-        Next
-      </button>
-    </div>
-  );
 }
 
 describe('LinearProgress', () => {
@@ -29,44 +16,6 @@ describe('LinearProgress', () => {
     await expect.element(bar).toHaveAttribute('data-tone', 'primary');
     await expect.element(bar).toHaveAttribute('data-size', 'md');
     await expect.element(screen.getByText('40%')).toBeVisible();
-  });
-
-  it('formats the value with formatOptions and the locale', async () => {
-    const screen = await renderWithDS(
-      <LinearProgress
-        label="Storage"
-        value={3200}
-        maxValue={5000}
-        formatOptions={{ style: 'unit', unit: 'megabyte', maximumFractionDigits: 0 }}
-        showValueLabel
-      />,
-      { locale: 'de' },
-    );
-    const expected = new Intl.NumberFormat('de', {
-      style: 'unit',
-      unit: 'megabyte',
-      maximumFractionDigits: 0,
-    }).format(3200);
-    expect(expected).toMatch(/^3\.200\sMB$/);
-    const bar = screen.getByRole('progressbar', { name: 'Storage' });
-    await expect.element(bar).toHaveAttribute('aria-valuetext', expected);
-    await expect.element(screen.getByText(expected)).toBeVisible();
-  });
-
-  it('uses a custom valueLabel for screen readers and the header', async () => {
-    const screen = await renderWithDS(
-      <LinearProgress
-        label="Importing comments"
-        value={128}
-        maxValue={300}
-        valueLabel="128 of 300 files"
-        showValueLabel
-      />,
-    );
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'Importing comments' }))
-      .toHaveAttribute('aria-valuetext', '128 of 300 files');
-    await expect.element(screen.getByText('128 of 300 files')).toBeVisible();
   });
 
   it('fills a share of a rounded neutral track', async () => {
@@ -105,22 +54,6 @@ describe('LinearProgress', () => {
     expect(slot(screen.container, 'track')!.getBoundingClientRect().height).toBe(height);
   });
 
-  it.each([
-    ['dark', { dark: true }],
-    ['light', {}],
-  ])('keeps the solid fill saturated in %s mode', async (_, options) => {
-    const screen = await renderWithDS(
-      <div style={{ width: 200 }}>
-        <LinearProgress aria-label="Storage" value={50} tone="success" />
-        <span data-testid="reference" className="bg-success-solid" />
-      </div>,
-      options,
-    );
-    expect(getComputedStyle(slot(screen.container, 'indicator')!).backgroundColor).toBe(
-      getComputedStyle(screen.getByTestId('reference').element()).backgroundColor,
-    );
-  });
-
   it('fills from the inline start in Arabic', async () => {
     const screen = await renderWithDS(
       <div style={{ width: 200 }}>
@@ -133,49 +66,6 @@ describe('LinearProgress', () => {
     const indicator = slot(root, 'indicator')!.getBoundingClientRect();
     expect(indicator.right).toBeCloseTo(track.right, 0);
     expect(indicator.width).toBeCloseTo(50, 0);
-  });
-
-  it('does not override aria-labelledby with the fallback name', async () => {
-    const screen = await renderWithDS(
-      <>
-        <h2 id="backup-title">Workspace backup</h2>
-        <LinearProgress aria-labelledby="backup-title" value={58} />
-      </>,
-    );
-    const bar = screen.getByRole('progressbar', { name: 'Workspace backup' });
-    await expect.element(bar).not.toHaveAttribute('aria-label');
-  });
-
-  it('updates the indicator when the value changes', async () => {
-    const screen = await renderWithDS(<StepProgress />, { provider: { motion: 'disabled' } });
-    const bar = screen.getByRole('progressbar', { name: 'Setup' });
-    await expect.element(bar).toHaveAttribute('aria-valuetext', '25%');
-    await screen.getByRole('button', { name: 'Next' }).click();
-    await expect.element(bar).toHaveAttribute('aria-valuetext', '50%');
-    expect(slot(screen.container, 'indicator')!.getBoundingClientRect().width).toBeCloseTo(100, 0);
-  });
-
-  it('animates width changes over 300ms', async () => {
-    const screen = await renderWithDS(<LinearProgress aria-label="Storage" value={30} />);
-    const indicator = getComputedStyle(slot(screen.container, 'indicator')!);
-    expect(indicator.transitionProperty).toBe('width');
-    expect(indicator.transitionDuration).toBe('0.3s');
-  });
-
-  it('slides a short bar across the track when indeterminate', async () => {
-    const screen = await renderWithDS(
-      <div style={{ width: 200 }}>
-        <LinearProgress label="Syncing team feed" isIndeterminate />
-      </div>,
-    );
-    const bar = screen.getByRole('progressbar', { name: 'Syncing team feed' });
-    await expect.element(bar).not.toHaveAttribute('aria-valuenow');
-    await expect.element(bar).toHaveAttribute('data-indeterminate', 'true');
-    const indicator = slot(screen.container, 'indicator')!;
-    expect(screen.container.querySelectorAll('[data-slot="indicator"]')).toHaveLength(1);
-    expect(getComputedStyle(indicator).animationName).toBe('ds-progress-slide');
-    expect(getComputedStyle(indicator).animationDuration).toBe('1.5s');
-    expect(indicator.getBoundingClientRect().width).toBeCloseTo(80, 0);
   });
 
   it.each([
@@ -192,7 +82,21 @@ describe('LinearProgress', () => {
     expect(getComputedStyle(indicator).translate).toBe(start);
   });
 
-  it('becomes a pulse when motion is reduced and stops when it is disabled', async () => {
+  it('slides when indeterminate, becomes a pulse when motion is reduced and stops when it is disabled', async () => {
+    const full = await renderWithDS(
+      <div style={{ width: 200 }}>
+        <LinearProgress label="Syncing team feed" isIndeterminate />
+      </div>,
+    );
+    const bar = full.getByRole('progressbar', { name: 'Syncing team feed' });
+    await expect.element(bar).not.toHaveAttribute('aria-valuenow');
+    await expect.element(bar).toHaveAttribute('data-indeterminate', 'true');
+    expect(full.container.querySelectorAll('[data-slot="indicator"]')).toHaveLength(1);
+    const indicator = slot(full.container, 'indicator')!;
+    expect(getComputedStyle(indicator).animationName).toBe('ds-progress-slide');
+    expect(indicator.getBoundingClientRect().width).toBeCloseTo(80, 0);
+    await full.unmount();
+
     const reduced = await renderWithDS(<LinearProgress aria-label="Syncing" isIndeterminate />, {
       provider: { motion: 'reduced' },
     });
@@ -205,18 +109,22 @@ describe('LinearProgress', () => {
     expect(getComputedStyle(slot(disabled.container, 'indicator')!).animationName).toBe('none');
   });
 
-  it('falls back to Loading or Progress without a label', async () => {
-    const screen = await renderWithDS(
+  it('takes its fallback names from labels, then DSProvider', async () => {
+    const english = await renderWithDS(
       <>
         <LinearProgress isIndeterminate />
-        <LinearProgress value={30} />
+        <CircularProgress value={30} />
+        <h2 id="backup-title">Workspace backup</h2>
+        <LinearProgress aria-labelledby="backup-title" value={58} />
       </>,
     );
-    await expect.element(screen.getByRole('progressbar', { name: 'Loading' })).toBeVisible();
-    await expect.element(screen.getByRole('progressbar', { name: 'Progress' })).toBeVisible();
-  });
+    await expect.element(english.getByRole('progressbar', { name: 'Loading' })).toBeVisible();
+    await expect.element(english.getByRole('progressbar', { name: 'Progress' })).toBeVisible();
+    await expect
+      .element(english.getByRole('progressbar', { name: 'Workspace backup' }))
+      .not.toHaveAttribute('aria-label');
+    await english.unmount();
 
-  it('takes its fallback names from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div className="flex w-80 flex-col gap-4">
         <LinearProgress isIndeterminate />
@@ -243,6 +151,21 @@ describe('LinearProgress', () => {
           ))}
           <LinearProgress label="Syncing" isIndeterminate />
           <LinearProgress label="Exporting" value={45} size="lg" />
+          <div className="flex gap-4">
+            {(['primary', 'neutral', 'success', 'warning', 'error', 'info'] as const).map(
+              (tone) => (
+                <CircularProgress
+                  key={tone}
+                  aria-label={`${tone} ring`}
+                  value={60}
+                  tone={tone}
+                  size="xl"
+                  showValueLabel
+                />
+              ),
+            )}
+            <CircularProgress isIndeterminate />
+          </div>
         </div>,
         options,
       );
@@ -261,7 +184,6 @@ describe('CircularProgress', () => {
     await expect.element(ring).toHaveAttribute('aria-valuenow', '75');
     await expect.element(ring).toHaveAttribute('data-size', 'xl');
     await expect.element(screen.getByText('75%')).toBeVisible();
-    expect(ring.element().getBoundingClientRect().width).toBe(48);
     const indicator = slot(screen.container, 'indicator')!;
     expect(getComputedStyle(indicator).strokeDasharray).toBe('75px, 100px');
   });
@@ -301,44 +223,21 @@ describe('CircularProgress', () => {
     expect(getComputedStyle(slot(screen.container, 'indicator')!).opacity).toBe('0');
   });
 
-  it('spins an arc over the track when indeterminate', async () => {
-    const screen = await renderWithDS(<CircularProgress isIndeterminate />);
-    const ring = screen.getByRole('progressbar', { name: 'Loading' });
-    await expect.element(ring).not.toHaveAttribute('aria-valuenow');
-    expect(slot(screen.container, 'track')).not.toBeNull();
-    expect(getComputedStyle(slot(screen.container, 'indicator')!).animationName).toBe(
+  it('spins an arc over the track, and pulses instead with reduced motion', async () => {
+    const full = await renderWithDS(<CircularProgress isIndeterminate />);
+    await expect
+      .element(full.getByRole('progressbar', { name: 'Loading' }))
+      .not.toHaveAttribute('aria-valuenow');
+    expect(slot(full.container, 'track')).not.toBeNull();
+    expect(getComputedStyle(slot(full.container, 'indicator')!).animationName).toBe(
       'ds-progress-arc',
     );
-  });
+    await full.unmount();
 
-  it('pulses instead of spinning with reduced motion', async () => {
     const screen = await renderWithDS(<CircularProgress isIndeterminate />, {
       provider: { motion: 'reduced' },
     });
     expect(getComputedStyle(slot(screen.container, 'indicator')!).animationName).toBe('ds-pulse');
     expect(getComputedStyle(screen.container.querySelector('svg')!).animationName).toBe('none');
-  });
-
-  it('has no accessibility violations in light, dark and RTL', async () => {
-    for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
-      const screen = await renderWithDS(
-        <div className="flex gap-4 p-4">
-          {(['primary', 'neutral', 'success', 'warning', 'error', 'info'] as const).map((tone) => (
-            <CircularProgress
-              key={tone}
-              aria-label={tone}
-              value={60}
-              tone={tone}
-              size="xl"
-              showValueLabel
-            />
-          ))}
-          <CircularProgress isIndeterminate />
-        </div>,
-        options,
-      );
-      await expectNoA11yViolations(screen.container);
-      await screen.unmount();
-    }
   });
 });

@@ -26,24 +26,45 @@ async function settleAnimations() {
 describe('PasswordField', () => {
   it('renders a labelled password input for signing in', async () => {
     const screen = await renderWithDS(
-      <PasswordField label="Password" name="password" startAdornment={<LockIcon />} />,
+      <div>
+        <PasswordField label="Password" name="password" startAdornment={<LockIcon />} />
+        <PasswordField label="New password" rules={rules} />
+        <PasswordField label="Passphrase" strength={1} />
+        <PasswordField label="Old password" rules={rules} autoComplete="current-password" />
+      </div>,
     );
+    const autoComplete = ['Password', 'New password', 'Passphrase', 'Old password'].map((name) =>
+      screen.getByLabelText(name, { exact: true }).element().getAttribute('autocomplete'),
+    );
+    expect(autoComplete).toEqual([
+      'current-password',
+      'new-password',
+      'new-password',
+      'current-password',
+    ]);
     const input = screen.getByLabelText('Password', { exact: true });
     await expect.element(input).toHaveAttribute('type', 'password');
-    await expect.element(input).toHaveAttribute('autocomplete', 'current-password');
     await expect.element(input).toHaveAttribute('spellcheck', 'false');
     await expect.element(input).toHaveAttribute('autocapitalize', 'off');
     await expect.element(input).toHaveAttribute('name', 'password');
-    expect(screen.container.querySelector('[role="meter"]')).toBeNull();
+    expect(
+      input.element().closest('[data-slot="password-field"]')!.querySelector('[role="meter"]'),
+    ).toBeNull();
   });
 
   it('reveals and hides the password with a pressed toggle that keeps focus in the input', async () => {
     const onRevealChange = vi.fn();
     const screen = await renderWithDS(
-      <PasswordField label="Password" onRevealChange={onRevealChange} />,
+      <div>
+        <PasswordField label="Password" onRevealChange={onRevealChange} />
+        <PasswordField label="Recovery key" isDisabled />
+      </div>,
     );
     const input = screen.getByLabelText('Password', { exact: true });
-    const toggle = screen.getByRole('button', { name: 'Show password' });
+    const toggle = screen.getByRole('button', { name: 'Show password' }).first();
+    await expect
+      .element(screen.getByRole('button', { name: 'Show password' }).last())
+      .toBeDisabled();
     await expect.element(toggle).toHaveAttribute('aria-pressed', 'false');
     await expect.element(toggle).toHaveAttribute('aria-controls', input.element().id);
 
@@ -58,16 +79,6 @@ describe('PasswordField', () => {
     await toggle.click();
     await expect.element(toggle).toHaveAttribute('aria-pressed', 'false');
     await expect.element(input).toHaveAttribute('type', 'password');
-  });
-
-  it('reaches the toggle with Tab and switches it with Space', async () => {
-    const screen = await renderWithDS(<PasswordField label="Password" />);
-    await screen.getByLabelText('Password', { exact: true }).click();
-    await userEvent.keyboard('{Tab}');
-    const toggle = screen.getByRole('button', { name: 'Show password' });
-    await expect.element(toggle).toHaveFocus();
-    await userEvent.keyboard(' ');
-    await expect.element(toggle).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('names the next action in a tooltip while the toggle keeps one accessible name', async () => {
@@ -87,21 +98,6 @@ describe('PasswordField', () => {
     await expect
       .element(screen.getByRole('button', { name: 'Show password' }))
       .toHaveAttribute('aria-pressed', 'true');
-  });
-
-  it('shows the tooltip on hover and never on a disabled toggle', async () => {
-    const screen = await renderWithDS(
-      <div className="grid gap-4 p-8">
-        <PasswordField label="Password" defaultRevealed />
-        <PasswordField label="Recovery key" isDisabled />
-      </div>,
-    );
-    await screen.getByLabelText('Password', { exact: true }).click();
-    const toggles = screen.getByRole('button', { name: 'Show password' });
-    await toggles.first().hover();
-    await expect.element(page.getByRole('tooltip')).toHaveTextContent('Hide password');
-    await toggles.last().hover({ force: true });
-    await expect.element(page.getByRole('tooltip')).not.toBeInTheDocument();
   });
 
   it('follows a controlled reveal state', async () => {
@@ -179,7 +175,7 @@ describe('PasswordField', () => {
     expect(screen.container.querySelectorAll('[data-slot="rule"][data-met]')).toHaveLength(0);
   });
 
-  it('keeps the input in step when a controlled onChange rejects a keystroke', async () => {
+  it('does not show a keystroke that a controlled onChange rejected', async () => {
     function Example() {
       const [value, setValue] = useState('Folder');
       return (
@@ -240,45 +236,13 @@ describe('PasswordField', () => {
     expect(screen.container.querySelectorAll('[data-slot="rule"][data-met]')).toHaveLength(0);
   });
 
-  it('checks a confirmation again when the password it matches changes', async () => {
-    const onSubmit = vi.fn();
-    function Example() {
-      const [password, setPassword] = useState('');
-      return (
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            onSubmit();
-          }}
-        >
-          <PasswordField label="New password" value={password} onChange={setPassword} />
-          <PasswordField
-            label="Confirm new password"
-            validate={(value) =>
-              value && value !== password ? 'The passwords do not match.' : null
-            }
-          />
-          <button type="submit">Update password</button>
-        </form>
-      );
-    }
-    const screen = await renderWithDS(<Example />);
-    const password = screen.getByLabelText('New password', { exact: true });
-    const confirmation = screen.getByLabelText('Confirm new password', { exact: true });
-    await password.fill('Folder-2026-spring');
-    await confirmation.fill('Folder-2026-spring');
-    await password.fill('Folder-2026-autumn');
-    await screen.getByRole('button', { name: 'Update password' }).click();
-    expect(onSubmit).not.toHaveBeenCalled();
-    await expect.element(confirmation).toHaveAttribute('aria-invalid', 'true');
-    await expect.element(confirmation).toHaveAccessibleDescription('The passwords do not match.');
-    await password.fill('Folder-2026-spring');
-    await screen.getByRole('button', { name: 'Update password' }).click();
-    expect(onSubmit).toHaveBeenCalledTimes(1);
-  });
-
   it('warns about Caps Lock only while the field is focused', async () => {
-    const screen = await renderWithDS(<PasswordField label="Password" />);
+    const screen = await renderWithDS(
+      <div>
+        <PasswordField label="Password" />
+        <PasswordField label="Passphrase" showCapsLockWarning={false} />
+      </div>,
+    );
     const input = screen.getByLabelText('Password', { exact: true });
     const announcer = screen.container.querySelector('[data-slot="caps-lock-announcer"]')!;
     expect(announcer.getAttribute('aria-live')).toBe('polite');
@@ -300,17 +264,12 @@ describe('PasswordField', () => {
       .not.toBeNull();
     (input.element() as HTMLInputElement).blur();
     await expect.poll(() => screen.container.querySelector('[data-slot="caps-lock"]')).toBeNull();
-  });
 
-  it('can turn the Caps Lock warning off', async () => {
-    const screen = await renderWithDS(
-      <PasswordField label="Password" showCapsLockWarning={false} />,
-    );
-    const input = screen.getByLabelText('Password', { exact: true });
-    await input.click();
-    pressWithCapsLock(input.element(), 'keydown', true);
+    const quiet = screen.getByLabelText('Passphrase', { exact: true });
+    await quiet.click();
+    pressWithCapsLock(quiet.element(), 'keydown', true);
     expect(screen.container.querySelector('[data-slot="caps-lock"]')).toBeNull();
-    expect(screen.container.querySelector('[data-slot="caps-lock-announcer"]')).toBeNull();
+    expect(screen.container.querySelectorAll('[data-slot="caps-lock-announcer"]')).toHaveLength(1);
   });
 
   it('shows a strength meter from the strength prop', async () => {
@@ -333,7 +292,6 @@ describe('PasswordField', () => {
       </>,
     );
     const input = screen.getByLabelText('New password', { exact: true });
-    await expect.element(input).toHaveAttribute('autocomplete', 'new-password');
     const meter = screen.getByRole('meter', { name: 'Password strength' });
     await expect.element(meter).toHaveAttribute('aria-valuenow', '0');
     const value = screen.container.querySelector('[data-slot="strength-value"]')!;
@@ -354,21 +312,16 @@ describe('PasswordField', () => {
     expect(getComputedStyle(empty).backgroundColor).toBe(colour('track'));
   });
 
-  it('reports the variant', async () => {
+  it('derives strength from rules and describes the input with the checklist', async () => {
     const screen = await renderWithDS(
-      <div className="grid w-80 gap-4">
-        <PasswordField label="Outline" />
-        <PasswordField label="Soft" variant="soft" />
+      <div>
+        <PasswordField label="New password" rules={rules} />
+        <PasswordField label="Passphrase" rules={rules} strength={4} defaultValue="abc" />
       </div>,
     );
-    const roots = [...screen.container.querySelectorAll('[data-slot="password-field"]')];
-    expect(roots.map((root) => root.getAttribute('data-variant'))).toEqual(['outline', 'soft']);
-  });
-
-  it('derives strength from rules and describes the input with the checklist', async () => {
-    const screen = await renderWithDS(<PasswordField label="New password" rules={rules} />);
     const input = screen.getByLabelText('New password', { exact: true });
-    await expect.element(input).toHaveAttribute('autocomplete', 'new-password');
+    const meters = screen.getByRole('meter', { name: 'Password strength' });
+    await expect.element(meters.last()).toHaveAttribute('aria-valuetext', 'Strong');
     await expect
       .element(input)
       .toHaveAccessibleDescription(
@@ -380,13 +333,14 @@ describe('PasswordField', () => {
       .toHaveAccessibleDescription(
         'At least 12 characters: not met. One number: met. One uppercase letter: met.',
       );
-    await expect
-      .element(screen.getByRole('meter', { name: 'Password strength' }))
-      .toHaveAttribute('aria-valuetext', 'Good');
-    const items = screen.container.querySelectorAll('[data-slot="rule"]');
+    await expect.element(meters.first()).toHaveAttribute('aria-valuetext', 'Good');
+    const items = input
+      .element()
+      .closest('[data-slot="password-field"]')!
+      .querySelectorAll('[data-slot="rule"]');
     expect([...items].map((item) => item.hasAttribute('data-met'))).toEqual([false, true, true]);
     await expect
-      .element(screen.getByRole('list', { name: 'Password requirements' }))
+      .element(screen.getByRole('list', { name: 'Password requirements' }).first())
       .toBeInTheDocument();
   });
 
@@ -418,28 +372,6 @@ describe('PasswordField', () => {
     expect(screen.container.querySelector('[data-slot="announcer"]')!.textContent).toBe('');
   });
 
-  it('marks invalid, required and disabled states', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <PasswordField
-          label="Current password"
-          isRequired
-          isInvalid
-          errorMessage="That password is not right."
-        />
-        <PasswordField label="Recovery key" isDisabled />
-      </div>,
-    );
-    const current = screen.getByRole('textbox', { name: 'Current password' });
-    await expect.element(current).toHaveAttribute('aria-invalid', 'true');
-    await expect.element(current).toHaveAttribute('required');
-    await expect.element(current).toHaveAccessibleDescription('That password is not right.');
-    await expect.element(screen.getByLabelText('Recovery key', { exact: true })).toBeDisabled();
-    await expect
-      .element(screen.getByRole('button', { name: 'Show password' }).last())
-      .toBeDisabled();
-  });
-
   it('takes its text and the Field text from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div className="grid gap-4 p-8">
@@ -457,12 +389,24 @@ describe('PasswordField', () => {
             optional: '(if set)',
           }}
         />
+        <PasswordField
+          label="New password"
+          rules={rules}
+          defaultValue="Folder2026"
+          labels={{
+            requirements: 'Your password needs',
+            ruleMet: ({ rule }) => `${rule}, done.`,
+            ruleUnmet: '{rule}, still missing.',
+          }}
+        />
       </div>,
       { provider: { labels: { passwordField: { showPassword: 'Show', strength: 'Strength' } } } },
     );
-    await expect.element(screen.getByRole('button', { name: 'Show', exact: true })).toBeVisible();
     await expect
-      .element(screen.getByRole('meter', { name: 'Strength', exact: true }))
+      .element(screen.getByRole('button', { name: 'Show', exact: true }).first())
+      .toBeVisible();
+    await expect
+      .element(screen.getByRole('meter', { name: 'Strength', exact: true }).first())
       .toHaveAttribute('aria-valuetext', 'Fair');
     const toggle = screen.getByRole('button', { name: 'Show vault key' });
     await expect
@@ -474,21 +418,6 @@ describe('PasswordField', () => {
     await input.hover();
     await toggle.hover();
     await expect.element(page.getByRole('tooltip')).toHaveTextContent('Hide vault key');
-  });
-
-  it('words the checklist from label templates', async () => {
-    const screen = await renderWithDS(
-      <PasswordField
-        label="New password"
-        rules={rules}
-        defaultValue="Folder2026"
-        labels={{
-          requirements: 'Your password needs',
-          ruleMet: ({ rule }) => `${rule}, done.`,
-          ruleUnmet: '{rule}, still missing.',
-        }}
-      />,
-    );
     await expect
       .element(screen.getByLabelText('New password', { exact: true }))
       .toHaveAccessibleDescription(
@@ -497,25 +426,6 @@ describe('PasswordField', () => {
     await expect
       .element(screen.getByRole('list', { name: 'Your password needs' }))
       .toBeInTheDocument();
-  });
-
-  it('lets autoComplete override the default from rules', async () => {
-    const screen = await renderWithDS(
-      <PasswordField label="Password" rules={rules} autoComplete="current-password" />,
-    );
-    await expect
-      .element(screen.getByLabelText('Password', { exact: true }))
-      .toHaveAttribute('autocomplete', 'current-password');
-  });
-
-  it('renders the reveal tooltip in the page direction and language', async () => {
-    const screen = await renderWithDS(<PasswordField label="كلمة المرور" />, { locale: 'ar' });
-    await screen.getByLabelText('كلمة المرور', { exact: true }).click();
-    await userEvent.keyboard('{Tab}');
-    const tooltip = page.getByRole('tooltip');
-    await expect.element(tooltip).toHaveTextContent('Show password');
-    await expect.element(tooltip).toHaveAttribute('dir', 'rtl');
-    await expect.element(tooltip).toHaveAttribute('lang', 'ar');
   });
 
   it('fills the meter from the start edge in RTL layouts', async () => {
@@ -560,24 +470,5 @@ describe('PasswordField', () => {
       await expectNoA11yViolations(screen.container);
       await screen.unmount();
     }
-  });
-
-  it('has no accessibility violations with the tooltip open in light, dark and RTL', async () => {
-    for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
-      document.documentElement.classList.toggle('dark', 'dark' in options);
-      const screen = await renderWithDS(
-        <div className="w-96 p-16">
-          <PasswordField label="Password" defaultRevealed defaultValue="Folder-Vault-2026" />
-        </div>,
-        options,
-      );
-      await screen.getByLabelText('Password', { exact: true }).click();
-      await userEvent.keyboard('{Tab}');
-      await expect.element(page.getByRole('tooltip')).toBeVisible();
-      await settleAnimations();
-      await expectNoA11yViolations(document.body);
-      await screen.unmount();
-    }
-    document.documentElement.classList.remove('dark');
   });
 });

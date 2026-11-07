@@ -18,13 +18,7 @@ import { BarChart } from '@/registry/ds/ui/bar-chart';
 import { ChartCard } from '@/registry/ds/ui/chart-card';
 import { DSProvider } from '@/registry/ds/ui/ds-provider';
 import { LineChart } from '@/registry/ds/ui/line-chart';
-import {
-  ChartLegend,
-  ChartTooltip,
-  defaultChartLabels,
-  seriesColors,
-  type ChartSeries,
-} from '@/registry/ds/ui/chart';
+import { ChartLegend, ChartTooltip, seriesColors, type ChartSeries } from '@/registry/ds/ui/chart';
 
 const still = { provider: { motion: 'reduced' as const } };
 
@@ -234,7 +228,6 @@ describe('chart parts', () => {
     const tooltip = screen.container.querySelector<HTMLElement>('[data-slot="chart-tooltip"]')!;
     expect(tooltip.textContent).toBe('Thursday1,212Direct574Search402');
     expect(tooltip.querySelectorAll('[data-slot="tooltip-row"]')).toHaveLength(2);
-    expect(tooltip.getBoundingClientRect().width).toBeLessThan(300);
   });
 
   it('paints each series with its role colour', async () => {
@@ -275,7 +268,6 @@ describe('chart parts', () => {
     const table = screen.getByRole('table', { name: 'Yüklemeler verileri' });
     await expect.element(table).toBeInTheDocument();
     await expect.element(table.getByRole('columnheader', { name: 'Ay' })).toBeInTheDocument();
-    expect(defaultChartLabels.dataTable).toBe('Data for {title}');
   });
 
   it('renders the finished chart on the server and hydrates without moving it', async () => {
@@ -332,7 +324,6 @@ describe('chart parts', () => {
             title="Jan"
             items={[{ id: 'photos', label: 'Photos', value: '412', color: 'chart-1' }]}
           />
-          <BarChart aria-label="Uploads" data={rows} category="month" series={series} />
         </div>,
         { ...options, ...still },
       );

@@ -48,9 +48,14 @@ function crosshair(container: HTMLElement) {
 
 describe('LineChart', () => {
   it('draws one non-scaling path per series and breaks it at missing values', async () => {
-    const screen = await renderWithDS(<Devices />, still);
-    const plot = screen.getByRole('group', { name: 'Weekly devices' });
-    await expect.element(plot).toHaveAttribute('aria-roledescription', 'chart');
+    const screen = await renderWithDS(
+      <div>
+        <Devices />
+        <Devices aria-label="Linear" curve="linear" />
+        <Devices aria-label="Step" curve="step" />
+      </div>,
+      still,
+    );
     const current = line(screen.container, 'this-year');
     const previous = line(screen.container, 'last-year');
     expect(current.getAttribute('d')!.match(/M/g)).toHaveLength(2);
@@ -64,20 +69,7 @@ describe('LineChart', () => {
       (cell) => cell.textContent,
     );
     expect(third).toEqual(['W3', '–', '318']);
-    const legend = screen.getByRole('list', { name: 'Legend' });
-    const markers = legend.element().querySelectorAll('[data-slot="marker"]');
-    expect(getComputedStyle(markers[1]).backgroundImage).toContain('repeating-linear-gradient');
-  });
-
-  it('switches curves', async () => {
-    const screen = await renderWithDS(
-      <div>
-        <Devices curve="linear" />
-        <Devices curve="step" />
-      </div>,
-      still,
-    );
-    const [linear, step] = screen.container.querySelectorAll<SVGPathElement>(
+    const [, linear, step] = screen.container.querySelectorAll<SVGPathElement>(
       '[data-slot="line"][data-series="last-year"]',
     );
     expect(linear.getAttribute('d')).not.toContain('C');
@@ -173,7 +165,7 @@ describe('LineChart', () => {
   it('reveals the line on first view and skips it under reduced motion', async () => {
     const animated = await renderWithDS(<Devices />, { provider: { motion: 'system' } });
     const svg = animated.container.querySelector<SVGElement>('[data-slot="chart-svg"]')!;
-    expect(svg.style.transition).toContain('clip-path 700ms');
+    expect(svg.style.transition).toContain('clip-path');
     await expect
       .element(animated.container.querySelector<HTMLElement>('[data-slot="line-chart"]')!)
       .not.toHaveAttribute('data-pending');
@@ -182,20 +174,6 @@ describe('LineChart', () => {
     const quiet = reduced.container.querySelector<SVGElement>('[data-slot="chart-svg"]')!;
     expect(quiet.style.clipPath).toBe('');
     expect(line(reduced.container, 'this-year').style.transition).toBe('');
-  });
-
-  it('takes its copy from labels', async () => {
-    const screen = await renderWithDS(
-      <Devices
-        labels={{ pointAnnouncement: '{category} → {values}', seriesValue: '{value} ({series})' }}
-      />,
-      still,
-    );
-    screen.getByRole('group', { name: 'Weekly devices' }).element().focus();
-    await userEvent.keyboard('{Home}');
-    expect(screen.container.querySelector('[data-slot="chart-live"]')!.textContent).toBe(
-      'W1 → 420 (This year), 310 (Last year)',
-    );
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

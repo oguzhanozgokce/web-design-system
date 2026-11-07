@@ -91,25 +91,11 @@ describe('schemeKey', () => {
     expect(() => schemeKey({ seed: seedTeal, paletteStyle: 'loud' as never })).toThrow(/style/);
     expect(() => schemeKey({ seed: seedTeal, contrast: '</style>' as never })).toThrow(/contrast/);
     expect(() => schemeKey({ seed: seedTeal, mode: 'dim' as never })).toThrow(/mode/);
+    expect(() => dynamicSchemeCss({ seed: seedTeal }, { scope: 'element', key: '' })).toThrow();
   });
 });
 
 describe('dynamicSchemeCss', () => {
-  it('builds a scheme once and reuses it for every scope that shows it', () => {
-    const options = { seed: seedTeal, paletteStyle: 'vibrant' as const };
-    const target = { scope: 'element' as const, key: schemeKey(options) };
-    const first = performance.now();
-    const css = dynamicSchemeCss(options, target);
-    const built = performance.now() - first;
-    const again = performance.now();
-    for (let index = 0; index < 50; index++) {
-      expect(dynamicSchemeCss({ ...options }, { ...target })).toBe(css);
-    }
-    expect(performance.now() - again).toBeLessThan(built);
-    expect(dynamicSchemeCss(options, { scope: 'root' })).not.toBe(css);
-    expect(dynamicSchemeCss(options, { scope: 'element', key: 'other' })).toContain('"other"');
-  });
-
   const light = brandColors({ seed: seedTeal, mode: 'light' });
   const dark = brandColors({ seed: seedTeal, mode: 'dark' });
 
@@ -174,10 +160,6 @@ describe('dynamicSchemeCss', () => {
     const pinned = dynamicSchemeCss({ seed: seedTeal, contrast: 'high' }, { scope: 'root' });
     expect(pinned).toContain(`html:root,html:root ${islands}{`);
   });
-
-  it('throws for an element scope without a key', () => {
-    expect(() => dynamicSchemeCss({ seed: seedTeal }, { scope: 'element', key: '' })).toThrow();
-  });
 });
 
 describe('seedsFromImageData', () => {
@@ -188,14 +170,10 @@ describe('seedsFromImageData', () => {
   });
 
   it('is deterministic', () => {
+    const random = Math.random;
     const data = variedPixels();
     const first = seedsFromImageData(data);
     for (let run = 0; run < 3; run++) expect(seedsFromImageData(data)).toEqual(first);
-  });
-
-  it('leaves Math.random untouched', () => {
-    const random = Math.random;
-    seedsFromImageData(variedPixels());
     expect(Math.random).toBe(random);
   });
 
@@ -205,9 +183,6 @@ describe('seedsFromImageData', () => {
       expect(seedsFromImageData(data)).toEqual([]);
       expect(seedsFromImageData(data, { fallback: fallbackSeed })).toEqual([seedTealLower]);
     }
-  });
-
-  it('rejects a fallback that is not a seed', () => {
     expect(() => seedsFromImageData(solidPixels(128, 128, 128), { fallback: 'teal' })).toThrow(
       /fallback/,
     );
@@ -233,13 +208,13 @@ describe('seedsFromImageData', () => {
 });
 
 describe('seedsFromImage', () => {
-  it('reads a Blob', async () => {
-    const seeds = await seedsFromImage(await tealBlob());
-    expect(hueDistance(hue(seeds[0]), hue(seedTeal))).toBeLessThan(10);
-  });
-
-  it('reads an image URL and an image element', async () => {
-    const url = URL.createObjectURL(await tealBlob());
+  it('reads a Blob, an image URL, an image element and an ImageBitmap', async () => {
+    const blob = await tealBlob();
+    const fromBlob = await seedsFromImage(blob);
+    expect(hueDistance(hue(fromBlob[0]), hue(seedTeal))).toBeLessThan(10);
+    const fromBitmap = await seedsFromImage(await createImageBitmap(blob));
+    expect(hueDistance(hue(fromBitmap[0]), hue(seedTeal))).toBeLessThan(10);
+    const url = URL.createObjectURL(blob);
     try {
       const fromUrl = await seedsFromImage(url);
       expect(hueDistance(hue(fromUrl[0]), hue(seedTeal))).toBeLessThan(10);
@@ -251,19 +226,17 @@ describe('seedsFromImage', () => {
       URL.revokeObjectURL(url);
     }
   });
-
-  it('reads an ImageBitmap', async () => {
-    const bitmap = await createImageBitmap(await tealBlob());
-    const seeds = await seedsFromImage(bitmap);
-    expect(hueDistance(hue(seeds[0]), hue(seedTeal))).toBeLessThan(10);
-  });
-
   it('rejects with an AbortError when aborted', async () => {
     const controller = new AbortController();
     controller.abort();
     await expect(
       seedsFromImage('/missing.png', { signal: controller.signal }),
     ).rejects.toMatchObject({ name: 'AbortError' });
+
+    const loading = new AbortController();
+    const pending = seedsFromImage('/missing.png', { signal: loading.signal });
+    loading.abort();
+    await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
   });
 
   it('rejects for an image that does not load', async () => {

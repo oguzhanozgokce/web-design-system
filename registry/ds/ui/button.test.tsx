@@ -3,18 +3,10 @@ import { AddIcon } from '@/registry/ds/lib/icons';
 import { Button, ButtonLink } from '@/registry/ds/ui/button';
 
 describe('Button', () => {
-  it('renders an accessible button with its label', async () => {
-    const screen = await renderWithDS(<Button startIcon={<AddIcon />}>Save</Button>);
-    const button = screen.getByRole('button', { name: 'Save' });
-    await expect.element(button).toBeVisible();
-    await expect.element(button).toHaveAttribute('data-variant', 'solid');
-    await expect.element(button).toHaveAttribute('data-size', 'md');
-  });
-
   it('defaults the tone to primary for solid and to neutral for the quieter variants', async () => {
     const screen = await renderWithDS(
       <>
-        <Button>Solid</Button>
+        <Button startIcon={<AddIcon />}>Solid</Button>
         <Button variant="soft">Soft</Button>
         <Button variant="outline">Outline</Button>
         <Button variant="ghost">Ghost</Button>
@@ -32,6 +24,9 @@ describe('Button', () => {
     ] as const) {
       await expect.element(screen.getByRole('button', { name })).toHaveAttribute('data-tone', tone);
     }
+    const solid = screen.getByRole('button', { name: 'Solid' });
+    await expect.element(solid).toHaveAttribute('data-variant', 'solid');
+    await expect.element(solid).toHaveAttribute('data-size', 'md');
   });
 
   it('is 32, 40 and 48 pixels tall at sm, md and lg', async () => {
@@ -50,13 +45,6 @@ describe('Button', () => {
       const element = screen.getByRole('button', { name }).element();
       expect(element.getBoundingClientRect().height).toBe(height);
     }
-  });
-
-  it('calls onPress', async () => {
-    const onPress = vi.fn();
-    const screen = await renderWithDS(<Button onPress={onPress}>Save</Button>);
-    await screen.getByRole('button', { name: 'Save' }).click();
-    expect(onPress).toHaveBeenCalledOnce();
   });
 
   it('stays pending while an async onPress runs and blocks repeat presses', async () => {
@@ -92,33 +80,6 @@ describe('Button', () => {
     await expect
       .element(screen.getByRole('progressbar', { name: 'Kaydediliyor' }))
       .toBeInTheDocument();
-  });
-
-  it('says Loading by default', async () => {
-    const screen = await renderWithDS(<Button isPending>Save</Button>);
-    await expect.element(screen.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
-  });
-
-  it('does not fire when disabled', async () => {
-    const onPress = vi.fn();
-    const screen = await renderWithDS(
-      <Button isDisabled onPress={onPress}>
-        Save
-      </Button>,
-    );
-    await screen.getByRole('button', { name: 'Save' }).click({ force: true });
-    expect(onPress).not.toHaveBeenCalled();
-  });
-
-  it('renders ButtonLink as a link', async () => {
-    const screen = await renderWithDS(
-      <ButtonLink href="/docs" variant="outline">
-        Docs
-      </ButtonLink>,
-    );
-    await expect
-      .element(screen.getByRole('link', { name: 'Docs' }))
-      .toHaveAttribute('href', '/docs');
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

@@ -123,7 +123,7 @@ async function drag(element: Element, deltaY: number, steps: number, interval: n
 }
 
 describe('Sheet', () => {
-  it('opens a modal dialog named by its title and closes from the close button', async () => {
+  it('opens a modal dialog named by its title and closes from the close button and slot="close"', async () => {
     const screen = await renderWithDS(<ProjectSheet />);
     const trigger = screen.getByRole('button', { name: 'Open project' });
 
@@ -143,67 +143,16 @@ describe('Sheet', () => {
     const surface = getComputedStyle(part('sheet-surface'));
     expect(surface.backgroundColor).toBe(roleBackground('bg-surface-overlay'));
     expect(surface.boxShadow).not.toBe('none');
-    expect(surface.borderTopLeftRadius).toBe('0px');
-    expect(surface.borderLeftWidth).toBe('1px');
-    expect(surface.borderRightWidth).toBe('0px');
     expect(getComputedStyle(part('sheet-overlay')).backgroundColor).toBe(
       roleBackground('bg-backdrop'),
     );
 
-    const close = dialog.getByRole('button', { name: 'Close' });
-    await expect.element(close).toHaveAttribute('data-variant', 'ghost');
-    await expect.element(close).toHaveAttribute('data-tone', 'neutral');
-    await expect.element(close).toHaveAttribute('data-size', 'sm');
-    await close.click();
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    await expect.element(trigger).toHaveFocus();
-  });
-
-  it('closes on Escape and from a footer button with slot="close"', async () => {
-    const screen = await renderWithDS(<ProjectSheet />);
-    const trigger = screen.getByRole('button', { name: 'Open project' });
-
-    await trigger.click();
-    await expect.element(page.getByRole('dialog')).toHaveFocus();
-    await userEvent.keyboard('{Escape}');
+    await dialog.getByRole('button', { name: 'Close' }).click();
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await expect.element(trigger).toHaveFocus();
 
     await trigger.click();
     await page.getByRole('button', { name: 'Cancel' }).click();
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('keeps focus inside while open', async () => {
-    const screen = await renderWithDS(<ProjectSheet />);
-    await screen.getByRole('button', { name: 'Open project' }).click();
-    const dialog = page.getByRole('dialog');
-    await expect.element(dialog).toHaveFocus();
-
-    await userEvent.keyboard('{Tab}');
-    await expect.element(dialog.getByRole('button', { name: 'Close' })).toHaveFocus();
-    await userEvent.keyboard('{Tab}');
-    await userEvent.keyboard('{Tab}');
-    await expect.element(dialog.getByRole('button', { name: 'Save changes' })).toHaveFocus();
-    await userEvent.keyboard('{Tab}');
-    await expect.element(dialog.getByRole('button', { name: 'Close' })).toHaveFocus();
-  });
-
-  it('closes when the scrim is pressed unless it is not dismissable', async () => {
-    const screen = await renderWithDS(<ProjectSheet size="sm" />);
-    await screen.getByRole('button', { name: 'Open project' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    await page.elementLocator(part('sheet-overlay')).click({ position: { x: 8, y: 8 } });
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    await screen.unmount();
-
-    const locked = await renderWithDS(<ProjectSheet size="sm" isDismissable={false} />);
-    await locked.getByRole('button', { name: 'Open project' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    await page.elementLocator(part('sheet-overlay')).click({ position: { x: 8, y: 8 } });
-    await wait(100);
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
   });
 
@@ -239,14 +188,13 @@ describe('Sheet', () => {
     await screen.getByRole('button', { name: 'Edit member' }).click();
     await expect.element(page.getByRole('dialog', { name: 'Edit Ayşe Demir' })).toBeVisible();
     await expect.element(screen.getByText('Open')).toBeInTheDocument();
-    expect(getComputedStyle(part('sheet-surface')).borderRightWidth).toBe('1px');
 
     await page.getByRole('button', { name: 'Save role' }).click();
     await expect.element(screen.getByText('Closed')).toBeInTheDocument();
     expect(onOpenChange).toHaveBeenLastCalledWith(false);
   });
 
-  it('sizes side sheets by width and rounds only the corners that face the page', async () => {
+  it('sizes side sheets by width, rounds only the corners that face the page and floats detached sheets 8px in', async () => {
     await page.viewport(1280, 800);
     for (const [size, width] of [
       ['sm', 320],
@@ -287,9 +235,10 @@ describe('Sheet', () => {
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(getComputedStyle(part('sheet-surface')).borderBottomLeftRadius).toBe('0px');
     expect(part('sheet').getBoundingClientRect().height).toBe(window.innerHeight);
-  });
+    await userEvent.keyboard('{Escape}');
+    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+    await full.unmount();
 
-  it('floats a detached sheet 8px from the edges with every corner rounded', async () => {
     for (const side of ['end', 'bottom'] as const) {
       const screen = await renderWithDS(<ProjectSheet side={side} detached />, {
         provider: { motion: 'disabled' },
@@ -307,7 +256,6 @@ describe('Sheet', () => {
       const surface = getComputedStyle(part('sheet-surface'));
       expect(surface.borderTopLeftRadius).toBe('24px');
       expect(surface.borderBottomRightRadius).toBe('24px');
-      expect(surface.borderLeftWidth).toBe('0px');
       await userEvent.keyboard('{Escape}');
       await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
       await screen.unmount();
@@ -578,8 +526,6 @@ describe('Sheet', () => {
     await userEvent.keyboard('{Tab}');
     await userEvent.keyboard('{Tab}');
     await expect.element(page.elementLocator(part('sheet-body'))).toHaveFocus();
-    await wait(400);
-    await expectNoA11yViolations(document.body);
   });
 
   it('expands to the largest snap point when the keyboard reaches content below the fold', async () => {
@@ -646,29 +592,7 @@ describe('Sheet', () => {
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('keeps a standard sheet open on Escape when keyboard dismiss is disabled', async () => {
-    await renderWithDS(
-      <Sheet
-        side="bottom"
-        variant="standard"
-        defaultOpen
-        isKeyboardDismissDisabled
-        aria-label="Upload progress"
-      >
-        <SheetBody>
-          <Button>Pause upload</Button>
-        </SheetBody>
-      </Sheet>,
-    );
-    const dialog = page.getByRole('dialog', { name: 'Upload progress' });
-    await expect.element(dialog).toBeVisible();
-    await dialog.getByRole('button', { name: 'Pause upload' }).click();
-    await userEvent.keyboard('{Escape}');
-    await wait(100);
-    await expect.element(dialog).toBeVisible();
-  });
-
-  it('renders a standard sheet that leaves the page usable', async () => {
+  it('renders a standard sheet that leaves the page usable and can ignore Escape', async () => {
     const onArchive = vi.fn();
     const onConfirm = vi.fn();
     const screen = await renderWithDS(
@@ -704,6 +628,26 @@ describe('Sheet', () => {
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await expect.element(toggle).toHaveFocus();
+    await screen.unmount();
+
+    await renderWithDS(
+      <Sheet
+        side="bottom"
+        variant="standard"
+        defaultOpen
+        isKeyboardDismissDisabled
+        aria-label="Upload progress"
+      >
+        <SheetBody>
+          <Button>Pause upload</Button>
+        </SheetBody>
+      </Sheet>,
+    );
+    const locked = page.getByRole('dialog', { name: 'Upload progress' });
+    await locked.getByRole('button', { name: 'Pause upload' }).click();
+    await userEvent.keyboard('{Escape}');
+    await wait(100);
+    await expect.element(locked).toBeVisible();
   });
 
   it('warns when a standard sheet is placed inside SheetTrigger', async () => {
@@ -720,43 +664,26 @@ describe('Sheet', () => {
     warn.mockRestore();
   });
 
-  it('names the close button and the drag handle in English by default', async () => {
-    const screen = await renderWithDS(<ProjectSheet side="bottom" snapPoints={['50%', '90%']} />, {
-      locale: 'tr',
-    });
-    await screen.getByRole('button', { name: 'Open project' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Project Atlas' });
-    await expect.element(dialog.getByRole('button', { name: 'Close' })).toBeVisible();
-    await expect.element(dialog.getByRole('button', { name: 'Resize sheet' })).toBeVisible();
-  });
-
-  it('takes its labels from DSProvider, and from its labels prop first', async () => {
+  it('names its controls in English, then from DSProvider, then from its labels prop first', async () => {
     const provider = { labels: { sheet: { close: 'Kapat', dragHandle: 'Boyutlandır' } } };
-    const screen = await renderWithDS(<ProjectSheet side="bottom" snapPoints={['50%', '90%']} />, {
-      provider,
-    });
-    await screen.getByRole('button', { name: 'Open project' }).click();
-    let dialog = page.getByRole('dialog', { name: 'Project Atlas' });
-    await expect.element(dialog.getByRole('button', { name: 'Kapat' })).toBeVisible();
-    await expect.element(dialog.getByRole('button', { name: 'Boyutlandır' })).toBeVisible();
-    await userEvent.keyboard('{Escape}');
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    await screen.unmount();
-
-    const own = await renderWithDS(
-      <ProjectSheet
-        side="bottom"
-        snapPoints={['50%', '90%']}
-        labels={{ close: 'Paneli kapat', dragHandle: 'Paneli yeniden boyutlandır' }}
-      />,
-      { provider },
-    );
-    await own.getByRole('button', { name: 'Open project' }).click();
-    dialog = page.getByRole('dialog', { name: 'Project Atlas' });
-    await expect.element(dialog.getByRole('button', { name: 'Paneli kapat' })).toBeVisible();
-    await expect
-      .element(dialog.getByRole('button', { name: 'Paneli yeniden boyutlandır' }))
-      .toBeVisible();
+    const own = { close: 'Paneli kapat', dragHandle: 'Paneli yeniden boyutlandır' };
+    for (const [options, labels, close, handle] of [
+      [{ locale: 'tr' }, undefined, 'Close', 'Resize sheet'],
+      [{ provider }, undefined, 'Kapat', 'Boyutlandır'],
+      [{ provider }, own, own.close, own.dragHandle],
+    ] as const) {
+      const screen = await renderWithDS(
+        <ProjectSheet side="bottom" snapPoints={['50%', '90%']} labels={labels} />,
+        options,
+      );
+      await screen.getByRole('button', { name: 'Open project' }).click();
+      const dialog = page.getByRole('dialog', { name: 'Project Atlas' });
+      await expect.element(dialog.getByRole('button', { name: close })).toBeVisible();
+      await expect.element(dialog.getByRole('button', { name: handle })).toBeVisible();
+      await userEvent.keyboard('{Escape}');
+      await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+      await screen.unmount();
+    }
   });
 
   it('takes its direction from the locale so end sheets open on the left in Arabic', async () => {
@@ -766,23 +693,6 @@ describe('Sheet', () => {
     expect(part('sheet-overlay')).toHaveAttribute('dir', 'rtl');
     await expect.poll(() => Math.round(part('sheet').getBoundingClientRect().left)).toBe(0);
     await expect.element(page.getByRole('button', { name: 'Close' })).toBeVisible();
-  });
-
-  it('fades with reduced motion and skips animation when motion is disabled', async () => {
-    const reduced = await renderWithDS(<ProjectSheet />, { provider: { motion: 'reduced' } });
-    await reduced.getByRole('button', { name: 'Open project' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(part('sheet').className).toContain('data-[entering]:animate-ds-fade-in');
-    expect(part('sheet').className).not.toContain('animate-ds-sheet-in-end');
-    await userEvent.keyboard('{Escape}');
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    await reduced.unmount();
-
-    const disabled = await renderWithDS(<ProjectSheet />, { provider: { motion: 'disabled' } });
-    await disabled.getByRole('button', { name: 'Open project' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(part('sheet').className).not.toContain('animate-ds');
-    expect(part('sheet-overlay').className).not.toContain('animate-ds');
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

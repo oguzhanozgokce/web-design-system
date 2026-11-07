@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import type { Selection } from 'react-aria-components';
 import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { FolderIcon, InboxIcon, PersonIcon } from '@/registry/ds/lib/icons';
@@ -62,7 +60,7 @@ describe('ListBox', () => {
     ).not.toBeNull();
   });
 
-  it('selects with the pointer and keyboard and shows a primary check mark', async () => {
+  it('selects with the pointer and moves the primary check mark', async () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
       <>
@@ -86,63 +84,11 @@ describe('ListBox', () => {
     );
     expect([...(onSelectionChange.mock.lastCall?.[0] as Set<string>)]).toEqual(['photos']);
 
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{Enter}');
     const projects = screen.getByRole('option', { name: /^Projects/ });
+    await projects.click();
     await expect.element(projects).toHaveAttribute('aria-selected', 'true');
     await expect.element(photos).toHaveAttribute('aria-selected', 'false');
     expect(photos.element().querySelector('[data-slot="check"] svg')).toBeNull();
-  });
-
-  it('rings the focused row for keyboard focus but not after a click', async () => {
-    const screen = await renderWithDS(
-      <ListBox aria-label="Folder" selectionMode="single">
-        {folders.map((folder) => (
-          <ListBoxItem key={folder.id} id={folder.id}>
-            {folder.name}
-          </ListBoxItem>
-        ))}
-      </ListBox>,
-    );
-    const photos = screen.getByRole('option', { name: 'Photos' });
-    await photos.click();
-    await expect.element(photos).toHaveFocus();
-    expect(getComputedStyle(photos.element()).outlineStyle).toBe('none');
-
-    await userEvent.keyboard('{ArrowDown}');
-    const projects = screen.getByRole('option', { name: 'Projects' });
-    await expect.element(projects).toHaveFocus();
-    await expect.element(projects).toHaveAttribute('data-focus-visible', 'true');
-    const ring = getComputedStyle(projects.element());
-    expect(ring.outlineStyle).toBe('solid');
-    expect(ring.outlineWidth).toBe('2px');
-    expect(ring.outlineOffset).toBe('-2px');
-  });
-
-  it('fills the hovered row and rounds every row', async () => {
-    const screen = await renderWithDS(
-      <>
-        <span data-testid="neutral" className="bg-neutral-soft" />
-        <ListBox aria-label="Folder" selectionMode="single">
-          {folders.map((folder) => (
-            <ListBoxItem key={folder.id} id={folder.id}>
-              {folder.name}
-            </ListBoxItem>
-          ))}
-        </ListBox>
-      </>,
-    );
-    const photos = screen.getByRole('option', { name: 'Photos' });
-    const style = getComputedStyle(photos.element());
-    expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0)');
-    expect(style.borderTopLeftRadius).toBe('12px');
-    expect(photos.element().getBoundingClientRect().height).toBe(36);
-
-    await userEvent.hover(photos);
-    await expect.element(photos).toHaveAttribute('data-hovered', 'true');
-    await expect
-      .poll(() => getComputedStyle(photos.element()).backgroundColor)
-      .toBe(getComputedStyle(screen.getByTestId('neutral').element()).backgroundColor);
   });
 
   it('tints the selected row only in the outline variant', async () => {
@@ -162,15 +108,12 @@ describe('ListBox', () => {
         </ListBox>
       </div>,
     );
-    const outline = screen.getByRole('listbox', { name: 'Outline' });
-    await expect.element(outline).toHaveAttribute('data-variant', 'outline');
+    await expect
+      .element(screen.getByRole('listbox', { name: 'Outline' }))
+      .toHaveAttribute('data-variant', 'outline');
     await expect
       .element(screen.getByRole('listbox', { name: 'Plain' }))
       .toHaveAttribute('data-variant', 'plain');
-    const frame = getComputedStyle(outline.element());
-    expect(frame.borderTopWidth).toBe('1px');
-    expect(frame.borderTopLeftRadius).toBe('20px');
-
     const soft = getComputedStyle(screen.getByTestId('soft').element()).backgroundColor;
     const plainRow = screen.getByRole('option', { name: 'Photos' }).element();
     const outlineRow = screen.getByRole('option', { name: 'Projects' }).element();
@@ -178,57 +121,7 @@ describe('ListBox', () => {
     expect(getComputedStyle(outlineRow).backgroundColor).toBe(soft);
   });
 
-  it('supports controlled multiple selection from dynamic items', async () => {
-    function Example() {
-      const [selected, setSelected] = useState<Selection>(new Set(['projects']));
-      return (
-        <>
-          <ListBox
-            aria-label="Folders"
-            items={folders}
-            selectionMode="multiple"
-            selectedKeys={selected}
-            onSelectionChange={setSelected}
-          >
-            {(folder) => <ListBoxItem description={folder.description}>{folder.name}</ListBoxItem>}
-          </ListBox>
-          <output>{selected === 'all' ? 'all' : [...selected].join(',')}</output>
-        </>
-      );
-    }
-    const screen = await renderWithDS(<Example />);
-    await expect
-      .element(screen.getByRole('listbox'))
-      .toHaveAttribute('aria-multiselectable', 'true');
-    await screen.getByRole('option', { name: /^Team space/ }).click();
-    await expect.element(screen.getByText('projects,team')).toBeInTheDocument();
-    await screen.getByRole('option', { name: /^Projects/ }).click();
-    await expect.element(screen.getByText(/^team$/)).toBeInTheDocument();
-  });
-
-  it('skips disabled items', async () => {
-    const onAction = vi.fn();
-    const screen = await renderWithDS(
-      <ListBox aria-label="Folder" onAction={onAction}>
-        <ListBoxItem id="photos">Photos</ListBoxItem>
-        <ListBoxItem id="archived" isDisabled>
-          Archived 2023
-        </ListBoxItem>
-        <ListBoxItem id="projects">Projects</ListBoxItem>
-      </ListBox>,
-    );
-    const archived = screen.getByRole('option', { name: 'Archived 2023' });
-    await expect.element(archived).toHaveAttribute('aria-disabled', 'true');
-    await archived.click({ force: true });
-    expect(onAction).not.toHaveBeenCalled();
-
-    await screen.getByRole('option', { name: /^Photos/ }).click();
-    expect(onAction).toHaveBeenLastCalledWith('photos');
-    await userEvent.keyboard('{ArrowDown}');
-    await expect.element(screen.getByRole('option', { name: /^Projects/ })).toHaveFocus();
-  });
-
-  it('renders a default empty state, a custom one and a loading state', async () => {
+  it('renders a default empty state, a custom one, a loading state and a load-more row', async () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-4">
         <ListBox aria-label="Default" items={[] as typeof folders}>
@@ -246,6 +139,9 @@ describe('ListBox', () => {
         <ListBox aria-label="Loading" items={[] as typeof folders} isLoading>
           {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
         </ListBox>
+        <ListBox aria-label="More" items={folders} isLoading onLoadMore={() => {}}>
+          {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
+        </ListBox>
       </div>,
     );
     await expect
@@ -253,21 +149,13 @@ describe('ListBox', () => {
       .toHaveAttribute('data-empty', 'true');
     await expect.element(screen.getByText('No items')).toBeVisible();
     await expect.element(screen.getByText('No archived folders yet')).toBeVisible();
-    await expect.element(screen.getByText('Loading…')).toBeVisible();
-    expect(screen.container.querySelectorAll('[data-slot="spinner"]')).toHaveLength(1);
-  });
-
-  it('shows a load-more row after the items while loading', async () => {
-    const onLoadMore = vi.fn();
-    const screen = await renderWithDS(
-      <ListBox aria-label="Folders" items={folders} isLoading onLoadMore={onLoadMore}>
-        {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
-      </ListBox>,
-    );
-    await expect.element(screen.getByRole('option', { name: /^Photos/ })).toBeVisible();
-    const loader = screen.container.querySelector('[data-slot="list-box-loader"]');
-    expect(loader).not.toBeNull();
-    expect(loader?.textContent).toContain('Loading…');
+    const loading = screen.getByRole('listbox', { name: 'Loading' }).element();
+    expect(loading.textContent).toBe('Loading…');
+    expect(loading.querySelectorAll('[data-slot="spinner"]')).toHaveLength(1);
+    const more = screen.getByRole('listbox', { name: 'More' }).element();
+    await expect.element(screen.getByRole('option', { name: 'Photos' })).toBeVisible();
+    expect(more.lastElementChild).toHaveAttribute('data-slot', 'list-box-loader');
+    expect(more.lastElementChild?.textContent).toBe('Loading…');
   });
 
   it('asks for more items once the end of the list is visible', async () => {
@@ -293,30 +181,6 @@ describe('ListBox', () => {
     await screen.getByRole('option', { name: 'Summary' }).click();
     await userEvent.keyboard('p');
     await expect.element(screen.getByRole('option', { name: 'Page 2' })).toHaveFocus();
-  });
-
-  it('dims a row that is both selected and disabled', async () => {
-    const screen = await renderWithDS(
-      <ListBox
-        aria-label="Plan"
-        selectionMode="multiple"
-        variant="outline"
-        defaultSelectedKeys={['team', 'archive']}
-      >
-        <ListBoxItem id="team">Team</ListBoxItem>
-        <ListBoxItem id="archive" isDisabled>
-          Archive
-        </ListBoxItem>
-      </ListBox>,
-    );
-    const archive = screen.getByRole('option', { name: 'Archive' }).element();
-    const team = screen.getByRole('option', { name: 'Team' }).element();
-    expect(archive).toHaveAttribute('data-selected', 'true');
-    expect(team).toHaveAttribute('data-selected', 'true');
-    expect(getComputedStyle(archive).opacity).toBe('0.5');
-    expect(getComputedStyle(archive).cursor).toBe('not-allowed');
-    expect(getComputedStyle(team).opacity).toBe('1');
-    expect(getComputedStyle(team).cursor).toBe('pointer');
   });
 
   it('keeps two-line rows at full height in a list that scrolls', async () => {

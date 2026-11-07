@@ -4,14 +4,21 @@ import { useImageSeed } from '@/registry/ds/hooks/use-image-seed';
 
 const seedTeal = '#0B8F6A';
 
-async function tealBlob() {
+async function solidBlob(fill: string, size = 32) {
   const canvas = document.createElement('canvas');
-  canvas.width = 32;
-  canvas.height = 32;
+  canvas.width = size;
+  canvas.height = size;
   const context = canvas.getContext('2d')!;
-  context.fillStyle = 'rgb(11 143 106)';
-  context.fillRect(0, 0, 32, 32);
+  context.fillStyle = fill;
+  context.fillRect(0, 0, size, size);
   return new Promise<Blob>((resolve) => canvas.toBlob((blob) => resolve(blob!), 'image/png'));
+}
+
+const tealBlob = () => solidBlob('rgb(11 143 106)');
+const redBlob = () => solidBlob('rgb(200 30 40)');
+
+function hueDistance(seed: string, reference: string) {
+  return Math.abs(Hct.fromInt(argbFromHex(seed)).hue - Hct.fromInt(argbFromHex(reference)).hue);
 }
 
 function Probe({
@@ -37,61 +44,43 @@ describe('useImageSeed', () => {
     await expect.element(screen.getByTestId('probe')).toHaveAttribute('data-status', 'idle');
   });
 
-  it('loads and ranks seeds from a file', async () => {
-    const blob = await tealBlob();
-    const screen = await render(<Probe source={blob} />);
+  it('reports loading again when the source changes', async () => {
+    const screen = await render(<Probe source={await redBlob()} />);
     const probe = screen.getByTestId('probe');
     await expect.element(probe).toHaveAttribute('data-status', 'ready');
-    const seed = probe.element().getAttribute('data-seed')!;
-    const distance = Math.abs(
-      Hct.fromInt(argbFromHex(seed)).hue - Hct.fromInt(argbFromHex(seedTeal)).hue,
-    );
-    expect(distance).toBeLessThan(10);
-  });
 
-  it('reports loading again when the source changes', async () => {
-    const first = await tealBlob();
-    const screen = await render(<Probe source={first} />);
-    await expect.element(screen.getByTestId('probe')).toHaveAttribute('data-status', 'ready');
-    const second = await tealBlob();
-    await screen.rerender(<Probe source={second} />);
-    expect(screen.getByTestId('probe').element().getAttribute('data-status')).toBe('loading');
-    await expect.element(screen.getByTestId('probe')).toHaveAttribute('data-status', 'ready');
+    await screen.rerender(<Probe source={await tealBlob()} />);
+    expect(probe.element().getAttribute('data-status')).toBe('loading');
+    await expect.element(probe).toHaveAttribute('data-status', 'ready');
+    expect(hueDistance(probe.element().getAttribute('data-seed')!, seedTeal)).toBeLessThan(10);
+
+    const staleRed = await redBlob();
+    const latestTeal = await tealBlob();
+    await screen.rerender(<Probe source={staleRed} />);
+    await screen.rerender(<Probe source={latestTeal} />);
+    await expect.element(probe).toHaveAttribute('data-status', 'ready');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(probe.element().getAttribute('data-status')).toBe('ready');
+    expect(hueDistance(probe.element().getAttribute('data-seed')!, seedTeal)).toBeLessThan(10);
   });
 
   it('reports loading again when count or fallback change', async () => {
     const blob = await tealBlob();
     const screen = await render(<Probe source={blob} />);
-    await expect.element(screen.getByTestId('probe')).toHaveAttribute('data-status', 'ready');
+    const probe = screen.getByTestId('probe');
+    await expect.element(probe).toHaveAttribute('data-status', 'ready');
     await screen.rerender(<Probe source={blob} count={1} />);
-    expect(screen.getByTestId('probe').element().getAttribute('data-status')).toBe('loading');
-    await expect.element(screen.getByTestId('probe')).toHaveAttribute('data-status', 'ready');
-    await expect.element(screen.getByTestId('probe')).toHaveTextContent('1');
-  });
+    expect(probe.element().getAttribute('data-status')).toBe('loading');
+    await expect.element(probe).toHaveAttribute('data-status', 'ready');
+    await expect.element(probe).toHaveTextContent('1');
 
-  it('reports ready with no seed for a grey image, and the fallback when given', async () => {
-    const fallbackSeed = '#0B8F6A';
-    const grey = await new Promise<Blob>((resolve) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 16;
-      canvas.height = 16;
-      const context = canvas.getContext('2d')!;
-      context.fillStyle = 'rgb(128 128 128)';
-      context.fillRect(0, 0, 16, 16);
-      canvas.toBlob((blob) => resolve(blob!), 'image/png');
-    });
-    const screen = await render(<Probe source={grey} />);
-    await expect.element(screen.getByTestId('probe')).toHaveAttribute('data-status', 'ready');
-    expect(screen.getByTestId('probe').element().getAttribute('data-seed')).toBe('');
-    await screen.rerender(<Probe source={grey} fallback={fallbackSeed} />);
-    await expect
-      .element(screen.getByTestId('probe'))
-      .toHaveAttribute('data-seed', fallbackSeed.toLowerCase());
-  });
-
-  it('can unmount while loading', async () => {
-    const screen = await render(<Probe source={await tealBlob()} />);
-    await screen.unmount();
+    const grey = await solidBlob('rgb(128 128 128)', 16);
+    await screen.rerender(<Probe source={grey} />);
+    await expect.element(probe).toHaveAttribute('data-status', 'ready');
+    expect(probe.element().getAttribute('data-seed')).toBe('');
+    await screen.rerender(<Probe source={grey} fallback={seedTeal} />);
+    expect(probe.element().getAttribute('data-status')).toBe('loading');
+    await expect.element(probe).toHaveAttribute('data-seed', seedTeal.toLowerCase());
   });
 
   it('reports an error for an image that does not load', async () => {

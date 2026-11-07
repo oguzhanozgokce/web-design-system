@@ -33,7 +33,9 @@ copy, so the source in `registry/ds` must work after the shadcn CLI copies it so
 1. Read `.claude/skills/ds-component/SKILL.md` before writing or changing a component.
 2. Read `registry/ds/ui/button.tsx`, its test, examples, item and docs page. Match their shape.
 3. Search `docs/research/libraries.json` for the component and read the references it names.
-4. Ship the change whole: component, labels, test, examples, item, docs page.
+4. Ship the change whole: component, labels, test, examples, item, docs page. Tests follow the
+   rules in section 4 of the skill: only what can fail for a reason nothing else catches, no
+   duplicates, nothing React Aria or TypeScript already guarantees.
 5. Verify with the commands below. Report what ran, what passed and what was not checked.
 
 ## Rules for every change

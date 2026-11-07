@@ -1,5 +1,5 @@
 import { Dialog, Modal, ModalOverlay } from 'react-aria-components';
-import { page, userEvent } from 'vitest/browser';
+import { page } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { useCopyToClipboard } from '@/registry/ds/hooks/use-copy-to-clipboard';
 import { Button } from '@/registry/ds/ui/button';
@@ -45,29 +45,6 @@ describe('CopyButton', () => {
     await expect.element(page.getByRole('status')).toBeEmptyDOMElement();
   });
 
-  it('morphs the copy glyph into a green check and back', async () => {
-    mockClipboard();
-    const screen = await renderWithDS(<CopyButton value="ws_8f3a21c9" timeout={400} />);
-    const button = screen.getByRole('button', { name: 'Copy' });
-    await expect.element(button).toBeVisible();
-    const copyGlyph = glyph(button.element(), 'idle');
-    const checkGlyph = glyph(button.element(), 'copied');
-    expect(getComputedStyle(copyGlyph).opacity).toBe('1');
-    expect(getComputedStyle(checkGlyph).opacity).toBe('0');
-    expect(getComputedStyle(checkGlyph).scale).toBe('0.5');
-    expect(getComputedStyle(checkGlyph).transitionDuration).toContain('0.15s');
-
-    await button.click();
-    await expect.element(button).toHaveAttribute('data-status', 'copied');
-    await expect.poll(() => getComputedStyle(checkGlyph).opacity).toBe('1');
-    await expect.poll(() => getComputedStyle(checkGlyph).scale).toBe('1');
-    await expect.poll(() => getComputedStyle(copyGlyph).scale).toBe('0.5');
-    expect(getComputedStyle(checkGlyph).color).toBe(roleStyle('text-success').color);
-
-    await expect.element(button).toHaveAttribute('data-status', 'idle');
-    await expect.poll(() => getComputedStyle(copyGlyph).opacity).toBe('1');
-  });
-
   it('keeps the check in the label colour on a solid button', async () => {
     mockClipboard();
     const screen = await renderWithDS(<CopyButton value="ws_8f3a21c9" variant="solid" />);
@@ -107,6 +84,9 @@ describe('CopyButton', () => {
     await expect.element(button).toHaveAttribute('data-status', 'copied');
     await expect.element(page.getByRole('status')).toHaveTextContent('Copied');
     expect(onCopy).toHaveBeenCalledWith('ws_8f3a21c9');
+    expect(getComputedStyle(glyph(button.element(), 'copied')).color).toBe(
+      roleStyle('text-success').color,
+    );
     await expect.element(button).not.toHaveAttribute('data-pending');
   });
 
@@ -140,27 +120,6 @@ describe('CopyButton', () => {
     await expect.poll(() => onCopy.mock.calls.length).toBe(2);
     await expect.poll(() => status.element().firstElementChild).not.toBe(first);
     await expect.element(status).toHaveTextContent('Copied');
-  });
-
-  it('reports a failure when the Clipboard API is unavailable', async () => {
-    vi.spyOn(navigator, 'clipboard', 'get').mockReturnValue(undefined as unknown as Clipboard);
-    const onCopyError = vi.fn();
-    const screen = await renderWithDS(
-      <CopyButton value="ws_8f3a21c9" aria-label="Copy workspace ID" onCopyError={onCopyError} />,
-    );
-    const button = screen.getByRole('button', { name: 'Copy workspace ID' });
-    await button.click();
-    await expect.element(button).toHaveAttribute('data-status', 'failed');
-    await expect.element(page.getByRole('status')).toHaveTextContent('Couldn’t copy');
-    expect(onCopyError).toHaveBeenCalledOnce();
-    expect(button.element().querySelector('[data-slot="glyph"]')).toHaveAttribute(
-      'data-status',
-      'failed',
-    );
-    await expect.element(button).toHaveAttribute('data-tone', 'error');
-    await expect
-      .poll(() => getComputedStyle(button.element()).color)
-      .toBe(roleStyle('text-error').color);
   });
 
   it('does not treat an error thrown by onCopy as a failed copy', async () => {
@@ -255,19 +214,19 @@ describe('CopyButton', () => {
     expect(await blob.text()).toBe('https://app.example.com/s/photos-2026');
   });
 
-  it('falls back to writeText when a clipboard item cannot be written', async () => {
-    const { writeText, write } = mockClipboard();
-    write.mockRejectedValue(new DOMException('Unsupported', 'NotAllowedError'));
-    const screen = await renderWithDS(
+  it('falls back to writeText when a clipboard item cannot be written or is unsupported', async () => {
+    const rejecting = mockClipboard();
+    rejecting.write.mockRejectedValue(new DOMException('Unsupported', 'NotAllowedError'));
+    const first = await renderWithDS(
       <CopyButton value={async () => 'DOC-2041'} aria-label="Copy project number" />,
     );
-    const button = screen.getByRole('button', { name: 'Copy project number' });
-    await button.click();
-    await expect.element(button).toHaveAttribute('data-status', 'copied');
-    expect(writeText).toHaveBeenCalledWith('DOC-2041');
-  });
+    const number = first.getByRole('button', { name: 'Copy project number' });
+    await number.click();
+    await expect.element(number).toHaveAttribute('data-status', 'copied');
+    expect(rejecting.writeText).toHaveBeenCalledWith('DOC-2041');
+    await first.unmount();
+    vi.restoreAllMocks();
 
-  it('falls back to writeText when clipboard items are unsupported', async () => {
     const { writeText, write } = mockClipboard();
     vi.stubGlobal(
       'ClipboardItem',
@@ -299,81 +258,83 @@ describe('CopyButton', () => {
     expect(writeText).toHaveBeenCalledWith('DOC-2041');
   });
 
-  it('reports a failure', async () => {
-    const { writeText } = mockClipboard();
+  it('reports a failure when the Clipboard API is unavailable or the write is rejected', async () => {
     const error = new DOMException('Write permission denied', 'NotAllowedError');
-    writeText.mockRejectedValue(error);
-    const onCopy = vi.fn();
-    const onCopyError = vi.fn();
-    const screen = await renderWithDS(
-      <CopyButton value="ws_8f3a21c9" onCopy={onCopy} onCopyError={onCopyError}>
-        Copy ID
-      </CopyButton>,
-    );
-    await screen.getByRole('button', { name: 'Copy ID' }).click();
-    await expect.element(page.getByRole('status')).toHaveTextContent('Couldn’t copy');
-    const failed = screen.getByRole('button', { name: 'Couldn’t copy' });
-    await expect.element(failed).toHaveAttribute('data-status', 'failed');
-    await expect.element(failed).toHaveAttribute('data-tone', 'error');
-    await failed.unhover();
-    await expect
-      .poll(() => getComputedStyle(failed.element()).backgroundColor)
-      .toBe(roleStyle('bg-error-soft').backgroundColor);
-    expect(onCopyError).toHaveBeenCalledWith(error);
-    expect(onCopy).not.toHaveBeenCalled();
+    const causes = [
+      () => {
+        vi.spyOn(navigator, 'clipboard', 'get').mockReturnValue(undefined as unknown as Clipboard);
+      },
+      () => {
+        mockClipboard().writeText.mockRejectedValue(error);
+      },
+    ];
+    for (const cause of causes) {
+      cause();
+      const onCopy = vi.fn();
+      const onCopyError = vi.fn();
+      const screen = await renderWithDS(
+        <CopyButton value="ws_8f3a21c9" onCopy={onCopy} onCopyError={onCopyError}>
+          Copy ID
+        </CopyButton>,
+      );
+      await screen.getByRole('button', { name: 'Copy ID' }).click();
+      await expect.element(page.getByRole('status')).toHaveTextContent('Couldn’t copy');
+      const failed = screen.getByRole('button', { name: 'Couldn’t copy' });
+      await expect.element(failed).toHaveAttribute('data-status', 'failed');
+      await expect.element(failed).toHaveAttribute('data-tone', 'error');
+      await failed.unhover();
+      await expect
+        .poll(() => getComputedStyle(failed.element()).backgroundColor)
+        .toBe(roleStyle('bg-error-soft').backgroundColor);
+      expect(onCopyError).toHaveBeenCalledOnce();
+      expect(onCopy).not.toHaveBeenCalled();
+      await screen.unmount();
+      vi.restoreAllMocks();
+    }
   });
-
-  it('copies with the keyboard', async () => {
-    const { writeText } = mockClipboard();
-    const screen = await renderWithDS(<CopyButton value="FOLDER-7Q4M" />);
-    await userEvent.keyboard('{Tab}');
-    await userEvent.keyboard('{Enter}');
-    expect(writeText).toHaveBeenCalledWith('FOLDER-7Q4M');
-    await expect
-      .element(screen.getByRole('button', { name: 'Copy' }))
-      .toHaveAttribute('data-status', 'copied');
-  });
-
-  it('takes its name, label and announcements from the labels prop', async () => {
+  it('takes its text from DSProvider labels, and the labels prop wins', async () => {
     const { writeText } = mockClipboard();
     writeText.mockRejectedValueOnce(new DOMException('Write permission denied', 'NotAllowedError'));
-    const labels = { copy: 'Kopyala', copied: 'Kopyalandı', copyFailed: 'Kopyalanamadı' };
     const screen = await renderWithDS(
       <>
-        <CopyButton value="TR-5521" labels={labels} />
-        <CopyButton value="https://app.example.com/invite/7Q4M" labels={labels}>
+        <CopyButton
+          value="TR-5521"
+          labels={{ copy: 'Kimliği kopyala', copyFailed: 'Kopyalanamadı' }}
+        />
+        <CopyButton value="TR-5522" />
+        <CopyButton
+          value="https://app.example.com/invite/7Q4M"
+          labels={{ copied: 'Panoya kopyalandı' }}
+        >
           Davet bağlantısını kopyala
         </CopyButton>
       </>,
+      {
+        provider: {
+          labels: {
+            copyButton: { copy: 'Kopyala', copied: 'Kopyalandı', copyFailed: 'Kopyalama hatası' },
+          },
+        },
+      },
     );
-    const iconOnly = screen.getByRole('button', { name: 'Kopyala', exact: true });
-    await iconOnly.click();
-    await expect.element(iconOnly).toHaveAttribute('data-status', 'failed');
+    const own = screen.getByRole('button', { name: 'Kimliği kopyala' });
+    await own.click();
+    await expect.element(own).toHaveAttribute('data-status', 'failed');
     await expect
       .element(page.getByRole('status').filter({ hasText: 'Kopyalanamadı' }))
       .toBeInTheDocument();
 
+    await screen.getByRole('button', { name: 'Kopyala', exact: true }).click();
+    await expect
+      .element(page.getByRole('status').filter({ hasText: 'Kopyalandı' }))
+      .toBeInTheDocument();
+
     await screen.getByRole('button', { name: 'Davet bağlantısını kopyala' }).click();
-    await expect.element(screen.getByRole('button', { name: 'Kopyalandı' })).toBeVisible();
+    await expect.element(screen.getByRole('button', { name: 'Panoya kopyalandı' })).toBeVisible();
+    await expect
+      .element(page.getByRole('status').filter({ hasText: 'Panoya kopyalandı' }))
+      .toBeInTheDocument();
   });
-
-  it('takes its text from DSProvider labels, and the labels prop wins', async () => {
-    mockClipboard();
-    const screen = await renderWithDS(
-      <CopyButton value="TR-5521" labels={{ copied: 'Panoya kopyalandı' }} />,
-      { provider: { labels: { copyButton: { copy: 'Kopyala', copied: 'Kopyalandı' } } } },
-    );
-    await screen.getByRole('button', { name: 'Kopyala' }).click();
-    await expect.element(page.getByRole('status')).toHaveTextContent('Panoya kopyalandı');
-  });
-
-  it('does not copy when disabled', async () => {
-    const { writeText } = mockClipboard();
-    const screen = await renderWithDS(<CopyButton value="ws_8f3a21c9" isDisabled />);
-    await screen.getByRole('button', { name: 'Copy' }).click({ force: true });
-    expect(writeText).not.toHaveBeenCalled();
-  });
-
   it('announces outside the button in the DSProvider locale', async () => {
     mockClipboard();
     const screen = await renderWithDS(

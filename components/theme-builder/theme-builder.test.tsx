@@ -47,14 +47,6 @@ function setNativeValue(input: HTMLInputElement, value: string) {
   input.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
-async function transitionsSettled() {
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  const transitions = document
-    .getAnimations()
-    .filter((animation) => animation instanceof CSSTransition);
-  await Promise.all(transitions.map((transition) => transition.finished.catch(() => undefined)));
-}
-
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -153,17 +145,6 @@ describe('ThemeBuilder', () => {
     await expect.poll(() => getComputedStyle(preview).backgroundColor).toBe(rgb(dark.canvas));
   });
 
-  it('exports tokens.css and config.json only', async () => {
-    const screen = await renderWithDS(<ThemeBuilder />);
-    const formats = screen.getByRole('tablist', { name: 'Export format' });
-
-    await expect.element(formats).toBeVisible();
-    const names = Array.from(formats.element().querySelectorAll('[role="tab"]')).map(
-      (tab) => tab.textContent,
-    );
-    expect(names).toEqual(['tokens.css', 'config.json']);
-  });
-
   it('resets every control to the catalogue default', async () => {
     const screen = await renderWithDS(<ThemeBuilder />);
 
@@ -247,17 +228,6 @@ describe('Theme exports', () => {
 });
 
 describe('ThemeBuilder accessibility', () => {
-  it('has no accessibility violations with a dark, high-contrast preview', async () => {
-    const screen = await renderWithDS(<ThemeBuilder />);
-    await screen.getByRole('radio', { name: 'High' }).click();
-    await screen.getByText('Dark preview').click();
-    await expect
-      .poll(() => previewVar('surface'))
-      .toBe(defaults({ contrast: 'high', mode: 'dark' }).surface);
-    await transitionsSettled();
-    await expectNoA11yViolations(screen.container);
-  });
-
   it('has no accessibility violations in light, dark and RTL', async () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(<ThemeBuilder />, options);

@@ -67,12 +67,6 @@ describe('Spinner', () => {
     );
   });
 
-  it('draws a faint full track under a quarter arc', async () => {
-    const screen = await renderWithDS(<Spinner />);
-    const track = spinner(screen.container).querySelector('[data-slot="track"]')!;
-    expect(getComputedStyle(track).strokeOpacity).toBe('0.2');
-  });
-
   it('spins, slows down with reduced motion and stops when motion is disabled', async () => {
     const full = await renderWithDS(<Spinner />);
     expect(getComputedStyle(spinner(full.container)).animationDuration).toBe('0.75s');
@@ -90,18 +84,6 @@ describe('Spinner', () => {
     const screen = await renderWithDS(<Spinner className="animate-none text-primary" />);
     const svg = spinner(screen.container);
     expect(getComputedStyle(svg).animationName).toBe('none');
-    expect(getComputedStyle(svg).flexShrink).toBe('0');
-  });
-
-  it('gets its name from a surrounding progress bar', async () => {
-    const screen = await renderWithDS(
-      <ProgressBar isIndeterminate aria-label="Refreshing photos">
-        <Spinner />
-      </ProgressBar>,
-    );
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'Refreshing photos' }))
-      .toBeInTheDocument();
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

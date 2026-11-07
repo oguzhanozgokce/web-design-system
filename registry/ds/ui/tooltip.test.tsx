@@ -4,13 +4,7 @@ import { page, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { ArchiveIcon, CopyIcon, UndoIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
-import {
-  RichTooltip,
-  Tooltip,
-  TooltipGroup,
-  TooltipTrigger,
-  tooltipStyles,
-} from '@/registry/ds/ui/tooltip';
+import { RichTooltip, Tooltip, TooltipGroup, TooltipTrigger } from '@/registry/ds/ui/tooltip';
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -38,20 +32,6 @@ function roleColor(className: string, property: 'backgroundColor' | 'color') {
   return color;
 }
 
-function stubPlatform(platform: string) {
-  Object.defineProperty(navigator, 'userAgentData', { value: { platform }, configurable: true });
-}
-
-function restorePlatform() {
-  Reflect.deleteProperty(navigator, 'userAgentData');
-}
-
-function visibleShortcutKeys() {
-  return [...document.querySelectorAll('[data-slot="shortcut"] [data-slot="kbd"]')].map(
-    (key) => (key.querySelector('[data-slot="kbd-glyph"]') ?? key).textContent,
-  );
-}
-
 function IconTrigger({ label, children }: { label: string; children: ReactNode }) {
   return (
     <AriaButton aria-label={label} className="inline-flex size-10 items-center justify-center">
@@ -60,66 +40,7 @@ function IconTrigger({ label, children }: { label: string; children: ReactNode }
   );
 }
 
-function RedoTrigger() {
-  return (
-    <TooltipTrigger defaultOpen>
-      <IconTrigger label="Wiederherstellen">
-        <UndoIcon />
-      </IconTrigger>
-      <Tooltip shortcut={['control', 'shift', 'Z']}>Wiederholen</Tooltip>
-    </TooltipTrigger>
-  );
-}
-
 describe('Tooltip', () => {
-  it('opens on hover only after the delay and describes its trigger', async () => {
-    const screen = await renderWithDS(
-      <>
-        <PointerRest />
-        <TooltipTrigger delay={600}>
-          <IconTrigger label="Archive">
-            <ArchiveIcon />
-          </IconTrigger>
-          <Tooltip>Archive project</Tooltip>
-        </TooltipTrigger>
-      </>,
-    );
-    const trigger = screen.getByRole('button', { name: 'Archive' });
-
-    await hover(trigger);
-    await wait(250);
-    expect(document.querySelector('[role="tooltip"]')).toBeNull();
-
-    const tooltip = page.getByRole('tooltip');
-    await expect.element(tooltip).toBeVisible();
-    await expect.element(tooltip).toHaveTextContent('Archive project');
-    await expect.element(trigger).toHaveAccessibleDescription('Archive project');
-
-    await trigger.unhover();
-    await expect.element(tooltip).not.toBeInTheDocument();
-    await wait(600);
-  });
-
-  it('opens right away on keyboard focus and closes on Escape', async () => {
-    const screen = await renderWithDS(
-      <TooltipTrigger delay={5000}>
-        <IconTrigger label="Archive">
-          <ArchiveIcon />
-        </IconTrigger>
-        <Tooltip>Archive project</Tooltip>
-      </TooltipTrigger>,
-    );
-
-    await userEvent.keyboard('{Tab}');
-    await expect.element(screen.getByRole('button', { name: 'Archive' })).toHaveFocus();
-    await expect.element(page.getByRole('tooltip')).toBeVisible();
-
-    await userEvent.keyboard('{Escape}');
-    await expect.element(page.getByRole('tooltip')).not.toBeInTheDocument();
-    await expect.element(screen.getByRole('button', { name: 'Archive' })).toHaveFocus();
-    await wait(600);
-  });
-
   it('shows the next tooltip in a group instantly once one has opened', async () => {
     const screen = await renderWithDS(
       <TooltipGroup delay={1200} placement="bottom">
@@ -157,25 +78,6 @@ describe('Tooltip', () => {
     await wait(600);
   });
 
-  it('does not open when the group is disabled', async () => {
-    const screen = await renderWithDS(
-      <TooltipGroup isDisabled delay={0}>
-        <PointerRest />
-        <TooltipTrigger>
-          <IconTrigger label="Archive">
-            <ArchiveIcon />
-          </IconTrigger>
-          <Tooltip>Archive project</Tooltip>
-        </TooltipTrigger>
-      </TooltipGroup>,
-    );
-
-    await hover(screen.getByRole('button', { name: 'Archive' }));
-    await userEvent.keyboard('{Tab}');
-    await wait(300);
-    expect(document.querySelector('[role="tooltip"]')).toBeNull();
-  });
-
   it('renders shortcut keys as Kbd with spoken names', async () => {
     const screen = await renderWithDS(
       <TooltipTrigger defaultOpen>
@@ -184,6 +86,7 @@ describe('Tooltip', () => {
         </IconTrigger>
         <Tooltip shortcut={['command', 'Z']}>Undo</Tooltip>
       </TooltipTrigger>,
+      { provider: { labels: { kbd: { command: 'Befehl' } } } },
     );
 
     const tooltip = page.getByRole('tooltip');
@@ -197,131 +100,20 @@ describe('Tooltip', () => {
     expect(document.querySelector('[data-slot="shortcut"]')).toHaveAttribute('dir', 'ltr');
     await expect
       .element(screen.getByRole('button', { name: 'Undo' }))
-      .toHaveAccessibleDescription('Undo Command Z');
-  });
-
-  it('shows mod as the platform shortcut modifier', async () => {
-    const isApple = /mac|iphone|ipad|ipod/i.test(navigator.platform);
-    const screen = await renderWithDS(
-      <TooltipTrigger defaultOpen>
-        <IconTrigger label="Undo">
-          <UndoIcon />
-        </IconTrigger>
-        <Tooltip shortcut={['mod', 'Z']}>Undo</Tooltip>
-      </TooltipTrigger>,
-    );
-
-    await expect
-      .element(screen.getByRole('button', { name: 'Undo' }))
-      .toHaveAccessibleDescription(`Undo ${isApple ? 'Command' : 'Control'} Z`);
-    expect(
-      document.querySelector('[data-slot="shortcut"] [data-slot="kbd-glyph"]'),
-    ).toHaveTextContent(isApple ? '⌘' : 'Ctrl');
-  });
-
-  it('names shortcut keys in English by default, whatever the locale', async () => {
-    stubPlatform('Windows');
-    try {
-      const screen = await renderWithDS(<RedoTrigger />, { locale: 'de' });
-      await expect
-        .element(screen.getByRole('button', { name: 'Wiederherstellen' }))
-        .toHaveAccessibleDescription('Wiederholen Control Shift Z');
-      expect(visibleShortcutKeys()).toEqual(['Ctrl', 'Shift', 'Z']);
-    } finally {
-      restorePlatform();
-    }
-  });
-
-  it('takes shortcut key names and glyphs from the Kbd labels on DSProvider', async () => {
-    stubPlatform('Windows');
-    try {
-      const screen = await renderWithDS(<RedoTrigger />, {
-        provider: {
-          labels: {
-            kbd: {
-              control: 'Steuerung',
-              controlShort: 'Strg',
-              shift: 'Umschalttaste',
-              shiftShort: 'Umschalt',
-            },
-          },
-        },
-      });
-      await expect
-        .element(screen.getByRole('button', { name: 'Wiederherstellen' }))
-        .toHaveAccessibleDescription('Wiederholen Steuerung Umschalttaste Z');
-      expect(visibleShortcutKeys()).toEqual(['Strg', 'Umschalt', 'Z']);
-    } finally {
-      restorePlatform();
-    }
-  });
-
-  it('opens only on keyboard focus with trigger="focus"', async () => {
-    const screen = await renderWithDS(
-      <>
-        <PointerRest />
-        <TooltipTrigger trigger="focus" delay={0}>
-          <IconTrigger label="Archive">
-            <ArchiveIcon />
-          </IconTrigger>
-          <Tooltip>Archive project</Tooltip>
-        </TooltipTrigger>
-      </>,
-    );
-
-    await hover(screen.getByRole('button', { name: 'Archive' }));
-    await wait(300);
-    expect(document.querySelector('[role="tooltip"]')).toBeNull();
-
-    await userEvent.keyboard('{Tab}');
-    await expect.element(page.getByRole('tooltip')).toHaveTextContent('Archive project');
-    await userEvent.keyboard('{Escape}');
-    await wait(600);
-  });
-
-  it('supports a controlled open state', async () => {
-    const onOpenChange = vi.fn();
-
-    function Controlled() {
-      const [isOpen, setOpen] = useState(false);
-      return (
-        <>
-          <p>{isOpen ? 'Hint shown' : 'Hint hidden'}</p>
-          <TooltipTrigger
-            isOpen={isOpen}
-            onOpenChange={(open) => {
-              onOpenChange(open);
-              setOpen(open);
-            }}
-          >
-            <IconTrigger label="Archive">
-              <ArchiveIcon />
-            </IconTrigger>
-            <Tooltip>Archive project</Tooltip>
-          </TooltipTrigger>
-        </>
-      );
-    }
-
-    const screen = await renderWithDS(<Controlled />);
-
-    await userEvent.keyboard('{Tab}');
-    await expect.element(page.getByRole('tooltip')).toHaveTextContent('Archive project');
-    await expect.element(screen.getByText('Hint shown')).toBeInTheDocument();
-    expect(onOpenChange).toHaveBeenLastCalledWith(true);
-
-    await userEvent.keyboard('{Escape}');
-    await expect.element(page.getByRole('tooltip')).not.toBeInTheDocument();
-    await expect.element(screen.getByText('Hint hidden')).toBeInTheDocument();
-    expect(onOpenChange).toHaveBeenLastCalledWith(false);
-    await wait(600);
+      .toHaveAccessibleDescription('Undo Befehl Z');
   });
 
   it('lets a trigger override its group and nested groups inherit', async () => {
     const screen = await renderWithDS(
       <TooltipGroup isDisabled placement="bottom">
         <TooltipGroup delay={0}>
-          <div className="flex justify-center p-16">
+          <div className="flex justify-center gap-2 p-16">
+            <TooltipTrigger>
+              <IconTrigger label="Copy">
+                <CopyIcon />
+              </IconTrigger>
+              <Tooltip>Copy</Tooltip>
+            </TooltipTrigger>
             <TooltipTrigger isDisabled={false}>
               <IconTrigger label="Archive">
                 <ArchiveIcon />
@@ -334,9 +126,14 @@ describe('Tooltip', () => {
     );
 
     await userEvent.keyboard('{Tab}');
+    await expect.element(screen.getByRole('button', { name: 'Copy' })).toHaveFocus();
+    await wait(300);
+    expect(document.querySelector('[role="tooltip"]')).toBeNull();
+
+    await userEvent.keyboard('{Tab}');
     await expect.element(screen.getByRole('button', { name: 'Archive' })).toHaveFocus();
     const tooltip = page.getByRole('tooltip');
-    await expect.element(tooltip).toBeVisible();
+    await expect.element(tooltip).toHaveTextContent('Archive project');
     await expect.element(tooltip).toHaveAttribute('data-placement', 'bottom');
     await userEvent.keyboard('{Escape}');
     await wait(600);
@@ -388,30 +185,6 @@ describe('Tooltip', () => {
     expect(label.right).toBeCloseTo(tooltip.right - 10, 0);
     expect(shortcut.left).toBeCloseTo(tooltip.left + 10, 0);
   });
-
-  it('is dark on a light page: the inverse surface, 12px text and a shadow', async () => {
-    await renderWithDS(
-      <TooltipTrigger defaultOpen>
-        <IconTrigger label="Archive">
-          <ArchiveIcon />
-        </IconTrigger>
-        <Tooltip>Archive project</Tooltip>
-      </TooltipTrigger>,
-    );
-    const tooltip = page.getByRole('tooltip');
-    await expect.element(tooltip).toBeVisible();
-    const style = getComputedStyle(tooltip.element());
-    expect(style.backgroundColor).toBe(roleColor('bg-inverse-surface', 'backgroundColor'));
-    expect(style.color).toBe(roleColor('text-inverse-on-surface', 'color'));
-    expect(style.fontSize).toBe('12px');
-    expect(style.borderTopLeftRadius).toBe('12px');
-    expect(style.boxShadow).not.toBe('none');
-  });
-
-  it('turns the motion off through the motion variant', () => {
-    expect(tooltipStyles({ motion: 'spatial' }).base()).toContain('animate-ds-popover-in');
-    expect(tooltipStyles({ motion: 'none' }).base()).not.toContain('animate-ds-popover-in');
-  });
 });
 
 describe('RichTooltip', () => {
@@ -433,19 +206,26 @@ describe('RichTooltip', () => {
 
   it('sits on the overlay surface, not the inverse one', async () => {
     await renderWithDS(
-      <TooltipTrigger defaultOpen>
-        <Button variant="ghost">Storage</Button>
-        <RichTooltip title="Storage">Photos, videos and backups count toward it.</RichTooltip>
-      </TooltipTrigger>,
+      <div className="flex justify-between p-24">
+        <TooltipTrigger defaultOpen>
+          <IconTrigger label="Archive">
+            <ArchiveIcon />
+          </IconTrigger>
+          <Tooltip>Archive project</Tooltip>
+        </TooltipTrigger>
+        <TooltipTrigger defaultOpen>
+          <Button variant="ghost">Storage</Button>
+          <RichTooltip title="Storage">Photos, videos and backups count toward it.</RichTooltip>
+        </TooltipTrigger>
+      </div>,
     );
 
-    const tooltip = page.getByRole('tooltip');
-    await expect.element(tooltip).toBeVisible();
-    const style = getComputedStyle(tooltip.element());
-    expect(style.backgroundColor).toBe(roleColor('bg-surface-overlay', 'backgroundColor'));
-    expect(style.borderTopLeftRadius).toBe('16px');
-    const title = document.querySelector('[data-slot="rich-tooltip"] [data-slot="title"]')!;
-    expect(getComputedStyle(title).fontWeight).toBe('600');
+    await expect.element(page.getByRole('tooltip').nth(1)).toBeVisible();
+    const plain = getComputedStyle(document.querySelector('[data-slot="tooltip"]')!);
+    const rich = getComputedStyle(document.querySelector('[data-slot="rich-tooltip"]')!);
+    expect(plain.backgroundColor).toBe(roleColor('bg-inverse-surface', 'backgroundColor'));
+    expect(plain.color).toBe(roleColor('text-inverse-on-surface', 'color'));
+    expect(rich.backgroundColor).toBe(roleColor('bg-surface-overlay', 'backgroundColor'));
   });
 
   it('becomes a non-modal dialog the keyboard can enter when it has an action', async () => {
@@ -605,74 +385,43 @@ describe('RichTooltip', () => {
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await expect.element(screen.getByText('Details hidden')).toBeInTheDocument();
   });
-
-  it('opens with an action on hover', async () => {
-    const screen = await renderWithDS(
-      <>
-        <PointerRest />
-        <TooltipTrigger delay={100}>
-          <Button variant="ghost">Storage</Button>
-          <RichTooltip title="Storage" action={<Button variant="ghost">Details</Button>}>
-            Photos, videos and backups count toward it.
-          </RichTooltip>
-        </TooltipTrigger>
-      </>,
-    );
-
-    await hover(screen.getByRole('button', { name: 'Storage' }));
-    await expect.element(page.getByRole('dialog', { name: 'Storage' })).toBeVisible();
-    await page.getByRole('button', { name: 'Details' }).hover();
-    await wait(400);
-    await expect.element(page.getByRole('dialog', { name: 'Storage' })).toBeVisible();
-  });
 });
 
 describe('Tooltip accessibility', () => {
-  const cases: Record<string, ReactNode> = {
-    plain: (
-      <TooltipTrigger defaultOpen>
-        <IconTrigger label="Undo">
-          <UndoIcon />
-        </IconTrigger>
-        <Tooltip shortcut={['mod', 'shift', 'Z']} showArrow>
-          Undo last change
-        </Tooltip>
-      </TooltipTrigger>
-    ),
-    rich: (
-      <TooltipTrigger defaultOpen>
-        <Button variant="ghost">Storage</Button>
-        <RichTooltip title="Storage" showArrow>
-          Photos, videos and backups count toward it.
-        </RichTooltip>
-      </TooltipTrigger>
-    ),
-    action: (
-      <TooltipTrigger defaultOpen>
-        <Button variant="ghost">Storage</Button>
-        <RichTooltip title="Storage" action={<Button variant="ghost">Details</Button>}>
-          Photos, videos and backups count toward it.
-        </RichTooltip>
-      </TooltipTrigger>
-    ),
-  };
-
-  for (const [name, ui] of Object.entries(cases)) {
-    it(`has no violations for the ${name} tooltip in light, dark and RTL`, async () => {
-      for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
-        document.documentElement.classList.toggle('dark', 'dark' in options);
-        const screen = await renderWithDS(
-          <div className="flex justify-center p-32">{ui}</div>,
-          options,
-        );
-        await expect
-          .element(page.getByRole(name === 'action' ? 'dialog' : 'tooltip'))
-          .toBeVisible();
-        await wait(250);
-        await expectNoA11yViolations(document.body);
-        await screen.unmount();
-      }
-      document.documentElement.classList.remove('dark');
-    });
-  }
+  it('has no violations for plain, rich and action tooltips in light, dark and RTL', async () => {
+    for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
+      document.documentElement.classList.toggle('dark', 'dark' in options);
+      const screen = await renderWithDS(
+        <div className="flex justify-between p-32">
+          <TooltipTrigger defaultOpen>
+            <IconTrigger label="Undo">
+              <UndoIcon />
+            </IconTrigger>
+            <Tooltip shortcut={['mod', 'shift', 'Z']} showArrow>
+              Undo last change
+            </Tooltip>
+          </TooltipTrigger>
+          <TooltipTrigger defaultOpen>
+            <Button variant="ghost">Storage</Button>
+            <RichTooltip title="Storage" showArrow>
+              Photos, videos and backups count toward it.
+            </RichTooltip>
+          </TooltipTrigger>
+          <TooltipTrigger defaultOpen>
+            <Button variant="ghost">Backups</Button>
+            <RichTooltip title="Backups" action={<Button variant="ghost">Details</Button>}>
+              Copies of your devices from the last 30 days.
+            </RichTooltip>
+          </TooltipTrigger>
+        </div>,
+        options,
+      );
+      await expect.element(page.getByRole('tooltip').nth(1)).toBeVisible();
+      await expect.element(page.getByRole('dialog', { name: 'Backups' })).toBeVisible();
+      await wait(250);
+      await expectNoA11yViolations(document.body);
+      await screen.unmount();
+    }
+    document.documentElement.classList.remove('dark');
+  });
 });

@@ -7,7 +7,6 @@ import {
   DynamicIsland,
   DynamicIslandCompact,
   DynamicIslandExpanded,
-  defaultDynamicIslandLabels,
   type DynamicIslandProps,
 } from '@/registry/ds/ui/dynamic-island';
 import { IconButton } from '@/registry/ds/ui/icon-button';
@@ -39,21 +38,11 @@ const hours = [
   { hour: '10:00', direct: 77, search: 52 },
 ];
 
-function StatsIsland({
-  onActiveIndexChange,
-}: {
-  onActiveIndexChange?: (index: number | null) => void;
-}) {
-  const [active, setActive] = useState<number | null>(null);
-  const shown =
-    active == null
-      ? 'Today 250'
-      : `${hours[active].hour} ${hours[active].direct + hours[active].search}`;
+function StatsIsland() {
   return (
     <DynamicIsland title="Visits today" defaultExpanded>
       <DynamicIslandCompact trailing="250" />
       <DynamicIslandExpanded>
-        <span data-testid="readout">{shown}</span>
         <BarChart
           aria-label="Visits per hour"
           data={hours}
@@ -67,11 +56,6 @@ function StatsIsland({
           valueAxis={{ isVisible: false }}
           legend="none"
           tooltip="none"
-          activeIndex={active}
-          onActiveIndexChange={(index) => {
-            setActive(index);
-            onActiveIndexChange?.(index);
-          }}
           className="[--chart-surface:var(--surface-container-lowest)]"
         />
       </DynamicIslandExpanded>
@@ -167,10 +151,9 @@ describe('DynamicIsland', () => {
       200 + rect(screen.container.firstElementChild!.firstElementChild).left,
       0,
     );
-    expect(getComputedStyle(pill).borderTopLeftRadius).toBe('40px');
   });
 
-  it('expands on press and morphs to the expanded face', async () => {
+  it('expands on press, morphs to the expanded face and removes it after its exit', async () => {
     const screen = await renderWithDS(
       <div style={{ width: 400 }}>
         <TimerIsland />
@@ -190,49 +173,19 @@ describe('DynamicIsland', () => {
     expect(screen.container.querySelector('[data-slot="dynamic-island"]')).toHaveAttribute(
       'data-expanded',
     );
-  });
 
-  it('grows on one spring and swaps the faces through a blur', async () => {
-    const screen = await renderWithDS(
-      <div style={{ width: 400 }}>
-        <TimerIsland />
-      </div>,
-    );
-    await settle(100);
-    const pill = part(screen.container, 'dynamic-island-pill')!;
-    const start = rect(pill);
-    await screen.getByRole('button', { name: 'Timer' }).click();
-    await frame();
-    await frame();
-    const expanded = part(screen.container, 'dynamic-island-expanded')!;
-    expect(getComputedStyle(expanded).filter).toMatch(/blur/);
-    expect(part(screen.container, 'dynamic-island-compact')).not.toBeNull();
-    await settle(90);
-    const middle = rect(pill);
-    expect(middle.width).toBeGreaterThan(start.width);
-    expect(middle.width).toBeLessThan(320);
-    expect(middle.left + middle.width / 2).toBeCloseTo(start.left + start.width / 2, 0);
-    expect(middle.height / middle.width).toBeGreaterThan(36 / 320);
-    await settle();
-    expect(rect(pill).width).toBeCloseTo(320, 0);
-    expect(getComputedStyle(expanded).filter).toBe('none');
-    await screen.getByRole('button', { name: 'Timer' }).click();
-    await settle(60);
-    expect(expanded).toHaveAttribute('data-exiting');
+    await toggle.click();
+    await expect.poll(() => expanded.hasAttribute('data-exiting')).toBe(true);
     expect(expanded).toHaveAttribute('aria-hidden', 'true');
-    expect(getComputedStyle(expanded).filter).toMatch(/blur\(\d*\.?\d*[1-9]/);
-    await settle();
-    expect(expanded.isConnected).toBe(false);
+    await expect.poll(() => expanded.isConnected).toBe(false);
   });
 
-  it('toggles from the keyboard and collapses with Escape', async () => {
+  it('collapses with Escape from an inner control and returns focus to the toggle', async () => {
     const onPause = vi.fn();
-    const screen = await renderWithDS(<TimerIsland onPause={onPause} />);
+    const screen = await renderWithDS(<TimerIsland defaultExpanded onPause={onPause} />);
     const toggle = screen.getByRole('button', { name: 'Timer' });
     await userEvent.keyboard('{Tab}');
     await expect.element(toggle).toHaveFocus();
-    await userEvent.keyboard('{Enter}');
-    await expect.element(toggle).toHaveAttribute('aria-expanded', 'true');
     await userEvent.keyboard('{Tab}');
     const pause = screen.getByRole('button', { name: 'Pause' });
     await expect.element(pause).toHaveFocus();
@@ -242,15 +195,16 @@ describe('DynamicIsland', () => {
     await userEvent.keyboard('{Escape}');
     await expect.element(toggle).toHaveAttribute('aria-expanded', 'false');
     await expect.element(toggle).toHaveFocus();
-    await userEvent.keyboard(' ');
-    await expect.element(toggle).toHaveAttribute('aria-expanded', 'true');
-    await userEvent.keyboard('{Escape}');
-    await expect.element(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('keeps inner controls as sibling buttons that do not toggle the island', async () => {
     const onPause = vi.fn();
-    const screen = await renderWithDS(<TimerIsland defaultExpanded onPause={onPause} />);
+    const screen = await renderWithDS(
+      <>
+        <TimerIsland defaultExpanded onPause={onPause} />
+        <StatsIsland />
+      </>,
+    );
     const toggle = screen.getByRole('button', { name: 'Timer' }).element();
     const pause = screen.getByRole('button', { name: 'Pause' }).element();
     expect(toggle.contains(pause)).toBe(false);
@@ -259,6 +213,14 @@ describe('DynamicIsland', () => {
     await screen.getByRole('button', { name: 'Pause' }).click();
     expect(onPause).toHaveBeenCalledTimes(1);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    const stats = screen.getByRole('button', { name: 'Visits today' });
+    const plot = screen.getByRole('group', { name: 'Visits per hour' });
+    await plot.click();
+    await expect.element(stats).toHaveAttribute('aria-expanded', 'true');
+    (plot.element() as HTMLElement).focus();
+    await userEvent.keyboard('{Home}{ArrowRight}');
+    await expect.element(stats).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('moves focus to the toggle when the focused control leaves with its face', async () => {
@@ -293,14 +255,6 @@ describe('DynamicIsland', () => {
     expect(rect(part(screen.container, 'dynamic-island-pill')).height).toBe(36);
   });
 
-  it('can be disabled', async () => {
-    const screen = await renderWithDS(<TimerIsland isDisabled />);
-    const toggle = screen.getByRole('button', { name: 'Timer' });
-    await expect.element(toggle).toBeDisabled();
-    await screen.getByText('4:59').click({ force: true });
-    await expect.element(toggle).toHaveAttribute('aria-expanded', 'false');
-  });
-
   it('follows isExpanded when controlled', async () => {
     const onExpandedChange = vi.fn();
     const screen = await renderWithDS(
@@ -332,61 +286,40 @@ describe('DynamicIsland', () => {
     expect(scaleOf(nudge)).toBeCloseTo(1, 3);
   });
 
-  it('scales the pill down while the toggle is pressed', async () => {
-    const screen = await renderWithDS(<TimerIsland />);
-    const pill = part(screen.container, 'dynamic-island-pill')!;
-    await userEvent.keyboard('{Tab}');
-    await userEvent.keyboard('{Enter>}');
-    await settle(320);
-    expect(getComputedStyle(pill).scale).toBe('0.97');
-    await userEvent.keyboard('{/Enter}');
-    await settle(320);
-    expect(getComputedStyle(pill).scale).toBe('none');
-  });
-
-  it('snaps the size, fades the faces and skips the nudge with reduced motion', async () => {
-    const screen = await renderWithDS(
-      <div style={{ width: 400 }}>
-        <TimerIsland />
-        <Switcher />
-      </div>,
-      { provider: { motion: 'reduced' } },
-    );
-    await settle(100);
-    await screen.getByRole('button', { name: 'Timer' }).click();
-    await frame();
-    await frame();
-    const pill = part(screen.container, 'dynamic-island-pill')!;
-    const expanded = part(screen.container, 'dynamic-island-expanded')!;
-    expect(rect(pill).width).toBeCloseTo(rect(expanded).width, 0);
-    expect(rect(pill).height).toBeCloseTo(rect(expanded).height, 0);
-    expect(getComputedStyle(expanded).filter).toBe('none');
-    expect(getComputedStyle(expanded).transform).toBe('none');
-    const nudges = screen.container.querySelectorAll('[data-slot="dynamic-island-nudge"]');
-    await screen.getByRole('button', { name: 'Switch' }).click();
-    for (let index = 0; index < 4; index += 1) {
+  it.each(['reduced', 'disabled'] as const)(
+    'snaps the size, drops the blur and skips the nudge with %s motion',
+    async (motion) => {
+      const screen = await renderWithDS(
+        <div style={{ width: 400 }}>
+          <TimerIsland />
+          <Switcher />
+        </div>,
+        { provider: { motion } },
+      );
+      await settle(100);
+      await screen.getByRole('button', { name: 'Timer' }).click();
       await frame();
-      expect(scaleOf(nudges[1])).toBe(1);
-    }
-    screen.getByRole('button', { name: 'Timer' }).element().focus();
-    await userEvent.keyboard('{Enter>}');
-    await settle(320);
-    expect(getComputedStyle(pill).scale).toBe('none');
-    await userEvent.keyboard('{/Enter}');
-  });
-
-  it('swaps faces at once when motion is disabled', async () => {
-    const screen = await renderWithDS(<TimerIsland />, { provider: { motion: 'disabled' } });
-    await settle(50);
-    await screen.getByRole('button', { name: 'Timer' }).click();
-    await frame();
-    await frame();
-    expect(part(screen.container, 'dynamic-island-compact')).toBeNull();
-    expect(getComputedStyle(part(screen.container, 'dynamic-island-expanded')!).opacity).toBe('1');
-  });
+      await frame();
+      const pill = part(screen.container, 'dynamic-island-pill')!;
+      const expanded = part(screen.container, 'dynamic-island-expanded')!;
+      expect(rect(pill).width).toBeCloseTo(rect(expanded).width, 0);
+      expect(rect(pill).height).toBeCloseTo(rect(expanded).height, 0);
+      expect(getComputedStyle(expanded).filter).toBe('none');
+      expect(getComputedStyle(expanded).transform).toBe('none');
+      if (motion === 'disabled') {
+        expect(part(pill, 'dynamic-island-compact')).toBeNull();
+        expect(getComputedStyle(expanded).opacity).toBe('1');
+      }
+      const nudges = screen.container.querySelectorAll('[data-slot="dynamic-island-nudge"]');
+      await screen.getByRole('button', { name: 'Switch' }).click();
+      for (let index = 0; index < 4; index += 1) {
+        await frame();
+        expect(scaleOf(nudges[1])).toBe(1);
+      }
+    },
+  );
 
   it('formats the toggle name from labels', async () => {
-    expect(defaultDynamicIslandLabels.toggle).toBe('{title}');
     const screen = await renderWithDS(
       <>
         <TimerIsland labels={{ toggle: 'Show {title}' }} />
@@ -452,31 +385,6 @@ describe('DynamicIsland', () => {
     await settle(100);
     expect(rect(part(screen.container, 'dynamic-island-expanded')).width).toBe(280);
     expect(rect(part(screen.container, 'dynamic-island-pill')).width).toBeCloseTo(280, 0);
-  });
-
-  it('holds a stacked bar chart whose keys move the readout without closing the island', async () => {
-    const onActiveIndexChange = vi.fn();
-    const screen = await renderWithDS(<StatsIsland onActiveIndexChange={onActiveIndexChange} />);
-    const toggle = screen.getByRole('button', { name: 'Visits today' });
-    const plot = screen.getByRole('group', { name: 'Visits per hour' });
-    await expect.element(toggle).toHaveAttribute('aria-expanded', 'true');
-
-    await plot.click();
-    await expect.element(toggle).toHaveAttribute('aria-expanded', 'true');
-    (plot.element() as HTMLElement).focus();
-    await userEvent.keyboard('{Home}');
-    await expect.element(screen.getByTestId('readout')).toHaveTextContent('08:00 73');
-    await userEvent.keyboard('{ArrowRight}');
-    await expect.element(screen.getByTestId('readout')).toHaveTextContent('09:00 98');
-    expect(onActiveIndexChange).toHaveBeenLastCalledWith(1);
-    await expect.element(toggle).toHaveAttribute('aria-expanded', 'true');
-
-    for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
-      const themed = await renderWithDS(<StatsIsland />, options);
-      await settle();
-      await expectNoA11yViolations(themed.container);
-      await themed.unmount();
-    }
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

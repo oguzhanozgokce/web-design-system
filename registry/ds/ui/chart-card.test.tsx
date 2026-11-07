@@ -261,13 +261,16 @@ describe('ChartCard', () => {
 
   it('stacks the header at 375px', async () => {
     await page.viewport(375, 700);
-    const screen = await renderWithDS(<Periods className="w-full" />, still);
-    const heading = screen.getByRole('heading', { name: 'Downloads' }).element();
-    const control = screen.getByRole('radiogroup', { name: 'Period' }).element();
-    expect(control.getBoundingClientRect().right).toBeLessThanOrEqual(375);
-    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(375);
-    expect(heading.getBoundingClientRect().width).toBeGreaterThan(0);
-    await page.viewport(1280, 720);
+    try {
+      const screen = await renderWithDS(<Periods className="w-full" />, still);
+      const heading = screen.getByRole('heading', { name: 'Downloads' }).element();
+      const control = screen.getByRole('radiogroup', { name: 'Period' }).element();
+      expect(control.getBoundingClientRect().right).toBeLessThanOrEqual(375);
+      expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(375);
+      expect(heading.getBoundingClientRect().width).toBeGreaterThan(0);
+    } finally {
+      await page.viewport(1280, 720);
+    }
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {
@@ -282,6 +285,7 @@ describe('ChartCard', () => {
         { ...options, ...still },
       );
       await expectNoA11yViolations(screen.container);
+      await screen.unmount();
     }
   });
 });
