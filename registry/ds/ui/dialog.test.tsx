@@ -224,16 +224,16 @@ describe('Dialog', () => {
           ),
         }}
       />,
+      { provider: { motion: 'disabled' } },
     );
     await screen.getByRole('button', { name: 'Invite teammate' }).click();
     const dialog = page.getByRole('dialog', { name: 'Invite teammate' });
     await expect.element(dialog).toBeVisible();
 
-    expect(surface()).toHaveAttribute('data-fullscreen', 'true');
+    await expect.poll(() => surface()?.getAttribute('data-fullscreen')).toBe('true');
     expect(getComputedStyle(surface()!).borderTopLeftRadius).toBe('0px');
-    const box = surface()!.getBoundingClientRect();
-    expect(box.width).toBe(phone.width);
-    expect(box.height).toBe(phone.height);
+    expect(surface()!.offsetWidth).toBe(phone.width);
+    expect(surface()!.offsetHeight).toBe(phone.height);
     const appBar = document.querySelector<HTMLElement>('[data-slot="dialog-header"]')!;
     expect(getComputedStyle(appBar).minHeight).toBe('56px');
 

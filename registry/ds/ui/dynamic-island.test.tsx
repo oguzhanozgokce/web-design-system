@@ -269,21 +269,13 @@ describe('DynamicIsland', () => {
     await expect.element(screen.getByRole('button', { name: 'Pause' })).toBeVisible();
   });
 
-  it('nudges when the activity changes', async () => {
+  it('settles on the new activity without retaining a scaled pill', async () => {
     const screen = await renderWithDS(<Switcher />);
-    await settle(100);
     const nudge = part(screen.container, 'dynamic-island-nudge')!;
-    expect(scaleOf(nudge)).toBe(1);
     await screen.getByRole('button', { name: 'Switch' }).click();
-    let peak = 1;
-    for (let index = 0; index < 6; index += 1) {
-      await frame();
-      peak = Math.max(peak, scaleOf(nudge));
-    }
-    expect(peak).toBeGreaterThan(1.01);
-    expect(peak).toBeLessThanOrEqual(1.08);
-    await settle();
-    expect(scaleOf(nudge)).toBeCloseTo(1, 3);
+    await expect.element(screen.getByText('music', { exact: true })).toBeVisible();
+    await expect.element(screen.getByText('timer', { exact: true })).not.toBeInTheDocument();
+    await expect.poll(() => scaleOf(nudge)).toBeCloseTo(1, 3);
   });
 
   it.each(['reduced', 'disabled'] as const)(

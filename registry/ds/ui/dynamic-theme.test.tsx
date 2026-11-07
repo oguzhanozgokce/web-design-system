@@ -343,7 +343,7 @@ describe('DynamicTheme', () => {
       await expect.poll(() => localStorage.getItem('ds-test')).toBeNull();
     });
 
-    it('hydrates a remembered accent without an unthemed frame', async () => {
+    it('keeps the remembered accent while boot CSS hands off to the mounted theme', async () => {
       const css = dynamicSchemeCss({ seed: seedCoral }, { scope: 'root' });
       localStorage.setItem('accent', JSON.stringify(seedCoral));
       localStorage.setItem('accent-theme', css);
@@ -364,24 +364,27 @@ describe('DynamicTheme', () => {
 
       const samples: string[] = [];
       const cacheSeen: (string | null)[] = [];
-      let sampling = true;
       const sample = () => {
         samples.push(getComputedStyle(document.documentElement).getPropertyValue('--primary'));
         cacheSeen.push(localStorage.getItem('accent-theme'));
-        if (sampling) requestAnimationFrame(sample);
       };
+      const observer = new MutationObserver(sample);
+      observer.observe(document.head, { childList: true, subtree: true, characterData: true });
       sample();
       const root = hydrateRoot(container, <AccentTheme />);
-      await expect.poll(() => schemeStyles().length).toBe(1);
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      sampling = false;
-
-      expect(samples.length).toBeGreaterThan(2);
-      expect(samples.every((value) => value.includes(themed))).toBe(true);
-      expect(cacheSeen.every((value) => value !== null)).toBe(true);
-      expect(document.querySelector(`style[${dynamicBootAttribute}]`)).toBeNull();
-      root.unmount();
-      container.remove();
+      try {
+        await expect.poll(() => schemeStyles().length).toBe(1);
+        await expect
+          .poll(() => document.querySelector(`style[${dynamicBootAttribute}]`))
+          .toBeNull();
+        sample();
+        expect(samples.every((value) => value.includes(themed))).toBe(true);
+        expect(cacheSeen.every((value) => value !== null)).toBe(true);
+      } finally {
+        observer.disconnect();
+        root.unmount();
+        container.remove();
+      }
     });
   });
 

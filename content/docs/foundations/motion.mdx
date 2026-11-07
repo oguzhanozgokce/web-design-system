@@ -51,6 +51,11 @@ right choice for dense admin screens.
 - `reduced` removes movement and scaling but keeps short fades.
 - `disabled` removes fades too.
 
-Components read it through `useMotionPreference()`. CSS animations use `motion-reduce:`, and a
-global rule turns every entering and exiting overlay into a fade when the system asks for less
-motion.
+Components read it through `useMotionPreference()`. The provider also renders a `display: contents`
+scope carrying `data-ds-motion` and `data-motion-profile`, so CSS press effects and disabled
+transitions follow the same setting without per-control attributes. Nested providers override
+their own scope; overlays carry it across portals. Wrap an app or a flow-content region with the
+provider, rather than placing it directly inside a table, list or select.
+
+CSS animations also use `motion-reduce:` for the operating system preference. Entering and exiting
+overlays fade when movement is reduced.

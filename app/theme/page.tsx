@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { ThemeBuilder } from '@/components/theme-builder/theme-builder';
+import { buildSchemes, defaultSettings } from '@/components/theme-builder/theme-model';
 import { baseOptions } from '@/lib/layout.shared';
 import { DSProvider } from '@/registry/ds/ui/ds-provider';
 
@@ -14,7 +15,7 @@ export default function ThemePage() {
   return (
     <HomeLayout {...baseOptions()}>
       <DSProvider locale="en">
-        <ThemeBuilder />
+        <ThemeBuilder initialSchemes={buildSchemes(defaultSettings.seed, defaultSettings.style)} />
       </DSProvider>
     </HomeLayout>
   );

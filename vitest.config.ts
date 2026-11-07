@@ -5,6 +5,7 @@ import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  cacheDir: '.vitest/node_modules/.cache',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

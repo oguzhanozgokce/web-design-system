@@ -7,7 +7,6 @@ import { DSProvider } from '@/registry/ds/ui/ds-provider';
 import { SegmentedControl, SegmentedControlItem } from '@/registry/ds/ui/segmented-control';
 import { Tab, TabList, TabPanel, Tabs } from '@/registry/ds/ui/tabs';
 import { cn } from '@/lib/cn';
-import { PreviewThemePicker, PreviewThemeScope } from '@/components/showcase/preview-theme';
 
 type Direction = 'ltr' | 'rtl';
 
@@ -51,7 +50,6 @@ export function PreviewFrame({ name, align = 'center', className, code }: Previe
         </TabList>
         {view === 'preview' ? (
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <PreviewThemePicker size="sm" />
             <SegmentedControl
               aria-label="Direction"
               size="sm"
@@ -86,11 +84,9 @@ export function PreviewFrame({ name, align = 'center', className, code }: Previe
             )}
           >
             {Example ? (
-              <PreviewThemeScope className="contents">
-                <Suspense fallback={null}>
-                  <Example />
-                </Suspense>
-              </PreviewThemeScope>
+              <Suspense fallback={null}>
+                <Example />
+              </Suspense>
             ) : (
               <p className="text-sm text-error">Missing example: {name}</p>
             )}

@@ -59,7 +59,7 @@ export function PreviewThemePicker({
 
   return (
     <RadioGroup
-      aria-label="Preview colour"
+      aria-label="Accent colour"
       orientation="horizontal"
       value={theme.id}
       onChange={setTheme}

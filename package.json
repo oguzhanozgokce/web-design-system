@@ -8,7 +8,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "npm run generate && shadcn build registry.json --output public/r && next dev --turbopack",
+    "dev": "npm run generate && next dev --turbopack",
     "build": "npm run generate && shadcn build registry.json --output public/r && next build",
     "start": "serve out",
     "generate": "tsx scripts/generate-tokens.ts && tsx scripts/generate-icons.ts && tsx scripts/build-registry.ts",

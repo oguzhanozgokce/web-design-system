@@ -371,6 +371,33 @@
 
 @custom-variant motion-productive (&:where([data-motion-profile='productive'] *));
 
+@scope ([data-ds-motion='reduced']) to ([data-ds-motion]) {
+  [data-pressed] {
+    scale: 1 !important;
+  }
+
+  [data-entering] {
+    animation-name: ds-fade-in !important;
+  }
+
+  [data-exiting] {
+    animation-name: ds-fade-out !important;
+  }
+}
+
+@scope ([data-ds-motion='disabled']) to ([data-ds-motion]) {
+  [data-pressed] {
+    scale: 1 !important;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 @layer base {
   [dir='rtl'] {
     --ds-direction: -1;

@@ -22,6 +22,7 @@ describe('PreviewFrame', () => {
 
     await expect.element(screen.getByRole('button', { name: 'Create' })).toBeVisible();
     expect(stage()).toHaveAttribute('dir', 'ltr');
+    expect(screen.getByRole('radiogroup', { name: 'Accent colour' }).query()).toBeNull();
     expect(getComputedStyle(stage()!).backgroundColor).toBe(canvasColor());
     const frame = document.querySelector<HTMLElement>('[data-preview="button-demo"]')!;
     expect(getComputedStyle(frame).borderTopWidth).toBe('1px');
@@ -50,7 +51,7 @@ describe('PreviewFrame', () => {
     await expect.element(screen.getByTestId('example-code')).toBeVisible();
     expect(stage()).toBeNull();
     expect(screen.getByRole('radiogroup', { name: 'Direction' }).query()).toBeNull();
-    expect(screen.getByRole('radiogroup', { name: 'Preview colour' }).query()).toBeNull();
+    expect(screen.getByRole('radiogroup', { name: 'Accent colour' }).query()).toBeNull();
 
     await screen.getByRole('tab', { name: 'Preview' }).click();
     await expect.element(screen.getByRole('radiogroup', { name: 'Direction' })).toBeVisible();

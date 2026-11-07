@@ -4,6 +4,13 @@
 
 ### Fixes and maintenance
 
+- Theme builder computes palettes in a worker, keeps only the latest queued selection and
+  prevents copying an outdated export while updating. Documentation examples use the catalogue
+  theme; accent selection stays in the gallery and theme builder, where its effect is visible.
+- Test dependency caches stay inside each checkout, including when worktrees share `node_modules`.
+- Provider motion preferences scope CSS effects across controls and portals, including toggle
+  buttons. Layout and activity-change regressions assert settled results. Development starts
+  without rebuilding registry JSON; local CLI installation uses `npm run registry:build`.
 - Registry files install to the configured aliases without extra directory nesting. Development
   and production builds include registry JSON endpoints; installation uses `DS_REGISTRY_URL`.
   Preview code shows consumer imports. A clean-consumer check installs all items and typechecks

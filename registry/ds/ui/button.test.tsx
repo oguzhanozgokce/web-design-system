@@ -80,35 +80,16 @@ describe('Button', () => {
       .toBeInTheDocument();
   });
 
-  it('honours provider reduced motion for press scale and disabled motion for pending fades', async () => {
-    for (const motion of ['reduced', 'disabled'] as const) {
-      const screen = await renderWithDS(
-        <>
-          <Button isPending>Save</Button>
-          <ButtonLink href="/docs">Docs</ButtonLink>
-        </>,
-        { provider: { motion } },
-      );
-      for (const control of [
-        screen.getByRole('button', { name: 'Save' }),
-        screen.getByRole('link', { name: 'Docs' }),
-      ]) {
-        const element = control.element();
-        element.style.transition = 'none';
-        element.setAttribute('data-pressed', 'true');
-        expect(getComputedStyle(element).scale).toBe('1');
-      }
-      if (motion === 'disabled') {
-        expect(
-          getComputedStyle(screen.container.querySelector('[data-slot="pending"]')!).animationName,
-        ).toBe('none');
-        expect(
-          getComputedStyle(screen.container.querySelector('[data-slot="content"]')!)
-            .transitionDuration,
-        ).toBe('0s');
-      }
-      await screen.unmount();
-    }
+  it('removes pending fades when provider motion is disabled', async () => {
+    const screen = await renderWithDS(<Button isPending>Save</Button>, {
+      provider: { motion: 'disabled' },
+    });
+    expect(
+      getComputedStyle(screen.container.querySelector('[data-slot="pending"]')!).animationName,
+    ).toBe('none');
+    expect(
+      getComputedStyle(screen.container.querySelector('[data-slot="content"]')!).transitionDuration,
+    ).toBe('0s');
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

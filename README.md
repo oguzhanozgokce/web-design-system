@@ -49,6 +49,7 @@ or a user's theme at runtime.
 npm install
 npx playwright install chromium
 npm run dev          # catalogue on http://localhost:3000
+npm run registry:build # registry JSON for local CLI installations, when needed
 npm run check        # tsc, eslint, prettier, check-ds
 npm test             # Node helper tests and Chromium component tests with axe
 npm run check:registry # clean-consumer installation and typecheck

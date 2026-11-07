@@ -638,6 +638,7 @@
         "@ds/icons",
         "@ds/labels",
         "@ds/motion",
+        "@ds/theme-scope",
         "@ds/use-media-query"
       ],
       "files": [
@@ -1744,9 +1745,12 @@
       "name": "theme-scope",
       "type": "registry:lib",
       "title": "Theme scope",
-      "description": "Carries the nearest dynamic theme scope to overlays that portal out of it, so popovers, menus and dialogs keep the scheme of the element that opened them.",
+      "description": "Carries dynamic theme and motion scopes across portals, so overlays keep the preferences of the region that opened them.",
       "categories": [
         "foundations"
+      ],
+      "registryDependencies": [
+        "@ds/motion"
       ],
       "files": [
         {
@@ -1792,6 +1796,7 @@
         "@ds/button",
         "@ds/ds-provider",
         "@ds/spinner",
+        "@ds/theme-scope",
         "@ds/utils"
       ],
       "files": [

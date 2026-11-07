@@ -105,7 +105,6 @@ describe('IconButton', () => {
       provider: { motion: 'reduced' },
     });
     const still = reduced.getByRole('button', { name: 'Medium' });
-    await expect.element(still).toHaveAttribute('data-reduced-motion', 'true');
     expect(await pressAndReadScale(still.element())).toBe(1);
   });
   it('draws the focus ring in the error colour for the error tone', async () => {

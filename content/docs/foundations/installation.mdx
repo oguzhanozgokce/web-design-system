@@ -8,8 +8,9 @@ copied into your project as source, so each project owns its copy and can change
 
 Use React 19 and Tailwind CSS 4. The catalogue and generators require Node.js 24 or newer.
 
-Set the registry origin in the consuming project's terminal. For local development, run
-`npm run dev` in this repository and use the address printed by Next.js:
+For local installation, run `npm run registry:build` once in this repository, then `npm run dev`.
+Rebuild registry JSON after changing installable source files. Use the address printed by Next.js
+as the registry origin in the consuming project's terminal:
 
 ```bash
 export DS_REGISTRY_URL=http://localhost:3000
@@ -18,6 +19,9 @@ export DS_REGISTRY_URL=http://localhost:3000
 For a hosted registry, use that catalogue's origin instead. `npm run build` exports the catalogue
 and its `/r/*.json` registry items together; a GitHub repository's HTML URL is not a registry
 endpoint.
+
+To avoid setting an environment variable in each terminal, replace `${DS_REGISTRY_URL}` in
+`components.json` with the local or hosted origin directly.
 
 <Steps>
 <Step>

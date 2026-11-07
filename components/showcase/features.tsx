@@ -277,7 +277,7 @@ export function Features({ installFiles }: { installFiles: string[] }) {
         <Tile
           className="md:col-span-4"
           title="One seed, every role"
-          body="Accent and status colours, solid and soft fills, and the page, raised and overlay layers, in light and dark at three contrast levels, all generated from one colour."
+          body="Accent and status colours from one seed, paired with neutral page, raised and overlay layers, in light and dark at three contrast levels."
         >
           <PaletteCycle />
         </Tile>

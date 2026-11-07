@@ -109,7 +109,7 @@ export function ThemeControls({
         onBlur={onSeedTextCommit}
         isInvalid={!isSeedValid}
         errorMessage="Enter 3 or 6 hex digits, with or without the leading #."
-        description="Your brand colour. Every role is generated from it."
+        description="Generates the accent colours. Surfaces stay neutral."
         autoComplete="off"
         spellCheck="false"
         inputRef={seedInputRef}

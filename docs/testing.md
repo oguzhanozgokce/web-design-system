@@ -57,10 +57,14 @@ Use computed styles only for a documented visual contract or regression. Compare
 own semantic role; editable and read-only controls may intentionally have different resting styles.
 Move the pointer before asserting a resting style, and wait for transitions through `expect.poll`
 when needed. Do not disable contrast rules or replace behavioural assertions with snapshots.
+Layout tests can disable motion; activity changes should assert the settled content and geometry
+rather than requiring a transient spring peak to appear within a fixed number of frames.
 
 ## Run and report
 
 Use `npx vitest run <file>` while editing, `npm run test:unit` for pure logic and
 `npm run test:browser` for UI coverage. Run `npm test` and the checks in `AGENTS.md` before delivery.
+Vite's cache lives in `.vitest/node_modules/.cache` so checkouts sharing `node_modules` cannot overwrite each
+other's prebundled React modules.
 Do not turn failed commands into success with pipes, `|| echo`, ignored errors or arbitrary
 retries. Report failures and verification gaps explicitly.

@@ -159,7 +159,7 @@ export function ComponentGallery({
             : `${visible.length} of ${entries.length} components`}
         </p>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-on-surface-variant">Preview colour</span>
+          <span className="text-sm text-on-surface-variant">Accent colour</span>
           <PreviewThemePicker size="sm" />
         </div>
       </div>

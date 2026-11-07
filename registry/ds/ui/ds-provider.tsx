@@ -14,6 +14,7 @@ import {
   type LabelValues,
 } from '@/registry/ds/lib/labels';
 import type { MotionPreference, MotionProfile } from '@/registry/ds/lib/motion';
+import { MotionScopeContext } from '@/registry/ds/lib/theme-scope';
 
 interface DSContextValue {
   labels: LabelOverrides;
@@ -65,7 +66,11 @@ export function DSProvider({
   const content = (
     <DSContext value={value}>
       <MotionConfig reducedMotion={motion === 'system' ? 'user' : 'always'}>
-        {children}
+        <MotionScopeContext value={value}>
+          <div data-ds-motion={motion} data-motion-profile={motionProfile} className="contents">
+            {children}
+          </div>
+        </MotionScopeContext>
       </MotionConfig>
     </DSContext>
   );

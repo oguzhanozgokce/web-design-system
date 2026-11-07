@@ -20,15 +20,12 @@ import {
   type ButtonTone,
   type ButtonVariant,
 } from '@/registry/ds/ui/button';
-import { useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
+import { useLabels } from '@/registry/ds/ui/ds-provider';
 import { Spinner } from '@/registry/ds/ui/spinner';
 
 export const iconButtonStyles = tv({
   extend: buttonStyles,
-  base: [
-    'group/icon-button pointer-coarse:after:absolute',
-    'data-[reduced-motion]:data-[pressed]:scale-100',
-  ],
+  base: 'group/icon-button pointer-coarse:after:absolute',
   variants: {
     size: {
       xs: 'size-7 p-0 data-[pressed]:scale-[0.93] [--icon-size:1rem] pointer-coarse:after:-inset-2.5',
@@ -92,11 +89,6 @@ function useGroupedStyle({ variant, tone, size }: IconButtonStyleProps) {
     }),
     isGroupDisabled: group?.isDisabled,
   };
-}
-
-function useReducedMotionAttribute() {
-  const { preference } = useMotionPreference();
-  return preference === 'system' ? undefined : true;
 }
 
 export interface IconButtonLabels {
@@ -168,7 +160,6 @@ export function IconButton({
   const { isGroupDisabled, ...style } = useGroupedStyle({ variant, tone, size });
   const [isRunning, setRunning] = useState(false);
   const isPending = isPendingProp ?? isRunning;
-  const reducedMotion = useReducedMotionAttribute();
 
   function handlePress(event: PressEvent) {
     const result = onPress?.(event);
@@ -191,7 +182,6 @@ export function IconButton({
       data-variant={style.variant}
       data-tone={style.tone}
       data-size={style.size}
-      data-reduced-motion={reducedMotion}
       className={composeRenderProps(className, (className) =>
         iconButtonStyles({ ...style, className }),
       )}
@@ -219,7 +209,6 @@ export function IconButtonLink({
   ...props
 }: IconButtonLinkProps) {
   const { isGroupDisabled, ...style } = useGroupedStyle({ variant, tone, size });
-  const reducedMotion = useReducedMotionAttribute();
 
   return (
     <AriaLink
@@ -229,7 +218,6 @@ export function IconButtonLink({
       data-variant={style.variant}
       data-tone={style.tone}
       data-size={style.size}
-      data-reduced-motion={reducedMotion}
       className={composeRenderProps(className, (className) =>
         iconButtonStyles({ ...style, className }),
       )}
@@ -261,7 +249,6 @@ export function IconToggleButton({
   ...props
 }: IconToggleButtonProps) {
   const group = use(ButtonGroupContext);
-  const reducedMotion = useReducedMotionAttribute();
   const style = {
     variant: variant ?? toggleVariantFor(group?.variant) ?? 'ghost',
     tone: 'neutral' as const,
@@ -275,7 +262,6 @@ export function IconToggleButton({
       data-slot="icon-toggle-button"
       data-variant={style.variant}
       data-size={style.size}
-      data-reduced-motion={reducedMotion}
       className={composeRenderProps(className, (className) =>
         iconToggleButtonStyles({ ...style, className }),
       )}

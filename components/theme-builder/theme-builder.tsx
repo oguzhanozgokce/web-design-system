@@ -1,6 +1,6 @@
 'use client';
 
-import { useDeferredValue, useId, useMemo, useState } from 'react';
+import { memo, useId, useMemo, useState } from 'react';
 import type { ContrastLevel, PaletteStyle } from '@/registry/ds/lib/color-scheme';
 import { parseSeed } from '@/registry/ds/lib/dynamic-color';
 import { AdminPreview } from '@/components/theme-builder/admin-preview';
@@ -8,7 +8,6 @@ import { RoleSwatches } from '@/components/theme-builder/role-swatches';
 import { ThemeControls } from '@/components/theme-builder/theme-controls';
 import { ThemeExport } from '@/components/theme-builder/theme-export';
 import {
-  buildSchemes,
   configJson,
   contrastName,
   defaultSettings,
@@ -16,9 +15,15 @@ import {
   paletteStyleName,
   schemeStyle,
   tokensCss,
+  type SchemeSet,
 } from '@/components/theme-builder/theme-model';
+import { useThemePalette } from '@/components/theme-builder/use-theme-palette';
 
-export function ThemeBuilder() {
+const Preview = memo(AdminPreview);
+const Swatches = memo(RoleSwatches);
+const Export = memo(ThemeExport);
+
+export function ThemeBuilder({ initialSchemes }: { initialSchemes: SchemeSet }) {
   const [seed, setSeed] = useState(defaultSettings.seed);
   const [seedText, setSeedText] = useState(formatSeed(defaultSettings.seed));
   const [style, setStyle] = useState<PaletteStyle>(defaultSettings.style);
@@ -27,23 +32,19 @@ export function ThemeBuilder() {
   const previewId = useId();
   const rolesId = useId();
 
-  const deferredSeed = useDeferredValue(seed);
-  const deferredStyle = useDeferredValue(style);
-  const schemes = useMemo(
-    () => buildSchemes(deferredSeed, deferredStyle),
-    [deferredSeed, deferredStyle],
-  );
+  const { palette, hasError, isUpdating } = useThemePalette({ seed, style }, initialSchemes);
+  const { schemes } = palette;
   const exportFiles = useMemo(
     () => ({
       css: tokensCss(schemes),
-      config: configJson(deferredSeed, deferredStyle),
+      config: configJson(palette.seed, palette.style),
     }),
-    [schemes, deferredSeed, deferredStyle],
+    [schemes, palette.seed, palette.style],
   );
 
   const mode = isDark ? 'dark' : 'light';
   const colors = schemes[mode][contrast];
-  const themeStyle = schemeStyle(colors, mode);
+  const themeStyle = useMemo(() => schemeStyle(colors, mode), [colors, mode]);
   const isSeedValid = parseSeed(seedText) !== null;
   const isDefault =
     seed === defaultSettings.seed &&
@@ -51,7 +52,7 @@ export function ThemeBuilder() {
     style === defaultSettings.style &&
     contrast === defaultSettings.contrast &&
     mode === defaultSettings.mode;
-  const summary = `${formatSeed(deferredSeed)} · ${paletteStyleName(deferredStyle)} · ${contrastName(contrast)} contrast · ${isDark ? 'Dark' : 'Light'}`;
+  const summary = `${formatSeed(palette.seed)} · ${paletteStyleName(palette.style)} · ${contrastName(contrast)} contrast · ${isDark ? 'Dark' : 'Light'}`;
 
   function changeSeedText(text: string) {
     setSeedText(text);
@@ -117,15 +118,23 @@ export function ThemeBuilder() {
               <h2 id={previewId} className="text-lg font-semibold text-on-surface">
                 Preview
               </h2>
-              <p className="text-sm text-on-surface-variant">{summary}</p>
+              <p role="status" className="text-sm text-on-surface-variant">
+                {isUpdating && !hasError ? 'Updating palette…' : summary}
+              </p>
             </div>
+            {hasError ? (
+              <p role="alert" className="text-sm text-error">
+                Could not generate this palette. Reload the page to try again.
+              </p>
+            ) : null}
             <div
               data-slot="theme-preview"
+              aria-busy={isUpdating}
               data-theme={mode}
               style={themeStyle}
               className="overflow-hidden rounded-container border border-outline-subtle bg-canvas text-on-surface"
             >
-              <AdminPreview />
+              <Preview />
             </div>
           </section>
 
@@ -145,11 +154,11 @@ export function ThemeBuilder() {
               style={themeStyle}
               className="overflow-hidden rounded-container border border-outline-subtle bg-canvas text-on-surface"
             >
-              <RoleSwatches colors={colors} />
+              <Swatches colors={colors} />
             </div>
           </section>
 
-          <ThemeExport css={exportFiles.css} config={exportFiles.config} />
+          <Export css={exportFiles.css} config={exportFiles.config} isPending={isUpdating} />
         </div>
       </div>
     </div>

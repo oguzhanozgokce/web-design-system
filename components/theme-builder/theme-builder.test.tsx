@@ -15,6 +15,8 @@ import {
   tokensCss,
 } from '@/components/theme-builder/theme-model';
 
+const initialSchemes = buildSchemes(defaultSettings.seed, defaultSettings.style);
+
 const errorText = 'Enter 3 or 6 hex digits, with or without the leading #.';
 
 const teal = { seed: '#0B8F6A' };
@@ -53,7 +55,7 @@ afterEach(() => {
 
 describe('ThemeBuilder', () => {
   it('themes only the preview, starting from tokens/config.json', async () => {
-    const screen = await renderWithDS(<ThemeBuilder />);
+    const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
 
     await expect
       .element(screen.getByRole('heading', { level: 1, name: 'Theme builder' }))
@@ -73,7 +75,7 @@ describe('ThemeBuilder', () => {
 
   it('applies a hex value as it is typed and keeps the last scheme while it is invalid', async () => {
     const seed = '#0B8F6A';
-    const screen = await renderWithDS(<ThemeBuilder />);
+    const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
     const field = screen.getByRole('textbox', { name: 'Seed colour' });
 
     await field.fill(seed.slice(1));
@@ -89,7 +91,7 @@ describe('ThemeBuilder', () => {
 
   it('expands and upper-cases a short hex when the field loses focus', async () => {
     const seed = '#AABBCC';
-    const screen = await renderWithDS(<ThemeBuilder />);
+    const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
     const field = screen.getByRole('textbox', { name: 'Seed colour' });
 
     await field.fill('abc');
@@ -98,21 +100,25 @@ describe('ThemeBuilder', () => {
     await expect.poll(() => previewVar('primary')).toBe(defaults({ seed }).primary);
   });
 
-  it('follows the native colour picker', async () => {
+  it('keeps the native picker, preview and export on the same final colour', async () => {
     const seed = '#c2185b';
-    const screen = await renderWithDS(<ThemeBuilder />);
+    const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
     const picker = screen.getByLabelText('Pick the seed colour').element() as HTMLInputElement;
 
-    setNativeValue(picker, seed);
+    for (const value of ['#4dbbff', '#0b8f6a', seed]) setNativeValue(picker, value);
 
     await expect
       .element(screen.getByRole('textbox', { name: 'Seed colour' }))
       .toHaveValue(seed.toUpperCase());
     await expect.poll(() => previewVar('primary')).toBe(defaults({ seed }).primary);
+    await screen.getByRole('tab', { name: 'config.json' }).click();
+    await expect
+      .element(screen.getByRole('region', { name: 'tokens/config.json' }))
+      .toMatchTextContent(/"seed": "#C2185B"/);
   });
 
   it('switches the palette style and writes it to config.json', async () => {
-    const screen = await renderWithDS(<ThemeBuilder />);
+    const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
 
     await screen.getByRole('button', { name: /Palette style/ }).click();
     await page.getByRole('option', { name: /^Neutral/ }).click();
@@ -125,7 +131,7 @@ describe('ThemeBuilder', () => {
   });
 
   it('previews contrast and dark mode on the canvas layer', async () => {
-    const screen = await renderWithDS(<ThemeBuilder />);
+    const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
 
     await screen.getByRole('radio', { name: 'High' }).click();
     await expect.poll(() => previewVar('primary')).toBe(defaults({ contrast: 'high' }).primary);
@@ -146,7 +152,7 @@ describe('ThemeBuilder', () => {
   });
 
   it('resets every control to the catalogue default', async () => {
-    const screen = await renderWithDS(<ThemeBuilder />);
+    const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
 
     await screen.getByRole('radio', { name: 'Medium' }).click();
     await screen.getByText('Dark preview').click();
@@ -165,7 +171,7 @@ describe('ThemeBuilder', () => {
   });
 
   it('sends a click on the seed field to the hex input, with the picker after it', async () => {
-    const screen = await renderWithDS(<ThemeBuilder />);
+    const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
     const field = screen.getByRole('textbox', { name: 'Seed colour' });
     const container = document.querySelector(
       '[data-slot="theme-controls"] [data-slot="text-field"] [data-slot="container"]',
@@ -180,7 +186,7 @@ describe('ThemeBuilder', () => {
 
   it('copies the export that is on screen', async () => {
     const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
-    const screen = await renderWithDS(<ThemeBuilder />);
+    const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
 
     await screen.getByRole('button', { name: 'Copy CSS' }).click();
     await expect
@@ -195,7 +201,7 @@ describe('ThemeBuilder', () => {
   });
 
   it('shows every colour role with its value', async () => {
-    await renderWithDS(<ThemeBuilder />);
+    await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />);
     const tiles = Array.from(document.querySelectorAll('[data-slot="role-swatches"] [data-role]'));
     const shown = new Set(
       tiles.flatMap((tile) => [tile.getAttribute('data-role'), tile.getAttribute('data-on-role')]),
@@ -230,7 +236,7 @@ describe('Theme exports', () => {
 describe('ThemeBuilder accessibility', () => {
   it('has no accessibility violations in light, dark and RTL', async () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
-      const screen = await renderWithDS(<ThemeBuilder />, options);
+      const screen = await renderWithDS(<ThemeBuilder initialSchemes={initialSchemes} />, options);
       await expectNoA11yViolations(screen.container);
       await screen.unmount();
     }

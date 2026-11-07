@@ -76,6 +76,12 @@ export interface ThemeSettings {
   mode: ColorMode;
 }
 
+export type PaletteRequest = Pick<ThemeSettings, 'seed' | 'style'>;
+
+export interface ThemePalette extends PaletteRequest {
+  schemes: SchemeSet;
+}
+
 export const defaultSettings: ThemeSettings = {
   seed: configuredSeed(),
   style: isPaletteStyle(tokenConfig.style) ? tokenConfig.style : 'tonal-spot',

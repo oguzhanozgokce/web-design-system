@@ -28,6 +28,7 @@ import {
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
 import { Button } from '@/registry/ds/ui/button';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
+import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
 import { Spinner } from '@/registry/ds/ui/spinner';
 
 export type ToastTone = 'neutral' | 'info' | 'success' | 'warning' | 'error';
@@ -645,12 +646,14 @@ export function Toaster({
 }: ToasterProps) {
   const t = useLabels('toast', defaultToastLabels, labels);
   const isOwner = useToasterOwnership(toasterId);
+  const scope = useThemeScopeProps();
   const side: ToastSide = placement.startsWith('top') ? 'top' : 'bottom';
 
   if (!isOwner) return null;
 
   return (
     <AriaToastRegion
+      {...scope}
       queue={toasterStore(toasterId).queue}
       aria-label={ariaLabel ?? t.notifications}
       data-slot="toaster"

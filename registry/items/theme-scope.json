@@ -2,7 +2,7 @@
   "name": "theme-scope",
   "type": "registry:lib",
   "title": "Theme scope",
-  "description": "Carries the nearest dynamic theme scope to overlays that portal out of it, so popovers, menus and dialogs keep the scheme of the element that opened them.",
+  "description": "Carries dynamic theme and motion scopes across portals, so overlays keep the preferences of the region that opened them.",
   "category": "foundations",
   "files": ["lib/theme-scope.ts"]
 }
