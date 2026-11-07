@@ -1,7 +1,7 @@
 /* @license
  * Copyright 2022 Google LLC
  * SPDX-License-Identifier: Apache-2.0
- * Modified by Web Design System contributors: selected SVG paths wrapped as React components.
+ * Modified by Highwren UI contributors: selected SVG paths wrapped as React components.
  * Full licence and notices are installed in licenses/ds/LICENSE and licenses/ds/NOTICE.
  */
 import type { ComponentType, SVGProps } from 'react';
@@ -263,6 +263,14 @@ export function ContrastIcon(props: IconProps) {
   return (
     <svg {...iconDefaults} {...props}>
       <path d="M324-111.5Q251-143 197-197t-85.5-127Q80-397 80-480t31.5-156Q143-709 197-763t127-85.5Q397-880 480-880t156 31.5Q709-817 763-763t85.5 127Q880-563 880-480t-31.5 156Q817-251 763-197t-127 85.5Q563-80 480-80t-156-31.5ZM500-140q137-10 228.5-106T820-480q0-138-91.5-234T500-820v680Z" />
+    </svg>
+  );
+}
+
+export function CookieIcon(props: IconProps) {
+  return (
+    <svg {...iconDefaults} {...props}>
+      <path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-82 31.5-155T197-763q54-55 126-87t153-32q32 0 51.5 15t24.5 47q8 58 50 98.5t99 48.5q21 3 33 16t17 37q5 31 26 55.5t50 38.5q31 15 43 36t8 53q-7 74-41 139t-87.5 113.5Q696-136 627.1-108 558.21-80 480-80Zm0-60q142 0 236-93.5T821-464q-54-20-87.5-59.5T692-614q-81-11-136.5-70T492-821q-74-3-138.5 24t-112 74Q194-676 167-612.5T140-480q0 142 99 241t241 99Zm1-345Zm-60.88-73Q446-558 464-576.12q18-18.12 18-44T463.88-664q-18.12-18-44-18T376-663.88q-18 18.12-18 44T376.12-576q18.12 18 44 18Zm-80 200Q366-358 384-376.12q18-18.12 18-44T383.88-464q-18.12-18-44-18T296-463.88q-18 18.12-18 44T296.12-376q18.12 18 44 18ZM600-320q17 0 28.5-11.5T640-360q0-17-11.5-28.5T600-400q-17 0-28.5 11.5T560-360q0 17 11.5 28.5T600-320Z" />
     </svg>
   );
 }
@@ -971,6 +979,7 @@ export const dsIcons = {
   colorize: ColorizeIcon,
   contentPaste: ContentPasteIcon,
   contrast: ContrastIcon,
+  cookie: CookieIcon,
   copy: CopyIcon,
   darkMode: DarkModeIcon,
   dashboard: DashboardIcon,

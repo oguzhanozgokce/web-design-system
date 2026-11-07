@@ -28,6 +28,15 @@ Checked again against each repository's `LICENSE` with `gh api repos/<repo>/lice
 Code adapted from an MIT source is recorded in the item's `credits` field in `registry/items/*.json`;
 `THIRD_PARTY_NOTICES.md` is generated from those fields.
 
+The [cookie-consent study](cookie-consent.md) records the later privacy-notice references and
+their application; its current component specification is section 2.43 of `web-style.md`.
+
+The [homepage study](homepage.md) records the catalogue's visual references, page structure and
+interaction decisions from the 2026-11-08 redesign.
+
+The [catalogue identity](brand.md) records the symbol, colour roles, favicon exports and source
+files used by the navigation and footer.
+
 ## Tooling decisions
 
 | Topic       | Choice                                                    | Why                                                                                  |

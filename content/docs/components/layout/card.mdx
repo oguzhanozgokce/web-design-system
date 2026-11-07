@@ -129,6 +129,19 @@ with a not-allowed cursor.
 
 <ComponentPreview name="card-states" align="stretch" />
 
+### Onboarding checklist
+
+A short setup list makes the next useful action visible and shows how much is complete. This
+interactive prototype composes Card, Checkbox, Disclosure and LinearProgress; it is not a separate
+public component. Check the remaining steps, collapse the list, and revisit a completed task.
+
+<ComponentPreview name="card-onboarding" />
+
+The demo uses local state so the interaction is easy to explore. In an application, derive each
+step's completion from actual account data and take the person to the relevant task. Do not mark
+an operation complete merely because its link was opened. Keep optional onboarding dismissible
+and avoid blocking access to the rest of the product.
+
 ## API
 
 ### Card

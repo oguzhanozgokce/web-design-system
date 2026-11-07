@@ -190,6 +190,30 @@
       }
     },
     {
+      "name": "breadcrumbs",
+      "type": "registry:ui",
+      "title": "Breadcrumbs",
+      "description": "A wrapping hierarchy of real links with a non-interactive current page and directional separators.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/license",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/breadcrumbs.tsx",
+          "type": "registry:ui",
+          "target": "@ui/breadcrumbs.tsx"
+        }
+      ]
+    },
+    {
       "name": "button-group",
       "type": "registry:ui",
       "title": "Button Group",
@@ -481,6 +505,41 @@
           "path": "registry/ds/ui/content-state.tsx",
           "type": "registry:ui",
           "target": "@ui/content-state.tsx"
+        }
+      ]
+    },
+    {
+      "name": "cookie-consent",
+      "type": "registry:ui",
+      "title": "Cookie consent",
+      "description": "A calm privacy notice in card, banner and compact layouts, with animated category preferences and async decisions.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/license",
+        "@ds/link",
+        "@ds/motion",
+        "@ds/switch",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/cookie-consent.tsx",
+          "type": "registry:ui",
+          "target": "@ui/cookie-consent.tsx"
+        },
+        {
+          "path": "registry/ds/lib/cookie-consent.ts",
+          "type": "registry:lib",
+          "target": "@lib/cookie-consent.ts"
         }
       ]
     },
@@ -972,6 +1031,38 @@
       ]
     },
     {
+      "name": "funnel-chart",
+      "type": "registry:ui",
+      "title": "Funnel Chart",
+      "description": "A continuous stage flow with counts, explicit conversion denominators and an accessible data table. Composes with ChartCard.",
+      "categories": [
+        "charts"
+      ],
+      "dependencies": [
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/chart",
+        "@ds/ds-provider",
+        "@ds/license",
+        "@ds/motion",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/funnel-chart.tsx",
+          "type": "registry:ui",
+          "target": "@ui/funnel-chart.tsx"
+        },
+        {
+          "path": "registry/ds/lib/funnel-chart.ts",
+          "type": "registry:lib",
+          "target": "@lib/funnel-chart.ts"
+        }
+      ]
+    },
+    {
       "name": "icon-button",
       "type": "registry:ui",
       "title": "Icon Button",
@@ -1093,6 +1184,36 @@
       ]
     },
     {
+      "name": "lightbox",
+      "type": "registry:ui",
+      "title": "Lightbox",
+      "description": "A full-screen image viewer with thumbnails, zoom, native panning and recoverable image errors.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/dialog",
+        "@ds/ds-provider",
+        "@ds/icon-button",
+        "@ds/labels",
+        "@ds/license",
+        "@ds/spinner",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/lightbox.tsx",
+          "type": "registry:ui",
+          "target": "@ui/lightbox.tsx"
+        }
+      ]
+    },
+    {
       "name": "line-chart",
       "type": "registry:ui",
       "title": "Line Chart",
@@ -1209,6 +1330,33 @@
           "path": "registry/ds/lib/motion.ts",
           "type": "registry:lib",
           "target": "@lib/motion.ts"
+        }
+      ]
+    },
+    {
+      "name": "not-found",
+      "type": "registry:ui",
+      "title": "Not Found",
+      "description": "A recoverable missing-page state with an animated illustration, a real heading and navigation links.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "motion"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/empty-state",
+        "@ds/license",
+        "@ds/motion",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/not-found.tsx",
+          "type": "registry:ui",
+          "target": "@ui/not-found.tsx"
         }
       ]
     },

@@ -1,0 +1,8 @@
+{
+  "name": "not-found",
+  "type": "registry:ui",
+  "title": "Not Found",
+  "description": "A recoverable missing-page state with an animated illustration, a real heading and navigation links.",
+  "category": "feedback",
+  "files": ["ui/not-found.tsx"]
+}

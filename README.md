@@ -1,18 +1,40 @@
-# Web Design System
+<img src="public/favicon.svg" width="48" height="48" alt="" />
+
+# Highwren UI
 
 React components for marketing sites, admin panels and signed-in user panels. Built on React Aria
 Components, with soft shapes, calm neutral surfaces and semantic colours generated from one seed.
 Components install as source through a shadcn registry; your project owns its copy.
 
+[![The catalogue with a live workspace, activity chart, project list and setup checklist themed from one seed colour](.github/assets/overview.jpg)](content/docs/index.mdx)
+
 - React 19 and Tailwind CSS 4; framework-independent installed components.
 - Light and dark themes, three contrast levels, runtime branding and right-to-left layouts.
 - English defaults with typed label overrides, locale-aware dates and numbers, reduced motion.
-- Forms, navigation, overlays, data tables, charts and complete page blocks.
+- Forms, navigation, overlays, feedback, data tables and charts.
 - Real Chromium interaction and accessibility tests, plus clean-consumer installation checks.
 
 This is an early, pre-1.0 library. Review upstream diffs before updating installed source.
 There is no public catalogue host yet; the local catalogue includes the installation guide, examples
 and API reference. The repository remains private during release preparation.
+
+## Component previews
+
+These are real catalogue examples. Select an image to open its usage guide and API reference.
+
+<details>
+<summary>Cookie Consent — privacy choices with inline preferences</summary>
+
+[![Cookie Consent with equally prominent reject and accept actions and an expandable preferences control](.github/assets/cookie-consent.jpg)](content/docs/components/feedback/cookie-consent.mdx)
+
+</details>
+
+<details>
+<summary>Funnel Chart — activation stages, conversion rates and a data table</summary>
+
+[![Funnel Chart showing app installs, sign-ins, first actions and upgrades, with period selection and conversion rates](.github/assets/funnel-chart.jpg)](content/docs/components/charts/funnel-chart.mdx)
+
+</details>
 
 ## Run the catalogue
 

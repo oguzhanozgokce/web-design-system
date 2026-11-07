@@ -15,6 +15,13 @@ export const metadata: Metadata = {
   },
   description:
     'React components for marketing sites, admin panels and signed-in user panels, themed from one seed colour.',
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png', sizes: '96x96' },
+      { url: '/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', type: 'image/png', sizes: '180x180' }],
+  },
 };
 
 export default function Layout({ children }: LayoutProps<'/'>) {

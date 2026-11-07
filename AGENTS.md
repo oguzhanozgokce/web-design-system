@@ -1,4 +1,4 @@
-# Web design system
+# Highwren UI
 
 React components for marketing sites, admin panels and signed-in user panels, distributed as a
 shadcn registry under `@ds`. Consumers own the installed source. Public names, defaults and

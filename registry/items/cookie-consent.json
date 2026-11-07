@@ -1,0 +1,8 @@
+{
+  "name": "cookie-consent",
+  "type": "registry:ui",
+  "title": "Cookie consent",
+  "description": "A calm privacy notice in card, banner and compact layouts, with animated category preferences and async decisions.",
+  "category": "feedback",
+  "files": ["ui/cookie-consent.tsx", "lib/cookie-consent.ts"]
+}

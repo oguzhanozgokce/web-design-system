@@ -1,0 +1,83 @@
+---
+title: Not Found
+description: A recoverable missing-page state with an animated illustration, a real heading and navigation links.
+---
+
+<ComponentPreview name="not-found-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="not-found" />
+
+## Usage
+
+```tsx
+import { NotFound } from '@/components/ds/not-found';
+
+<NotFound headingLevel={1} homeHref="/" />;
+```
+
+A missing destination needs a way forward. This composes [Empty state](/docs/components/feedback/empty-state)
+with original page artwork and a short entrance. It never redirects automatically or runs a
+continuous animation. Only the artwork animates; the heading, description and recovery links are
+present in server-rendered HTML.
+
+## Examples
+
+### Missing resource
+
+A removed resource inside an otherwise valid screen can use the compact layout and its own copy.
+Use this only once the application knows the resource is missing; network errors still need a retry.
+
+<ComponentPreview name="not-found-resource" align="stretch" />
+
+### A real 404 page
+
+The catalogue uses this component in `app/not-found.tsx`. In a Next.js App Router application:
+
+```tsx
+import type { Metadata } from 'next';
+import { NotFound } from '@/components/ds/not-found';
+
+export const metadata: Metadata = {
+  title: 'Page not found',
+  robots: { index: false },
+};
+
+export default function NotFoundPage() {
+  return <main><NotFound headingLevel={1} homeHref="/" /></main>;
+}
+```
+
+Call Next's `notFound()` when route data is missing. A styled component alone cannot set the HTTP
+status. Next returns 404 before streaming starts and adds `noindex`; after streaming starts the
+status can remain 200. For this static catalogue, publish `out/404.html` as the host's 404 document
+and retain the 404 response for unknown URLs. A rewrite that serves it as 200 creates a soft 404.
+Do not add a homepage canonical or automatically send visitors to the homepage.
+
+See [Next's not-found contract](https://nextjs.org/docs/app/api-reference/file-conventions/not-found)
+and [Google's JavaScript SEO guidance](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics).
+
+## API
+
+`NotFoundProps` accepts `EmptyStateProps` except its icon and illustration. It adds:
+
+| Prop                               | Type                      | Default                                  |
+| ---------------------------------- | ------------------------- | ---------------------------------------- |
+| `title`, `description`             | `ReactNode`               | resolved labels                          |
+| `homeHref`                         | `string`                  | no generated action                      |
+| `primaryAction`, `secondaryAction` | `ReactNode`               | primary generated when `homeHref` exists |
+| `headingLevel`                     | `1 … 6`                   | `2`                                      |
+| `size`                             | `'sm' \| 'md' \| 'lg'`    | `'lg'`                                   |
+| `labels`                           | `Partial<NotFoundLabels>` | English defaults                         |
+
+`defaultNotFoundLabels` exports `title`, `description` and `home`. Override built-in copy through
+`labels` or `DSProvider labels={{ notFound: { home: 'Return home' } }}`; direct title and description
+props take precedence. Layout and slots come from EmptyState, with `not-found-illustration` on
+the decorative artwork.
+
+## Accessibility
+
+Choose heading level 1 for a standalone page and the appropriate level inside an existing page.
+The artwork is hidden from screen readers. Recovery uses an anchor with a genuine destination.
+Reduced motion removes movement; disabled motion also removes the fade.

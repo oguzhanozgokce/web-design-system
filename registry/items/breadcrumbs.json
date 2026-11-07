@@ -1,0 +1,8 @@
+{
+  "name": "breadcrumbs",
+  "type": "registry:ui",
+  "title": "Breadcrumbs",
+  "description": "A wrapping hierarchy of real links with a non-interactive current page and directional separators.",
+  "category": "navigation",
+  "files": ["ui/breadcrumbs.tsx"]
+}

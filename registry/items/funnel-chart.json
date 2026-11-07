@@ -1,0 +1,8 @@
+{
+  "name": "funnel-chart",
+  "type": "registry:ui",
+  "title": "Funnel Chart",
+  "description": "A continuous stage flow with counts, explicit conversion denominators and an accessible data table. Composes with ChartCard.",
+  "category": "charts",
+  "files": ["ui/funnel-chart.tsx", "lib/funnel-chart.ts"]
+}

@@ -1,0 +1,76 @@
+---
+title: Breadcrumbs
+description: A wrapping hierarchy of real links with a non-interactive current page and directional separators.
+---
+
+<ComponentPreview name="breadcrumbs-demo" align="start" />
+
+## Installation
+
+<InstallCommand name="breadcrumbs" />
+
+## Usage
+
+```tsx
+import { Breadcrumb, Breadcrumbs } from '@/components/ds/breadcrumbs';
+
+<Breadcrumbs>
+  <Breadcrumb href="/">Home</Breadcrumb>
+  <Breadcrumb href="/projects">Projects</Breadcrumb>
+  <Breadcrumb>Website redesign</Breadcrumb>
+</Breadcrumbs>;
+```
+
+The last item is always the current page. It renders text with `aria-current="page"`, even if
+given an `href`. Ancestors are real links and use the router supplied to `DSProvider`.
+Paths wrap, including long unbroken names, instead of hiding destinations on small screens.
+The breadcrumbs above this catalogue's page title belong to Fumadocs; this is the installable
+design-system component.
+
+## Examples
+
+### Leading content
+
+Use icons or small avatars for useful context. Keep the destination name visible.
+
+<ComponentPreview name="breadcrumbs-icons" align="start" />
+
+## API
+
+### Breadcrumbs
+
+Accepts React Aria `BreadcrumbsProps`, including dynamic `items`, `isDisabled` and `onAction`.
+
+| Prop         | Type                         | Default                   |
+| ------------ | ---------------------------- | ------------------------- |
+| `children`   | `ReactNode` or item renderer |                           |
+| `aria-label` | `string`                     | resolved navigation label |
+| `labels`     | `Partial<BreadcrumbsLabels>` | English defaults          |
+| `className`  | `string`                     |                           |
+| `ref`        | `Ref<HTMLOListElement>`      |                           |
+
+### Breadcrumb
+
+| Prop                    | Type                          | Default  |
+| ----------------------- | ----------------------------- | -------- |
+| `id`                    | `Key`                         |          |
+| `href`, `target`, `rel` | React Aria link props         |          |
+| `children`              | `ReactNode`                   | required |
+| `className`             | string or RAC render function |          |
+
+`defaultBreadcrumbsLabels` supplies `navigation: 'Breadcrumbs'`. Override it through `labels`
+or `DSProvider labels={{ breadcrumbs: { navigation: 'Page path' } }}`. An explicit `aria-label`
+or `aria-labelledby` takes precedence.
+
+Slots are `breadcrumbs`, `breadcrumbs-list` and `breadcrumb`. Items expose React Aria's
+`data-current` and `data-disabled`; links expose hover, press and focus states.
+
+## Accessibility and search
+
+The navigation landmark contains an ordered list. Decorative separators are hidden from assistive
+technology and reverse in RTL. The current page is not another tab stop.
+
+Use meaningful ancestor URLs. For search rich results, an application can additionally emit a
+server-rendered [`BreadcrumbList`](https://developers.google.com/search/docs/appearance/structured-data/breadcrumb)
+from its route data. This component does not infer canonical URLs from rendered children or inject
+structured data automatically.

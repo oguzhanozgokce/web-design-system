@@ -1,0 +1,8 @@
+{
+  "name": "lightbox",
+  "type": "registry:ui",
+  "title": "Lightbox",
+  "description": "A full-screen image viewer with thumbnails, zoom, native panning and recoverable image errors.",
+  "category": "overlays",
+  "files": ["ui/lightbox.tsx"]
+}
