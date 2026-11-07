@@ -19,7 +19,8 @@ The catalogue needs no application credentials. See [README.md](README.md) for c
 
 ## Make a change
 
-1. Create a branch from `main`. Keep one consumer problem per pull request.
+1. Fork the repository and create a branch from `main`. Open your pull request against upstream
+   `main`; there is no separate `develop` branch. Keep one consumer problem per pull request.
 2. Read [AGENTS.md](AGENTS.md) and the relevant contracts it links. For component changes, follow
    [.claude/skills/ds-component/SKILL.md](.claude/skills/ds-component/SKILL.md).
 3. Keep affected implementation, examples, API documentation and registry metadata together.
@@ -59,6 +60,17 @@ installation and rebuild it after changing installable files. Check generated ou
 committing; CI rejects drift. Do not commit secrets, IDE metadata or build output.
 
 ## Review and conduct
+
+Opening a pull request does not grant write or merge access. The repository owner,
+[@oguzhanozgokce](https://github.com/oguzhanozgokce), owns review of every path and makes the merge
+decision. `main` requires a pull request, resolved review conversations and a successful `Verify`
+check against the current base. Direct pushes, force pushes and branch deletion are blocked.
+
+Workflows from external forks need maintainer approval before running. Approval to run CI is not
+approval to merge: the maintainer first inspects workflow, dependency and script changes, then
+reviews the result. Do not send credentials or request elevated workflow permissions. Automated
+merging is disabled. See [publication controls](docs/open-source-readiness.md) for the owner-only
+merge rule and how owner-authored pull requests are handled.
 
 Be respectful, discuss concrete behaviour and evidence, and credit contributors and source authors.
 Harassment and discriminatory language are not accepted. Maintainers may close disruptive threads

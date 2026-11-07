@@ -2,9 +2,17 @@
 
 # Highwren UI
 
-React components for marketing sites, admin panels and signed-in user panels. Built on React Aria
-Components, with soft shapes, calm neutral surfaces and semantic colours generated from one seed.
-Components install as source through a shadcn registry; your project owns its copy.
+Highwren UI is a collection of React components for marketing sites, admin panels and signed-in
+experiences. It started with a simple goal: bring the interface patterns I enjoy using into one
+repository, then build them around a shared standard instead of starting over in every project.
+
+That standard covers more than appearance: consistent APIs, accessible interaction, meaningful
+motion, theming, documentation and focused tests. The catalogue is a place to explore those
+decisions, try real examples and find components to use in your own projects.
+
+Built on React Aria Components, Highwren UI pairs soft shapes and calm surfaces with semantic
+colours generated from one seed. Install the components you need as source through the shadcn
+registry, then adapt them in your project. You own the installed copy.
 
 [![The catalogue with a live workspace, activity chart, project list and setup checklist themed from one seed colour](.github/assets/overview.jpg)](content/docs/index.mdx)
 
@@ -15,8 +23,10 @@ Components install as source through a shadcn registry; your project owns its co
 - Real Chromium interaction and accessibility tests, plus clean-consumer installation checks.
 
 This is an early, pre-1.0 library. Review upstream diffs before updating installed source.
+Version tags identify checked snapshots; `alpha` versions may change before a stable release.
 There is no public catalogue host yet; the local catalogue includes the installation guide, examples
-and API reference. The repository remains private during release preparation.
+and API reference. Contributions are welcome through pull requests; the maintainer reviews and
+merges changes into `main`.
 
 ## Component previews
 
@@ -96,6 +106,9 @@ through the registry.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, change scope and pull request expectations.
 [docs/testing.md](docs/testing.md) defines which tests belong here; there is no test-count target.
+Fork the repository and open a pull request against `main`. There is no separate `develop` branch.
+Public access does not grant permission to push or merge; passing checks and a maintainer's merge
+decision are required. See [publication controls](docs/open-source-readiness.md) for the safeguards.
 
 ```bash
 npm run generate

@@ -1,33 +1,84 @@
-# Publication readiness
+# Publication controls
 
-The repository stays private during preparation. CI does not deploy a catalogue, publish an npm
-package or change repository visibility. This checklist records the remaining release decisions;
-it does not authorise publication.
+Highwren UI is an early, pre-1.0 source distribution. The contribution path is a fork and a pull
+request against `main`; a separate `develop` branch is unnecessary for the current release model.
+CI does not deploy a catalogue or publish an npm package. The root package stays `private: true`
+to prevent accidental npm publication, independently of the GitHub repository's visibility.
 
-## Prepared
+## Main branch and merge access
 
-- README, consumer installation, contribution guide, test policy and security policy.
-- Apache-2.0 project licence, third-party attribution and automatic consumer notice installation.
-- Linux CI for generation, static checks, Node/Chromium tests, consumer installation and export.
-- Full-history secret scanning and dependency auditing with one documented low tooling advisory.
-- Issue forms, pull request template and dependency update configuration.
-- Sample-image provenance: `public/samples/{dune,lagoon,moss,dusk}.jpg` are original procedural
-  artwork from `scripts/generate-samples.ts`, covered by the project licence. No external images.
+Two active repository rulesets protect `main`. Their definitions are versioned in
+[`.github/rulesets/`](../.github/rulesets/); editing those files does not apply GitHub settings.
+The owner must apply changes through repository administration and verify the effective rules.
 
-## Before making the repository public
+- **Main: verified pull requests** has no bypass actors. Every change requires a pull request,
+  resolved review threads and a successful `Verify` check from the GitHub Actions app (15368),
+  tested against the latest base. It also blocks force pushes and deletion, including for the owner.
+- **Main: owner-controlled merges** restricts updates to the owner, `@oguzhanozgokce` (123859594),
+  through pull requests only. It requires a code-owner review and dismisses stale approvals after
+  new changes. [CODEOWNERS](../.github/CODEOWNERS) assigns every path to that owner.
 
-1. Confirm the complete Git history is intended for publication. The current Gitleaks audit found
-   one dummy password fixture, precisely allowlisted; automated scanning is not a content review.
-2. Establish a confidential security contact before publication. Once the repository is public,
-   enable GitHub private vulnerability reporting and update `SECURITY.md` with the reporting link.
-3. Configure a `main` rule requiring the `Verify` CI check and pull request review, block force
-   pushes and branch deletion. The current private repository's plan does not support rulesets;
-   enabling Actions alone does not enforce review or passing checks.
-4. Choose a catalogue host and verify its `/r/button.json` response and a real consumer
-   installation. Set the stable `@ds` URL in the installation guide and repository homepage.
-   Do not substitute a GitHub HTML repository URL for a registry endpoint.
-5. Review dependency alerts, licence/notice output and a green CI run for the publication commit.
-   Remove the private-preparation wording from the README when visibility actually changes.
+The owner may bypass the second ruleset when merging a pull request. This is deliberate: a sole
+maintainer cannot approve their own pull request. The separate quality ruleset still requires
+passing CI and prevents direct pushes; the review exception cannot skip it. For outside
+contributions, review the diff before merging. Approving a contributor's PR does not give that
+contributor permission to merge it. Auto-merge is disabled and no other collaborators have write
+access at publication.
 
-Publishing a public catalogue, making the repository public and announcing a release are separate
-maintainer actions. Until then, local installation remains the supported documented route.
+These controls govern normal repository operations. The owner can still change administrative
+settings. Recheck collaborators, installed apps and bypass actors before delegating access, and
+protect the owner's GitHub account with two-factor authentication or a passkey. Account settings
+are managed separately from this repository.
+
+## Workflow boundary
+
+External fork workflows require maintainer approval. Inspect changes to workflows, scripts and
+dependencies before approving execution, including later pushes. Use GitHub-hosted runners for
+untrusted contributions; do not attach a self-hosted runner or provide application secrets.
+
+The default workflow token is read-only and cannot approve pull requests. Only GitHub-owned
+actions are allowed, and full commit SHA pinning is enforced in repository settings. CI checks
+generation drift, types, lint, formatting, design contracts, Node and
+Chromium tests, clean-consumer registry installation and the static export. It also audits locked
+dependencies and scans complete Git history with redacted Gitleaks output. The exact retired
+password-test fixture in `.gitleaksignore` is the only history exception.
+
+GitHub's managed CodeQL setup scans JavaScript/TypeScript and Actions with the extended query
+suite. Its security-results upload permission is separate from repository write or merge access.
+Security reports go through [private vulnerability reporting](../SECURITY.md). Dependency alerts,
+secret scanning and push protection complement CI; automated scans cannot prove that every vulnerability or
+confidential value has been found. The remaining low-severity development-tool advisory is
+documented in the security policy.
+
+## Version tags
+
+Annotated `v*` tags identify reviewed snapshots. The first public snapshot uses
+`v0.1.0-alpha.1`; prerelease versions signal that the API is still evolving. Create a tag only on
+a `main` commit whose post-merge CI has passed. A tag identifies source; it does not publish an npm
+package or deploy the registry.
+
+The **Release tags: owner-created** ruleset allows only the owner to create `v*` tags. The separate
+**Release tags: immutable** ruleset has no bypass actors and prevents moving or deleting them,
+including by the owner. Corrections get a new version instead of changing a published snapshot.
+Both definitions live alongside the branch rules in `.github/rulesets/`.
+
+## Release review
+
+Before publishing a new release or changing the visibility of another branch:
+
+1. Review the intended commit, complete Git history, commit metadata, workflow logs and artifacts
+   for credentials and private material. Do not treat a clean secret scan as a complete content review.
+2. Confirm third-party notices, source credits and provenance. The sample images are original
+   procedural artwork generated by `scripts/generate-samples.ts`; README previews show this
+   repository's components. Brand research is a preliminary screen, not legal clearance.
+3. Check the current lockfile audit and CI for the exact publication commit. Verify merge rules,
+   private vulnerability reporting, fork workflow approval and the current access list in GitHub.
+4. Keep the README honest about availability and compatibility. Source updates are reviewed and
+   applied by consumers; there are no maintained older release branches yet.
+
+## Catalogue hosting is a separate step
+
+There is no public catalogue or registry host yet. Local installation is documented and supported.
+When a host is chosen, publish `out/`, verify `/r/button.json` and a real consumer installation,
+then set the stable `@ds` URL in the installation guide and repository homepage. A GitHub HTML
+repository URL is not a registry endpoint. Publishing source does not announce a stable 1.0 API.
