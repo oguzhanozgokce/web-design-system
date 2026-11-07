@@ -26,7 +26,7 @@ description: The rules every component follows, so they read the same wherever t
 
 ## Code
 
-- No comments in code. Reasoning goes in commit messages, `AGENTS.md` and these pages.
+- Only required licence headers belong in code. Reasoning goes in commit messages, `AGENTS.md` and these pages.
 - Registry files import each other through `@/registry/ds/...`, never relative paths, so the shadcn
   CLI can rewrite them.
 - No `next/*`, `next-intl` or other framework imports in the registry. Routing comes from

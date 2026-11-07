@@ -13,3 +13,5 @@ docs/research
 .vitest
 THIRD_PARTY_NOTICES.md
 tokens/config.json
+registry/ds/licenses
+test-results

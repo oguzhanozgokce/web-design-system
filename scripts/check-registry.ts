@@ -17,6 +17,10 @@ const exec = promisify(execFile);
 const registry = registrySchema.parse(
   JSON.parse(await readFile(path.join(root, 'registry.json'), 'utf8')),
 );
+for (const item of registry.items) {
+  if (item.name !== 'license' && !item.registryDependencies?.includes('@ds/license'))
+    throw new Error(`${item.name} must distribute the project licence and notices`);
+}
 const installation = await readFile(
   path.join(root, 'content/docs/foundations/installation.mdx'),
   'utf8',
@@ -39,7 +43,9 @@ const payloads = new Map(
     { ...item, files: item.files?.map((file) => byPath.get(file.path)) },
   ]),
 );
+const requestedItems = new Set<string>();
 const server = createServer((request, response) => {
+  requestedItems.add(request.url ?? '');
   const item = payloads.get(request.url ?? '');
   response.writeHead(item ? 200 : 404, { 'Content-Type': 'application/json' });
   response.end(JSON.stringify(item ?? { error: 'Missing registry item' }));
@@ -109,6 +115,7 @@ try {
       const raw = { ...documented, aliases, tailwind: { ...documented.tailwind, baseColor: '' } };
       await writeFile(path.join(consumer, 'components.json'), JSON.stringify(raw));
       const config = await resolveConfigPaths(consumer, raw);
+      requestedItems.clear();
       await exec(
         process.execPath,
         [
@@ -126,7 +133,12 @@ try {
           maxBuffer: 1024 * 1024,
         },
       );
+      if (!requestedItems.has('/r/license.json'))
+        throw new Error('The shadcn CLI did not resolve the licence dependency');
       await updateFiles(files, config, { silent: true, interactive: false, isRemote: true });
+      const notice = await readFile(path.join(consumer, 'licenses/ds/NOTICE'), 'utf8');
+      const expectedNotice = await readFile(path.join(root, 'registry/ds/licenses/NOTICE'), 'utf8');
+      if (notice !== expectedNotice) throw new Error('Installed attribution notices were changed');
 
       if (aliases === documented.aliases) {
         for (const file of files) await readFile(path.join(consumer, installedRegistryPath(file)));

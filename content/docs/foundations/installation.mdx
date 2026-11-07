@@ -7,6 +7,12 @@ The library ships as a [shadcn registry](https://ui.shadcn.com/docs/registry). C
 copied into your project as source, so each project owns its copy and can change it.
 
 Use React 19 and Tailwind CSS 4. The catalogue and generators require Node.js 24 or newer.
+Start with a working React/TypeScript app that already imports Tailwind, and configure `@/*` in
+`tsconfig.json` to point at the source root. This library does not require Next.js or next-intl.
+If your project uses `src/`, keep that alias pointed at `src/` and adjust the stylesheet path below.
+
+There is no public hosted registry yet. Clone the repository and follow its
+[setup guide](https://github.com/oguzhanozgokce/web-design-system#run-the-catalogue) to serve it locally.
 
 For local installation, run `npm run registry:build` once in this repository, then `npm run dev`.
 Rebuild registry JSON after changing installable source files. Use the address printed by Next.js
@@ -22,6 +28,7 @@ endpoint.
 
 To avoid setting an environment variable in each terminal, replace `${DS_REGISTRY_URL}` in
 `components.json` with the local or hosted origin directly.
+Use the CLI version verified by this repository: `npx shadcn@4.23.0 add <item>`.
 
 <Steps>
 <Step>
@@ -30,6 +37,8 @@ To avoid setting an environment variable in each terminal, replace `${DS_REGISTR
 
 The project needs a `components.json`. Add the `@ds` namespace and choose where the files go.
 Keeping them under `components/ds` avoids clashing with components the project already has.
+Merge this configuration into an existing `components.json` instead of replacing unrelated
+registries or aliases. Set `rsc` to `false` in an app that does not use React Server Components.
 
 ```json title="components.json"
 {
@@ -65,6 +74,9 @@ Import it after Tailwind in the global stylesheet:
 @import '../styles/ds/theme.css';
 ```
 
+The import path is relative to your global stylesheet. For `src/app/global.css`, where the CLI
+still installs the theme at the project root, use `../../styles/ds/theme.css`.
+
 To use your own brand colour, run the generator with your seed and replace `tokens.css`, or
 create the scheme at runtime with [`brandColors`](/docs/foundations/theming).
 
@@ -76,26 +88,23 @@ create the scheme at runtime with [`brandColors`](/docs/foundations/theming).
 <InstallCommand name="ds-provider" />
 
 `DSProvider` gives components the locale, client-side navigation, label overrides, icons and
-the motion preference. With next-intl:
+the motion preference. It works without a routing or translation library:
 
-```tsx title="app/[locale]/providers.tsx"
+```tsx title="app/providers.tsx"
 'use client';
 
-import { useLocale } from 'next-intl';
-import { useRouter } from '@/i18n/navigation';
+import type { ReactNode } from 'react';
 import { DSProvider } from '@/components/ds/ds-provider';
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  const locale = useLocale();
-  const router = useRouter();
-
-  return (
-    <DSProvider locale={locale} navigate={(href) => router.push(href)}>
-      {children}
-    </DSProvider>
-  );
+export function Providers({ children }: { children: ReactNode }) {
+  return <DSProvider locale="en">{children}</DSProvider>;
 }
 ```
+
+Render `Providers` around the application content and import the global stylesheet from the app's
+entry point. Set the document's `lang` and `dir` consistently with the provider locale. In an app
+with a client router, pass `navigate={(href) => router.push(href)}` and supply the active locale
+from your own localisation setup.
 
 </Step>
 <Step>
@@ -107,6 +116,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
 Dependencies such as `utils`, `ds-provider` and `spinner` install with it. Registry targets follow
 the aliases above: UI files go in `components/ds`, shared helpers in `lib/ds` and hooks in
 `hooks/ds`.
+The project licence and third-party attribution are also installed automatically in
+`licenses/ds/LICENSE` and `licenses/ds/NOTICE`. Preserve them when redistributing installed source.
+
+```tsx
+import { Button } from '@/components/ds/button';
+
+export function SaveAction() {
+  return <Button onPress={() => console.log('Saved')}>Save</Button>;
+}
+```
 
 </Step>
 </Steps>
+
+## Update installed source
+
+Review `npx shadcn@4.23.0 add @ds/button --diff` before updating a customised copy. Keep local
+changes under version control and review any overwrite. This pre-1.0 registry does not update
+installed components automatically.

@@ -11,6 +11,8 @@ it('keeps registry targets and documented installation paths in sync', () => {
     ['hooks/use-media-query.ts', 'hooks/ds/use-media-query.ts'],
     ['blocks/settings.tsx', 'components/settings.tsx'],
     ['styles/theme.css', 'styles/ds/theme.css'],
+    ['licenses/LICENSE', 'licenses/ds/LICENSE'],
+    ['licenses/NOTICE', 'licenses/ds/NOTICE'],
   ]) {
     expect(
       installedRegistryPath({

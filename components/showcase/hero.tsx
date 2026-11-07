@@ -41,7 +41,7 @@ const photos = [
 
 const team = ['Alex Kim', 'Sam Rivera', 'Mia Chen', 'Leo Okafor', 'Nora Ali'];
 
-const installCommand = 'npx shadcn@latest add @ds/button';
+const installCommand = 'npx shadcn@4.23.0 add @ds/button';
 
 function Panel({
   index,

@@ -1,0 +1,6 @@
+Web Design System
+Copyright 2026 Web Design System contributors
+
+This project includes third-party works identified in THIRD_PARTY_NOTICES.md.
+When installed through the registry, the Apache-2.0 licence and combined notices
+are copied to licenses/ds/LICENSE and licenses/ds/NOTICE in the consuming project.

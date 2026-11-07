@@ -1,4 +1,5 @@
 /node_modules
+/.idea/
 .source
 
 /coverage
@@ -28,5 +29,6 @@ next-env.d.ts
 
 /.vitest
 /__screenshots__
+/test-results/
 
 .claude/settings.local.json

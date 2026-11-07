@@ -220,7 +220,7 @@ const steps = [
 ];
 
 function InstallDemo({ files }: { files: string[] }) {
-  const command = 'npx shadcn@latest add @ds/button';
+  const command = 'npx shadcn@4.23.0 add @ds/button';
   return (
     <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
       <div className="flex min-w-0 flex-col gap-3 rounded-overlay bg-inverse-surface p-4 text-inverse-on-surface">

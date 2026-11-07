@@ -1,3 +1,9 @@
+/* @license
+ * Copyright 2022 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ * Modified by Web Design System contributors: selected SVG paths wrapped as React components.
+ * Full licence and notices are installed in licenses/ds/LICENSE and licenses/ds/NOTICE.
+ */
 import type { ComponentType, SVGProps } from 'react';
 
 export type IconProps = SVGProps<SVGSVGElement>;

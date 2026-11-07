@@ -37,7 +37,7 @@ and the example index.
   overrides. Consumer content stays ordinary props. Dates and numbers follow the provider locale.
 - Registry imports use `@/registry/ds/...`; no relative imports, `next/*`, `next-intl`, catalogue
   imports or `lucide-react`. Installed files must work outside this repository.
-- Keep examples, docs and generic test copy in English, neutral and product-independent. No comments in code; explain decisions
+- Keep examples, docs and generic test copy in English, neutral and product-independent. Only required licence headers belong in code; explain decisions
   in docs and commit messages. New behaviour gets a descriptive component name, never `V2`.
 - Never copy React Bits, 21st.dev, Aceternity or paid-tier code. Record adapted MIT/ISC source in
   item `credits`; keep licence decisions in `docs/research/README.md`.

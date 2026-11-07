@@ -1,0 +1,8 @@
+{
+  "name": "license",
+  "type": "registry:lib",
+  "title": "Licence and notices",
+  "description": "The project licence and third-party notices distributed with every registry installation.",
+  "category": "foundations",
+  "files": ["licenses/LICENSE", "licenses/NOTICE"]
+}

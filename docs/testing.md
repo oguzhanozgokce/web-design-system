@@ -68,3 +68,10 @@ Vite's cache lives in `.vitest/node_modules/.cache` so checkouts sharing `node_m
 other's prebundled React modules.
 Do not turn failed commands into success with pipes, `|| echo`, ignored errors or arbitrary
 retries. Report failures and verification gaps explicitly.
+
+GitHub Actions uses Ubuntu 24.04, Node 24, the npm lockfile and Playwright Chromium with its system
+dependencies. It runs the same checks with `npm test -- --maxWorkers=2` to keep browser contention
+bounded. There are no automatic test retries. Failed browser screenshots are retained for seven
+days as workflow artifacts. Generation and the production build must leave tracked files unchanged.
+CI also audits dependencies and scans complete Git history; see `SECURITY.md` for the narrow
+history allowlist and the known low-severity tooling advisory.

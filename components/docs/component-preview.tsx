@@ -29,7 +29,7 @@ export async function ComponentPreview({
 }
 
 export function InstallCommand({ name }: { name: string }) {
-  return <DynamicCodeBlock lang="bash" code={`npx shadcn@latest add @ds/${name}`} />;
+  return <DynamicCodeBlock lang="bash" code={`npx shadcn@4.23.0 add @ds/${name}`} />;
 }
 
 export async function ComponentSource({ file }: { file: string }) {
