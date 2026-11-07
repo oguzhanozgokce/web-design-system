@@ -1,0 +1,26 @@
+name: Bug report
+description: Report a reproducible component, catalogue or installation problem.
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets or security exploit details. See SECURITY.md for security reports.
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Include a minimal example and steps. For installed components, identify the source revision.
+    validations:
+      required: true
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: Expected and actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Component, browser/OS, React/Tailwind versions, locale, theme and motion settings as relevant.
+    validations:
+      required: true

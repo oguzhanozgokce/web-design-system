@@ -13,6 +13,7 @@ const directories = {
 
 export function registryFileTarget(file: string) {
   if (file.startsWith('styles/')) return `~/styles/ds/${file.split('/').at(-1)}`;
+  if (file.startsWith('licenses/')) return `~/licenses/ds/${file.split('/').at(-1)}`;
   const [directory, ...parts] = file.split('/');
   const alias = directory === 'blocks' ? 'components' : directory;
   if (alias in directories) return `@${alias}/${parts.join('/')}`;

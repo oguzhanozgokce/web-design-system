@@ -37,7 +37,7 @@ export default defineConfig({
           name: 'unit',
           environment: 'node',
           server: { deps: { inline: ['@material/material-color-utilities'] } },
-          include: ['registry/**/*.test.ts', 'lib/**/*.test.ts'],
+          include: ['registry/**/*.test.ts', 'lib/**/*.test.ts', 'components/**/*.test.ts'],
         },
       },
       {

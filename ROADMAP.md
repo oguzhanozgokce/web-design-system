@@ -103,4 +103,4 @@ KanbanBoard, OnboardingSteps, LegalPage with table of contents.
 
 Public GitHub registry, `public/r` on a static host, shadcn MCP setup, `llms.txt`, a Claude skill
 consumers install, `THIRD_PARTY_NOTICES.md` from item credits, visual baselines in a Linux
-container, and cosum-web as the first consumer.
+container, and a first consuming application.

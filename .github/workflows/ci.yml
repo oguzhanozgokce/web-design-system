@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Check out complete history (checkout v7)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js (setup-node v7)
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Scan complete history with Gitleaks
+        shell: bash
+        run: |
+          scan_dir="$(mktemp -d)"
+          curl --fail --silent --show-error --location \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            --output "$scan_dir/gitleaks.tar.gz"
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $scan_dir/gitleaks.tar.gz" | sha256sum --check
+          tar -xzf "$scan_dir/gitleaks.tar.gz" -C "$scan_dir" gitleaks
+          "$scan_dir/gitleaks" git --redact=100 --no-banner --log-opts=--all
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=moderate
+
+      - name: Generate source and check drift
+        run: |
+          npm run generate
+          git diff --exit-code
+
+      - name: Check types, lint, formatting, design contracts and secrets
+        run: npm run check
+
+      - name: Install Chromium and system dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Node and Chromium tests
+        run: npm test -- --maxWorkers=2
+
+      - name: Verify installed registry in clean consumers
+        run: npm run check:registry
+
+      - name: Build static catalogue and registry
+        run: |
+          npm run build
+          git diff --exit-code
+
+      - name: Save failed browser screenshots (upload-artifact v7.0.2)
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: browser-failure-screenshots
+          path: |
+            .vitest/attachments/failure-screenshots/**
+            **/__screenshots__/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7

@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oguzhanozgokce/web-design-system.git"
+  },
   "engines": {
     "node": ">=24"
   },
@@ -39,6 +43,10 @@
     "react-aria-components": "^1.22.1",
     "react-dom": "^19.3.1",
     "tailwind-variants": "^4.0.1"
+  },
+  "overrides": {
+    "compression": "^1.8.2",
+    "minimatch@>=7 <11.0.1": "^11.0.5"
   },
   "devDependencies": {
     "@shadcn/registry": "0.2.1",

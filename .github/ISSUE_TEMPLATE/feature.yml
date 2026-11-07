@@ -1,0 +1,17 @@
+name: Feature request
+description: Describe a consumer need and a small example of the proposed behaviour.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Consumer problem
+      description: What task is difficult with the existing components?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour and alternatives
+      description: Include a small usage example and relevant web references when possible.
+    validations:
+      required: true

@@ -8,10 +8,17 @@ const noComments = {
     return {
       Program() {
         for (const comment of context.sourceCode.getAllComments()) {
+          if (
+            comment.type === 'Block' &&
+            comment.range[0] === 0 &&
+            /^\s*@license\b/.test(comment.value) &&
+            comment.value.includes('SPDX-License-Identifier:')
+          )
+            continue;
           context.report({
             loc: comment.loc,
             message:
-              'No comments in code. Put the reasoning in the commit message, AGENTS.md or the docs page.',
+              'Only required licence headers belong in code. Put reasoning in commit messages or docs.',
           });
         }
       },

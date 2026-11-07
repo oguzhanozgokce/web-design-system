@@ -59,6 +59,9 @@ Move the pointer before asserting a resting style, and wait for transitions thro
 when needed. Do not disable contrast rules or replace behavioural assertions with snapshots.
 Layout tests can disable motion; activity changes should assert the settled content and geometry
 rather than requiring a transient spring peak to appear within a fixed number of frames.
+Audit generated colour-pair contrast across palette combinations in Node. Browser axe checks cover
+representative rendered themes and CSS wiring; do not remount a complete screen for every seed,
+style, mode and contrast combination. Export-file comparisons also belong in Node.
 
 ## Run and report
 
@@ -68,3 +71,10 @@ Vite's cache lives in `.vitest/node_modules/.cache` so checkouts sharing `node_m
 other's prebundled React modules.
 Do not turn failed commands into success with pipes, `|| echo`, ignored errors or arbitrary
 retries. Report failures and verification gaps explicitly.
+
+GitHub Actions uses Ubuntu 24.04, Node 24, the npm lockfile and Playwright Chromium with its system
+dependencies. It runs the same checks with `npm test -- --maxWorkers=2` to keep browser contention
+bounded. There are no automatic test retries. Failed browser screenshots are retained for seven
+days as workflow artifacts. Generation and the production build must leave tracked files unchanged.
+CI also audits dependencies and scans complete Git history; see `SECURITY.md` for the narrow
+history allowlist and the known low-severity tooling advisory.

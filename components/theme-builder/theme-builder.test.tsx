@@ -1,4 +1,4 @@
-import { commands, page, userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { brandColors, colorRoleNames } from '@/registry/ds/lib/color-scheme';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { AdminPreview } from '@/components/theme-builder/admin-preview';
@@ -7,10 +7,8 @@ import { ThemeBuilder } from '@/components/theme-builder/theme-builder';
 import {
   buildSchemes,
   configJson,
-  contrastOptions,
   defaultSettings,
   formatSeed,
-  paletteStyleOptions,
   schemeStyle,
   tokensCss,
 } from '@/components/theme-builder/theme-model';
@@ -18,8 +16,6 @@ import {
 const initialSchemes = buildSchemes(defaultSettings.seed, defaultSettings.style);
 
 const errorText = 'Enter 3 or 6 hex digits, with or without the leading #.';
-
-const teal = { seed: '#0B8F6A' };
 
 const navy = { seed: '#123' };
 
@@ -214,25 +210,6 @@ describe('ThemeBuilder', () => {
   });
 });
 
-describe('Theme exports', () => {
-  it('writes the same colour blocks as scripts/generate-tokens.ts', async () => {
-    const generated = await commands.readFile('registry/ds/styles/tokens.css');
-    const colourBlocks = generated.slice(0, generated.indexOf(':root {\n  --ds-ease'));
-    const schemes = buildSchemes(defaultSettings.seed, defaultSettings.style);
-
-    expect(tokensCss(schemes).trimEnd()).toBe(colourBlocks.trimEnd());
-  });
-
-  it('writes tokens/config.json in the file’s own shape', async () => {
-    const config = await commands.readFile('tokens/config.json');
-    expect(configJson(defaultSettings.seed, defaultSettings.style)).toBe(config);
-    expect(JSON.parse(configJson(teal.seed.toLowerCase(), 'fidelity'))).toMatchObject({
-      seed: teal.seed,
-      style: 'fidelity',
-    });
-  });
-});
-
 describe('ThemeBuilder accessibility', () => {
   it('has no accessibility violations in light, dark and RTL', async () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
@@ -242,25 +219,20 @@ describe('ThemeBuilder accessibility', () => {
     }
   });
 
-  it('keeps the preview and swatches readable for every style, mode and contrast', async () => {
-    const yellow = { seed: '#F2C230' };
-    for (const seed of [defaultSettings.seed, yellow.seed]) {
-      for (const { id: style } of paletteStyleOptions) {
-        const schemes = buildSchemes(seed, style);
-        for (const mode of ['light', 'dark'] as const) {
-          for (const { id: contrast } of contrastOptions) {
-            const colors = schemes[mode][contrast];
-            const screen = await renderWithDS(
-              <div style={schemeStyle(colors, mode)} className="bg-background text-on-background">
-                <AdminPreview />
-                <RoleSwatches colors={colors} />
-              </div>,
-            );
-            await expectNoA11yViolations(screen.container);
-            await screen.unmount();
-          }
-        }
-      }
-    }
-  });
+  it.each([
+    { mode: 'light', contrast: 'standard' },
+    { mode: 'dark', contrast: 'high' },
+  ] as const)(
+    'keeps bright-seed preview and swatch text readable in $mode at $contrast contrast',
+    async ({ mode, contrast }) => {
+      const colors = buildSchemes('#F2C230', 'fidelity')[mode][contrast];
+      const screen = await renderWithDS(
+        <div style={schemeStyle(colors, mode)} className="bg-background text-on-background">
+          <AdminPreview />
+          <RoleSwatches colors={colors} />
+        </div>,
+      );
+      await expectNoA11yViolations(screen.container);
+    },
+  );
 });
