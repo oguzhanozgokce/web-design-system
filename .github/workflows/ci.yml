@@ -77,7 +77,9 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: browser-failure-screenshots
-          path: '**/__screenshots__/**'
+          path: |
+            .vitest/attachments/failure-screenshots/**
+            **/__screenshots__/**
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7

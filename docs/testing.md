@@ -59,6 +59,9 @@ Move the pointer before asserting a resting style, and wait for transitions thro
 when needed. Do not disable contrast rules or replace behavioural assertions with snapshots.
 Layout tests can disable motion; activity changes should assert the settled content and geometry
 rather than requiring a transient spring peak to appear within a fixed number of frames.
+Audit generated colour-pair contrast across palette combinations in Node. Browser axe checks cover
+representative rendered themes and CSS wiring; do not remount a complete screen for every seed,
+style, mode and contrast combination. Export-file comparisons also belong in Node.
 
 ## Run and report
 

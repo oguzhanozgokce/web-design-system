@@ -85,7 +85,7 @@ npm run build
 
 GitHub Actions runs these checks on Linux, including Chromium, generated-file drift, dependency
 auditing and a full-history secret scan. Failed browser screenshots are retained briefly as
-private workflow artifacts. See [SECURITY.md](SECURITY.md) for reporting and known limitations.
+workflow artifacts. See [SECURITY.md](SECURITY.md) for reporting and known limitations.
 
 | Location                     | Purpose                                                                            |
 | ---------------------------- | ---------------------------------------------------------------------------------- |
