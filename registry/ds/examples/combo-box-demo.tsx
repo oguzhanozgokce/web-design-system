@@ -3,7 +3,7 @@ import { ComboBox } from '@/registry/ds/ui/combo-box';
 import { ListBoxItem } from '@/registry/ds/ui/list-box';
 
 const cities = [
-  { id: 'ist', name: 'İstanbul', country: 'Türkiye' },
+  { id: 'ist', name: 'Istanbul', country: 'Turkey' },
   { id: 'krk', name: 'Kraków', country: 'Poland' },
   { id: 'lis', name: 'Lisbon', country: 'Portugal' },
   { id: 'nbo', name: 'Nairobi', country: 'Kenya' },

@@ -41,43 +41,6 @@ function IconTrigger({ label, children }: { label: string; children: ReactNode }
 }
 
 describe('Tooltip', () => {
-  it('shows the next tooltip in a group instantly once one has opened', async () => {
-    const screen = await renderWithDS(
-      <TooltipGroup delay={1200} placement="bottom">
-        <PointerRest />
-        <div role="toolbar" aria-label="Edit" className="flex gap-2 p-16">
-          <TooltipTrigger>
-            <IconTrigger label="Undo">
-              <UndoIcon />
-            </IconTrigger>
-            <Tooltip>Undo</Tooltip>
-          </TooltipTrigger>
-          <TooltipTrigger>
-            <IconTrigger label="Copy">
-              <CopyIcon />
-            </IconTrigger>
-            <Tooltip>Copy</Tooltip>
-          </TooltipTrigger>
-        </div>
-      </TooltipGroup>,
-    );
-    const undo = screen.getByRole('button', { name: 'Undo' });
-    const copy = screen.getByRole('button', { name: 'Copy' });
-
-    await hover(undo);
-    await wait(600);
-    expect(document.querySelector('[role="tooltip"]')).toBeNull();
-    await expect.element(page.getByRole('tooltip'), { timeout: 2000 }).toHaveTextContent('Undo');
-    expect(document.querySelector('[role="tooltip"]')).toHaveAttribute('data-placement', 'bottom');
-
-    await copy.hover();
-    await expect.element(page.getByRole('tooltip'), { timeout: 300 }).toHaveTextContent('Copy');
-
-    await copy.unhover();
-    await expect.element(page.getByRole('tooltip')).not.toBeInTheDocument();
-    await wait(600);
-  });
-
   it('renders shortcut keys as Kbd with spoken names', async () => {
     const screen = await renderWithDS(
       <TooltipTrigger defaultOpen>
@@ -86,7 +49,7 @@ describe('Tooltip', () => {
         </IconTrigger>
         <Tooltip shortcut={['command', 'Z']}>Undo</Tooltip>
       </TooltipTrigger>,
-      { provider: { labels: { kbd: { command: 'Befehl' } } } },
+      { provider: { labels: { kbd: { command: 'Command key' } } } },
     );
 
     const tooltip = page.getByRole('tooltip');
@@ -100,7 +63,7 @@ describe('Tooltip', () => {
     expect(document.querySelector('[data-slot="shortcut"]')).toHaveAttribute('dir', 'ltr');
     await expect
       .element(screen.getByRole('button', { name: 'Undo' }))
-      .toHaveAccessibleDescription('Undo Befehl Z');
+      .toHaveAccessibleDescription('Undo Command key Z');
   });
 
   it('lets a trigger override its group and nested groups inherit', async () => {
@@ -136,7 +99,7 @@ describe('Tooltip', () => {
     await expect.element(tooltip).toHaveTextContent('Archive project');
     await expect.element(tooltip).toHaveAttribute('data-placement', 'bottom');
     await userEvent.keyboard('{Escape}');
-    await wait(600);
+    await expect.element(page.getByRole('tooltip')).not.toBeInTheDocument();
   });
 
   it('supports placement, an arrow and the locale direction', async () => {

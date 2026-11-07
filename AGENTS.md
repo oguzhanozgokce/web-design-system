@@ -1,103 +1,65 @@
 # Web design system
 
-React component library for every web project: marketing sites, admin panels and signed-in user
-panels. It is a web library in its own right: argue every decision from the web references in
-`docs/research/`, never from another platform's design system. Its look is HeroUI's shapes and
-liveliness on Astryx's neutral surfaces and calm density, with 40px controls by default
-(`docs/research/web-style.md` is the spec and its Decisions list is settled), and its colours are
-roles generated from one seed colour, which is what makes dynamic colour possible. Treat it as an
-SDK: every public name, default and behaviour is a promise to several apps.
+React components for marketing sites, admin panels and signed-in user panels, distributed as a
+shadcn registry under `@ds`. Consumers own the installed source. Public names, defaults and
+behaviour are SDK contracts.
 
-Components ship as a shadcn registry (`@ds` namespace). A project installs a component and owns the
-copy, so the source in `registry/ds` must work after the shadcn CLI copies it somewhere else.
+## Sources of truth
 
-## Layout
+- `docs/research/web-style.md`: visual specification and settled Decisions. HeroUI shapes and
+  liveliness on Astryx neutral surfaces, with 40px controls by default.
+- `content/docs/foundations/conventions.mdx`: public API and implementation conventions.
+- `docs/testing.md`: test selection, placement and verification.
+- `.claude/skills/ds-component/SKILL.md`: component delivery workflow.
+- `docs/research/libraries.json` and `wave-2-requests.md`: historical evidence and source references,
+  not current API instructions. Use web references when making design decisions.
+- `ROADMAP.md`: planned components and delivery status.
 
-| Path                    | Contains                                                                   |
-| ----------------------- | -------------------------------------------------------------------------- |
-| `registry/ds/ui/`       | Components and their `*.test.tsx` tests                                    |
-| `registry/ds/lib/`      | `utils`, `labels`, `icons`, `motion`, `color-scheme`, helpers like `chart` |
-| `registry/ds/hooks/`    | Shared hooks                                                               |
-| `registry/ds/blocks/`   | Whole sections: app shell, settings page, sign-in                          |
-| `registry/ds/styles/`   | `theme.css` (hand-written) and `tokens.css` (generated)                    |
-| `registry/ds/examples/` | Docs examples, one default export each; never installed                    |
-| `registry/items/*.json` | One registry item each; `registry.json` is generated from them             |
-| `content/docs/`         | The catalogue (Fumadocs MDX)                                               |
-| `tokens/config.json`    | Seed colour, palette style and the eight chart colours                     |
-| `scripts/`              | Generators and `check-ds`                                                  |
-| `docs/research/`        | Reference-library research and license verdicts. Read before designing.    |
-| `ROADMAP.md`            | Every planned component, its wave and its references                       |
+## Repository
 
-## How to work
+`registry/ds` contains installable `ui`, `lib`, `hooks`, `blocks` and `styles`. Component browser
+tests sit beside their implementation; pure helper tests use `.test.ts`. `registry/ds/examples`
+contains catalogue-only default exports. Each `registry/items/*.json` owns its installable files.
+`content/docs` holds Fumadocs pages. `tokens/config.json` configures generated colours;
+`registry/ds/styles/theme.css` is hand-written. Scripts generate tokens, icons, registry metadata
+and the example index.
 
-1. Read `.claude/skills/ds-component/SKILL.md` before writing or changing a component.
-2. Read `registry/ds/ui/button.tsx`, its test, examples, item and docs page. Match their shape.
-3. Search `docs/research/libraries.json` for the component and read the references it names.
-4. Ship the change whole: component, labels, test, examples, item, docs page. Tests follow the
-   rules in section 4 of the skill: only what can fail for a reason nothing else catches, no
-   duplicates, nothing React Aria or TypeScript already guarantees.
-5. Verify with the commands below. Report what ran, what passed and what was not checked.
+## Required contracts
 
-## Rules for every change
+- Use semantic colour roles with their matching text roles, logical directions and the radius,
+  typography and motion rules in the visual specification. No palette colours, painted hex,
+  `white`/`black`, `dark:` variants or physical direction utilities. Hex seeds are engine input.
+- Build interactive controls on React Aria Components. Keep its prop naming and accessibility
+  patterns. Use `variant`, `tone`, `size` and public state data attributes consistently.
+- Async actions own their pending state and ignore repeat triggers. Icon-only actions use
+  `IconButton` with a required accessible name; built-in glyphs come from `useIcons()`.
+- Built-in wording has exported typed English defaults and per-component/provider `labels`
+  overrides. Consumer content stays ordinary props. Dates and numbers follow the provider locale.
+- Registry imports use `@/registry/ds/...`; no relative imports, `next/*`, `next-intl`, catalogue
+  imports or `lucide-react`. Installed files must work outside this repository.
+- Keep examples, docs and generic test copy in English, neutral and product-independent. No comments in code; explain decisions
+  in docs and commit messages. New behaviour gets a descriptive component name, never `V2`.
+- Never copy React Bits, 21st.dev, Aceternity or paid-tier code. Record adapted MIT/ISC source in
+  item `credits`; keep licence decisions in `docs/research/README.md`.
 
-- Colour roles only, each fill with its text role: layers `bg-canvas` (page), `bg-surface-raised`
-  (cards, fields), `bg-surface-overlay` (menus, popovers, dialogs); solid fills
-  `bg-primary-solid text-on-primary-solid` (and `error`, `success`, `warning`, `info`) for every
-  filled accent, which stay vivid in dark mode; soft fills `bg-primary-soft text-on-primary-soft`
-  and `bg-neutral-soft text-on-surface`; hairlines `border-outline-subtle`. Text-coloured accents
-  (links, ghost labels, the focus ring) use `text-primary`. No hex, no Tailwind palette colours, no
-  `white`/`black`, no `dark:`. `check:ds` enforces this. The one hex literal allowed is a seed
-  handed to the colour engine (`seed: '#0B8F6A'`, `seed="#0B8F6A"`): it is input to a scheme, not a
-  colour anything is painted with.
-- Shape and type: corners come from the radius families (`rounded-control` for pills,
-  `rounded-field`, `rounded-item`, `rounded-overlay`, `rounded-container`, `rounded-dialog`);
-  Tailwind's own `rounded-sm`…`rounded-3xl` keep their default values for small parts. Text uses
-  Tailwind sizes with explicit weights (`text-sm font-medium`); there is no named type scale.
-  Shadows are `shadow-xs`…`shadow-lg`. Hover swaps to a `-hover` fill, press scales, disabled is
-  `opacity-50` with `cursor-not-allowed`.
-- Logical directions only: `ms-`/`me-`, `ps-`/`pe-`, `inset-s-`/`inset-e-`, `rounded-s-`, `border-e`,
-  `text-start`. Flip directional glyphs with `rtl:-scale-x-100`.
-- Interactive components are built on React Aria Components. Never hand-roll focus management,
-  keyboard handling or ARIA patterns that RAC provides.
-- Props follow React Aria naming (`isDisabled`, `onPress`, `value`/`defaultValue`/`onChange`).
-  Variants use one vocabulary: `variant` is how much ink (`solid`, `soft`, `outline`, `ghost`, or
-  the component's own set from the spec), `tone` is which role paints it (`primary`, `neutral`,
-  `error`; status components add `success`, `warning`, `info`), `size` is `sm`, `md`, `lg` at
-  32/40/48px. `solid` defaults to `primary`, the quieter variants to `neutral`. The root reports
-  `data-variant`, `data-tone` and `data-size`. A new behaviour is a new component, never `V2`.
-- Async actions are promises: the component owns the pending state.
-- Icon-only actions are `IconButton`, with a required `aria-label`. Glyphs come from `useIcons()`.
-- The library ships no translations. Every string a component writes on its own (an accessible
-  name, a placeholder, "Close", "3 selected") has an English default in the component's exported
-  `default<Name>Labels`, typed by `<Name>Labels`, and is replaced through the component's `labels`
-  prop or app-wide through `<DSProvider labels={{ <namespace>: {...} }}>`. Content the consumer
-  always supplies (titles, descriptions, button text) stays an ordinary prop. Dates, numbers and
-  right-to-left layout still follow `DSProvider locale` through React Aria.
-- Animation respects `useMotionPreference()` and `motion-reduce:`. Transitions use `ease-fluid`,
-  `ease-out-quad` or `ease-out` over 100–350ms; overlays use the `animate-ds-*` keyframes. Springs
-  from `lib/motion` are for gestures only.
-- Registry files import each other only through `@/registry/ds/...`. No relative imports, no
-  `next/*`, `next-intl` or `lucide-react` in `registry/`.
-- Example and docs copy is neutral and fits any product (Save, Search, Settings, Photos). Nothing
-  hints at one app: no ledgers, invoices, payouts or company names.
-- No comments in code. Reasoning goes in commit messages, this file and the docs.
-- Copy no code from React Bits, 21st.dev, Aceternity or any paid tier. Code adapted from an MIT
-  source is credited in the item's `credits`.
+## Delivery and verification
 
-## Verify
+Ship implementation, regression coverage, examples, item metadata and docs together when affected.
+Shared files may be changed when the task requires it. During explicitly coordinated parallel
+work, agree ownership and avoid overwriting another agent's changes.
+
+Run focused tests while editing, then run these once for the final change:
 
 ```bash
-npm run generate     # tokens, icons, registry.json and the docs example index
-npm run check        # tsc, eslint, prettier, check-ds
-npm test             # Vitest browser mode with axe, on Chromium
-npm run build        # static export of the catalogue
+npm run generate
+npm run check
+npm test
+npm run check:registry
+npm run build
 ```
 
-## Delivery
-
-- Commit, merge or push only when the user asks. Commit messages say why, in prose, and what was
-  verified.
-- Never commit to a consuming app (cosum-web and the others) unless asked.
+Report passed and failed checks, plus anything not run. Preserve command exit codes. Do not assume
+a dev server or port exists. Commit, merge or push only when asked, including in consuming apps.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

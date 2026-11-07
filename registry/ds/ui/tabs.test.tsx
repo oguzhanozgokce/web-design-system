@@ -216,34 +216,34 @@ describe('Tabs', () => {
   it('formats count badges for the locale and labels them with the badge labels', async () => {
     const screen = await renderWithDS(
       <Tabs>
-        <TabList aria-label="Klasörler">
+        <TabList aria-label="Folders">
           <Tab id="inbox" badge={12}>
-            Gelen kutusu
+            Inbox
           </Tab>
           <Tab id="drafts" badge={1280}>
-            Taslaklar
+            Drafts
           </Tab>
           <Tab id="shared" badge>
-            Paylaşılanlar
+            Shared
           </Tab>
           <Tab id="archive" badge={0}>
-            Arşiv
+            Archive
           </Tab>
         </TabList>
-        <TabPanel id="inbox">Gelen kutusu</TabPanel>
-        <TabPanel id="drafts">Taslaklar</TabPanel>
-        <TabPanel id="shared">Paylaşılanlar</TabPanel>
-        <TabPanel id="archive">Arşiv</TabPanel>
+        <TabPanel id="inbox">Inbox</TabPanel>
+        <TabPanel id="drafts">Drafts</TabPanel>
+        <TabPanel id="shared">Shared</TabPanel>
+        <TabPanel id="archive">Archive</TabPanel>
       </Tabs>,
       {
         locale: 'tr',
-        provider: { labels: { badge: { count: '{count} yeni', dot: 'Yeni' } } },
+        provider: { labels: { badge: { count: '{count} new', dot: 'New' } } },
       },
     );
-    await expect.element(screen.getByRole('tab', { name: 'Gelen kutusu 12 yeni' })).toBeVisible();
-    await expect.element(screen.getByRole('tab', { name: 'Taslaklar 99+ yeni' })).toBeVisible();
-    await expect.element(screen.getByRole('tab', { name: 'Paylaşılanlar Yeni' })).toBeVisible();
-    const archive = screen.getByRole('tab', { name: 'Arşiv', exact: true });
+    await expect.element(screen.getByRole('tab', { name: 'Inbox 12 new' })).toBeVisible();
+    await expect.element(screen.getByRole('tab', { name: 'Drafts 99+ new' })).toBeVisible();
+    await expect.element(screen.getByRole('tab', { name: 'Shared New' })).toBeVisible();
+    const archive = screen.getByRole('tab', { name: 'Archive', exact: true });
     await expect.element(archive).toBeVisible();
     expect(archive.element().querySelector('[data-slot="badge"]')).toBeNull();
   });

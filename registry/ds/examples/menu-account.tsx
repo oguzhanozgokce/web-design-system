@@ -32,7 +32,7 @@ function Initials({ className }: { className: string }) {
         className,
       )}
     >
-      AD
+      AM
     </span>
   );
 }
@@ -47,14 +47,14 @@ export default function MenuAccount() {
         startIcon={<Initials className="size-7 text-xs font-medium" />}
         endIcon={<ArrowDropDownIcon />}
       >
-        Ayşe Demir
+        Alex Morgan
       </Button>
       <MenuPopover placement="bottom end">
         <div className="flex items-center gap-3 px-2.5 py-2">
           <Initials className="size-9 text-sm font-semibold" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-on-surface">Ayşe Demir</p>
-            <p className="truncate text-xs text-on-surface-variant">ayse@example.com</p>
+            <p className="truncate text-sm font-semibold text-on-surface">Alex Morgan</p>
+            <p className="truncate text-xs text-on-surface-variant">alex@example.com</p>
           </div>
         </div>
         <MenuSeparator />

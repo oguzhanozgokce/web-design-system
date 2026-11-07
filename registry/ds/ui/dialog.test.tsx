@@ -293,7 +293,7 @@ describe('Dialog', () => {
   it('lists every description and a consumer aria-describedby', async () => {
     const screen = await renderWithDS(
       <>
-        <p id="folder-owner">Owned by Ayşe Demir.</p>
+        <p id="folder-owner">Owned by Alex Morgan.</p>
         <DialogTrigger>
           <Button>Share folder</Button>
           <Dialog aria-describedby="folder-owner">
@@ -309,7 +309,7 @@ describe('Dialog', () => {
     await expect
       .element(page.getByRole('dialog', { name: 'Share folder' }))
       .toHaveAccessibleDescription(
-        'Owned by Ayşe Demir. Members see every entry. Links stay valid for 7 days.',
+        'Owned by Alex Morgan. Members see every entry. Links stay valid for 7 days.',
       );
   });
 
@@ -400,11 +400,11 @@ describe('Dialog', () => {
     await english.unmount();
 
     const provided = await renderWithDS(<InviteDialog header={{ showCloseButton: true }} />, {
-      provider: { labels: { dialog: { close: 'Kapat' } } },
+      provider: { labels: { dialog: { close: 'Dismiss' } } },
     });
     await provided.getByRole('button', { name: 'Invite teammate' }).click();
     await expect
-      .element(page.getByRole('dialog').getByRole('button', { name: 'Kapat' }))
+      .element(page.getByRole('dialog').getByRole('button', { name: 'Dismiss' }))
       .toBeVisible();
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
@@ -414,23 +414,23 @@ describe('Dialog', () => {
     const screen = await renderWithDS(
       <DialogTrigger>
         <Button>Invite teammate</Button>
-        <Dialog fullScreenOnMobile labels={{ close: 'Pencereyi kapat' }}>
-          <DialogHeader title="Ekip arkadaşı davet et" />
-          <DialogBody>Davetler 7 gün sonra sona erer.</DialogBody>
+        <Dialog fullScreenOnMobile labels={{ close: 'Close this window' }}>
+          <DialogHeader title="Invite a teammate" />
+          <DialogBody>Invitations expire in 7 days.</DialogBody>
           <DialogFooter>
             <DialogClose />
           </DialogFooter>
         </Dialog>
       </DialogTrigger>,
-      { provider: { labels: { dialog: { close: 'Kapat' } } } },
+      { provider: { labels: { dialog: { close: 'Dismiss' } } } },
     );
     await screen.getByRole('button', { name: 'Invite teammate' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Ekip arkadaşı davet et' });
+    const dialog = page.getByRole('dialog', { name: 'Invite a teammate' });
     await expect.element(dialog).toBeVisible();
     expect(surface()).toHaveAttribute('data-fullscreen', 'true');
-    const closeButtons = dialog.getByRole('button', { name: 'Pencereyi kapat' }).elements();
+    const closeButtons = dialog.getByRole('button', { name: 'Close this window' }).elements();
     expect(closeButtons).toHaveLength(2);
-    await expect.element(dialog.getByRole('button', { name: 'Kapat' })).not.toBeInTheDocument();
+    await expect.element(dialog.getByRole('button', { name: 'Dismiss' })).not.toBeInTheDocument();
   });
 
   it('renders its buttons at their own size and variant when opened from a ButtonGroup', async () => {

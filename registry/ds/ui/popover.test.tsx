@@ -160,22 +160,22 @@ describe('Popover', () => {
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await english.unmount();
 
-    const provider = { labels: { popover: { close: 'Kapat' } } };
+    const provider = { labels: { popover: { close: 'Dismiss' } } };
     const screen = await renderWithDS(<FolderPopover />, { provider });
     await screen.getByRole('button', { name: 'Storage' }).click();
     await expect
-      .element(page.getByRole('dialog').getByRole('button', { name: 'Kapat' }))
+      .element(page.getByRole('dialog').getByRole('button', { name: 'Dismiss' }))
       .toBeVisible();
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await screen.unmount();
 
-    const own = await renderWithDS(<FolderPopover labels={{ close: 'Pencereyi kapat' }} />, {
+    const own = await renderWithDS(<FolderPopover labels={{ close: 'Close this window' }} />, {
       provider,
     });
     await own.getByRole('button', { name: 'Storage' }).click();
     await expect
-      .element(page.getByRole('dialog').getByRole('button', { name: 'Pencereyi kapat' }))
+      .element(page.getByRole('dialog').getByRole('button', { name: 'Close this window' }))
       .toBeVisible();
   });
 

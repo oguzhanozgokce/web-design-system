@@ -299,46 +299,50 @@ describe('CopyButton', () => {
       <>
         <CopyButton
           value="TR-5521"
-          labels={{ copy: 'Kimliği kopyala', copyFailed: 'Kopyalanamadı' }}
+          labels={{ copy: 'Copy identifier', copyFailed: 'Could not copy' }}
         />
         <CopyButton value="TR-5522" />
         <CopyButton
           value="https://app.example.com/invite/7Q4M"
-          labels={{ copied: 'Panoya kopyalandı' }}
+          labels={{ copied: 'Copied to clipboard' }}
         >
-          Davet bağlantısını kopyala
+          Copy invitation link
         </CopyButton>
       </>,
       {
         provider: {
           labels: {
-            copyButton: { copy: 'Kopyala', copied: 'Kopyalandı', copyFailed: 'Kopyalama hatası' },
+            copyButton: {
+              copy: 'Copy text',
+              copied: 'Copied successfully',
+              copyFailed: 'Copy error',
+            },
           },
         },
       },
     );
-    const own = screen.getByRole('button', { name: 'Kimliği kopyala' });
+    const own = screen.getByRole('button', { name: 'Copy identifier' });
     await own.click();
     await expect.element(own).toHaveAttribute('data-status', 'failed');
     await expect
-      .element(page.getByRole('status').filter({ hasText: 'Kopyalanamadı' }))
+      .element(page.getByRole('status').filter({ hasText: 'Could not copy' }))
       .toBeInTheDocument();
 
-    await screen.getByRole('button', { name: 'Kopyala', exact: true }).click();
+    await screen.getByRole('button', { name: 'Copy text', exact: true }).click();
     await expect
-      .element(page.getByRole('status').filter({ hasText: 'Kopyalandı' }))
+      .element(page.getByRole('status').filter({ hasText: 'Copied successfully' }))
       .toBeInTheDocument();
 
-    await screen.getByRole('button', { name: 'Davet bağlantısını kopyala' }).click();
-    await expect.element(screen.getByRole('button', { name: 'Panoya kopyalandı' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Copy invitation link' }).click();
+    await expect.element(screen.getByRole('button', { name: 'Copied to clipboard' })).toBeVisible();
     await expect
-      .element(page.getByRole('status').filter({ hasText: 'Panoya kopyalandı' }))
+      .element(page.getByRole('status').filter({ hasText: 'Copied to clipboard' }))
       .toBeInTheDocument();
   });
   it('announces outside the button in the DSProvider locale', async () => {
     mockClipboard();
     const screen = await renderWithDS(
-      <CopyButton value="ws_8f3a21c9" labels={{ copied: 'Kopiert' }}>
+      <CopyButton value="ws_8f3a21c9" labels={{ copied: 'Text copied' }}>
         ID kopieren
       </CopyButton>,
       { locale: 'de' },
@@ -349,7 +353,7 @@ describe('CopyButton', () => {
     expect(button.element().nextElementSibling).toBeNull();
     await expect.element(status).toHaveAttribute('lang', 'de');
     await button.click();
-    await expect.element(status).toHaveTextContent('Kopiert');
+    await expect.element(status).toHaveTextContent('Text copied');
   });
 
   it('keeps announcing inside a modal dialog', async () => {

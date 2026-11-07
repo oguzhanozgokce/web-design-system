@@ -22,20 +22,20 @@ function Members(props: { density?: 'sm' | 'md' }) {
     <ListBox aria-label="Assign to" selectionMode="single" variant="outline" {...props}>
       <ListBoxSection title="Team">
         <ListBoxItem
-          id="ayse"
-          textValue="Ayşe Demir"
-          avatar={<Initials>AD</Initials>}
+          id="alex"
+          textValue="Alex Morgan"
+          avatar={<Initials>AM</Initials>}
           description="Owner"
         >
-          Ayşe Demir
+          Alex Morgan
         </ListBoxItem>
-        <ListBoxItem id="mehmet" avatar={<Initials>MK</Initials>} description="Editor">
-          Mehmet Kaya
+        <ListBoxItem id="morgan" avatar={<Initials>MK</Initials>} description="Editor">
+          Morgan King
         </ListBoxItem>
       </ListBoxSection>
       <ListBoxSection title="Guests">
-        <ListBoxItem id="elif" startIcon={<PersonIcon />} description="Invite pending" isDisabled>
-          Elif Şahin
+        <ListBoxItem id="emma" startIcon={<PersonIcon />} description="Invite pending" isDisabled>
+          Emma Shaw
         </ListBoxItem>
       </ListBoxSection>
     </ListBox>
@@ -47,14 +47,14 @@ describe('ListBox', () => {
     const screen = await renderWithDS(<Members />);
     const listbox = screen.getByRole('listbox', { name: 'Assign to' });
     await expect.element(listbox).toHaveAttribute('data-density', 'md');
-    const option = screen.getByRole('option', { name: /^Ayşe Demir/ });
-    await expect.element(option).toHaveAccessibleName('Ayşe Demir Owner');
+    const option = screen.getByRole('option', { name: /^Alex Morgan/ });
+    await expect.element(option).toHaveAccessibleName('Alex Morgan Owner');
     await expect.element(screen.getByRole('group', { name: 'Team' })).toBeInTheDocument();
     await expect.element(screen.getByRole('group', { name: 'Guests' })).toBeInTheDocument();
     expect(option.element().querySelector('[data-slot="avatar"]')).not.toBeNull();
     expect(
       screen
-        .getByRole('option', { name: /^Elif Şahin/ })
+        .getByRole('option', { name: /^Emma Shaw/ })
         .element()
         .querySelector('[data-slot="start-icon"]'),
     ).not.toBeNull();
@@ -280,7 +280,7 @@ describe('ListBox', () => {
         </div>,
         options,
       );
-      await screen.getByRole('option', { name: /^Mehmet Kaya/ }).click();
+      await screen.getByRole('option', { name: /^Morgan King/ }).click();
       await expectNoA11yViolations(screen.container);
       await screen.unmount();
     }

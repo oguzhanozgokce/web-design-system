@@ -118,13 +118,13 @@ describe('KbdCombo', () => {
   });
 
   it('takes modifier names from DSProvider, with the labels prop on top', async () => {
-    const german = {
-      command: 'Befehlstaste',
-      control: 'Steuerung',
-      option: 'Wahltaste',
-      shift: 'Umschalttaste',
-      controlShort: 'Strg',
-      shiftShort: 'Umschalt',
+    const overrides = {
+      command: 'Command key',
+      control: 'Control key',
+      option: 'Option key',
+      shift: 'Shift key',
+      controlShort: 'Ctl',
+      shiftShort: 'Shft',
     };
     const screen = await renderWithDS(
       <div>
@@ -137,25 +137,25 @@ describe('KbdCombo', () => {
           labels={{ controlShort: 'Ctrl', control: 'Control' }}
         />
         <span data-testid="key">
-          <Kbd platform="other" labels={{ deleteShort: 'Entf', delete: 'Entfernen' }}>
+          <Kbd platform="other" labels={{ deleteShort: 'Del key', delete: 'Delete key' }}>
             delete
           </Kbd>
         </span>
       </div>,
-      { provider: { labels: { kbd: german } } },
+      { provider: { labels: { kbd: overrides } } },
     );
     const windows = screen.getByTestId('windows').element();
     const mac = screen.getByTestId('mac').element();
     const override = screen.getByTestId('override').element();
-    expect(visibleText(windows)).toBe('Strg Umschalt S');
-    expect(spokenText(windows)).toBe('Steuerung+Umschalttaste+S');
+    expect(visibleText(windows)).toBe('Ctl Shft S');
+    expect(spokenText(windows)).toBe('Control key+Shift key+S');
     expect(visibleText(mac)).toBe('⌥ ⌘ S');
-    expect(spokenText(mac)).toBe('Wahltaste+Befehlstaste+S');
+    expect(spokenText(mac)).toBe('Option key+Command key+S');
     expect(visibleText(override)).toBe('Ctrl S');
     expect(spokenText(override)).toBe('Control+S');
     const key = screen.getByTestId('key').element();
-    expect(visibleText(key)).toBe('Entf');
-    expect(spokenText(key)).toBe('Entfernen');
+    expect(visibleText(key)).toBe('Del key');
+    expect(spokenText(key)).toBe('Delete key');
   });
 
   it('hydrates server HTML without a mismatch, then shows the detected platform', async () => {

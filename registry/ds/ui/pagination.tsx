@@ -6,7 +6,11 @@ import { Button as AriaButton, useLocale } from 'react-aria-components';
 import { useControllableState } from '@/registry/ds/hooks/use-controllable-state';
 import type { LabelTemplate } from '@/registry/ds/lib/labels';
 import { fluidTween } from '@/registry/ds/lib/motion';
-import { clampPage, getPaginationSlots, type PaginationSlot } from '@/registry/ds/lib/pagination';
+import {
+  clampPage,
+  getPaginationSlots,
+  type PaginationSlot,
+} from '@/registry/ds/lib/pagination.ts';
 import { cn, tv } from '@/registry/ds/lib/utils';
 import { Button } from '@/registry/ds/ui/button';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';

@@ -11,7 +11,7 @@ const contacts = [
   { name: 'Noah Fischer', email: 'noah@example.com' },
   { name: 'Priya Nair', email: 'priya@example.com' },
   { name: 'Omar Haddad', email: 'omar@example.com' },
-  { name: 'Elif Yılmaz', email: 'elif@example.com' },
+  { name: 'Emma Wilson', email: 'emma@example.com' },
   { name: 'Mateus Costa', email: 'mateus@example.com' },
   { name: 'Hana Kim', email: 'hana@example.com' },
   { name: 'Liam Murphy', email: 'liam@example.com' },

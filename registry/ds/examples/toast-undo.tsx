@@ -12,7 +12,7 @@ interface Conversation {
 }
 
 const allConversations: Conversation[] = [
-  { id: 'weekly', subject: 'Weekly update', from: 'Ayşe Demir' },
+  { id: 'weekly', subject: 'Weekly update', from: 'Alex Morgan' },
   { id: 'review', subject: 'Design review notes', from: 'Jonas Weber' },
   { id: 'trip', subject: 'Trip photos', from: 'Priya Natarajan' },
 ];

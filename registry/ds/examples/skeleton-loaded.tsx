@@ -23,12 +23,12 @@ export default function SkeletonLoaded() {
         <div className="flex items-center gap-3">
           <Skeleton isLoaded={loaded} shape="circle" className="w-fit">
             <span className="flex size-10 items-center justify-center rounded-full bg-neutral-soft text-sm font-medium text-on-surface">
-              AD
+              AM
             </span>
           </Skeleton>
           <div className="min-w-0 flex-1">
             <Skeleton isLoaded={loaded} shape="text" className="w-fit">
-              <p className="text-sm font-semibold">Ayşe Demir</p>
+              <p className="text-sm font-semibold">Alex Morgan</p>
             </Skeleton>
             <Skeleton isLoaded={loaded} shape="text" className="mt-0.5 w-fit">
               <p className="text-xs text-on-surface-variant">Sent you 3 photos</p>

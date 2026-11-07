@@ -273,10 +273,10 @@ describe('Menu', () => {
   it('joins English key names with + elsewhere, whatever the locale', async () => {
     stubPlatform('Windows');
     try {
-      const screen = await renderWithDS(<ShortcutMenu label="Datei" item="Datei exportieren" />, {
+      const screen = await renderWithDS(<ShortcutMenu label="File" item="Export file" />, {
         locale: 'de',
       });
-      await screen.getByRole('button', { name: 'Datei' }).click();
+      await screen.getByRole('button', { name: 'File' }).click();
       expect(await shortcutTexts()).toEqual(['Ctrl+Shift+S', 'Alt+Ctrl+Del', 'F2', 'Space']);
       expect(document.querySelector('[data-slot="shortcut"]')).toHaveAttribute(
         'data-platform',
@@ -290,33 +290,28 @@ describe('Menu', () => {
   it('takes key names from DSProvider labels, and from its labels prop first', async () => {
     stubPlatform('Windows');
     const provider = {
-      labels: { menu: { ctrl: 'Strg', shift: 'Umschalt', delete: 'Entf', space: 'Leertaste' } },
+      labels: { menu: { ctrl: 'Ctl', shift: 'Shft', delete: 'Del key', space: 'Space key' } },
     };
     try {
-      const screen = await renderWithDS(<ShortcutMenu label="Datei" item="Datei exportieren" />, {
+      const screen = await renderWithDS(<ShortcutMenu label="File" item="Export file" />, {
         provider,
       });
-      await screen.getByRole('button', { name: 'Datei' }).click();
-      expect(await shortcutTexts()).toEqual([
-        'Strg+Umschalt+S',
-        'Alt+Strg+Entf',
-        'F2',
-        'Leertaste',
-      ]);
+      await screen.getByRole('button', { name: 'File' }).click();
+      expect(await shortcutTexts()).toEqual(['Ctl+Shft+S', 'Alt+Ctl+Del key', 'F2', 'Space key']);
       await userEvent.keyboard('{Escape}');
       await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
       await screen.unmount();
 
       const own = await renderWithDS(
         <ShortcutMenu
-          label="Datei"
-          item="Datei exportieren"
-          labels={{ alt: 'Wahl', space: 'Leer' }}
+          label="File"
+          item="Export file"
+          labels={{ alt: 'Option', space: 'Spacebar' }}
         />,
         { provider },
       );
-      await own.getByRole('button', { name: 'Datei' }).click();
-      expect(await shortcutTexts()).toEqual(['Strg+Umschalt+S', 'Wahl+Strg+Entf', 'F2', 'Leer']);
+      await own.getByRole('button', { name: 'File' }).click();
+      expect(await shortcutTexts()).toEqual(['Ctl+Shft+S', 'Option+Ctl+Del key', 'F2', 'Spacebar']);
     } finally {
       restorePlatform();
     }
@@ -327,21 +322,21 @@ describe('Menu', () => {
     try {
       const screen = await renderWithDS(
         <MenuTrigger>
-          <Button>Datei</Button>
-          <Menu labels={{ ctrl: 'Strg' }}>
+          <Button>File</Button>
+          <Menu labels={{ ctrl: 'Ctl' }}>
             <SubmenuTrigger>
-              <MenuItem>Verschieben nach</MenuItem>
+              <MenuItem>Move to</MenuItem>
               <Menu>
-                <MenuItem shortcut={['ctrl', 'M']}>Projektplan</MenuItem>
+                <MenuItem shortcut={['ctrl', 'M']}>Project plan</MenuItem>
               </Menu>
             </SubmenuTrigger>
           </Menu>
         </MenuTrigger>,
       );
-      await screen.getByRole('button', { name: 'Datei' }).click();
-      await page.getByRole('menuitem', { name: 'Verschieben nach' }).click();
-      await expect.element(page.getByRole('menuitem', { name: /^Projektplan/ })).toBeVisible();
-      expect(await shortcutTexts()).toEqual(['Strg+M']);
+      await screen.getByRole('button', { name: 'File' }).click();
+      await page.getByRole('menuitem', { name: 'Move to' }).click();
+      await expect.element(page.getByRole('menuitem', { name: /^Project plan/ })).toBeVisible();
+      expect(await shortcutTexts()).toEqual(['Ctl+M']);
     } finally {
       restorePlatform();
     }
@@ -509,17 +504,17 @@ describe('Menu', () => {
         await page.viewport(width, height);
         const screen = await renderWithDS(
           <MenuTrigger>
-            <Button>Projekt</Button>
+            <Button>Project</Button>
             <Menu>
               <MenuItem>
-                Erinnerung an alle Mitglieder dieses Projekts und ihrer Teams senden
+                Send a reminder to every member of this project and their shared teams
               </MenuItem>
             </Menu>
           </MenuTrigger>,
           { locale: 'de' },
         );
 
-        await screen.getByRole('button', { name: 'Projekt' }).click();
+        await screen.getByRole('button', { name: 'Project' }).click();
         await expect.element(page.getByRole('menu')).toBeVisible();
         const popover = document.querySelector('[data-slot="menu-popover"]') as HTMLElement;
         const label = popover.querySelector('[data-slot="label"]') as HTMLElement;
@@ -541,10 +536,10 @@ describe('Menu', () => {
       <ButtonGroup size="sm" buttonVariant="outline">
         <Button>Inbox</Button>
         <MenuTrigger>
-          <Button>Ayşe Demir</Button>
+          <Button>Alex Morgan</Button>
           <MenuPopover placement="bottom end">
             <div data-testid="account" className="px-4 py-3">
-              ayse@riverside.example
+              alex@example.com
               <Button>Switch account</Button>
             </div>
             <MenuSeparator />
@@ -557,9 +552,9 @@ describe('Menu', () => {
       </ButtonGroup>,
     );
 
-    await screen.getByRole('button', { name: 'Ayşe Demir' }).click();
+    await screen.getByRole('button', { name: 'Alex Morgan' }).click();
     await expect.element(page.getByTestId('account')).toBeVisible();
-    const menu = page.getByRole('menu', { name: 'Ayşe Demir' });
+    const menu = page.getByRole('menu', { name: 'Alex Morgan' });
     await expect.element(menu).toHaveAttribute('data-size', 'sm');
     await expect
       .element(page.getByRole('menuitem', { name: 'Profile' }))
@@ -587,18 +582,18 @@ describe('Menu', () => {
     await userEvent.keyboard('{Escape}');
     await english.unmount();
 
-    const provider = { labels: { menu: { empty: 'Öğe yok' } } };
+    const provider = { labels: { menu: { empty: 'No entries' } } };
     const shared = await renderWithDS(<RecentFiles />, { provider });
     await shared.getByRole('button', { name: 'Son dosyalar' }).click();
-    await expect.element(page.getByText('Öğe yok')).toBeVisible();
+    await expect.element(page.getByText('No entries')).toBeVisible();
     await userEvent.keyboard('{Escape}');
     await shared.unmount();
 
-    const own = await renderWithDS(<RecentFiles labels={{ empty: 'Henüz dosya yok' }} />, {
+    const own = await renderWithDS(<RecentFiles labels={{ empty: 'No files have been added' }} />, {
       provider,
     });
     await own.getByRole('button', { name: 'Son dosyalar' }).click();
-    await expect.element(page.getByText('Henüz dosya yok')).toBeVisible();
+    await expect.element(page.getByText('No files have been added')).toBeVisible();
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

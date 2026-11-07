@@ -1,5 +1,9 @@
 # Wave 2 requests: research
 
+Historical research and proposals. The built component APIs are documented in `content/docs`;
+`ROADMAP.md` records delivery status. Proposed APIs and dependency recommendations below are
+evidence from the study, not implementation instructions.
+
 Researched on 2026-11-06 for four references the owner wants in the library. For each one this file
 records where the source lives and under which license, what it does, what it depends on, a
 proposed API in this library's conventions, and whether code may be copied or only ideas used.

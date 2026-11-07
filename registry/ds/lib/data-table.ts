@@ -60,9 +60,9 @@ export function sortRows<T>(
 
 export function normalizeSearch(value: string, locale?: string) {
   return value
+    .toLocaleLowerCase(locale)
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
-    .toLocaleLowerCase(locale)
     .trim();
 }
 

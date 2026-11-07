@@ -5,6 +5,11 @@ in parallel. `libraries.json` holds one record per library, with its license ver
 components with API notes, what to borrow and what to avoid. `tooling.json` holds the tooling survey.
 Search them for a component name before designing it.
 
+These surveys record historical evidence. Current visual decisions live in `web-style.md`,
+current component contracts in `content/docs`, and test policy in `docs/testing.md` at the
+repository root. Earlier proposals in `libraries.json` and `wave-2-requests.md` do not override
+those documents.
+
 ## License verdicts
 
 Checked again against each repository's `LICENSE` with `gh api repos/<repo>/license`.
@@ -32,5 +37,5 @@ Code adapted from an MIT source is recorded in the item's `credits` field in `re
 | Colour      | @material/material-color-utilities 0.4, spec 2025, phone  | Same engine and spec as MaterialKolor 6 on mobile                                     |
 | Distribution| shadcn registry, `@ds` namespace                          | Source in the project, `--diff` upgrades, shadcn MCP for agents                       |
 | Docs        | Fumadocs 16 on Next 16, static export                     | Built-in llms.txt, search and static hosting                                          |
-| Tests       | Vitest 5 browser mode on Chromium, axe-core               | Real browser, real CSS, real contrast; Playwright CT was removed in 1.63              |
-| Motion      | CSS first, `motion` 14 for physics, NumberFlow for numbers | No client loop for static pages; NumberFlow is MIT and honours reduced motion          |
+| Tests       | Vitest 5 with Node and Chromium projects, axe-core        | Pure logic in Node; DOM, interaction and contrast in Chromium                        |
+| Motion      | CSS first, `motion` 14 for gestures, `RollingNumber` for numbers | Own odometer; `@number-flow/react` was removed in wave 2                         |

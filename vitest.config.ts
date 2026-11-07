@@ -29,13 +29,30 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    include: ['registry/**/*.test.{ts,tsx}', 'components/**/*.test.{ts,tsx}'],
-    setupFiles: ['./test/setup.ts'],
-    browser: {
-      enabled: true,
-      headless: true,
-      provider: playwright(),
-      instances: [{ browser: 'chromium' }],
-    },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          environment: 'node',
+          server: { deps: { inline: ['@material/material-color-utilities'] } },
+          include: ['registry/**/*.test.ts', 'lib/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'browser',
+          include: ['registry/**/*.test.tsx', 'components/**/*.test.tsx'],
+          setupFiles: ['./test/setup.ts'],
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright(),
+            instances: [{ browser: 'chromium' }],
+          },
+        },
+      },
+    ],
   },
 });

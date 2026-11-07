@@ -128,18 +128,18 @@ describe('LinearProgress', () => {
     const screen = await renderWithDS(
       <div className="flex w-80 flex-col gap-4">
         <LinearProgress isIndeterminate />
-        <LinearProgress value={30} labels={{ progress: 'Depolama' }} />
-        <CircularProgress isIndeterminate labels={{ loading: 'Mesajlar yükleniyor' }} />
+        <LinearProgress value={30} labels={{ progress: 'Storage usage' }} />
+        <CircularProgress isIndeterminate labels={{ loading: 'Loading messages' }} />
         <CircularProgress value={30} />
       </div>,
-      { provider: { labels: { progress: { loading: 'Yükleniyor', progress: 'İlerleme' } } } },
+      { provider: { labels: { progress: { loading: 'Working', progress: 'Task progress' } } } },
     );
-    await expect.element(screen.getByRole('progressbar', { name: 'Yükleniyor' })).toBeVisible();
-    await expect.element(screen.getByRole('progressbar', { name: 'Depolama' })).toBeVisible();
+    await expect.element(screen.getByRole('progressbar', { name: 'Working' })).toBeVisible();
+    await expect.element(screen.getByRole('progressbar', { name: 'Storage usage' })).toBeVisible();
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Mesajlar yükleniyor' }))
+      .element(screen.getByRole('progressbar', { name: 'Loading messages' }))
       .toBeVisible();
-    await expect.element(screen.getByRole('progressbar', { name: 'İlerleme' })).toBeVisible();
+    await expect.element(screen.getByRole('progressbar', { name: 'Task progress' })).toBeVisible();
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

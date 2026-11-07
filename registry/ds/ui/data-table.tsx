@@ -25,9 +25,9 @@ import {
   toDate,
   type DataTableAccessor,
   type DataTableFilterValues,
-} from '@/registry/ds/lib/data-table';
+} from '@/registry/ds/lib/data-table.ts';
 import type { LabelTemplate } from '@/registry/ds/lib/labels';
-import { clampPage } from '@/registry/ds/lib/pagination';
+import { clampPage } from '@/registry/ds/lib/pagination.ts';
 import { cn, tv } from '@/registry/ds/lib/utils';
 import { Button } from '@/registry/ds/ui/button';
 import { useIcons, useLabels } from '@/registry/ds/ui/ds-provider';
@@ -417,6 +417,10 @@ function headerText<T>(column: DataTableColumn<T>) {
   return column.textValue ?? (typeof column.header === 'string' ? column.header : column.id);
 }
 
+function columnValue<T>(column: DataTableColumn<T>, row: T) {
+  return readValue(row, column.accessor ?? (column.id as keyof T));
+}
+
 function isPromise(value: unknown): value is Promise<unknown> {
   return value != null && typeof (value as Promise<unknown>).then === 'function';
 }
@@ -760,25 +764,6 @@ export function DataTable<T extends object>({
     return mergeStatusDefinitions(sharedStatuses, column.statuses);
   }
 
-  function columnValue(column: DataTableColumn<T>, row: T) {
-    return readValue(row, column.accessor ?? (column.id as keyof T));
-  }
-
-  function columnText(column: ResolvedColumn<T>, row: T) {
-    if (column.getSearchText) return column.getSearchText(row);
-    const value = columnValue(column, row);
-    if (column.type === 'status') {
-      return resolveStatus(textOf(value), statusDefinitions(column), statusLabels).label;
-    }
-    if (column.type === 'tags') {
-      return normalizeTags(value)
-        .map((tag) => tag.label)
-        .join(' ');
-    }
-    if (column.type === 'date' || column.type === 'number') return '';
-    return textOf(value);
-  }
-
   const rowHeaderColumn = resolvedColumns.find((column) => column.isRowHeader);
 
   function labelOf(row: T) {
@@ -787,8 +772,25 @@ export function DataTable<T extends object>({
     return textOf(columnValue(rowHeaderColumn, row)) || String(getRowId(row));
   }
 
-  const processed = (() => {
+  const processed = useMemo(() => {
     if (isServer) return [...data];
+
+    function columnText(column: ResolvedColumn<T>, row: T) {
+      if (column.getSearchText) return column.getSearchText(row);
+      const value = columnValue(column, row);
+      if (column.type === 'status') {
+        const definitions = mergeStatusDefinitions(sharedStatuses, column.statuses);
+        return resolveStatus(textOf(value), definitions, statusLabels).label;
+      }
+      if (column.type === 'tags') {
+        return normalizeTags(value)
+          .map((tag) => tag.label)
+          .join(' ');
+      }
+      if (column.type === 'date' || column.type === 'number') return '';
+      return textOf(value);
+    }
+
     let rows = [...data];
     for (const filter of filters ?? []) {
       const selected = filterValues[filter.id];
@@ -829,7 +831,20 @@ export function DataTable<T extends object>({
       }
     }
     return rows;
-  })();
+  }, [
+    data,
+    isServer,
+    filters,
+    filterValues,
+    search,
+    getSearchText,
+    sortDescriptor,
+    resolvedColumns,
+    locale,
+    collator,
+    sharedStatuses,
+    statusLabels,
+  ]);
 
   const total = isServer ? (totalCount ?? data.length) : processed.length;
   const pageCount = paging ? getPageCount(total, pageSize) : 1;
@@ -849,7 +864,10 @@ export function DataTable<T extends object>({
       ? []
       : pageRows.map((row, index) => ({ id: getRowId(row), kind: 'row' as const, row, index }));
 
-  const knownKeys = isServer ? null : new Set(data.map(getRowId));
+  const knownKeys = useMemo(
+    () => (isServer ? null : new Set(data.map(getRowId))),
+    [isServer, data, getRowId],
+  );
   const selectedCount =
     selection === 'all' || !knownKeys
       ? selectionSize(selection, total)
@@ -898,7 +916,14 @@ export function DataTable<T extends object>({
 
   function updateSelection(next: Selection) {
     setSelection(
-      mergePageSelection(selection, next, pageKeys, isServer ? undefined : processed.map(getRowId)),
+      selectionMode === 'single'
+        ? next
+        : mergePageSelection(
+            selection,
+            next,
+            pageKeys,
+            isServer ? undefined : processed.map(getRowId),
+          ),
     );
   }
 

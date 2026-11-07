@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { PreviewFrame } from '@/components/docs/preview-frame';
+import { rewriteRegistryImports } from '@/lib/registry-paths';
 
 export async function ComponentPreview({
   name,
@@ -22,7 +23,7 @@ export async function ComponentPreview({
       name={name}
       align={align}
       className={className}
-      code={<DynamicCodeBlock lang="tsx" code={code.trimEnd()} />}
+      code={<DynamicCodeBlock lang="tsx" code={rewriteRegistryImports(code.trimEnd())} />}
     />
   );
 }

@@ -321,15 +321,19 @@ describe('FileDropzone', () => {
     const screen = await renderWithDS(
       <FileDropzone
         maxSize={1_000_000}
-        labels={{ prompt: 'Ziehe eine Datei hierher oder {browse}', browse: 'wähle sie aus' }}
+        labels={{ prompt: 'Drop a file here or {browse}', browse: 'choose one' }}
       />,
-      { provider: { labels: { fileDropzone: { hintSize: 'Bis {size}', dropzone: 'Ablage' } } } },
+      {
+        provider: {
+          labels: { fileDropzone: { hintSize: 'Maximum {size}', dropzone: 'File target' } },
+        },
+      },
     );
     await expect
-      .element(screen.getByRole('button', { name: 'Ziehe eine Datei hierher oder wähle sie aus' }))
-      .toHaveAccessibleDescription('Bis 1 MB');
-    expect(part(screen.container, 'browse-link').textContent).toBe('wähle sie aus');
-    await expect.element(screen.getByRole('button', { name: 'Ablage' })).toBeInTheDocument();
+      .element(screen.getByRole('button', { name: 'Drop a file here or choose one' }))
+      .toHaveAccessibleDescription('Maximum 1 MB');
+    expect(part(screen.container, 'browse-link').textContent).toBe('choose one');
+    await expect.element(screen.getByRole('button', { name: 'File target' })).toBeInTheDocument();
   });
 
   it('formats sizes for the locale', async () => {

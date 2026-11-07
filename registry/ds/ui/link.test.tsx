@@ -147,23 +147,23 @@ describe('Link', () => {
     const screen = await renderWithDS(
       <>
         <Link href="https://example.com/yardim" isExternal>
-          Yardım merkezi
+          Help center
         </Link>
         <Link
           href="https://example.com/durum"
           isExternal
-          labels={{ opensInNewTab: '(yeni pencerede açılır)' }}
+          labels={{ opensInNewTab: '(opens in a separate window)' }}
         >
-          Durum sayfası
+          Status page
         </Link>
       </>,
-      { provider: { labels: { link: { opensInNewTab: '(yeni sekmede açılır)' } } } },
+      { provider: { labels: { link: { opensInNewTab: '(opens in another tab)' } } } },
     );
     await expect
-      .element(screen.getByRole('link', { name: 'Yardım merkezi (yeni sekmede açılır)' }))
+      .element(screen.getByRole('link', { name: 'Help center (opens in another tab)' }))
       .toBeInTheDocument();
     await expect
-      .element(screen.getByRole('link', { name: 'Durum sayfası (yeni pencerede açılır)' }))
+      .element(screen.getByRole('link', { name: 'Status page (opens in a separate window)' }))
       .toBeInTheDocument();
     await screen.unmount();
 

@@ -143,9 +143,9 @@ describe('ChipGroup', () => {
 
   it('shows a check over the avatar of a selected chip', async () => {
     const screen = await renderWithDS(
-      <ChipGroup aria-label="Assignees" selectionMode="multiple" defaultSelectedKeys={['ayse']}>
-        <Chip id="ayse" avatar="AD">
-          Ayşe Demir
+      <ChipGroup aria-label="Assignees" selectionMode="multiple" defaultSelectedKeys={['alex']}>
+        <Chip id="alex" avatar="AM">
+          Alex Morgan
         </Chip>
         <Chip id="jonas" avatar="JW">
           Jonas Weber
@@ -153,12 +153,12 @@ describe('ChipGroup', () => {
       </ChipGroup>,
       still,
     );
-    const ayse = screen.getByRole('row', { name: 'Ayşe Demir' });
+    const alex = screen.getByRole('row', { name: 'Alex Morgan' });
     const jonas = screen.getByRole('row', { name: 'Jonas Weber' });
-    await expect.element(ayse).toHaveAttribute('aria-selected', 'true');
-    const checkOpacity = (row: typeof ayse) =>
+    await expect.element(alex).toHaveAttribute('aria-selected', 'true');
+    const checkOpacity = (row: typeof alex) =>
       getComputedStyle(row.element().querySelector('[data-slot="avatar-check"]')!).opacity;
-    expect(checkOpacity(ayse)).toBe('1');
+    expect(checkOpacity(alex)).toBe('1');
     expect(checkOpacity(jonas)).toBe('0');
     await jonas.click();
     await expect.element(jonas).toHaveAttribute('aria-selected', 'true');
@@ -168,8 +168,8 @@ describe('ChipGroup', () => {
   it('takes the remove label from the chip, then its group, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-2">
-        <ChipGroup aria-label="Etiketler" onRemove={() => {}}>
-          <Chip id="tasarim">Tasarım</Chip>
+        <ChipGroup aria-label="Labels" onRemove={() => {}}>
+          <Chip id="design">Design</Chip>
         </ChipGroup>
         <ChipGroup aria-label="Labels" onRemove={() => {}} labels={{ remove: 'Delete {label}' }}>
           <Chip id="design">Design</Chip>
@@ -178,10 +178,10 @@ describe('ChipGroup', () => {
           </Chip>
         </ChipGroup>
       </div>,
-      { provider: { labels: { chip: { remove: '{label} öğesini kaldır' } } } },
+      { provider: { labels: { chip: { remove: 'Remove the {label} item' } } } },
     );
     await expect
-      .element(screen.getByRole('button', { name: 'Tasarım öğesini kaldır' }))
+      .element(screen.getByRole('button', { name: 'Remove the Design item' }))
       .toBeInTheDocument();
     await expect.element(screen.getByRole('button', { name: 'Delete Design' })).toBeInTheDocument();
     await expect.element(screen.getByRole('button', { name: 'Drop Sharing' })).toBeInTheDocument();
@@ -257,8 +257,8 @@ describe('ChipGroup', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const screen = await renderWithDS(
       <ChipGroup aria-label="Approvers" onRemove={() => {}}>
-        <Chip id="ayse" textValue="Ayşe Demir">
-          <strong>Ayşe</strong> Demir
+        <Chip id="alex" textValue="Alex Morgan">
+          <strong>Alex</strong> Demir
         </Chip>
         <Chip id="jonas">
           <strong>Jonas</strong> Weber
@@ -266,7 +266,7 @@ describe('ChipGroup', () => {
       </ChipGroup>,
     );
     await expect
-      .element(screen.getByRole('button', { name: 'Remove Ayşe Demir', exact: true }))
+      .element(screen.getByRole('button', { name: 'Remove Alex Morgan', exact: true }))
       .toBeInTheDocument();
     const fallback = screen.getByRole('button', { name: /Jonas Weber/ });
     await expect.element(fallback).toBeInTheDocument();
@@ -346,11 +346,11 @@ describe('AssistChip', () => {
   it('shows the pending spinner over an avatar', async () => {
     const onPress = vi.fn(() => new Promise<void>(() => {}));
     const screen = await renderWithDS(
-      <AssistChip avatar="AD" onPress={onPress}>
-        Ask Ayşe to approve
+      <AssistChip avatar="AM" onPress={onPress}>
+        Ask Alex to approve
       </AssistChip>,
     );
-    const chip = screen.getByRole('button', { name: 'Ask Ayşe to approve' });
+    const chip = screen.getByRole('button', { name: 'Ask Alex to approve' });
     await chip.click();
     await expect.element(chip).toHaveAttribute('data-pending', 'true');
     const progress = screen.getByRole('progressbar', { name: 'Loading' });
@@ -364,17 +364,15 @@ describe('AssistChip', () => {
     const screen = await renderWithDS(
       <div className="flex gap-2">
         <AssistChip isPending>Remind me tomorrow</AssistChip>
-        <AssistChip isPending labels={{ pending: 'Kaydediliyor' }}>
+        <AssistChip isPending labels={{ pending: 'Saving changes' }}>
           Save
         </AssistChip>
       </div>,
-      { provider: { labels: { chip: { pending: 'Yükleniyor' } } } },
+      { provider: { labels: { chip: { pending: 'Working' } } } },
     );
+    await expect.element(screen.getByRole('progressbar', { name: 'Working' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Yükleniyor' }))
-      .toBeInTheDocument();
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'Kaydediliyor' }))
+      .element(screen.getByRole('progressbar', { name: 'Saving changes' }))
       .toBeInTheDocument();
   });
 });
@@ -417,8 +415,8 @@ describe('Chip accessibility', () => {
           ))}
           <Labels initial={['Design', 'Sharing']} />
           <ChipGroup aria-label="Assignees" onRemove={() => {}}>
-            <Chip id="ayse" avatar="AD">
-              Ayşe Demir
+            <Chip id="alex" avatar="AM">
+              Alex Morgan
             </Chip>
           </ChipGroup>
           <div className="flex flex-wrap gap-2">

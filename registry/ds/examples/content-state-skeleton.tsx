@@ -7,7 +7,7 @@ import { ContentState } from '@/registry/ds/ui/content-state';
 import { Skeleton } from '@/registry/ds/ui/skeleton';
 
 const contacts = [
-  { name: 'Ayşe Demir', email: 'ayse@example.com' },
+  { name: 'Alex Morgan', email: 'alex@example.com' },
   { name: 'Jonas Weber', email: 'jonas@example.com' },
   { name: 'Priya Natarajan', email: 'priya@example.com' },
 ];

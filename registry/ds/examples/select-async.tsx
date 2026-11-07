@@ -25,7 +25,7 @@ const cities: City[] = [
   ['Dublin', 'Ireland'],
   ['Hanoi', 'Vietnam'],
   ['Helsinki', 'Finland'],
-  ['Istanbul', 'Türkiye'],
+  ['Istanbul', 'Turkey'],
   ['Jakarta', 'Indonesia'],
   ['Kyoto', 'Japan'],
   ['Lagos', 'Nigeria'],

@@ -1,5 +1,7 @@
 'use client';
 
+declare const process: { env: { NODE_ENV?: string } };
+
 import { animate, motion, useMotionValue, type MotionValue } from 'motion/react';
 import {
   createContext,
@@ -25,7 +27,7 @@ import {
   isFiniteNumber,
   numberFormatter,
   sum,
-} from '@/registry/ds/lib/chart';
+} from '@/registry/ds/lib/chart.ts';
 import type { LabelTemplate } from '@/registry/ds/lib/labels';
 import { motionEasings, spatialSpring } from '@/registry/ds/lib/motion';
 import { cn, tv } from '@/registry/ds/lib/utils';

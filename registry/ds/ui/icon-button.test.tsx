@@ -148,21 +148,19 @@ describe('IconButton', () => {
   it('takes its pending label from labels, then DSProvider, then the English default', async () => {
     const screen = await renderWithDS(
       <>
-        <IconButton aria-label="Yenile" icon={<RefreshIcon />} isPending />
+        <IconButton aria-label="Refresh" icon={<RefreshIcon />} isPending />
         <IconButton
-          aria-label="Listeyi yenile"
+          aria-label="Refresh list"
           icon={<RefreshIcon />}
           isPending
-          labels={{ pending: 'Yenileniyor' }}
+          labels={{ pending: 'Refreshing' }}
         />
       </>,
-      { provider: { labels: { iconButton: { pending: 'Yükleniyor' } } } },
+      { provider: { labels: { iconButton: { pending: 'Working' } } } },
     );
+    await expect.element(screen.getByRole('progressbar', { name: 'Working' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Yükleniyor' }))
-      .toBeInTheDocument();
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'Yenileniyor' }))
+      .element(screen.getByRole('progressbar', { name: 'Refreshing' }))
       .toBeInTheDocument();
   });
 

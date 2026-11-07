@@ -6,7 +6,7 @@ import { ComboBox, type ComboBoxProps } from '@/registry/ds/ui/combo-box';
 import { ListBoxItem } from '@/registry/ds/ui/list-box';
 
 const cities = [
-  { id: 'ist', name: 'İstanbul', country: 'Türkiye', keywords: ['TR', 'Constantinople'] },
+  { id: 'ist', name: '\u0130stanbul', country: 'Turkey', keywords: ['TR', 'Constantinople'] },
   { id: 'lis', name: 'Lisbon', country: 'Portugal', keywords: ['PT', 'Lisboa'] },
   { id: 'sao', name: 'São Paulo', country: 'Brazil', keywords: ['BR'] },
   { id: 'zur', name: 'Zürich', country: 'Switzerland', keywords: ['CH'] },
@@ -43,7 +43,7 @@ describe('ComboBox', () => {
     await renderWithDS(<CityComboBox />);
     await input().click();
     await userEvent.keyboard('istanbul');
-    expect(await optionNames()).toEqual(['İstanbul']);
+    expect(await optionNames()).toEqual(['\u0130stanbul']);
 
     await userEvent.clear(input());
     await userEvent.type(input(), 'sao');
@@ -59,7 +59,7 @@ describe('ComboBox', () => {
 
     await userEvent.clear(input());
     await userEvent.type(input(), 'tr');
-    expect(await optionNames()).toEqual(['İstanbul']);
+    expect(await optionNames()).toEqual(['\u0130stanbul']);
   });
 
   it('opens from the trigger button and marks the selected option', async () => {
@@ -175,7 +175,7 @@ describe('ComboBox', () => {
     expect(count()?.textContent).toBe('1 selected');
     expect(count()).toHaveAttribute('aria-hidden', 'true');
     expect(getComputedStyle(count()!).borderTopLeftRadius).toBe('9999px');
-    await expect.element(input()).toHaveAccessibleDescription('İstanbul');
+    await expect.element(input()).toHaveAccessibleDescription('\u0130stanbul');
 
     await input().click();
     await userEvent.keyboard('li');
@@ -184,10 +184,10 @@ describe('ComboBox', () => {
     await expect.element(page.getByRole('listbox')).toBeVisible();
     await expect.element(input()).toHaveValue('');
     await expect
-      .element(page.getByRole('option', { name: /^İstanbul/ }))
+      .element(page.getByRole('option', { name: /^\u0130stanbul/ }))
       .toHaveAttribute('aria-selected', 'true');
     await expect.poll(() => count()?.textContent).toBe('2 selected');
-    await expect.element(input()).toHaveAccessibleDescription('İstanbul and Lisbon');
+    await expect.element(input()).toHaveAccessibleDescription('\u0130stanbul and Lisbon');
 
     await userEvent.keyboard('{Escape}');
     await screen.getByRole('button', { name: 'Clear' }).click();

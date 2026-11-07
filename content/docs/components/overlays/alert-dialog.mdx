@@ -95,8 +95,8 @@ that opened the dialog is removed, focus has nowhere to return, so move it yours
 | `children`                  | `ReactNode`                                                             |                    |
 | `icon`                      | `ReactNode`                                                             |                    |
 | `tone`                      | `'neutral' \| 'primary' \| 'success' \| 'warning' \| 'info' \| 'error'` | `'neutral'`        |
-| `confirmLabel`              | `ReactNode`                                                             | `'Confirm'`        |
-| `cancelLabel`               | `ReactNode`                                                             | `'Cancel'`         |
+| `confirmLabel`              | `ReactNode`                                                             | `labels.confirm`   |
+| `cancelLabel`               | `ReactNode`                                                             | `labels.cancel`    |
 | `onConfirm`                 | `() => void \| Promise<unknown>`                                        |                    |
 | `onCancel`                  | `() => void`                                                            |                    |
 | `isConfirmDisabled`         | `boolean`                                                               | `false`            |
@@ -144,12 +144,15 @@ own attributes. Parts: `data-slot="alert-dialog-icon"`, `"alert-dialog-content"`
 
 ### Labels
 
-Text the alert dialog writes on its own. The button text is content, so it stays in `confirmLabel`
-and `cancelLabel`. Pass `labels` to one alert dialog, or set them for every alert dialog with
+Text the alert dialog writes on its own. Use `confirmLabel` and `cancelLabel` for action-specific
+content; otherwise the buttons use the translated defaults. Pass `labels` to one alert dialog,
+or set them for every alert dialog with
 `<DSProvider labels={{ alertDialog: { … } }}>`.
 
 | Key             | Default                            | Used for                                     |
 | --------------- | ---------------------------------- | -------------------------------------------- |
+| `confirm`       | `Confirm`                          | the default confirm button text              |
+| `cancel`        | `Cancel`                           | the default cancel button text               |
 | `typeToConfirm` | `Type {phrase} to confirm`         | the label of the type-to-confirm field       |
 | `error`         | `Something went wrong. Try again.` | a failure whose rejection carries no message |
 

@@ -203,8 +203,8 @@ with `<DSProvider labels={{ numberField: { … } }}>`.
 | `decrease` | `Decrease {label}` | the accessible name of the minus or down button |
 
 `{label}` is the field's label or `aria-label`, so screen readers hear "Increase Quantity". Put
-`{label}` where your language puts the object: a German app passes `'{label} erhöhen'`, so a field
-labelled "Menge" names its button "Menge erhöhen". When the label is not plain text, the button is
+`{label}` where the app needs it: `'{label}: increase'` names a Quantity button "Quantity: increase".
+When the label is not plain text, the button is
 named by reference to the label element in the same order. `incrementAriaLabel` and
 `decrementAriaLabel` replace the whole name for one field. `labels` also takes the
 [Field labels](/docs/components/inputs/field#labels), which `DSProvider` sets under `field`.

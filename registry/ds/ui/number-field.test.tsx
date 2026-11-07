@@ -60,37 +60,37 @@ describe('NumberField', () => {
 
     const provided = await renderWithDS(
       <div>
-        <NumberField label="Plätze" defaultValue={3} />
+        <NumberField label="Seats" defaultValue={3} />
         <NumberField
-          label="Ticketpreis"
+          label="Ticket price"
           defaultValue={1250.5}
           formatOptions={{ style: 'currency', currency: 'EUR' }}
-          labels={{ increase: '{label} erhöhen' }}
+          labels={{ increase: 'Raise {label}' }}
         />
       </div>,
       {
         locale: 'de',
         provider: {
           labels: {
-            numberField: { increase: '{label} plus eins', decrease: '{label} minus eins' },
+            numberField: { increase: 'Add one to {label}', decrease: 'Subtract one from {label}' },
           },
         },
       },
     );
     await expect
-      .element(provided.getByRole('button', { name: 'Plätze plus eins' }))
+      .element(provided.getByRole('button', { name: 'Add one to Seats' }))
       .toBeInTheDocument();
     await expect
-      .element(provided.getByRole('button', { name: 'Plätze minus eins' }))
+      .element(provided.getByRole('button', { name: 'Subtract one from Seats' }))
       .toBeInTheDocument();
     await expect
-      .element(provided.getByRole('button', { name: 'Ticketpreis erhöhen' }))
+      .element(provided.getByRole('button', { name: 'Raise Ticket price' }))
       .toBeInTheDocument();
     await expect
-      .element(provided.getByRole('button', { name: 'Ticketpreis minus eins' }))
+      .element(provided.getByRole('button', { name: 'Subtract one from Ticket price' }))
       .toBeInTheDocument();
     await expect
-      .element(provided.getByRole('textbox', { name: 'Ticketpreis' }))
+      .element(provided.getByRole('textbox', { name: 'Ticket price' }))
       .toHaveValue('1.250,50 €');
   });
   it('names the steppers from a label that is not plain text, aria-label or explicit stepper labels', async () => {
@@ -132,13 +132,13 @@ describe('NumberField', () => {
 
     const labelFirst = await renderWithDS(
       <NumberField
-        label={<strong>Koltuk</strong>}
+        label={<strong>Seats</strong>}
         defaultValue={3}
-        labels={{ increase: ({ label }) => `${label} değerini artır` }}
+        labels={{ increase: ({ label }) => `Add one to ${label}` }}
       />,
     );
     await expect
-      .element(labelFirst.getByRole('button', { name: 'Koltuk değerini artır' }))
+      .element(labelFirst.getByRole('button', { name: 'Add one to Seats' }))
       .toBeInTheDocument();
     await labelFirst.unmount();
 
@@ -147,11 +147,11 @@ describe('NumberField', () => {
         <span id="nights-heading">Nights</span>
         <NumberField aria-labelledby="nights-heading" defaultValue={2} />
       </div>,
-      { provider: { labels: { numberField: { increase: '{label} erhöhen' } } } },
+      { provider: { labels: { numberField: { increase: 'Raise {label}' } } } },
     );
     await expect.element(labelled.getByRole('textbox', { name: 'Nights' })).toBeInTheDocument();
     await expect
-      .element(labelled.getByRole('button', { name: 'Nights erhöhen' }))
+      .element(labelled.getByRole('button', { name: 'Raise Nights' }))
       .toBeInTheDocument();
   });
 

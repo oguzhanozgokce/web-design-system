@@ -204,17 +204,15 @@ describe('ClickableCard', () => {
         <ClickableCard isPending>
           <CardTitle>Import CSV</CardTitle>
         </ClickableCard>
-        <ClickableCard isPending labels={{ pending: 'İçe aktarılıyor' }}>
-          <CardTitle>CSV içe aktar</CardTitle>
+        <ClickableCard isPending labels={{ pending: 'Importing' }}>
+          <CardTitle>Import CSV</CardTitle>
         </ClickableCard>
       </>,
-      { provider: { labels: { card: { pending: 'Yükleniyor' } } } },
+      { provider: { labels: { card: { pending: 'Working' } } } },
     );
+    await expect.element(screen.getByRole('progressbar', { name: 'Working' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Yükleniyor' }))
-      .toBeInTheDocument();
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'İçe aktarılıyor' }))
+      .element(screen.getByRole('progressbar', { name: 'Importing' }))
       .toBeInTheDocument();
   });
 

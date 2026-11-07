@@ -3,7 +3,7 @@ import { Divider } from '@/registry/ds/ui/divider';
 const days = [
   {
     label: 'Today',
-    events: ['Ayşe commented on your photo', 'You uploaded 12 photos'],
+    events: ['Alex commented on your photo', 'You uploaded 12 photos'],
   },
   {
     label: 'Yesterday',

@@ -50,12 +50,14 @@ npm install
 npx playwright install chromium
 npm run dev          # catalogue on http://localhost:3000
 npm run check        # tsc, eslint, prettier, check-ds
-npm test             # Vitest browser mode with axe
+npm test             # Node helper tests and Chromium component tests with axe
+npm run check:registry # clean-consumer installation and typecheck
 npm run build        # static export to out/
 ```
 
 `AGENTS.md` has the rules, `.claude/skills/ds-component/SKILL.md` the recipe for a component,
-`ROADMAP.md` the plan, and `docs/research/` the reference-library research and license verdicts.
+`docs/testing.md` the test policy, `ROADMAP.md` the plan, and `docs/research/` the reference-library
+research and license verdicts.
 
 ## License
 

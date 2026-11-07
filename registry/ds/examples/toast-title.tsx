@@ -11,7 +11,7 @@ export default function ToastTitle() {
       <Button
         variant="soft"
         onPress={() => {
-          toast.success('Ayşe Demir can now manage members and settings.', {
+          toast.success('Alex Morgan can now manage members and settings.', {
             toasterId,
             title: 'Role updated',
             description: 'The change applies from her next sign-in.',

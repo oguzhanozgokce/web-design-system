@@ -130,19 +130,19 @@ describe('Badge', () => {
     const screen = await renderWithDS(
       <div>
         <Badge count={5} />
-        <Badge count={7} labels={{ count: '{count} okunmamış' }} />
-        <Badge count={120} labels={{ overflow: '{max} üstü' }} data-testid="overflow" />
+        <Badge count={7} labels={{ count: '{count} unread' }} />
+        <Badge count={120} labels={{ overflow: 'Over {max}' }} data-testid="overflow" />
         <Badge tone="primary" />
         <Badge count={1} labels={{ count: replies }} />
         <Badge count={4} labels={{ count: replies }} />
       </div>,
-      { provider: { labels: { badge: { count: '{count} yeni', dot: 'Yeni' } } } },
+      { provider: { labels: { badge: { count: '{count} new', dot: 'New' } } } },
     );
-    await expect.element(screen.getByText('5 yeni')).toBeInTheDocument();
-    await expect.element(screen.getByText('7 okunmamış')).toBeInTheDocument();
-    await expect.element(screen.getByText('99 üstü yeni')).toBeInTheDocument();
-    expect(shown(screen.getByTestId('overflow').element())).toBe('99 üstü');
-    await expect.element(screen.getByText('Yeni', { exact: true })).toBeInTheDocument();
+    await expect.element(screen.getByText('5 new')).toBeInTheDocument();
+    await expect.element(screen.getByText('7 unread')).toBeInTheDocument();
+    await expect.element(screen.getByText('Over 99 new')).toBeInTheDocument();
+    expect(shown(screen.getByTestId('overflow').element())).toBe('Over 99');
+    await expect.element(screen.getByText('New', { exact: true })).toBeInTheDocument();
     await expect.element(screen.getByText('1 new reply')).toBeInTheDocument();
     await expect.element(screen.getByText('4 new replies')).toBeInTheDocument();
   });

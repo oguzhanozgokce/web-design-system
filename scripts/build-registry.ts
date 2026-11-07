@@ -1,6 +1,7 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { registryFileTarget } from '../lib/registry-paths.ts';
 
 interface Credit {
   source: string;
@@ -33,11 +34,6 @@ function fileType(file: string) {
   if (file.startsWith('lib/')) return 'registry:lib';
   if (file.startsWith('blocks/')) return 'registry:component';
   return 'registry:file';
-}
-
-function fileTarget(file: string) {
-  if (file.startsWith('styles/')) return `~/styles/ds/${path.basename(file)}`;
-  return undefined;
 }
 
 function packageName(specifier: string) {
@@ -121,7 +117,7 @@ for (const item of items) {
       ? { registryDependencies: [...registryDependencies].sort() }
       : {}),
     files: item.files.map((file) => {
-      const target = fileTarget(file);
+      const target = registryFileTarget(file);
       return {
         path: `registry/ds/${file}`,
         type: fileType(file),

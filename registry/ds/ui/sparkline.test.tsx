@@ -116,13 +116,13 @@ describe('Sparkline', () => {
         aria-label="Uptime"
         data={[0.991, 0.998]}
         valueFormatOptions={{ style: 'percent', maximumFractionDigits: 1 }}
-        labels={{ trend: '{first} → {last} (en düşük {min}, en yüksek {max})' }}
+        labels={{ trend: '{first} → {last} (lowest {min}, highest {max})' }}
       />,
       still,
     );
     await expect
       .element(screen.getByRole('img', { name: 'Uptime' }))
-      .toHaveAccessibleDescription('99.1% → 99.8% (en düşük 99.1%, en yüksek 99.8%)');
+      .toHaveAccessibleDescription('99.1% → 99.8% (lowest 99.1%, highest 99.8%)');
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

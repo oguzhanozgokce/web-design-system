@@ -865,7 +865,7 @@ Shared pieces used below:
   tabular-nums` (`sm` `h-4 min-w-4 px-1 text-[10px]`), solid `bg-{tone} text-on-{tone}`, soft
   `bg-{tone}-soft text-on-{tone}-soft`; dot `size-2 rounded-full bg-{tone}`; anchored `absolute
   top-0 inset-e-0 translate-x-1/4 -translate-y-1/4 rtl:-translate-x-1/4 ring-2 ring-canvas`
-  (the ring stands in for HeroUI's background-coloured border). Count changes keep NumberFlow.
+  (the ring stands in for HeroUI's background-coloured border). Count changes use `RollingNumber`.
 - **Follows:** Astryx size, HeroUI anchoring and seam.
 
 ### 2.34 Chip (interactive: filter, input, assist)
@@ -1274,7 +1274,7 @@ Settled by the owner on 2026-11-07:
 2. **Destructive tone name**: `tone="error"`, matching the role name.
 3. **Button default**: `solid · primary`.
 4. **Button sizes**: `sm`, `md`, `lg` (32, 40, 48px) on Button, ToggleButton and ButtonGroup; `xs`
-   stays on IconButton only. Legacy names keep working until the clean-up pass removes them.
+   stays on IconButton only.
 5. **Container radius**: 20px for cards and toasts.
 6. **Slider**: the thin rail (Astryx), not the 20px track.
 7. **Tooltip**: inverted, dark in light mode.

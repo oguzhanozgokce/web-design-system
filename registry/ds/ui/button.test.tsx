@@ -68,18 +68,47 @@ describe('Button', () => {
     const screen = await renderWithDS(
       <>
         <Button isPending>Save</Button>
-        <Button isPending labels={{ pending: 'Kaydediliyor' }}>
-          Kaydet
+        <Button isPending labels={{ pending: 'Saving changes' }}>
+          Save changes
         </Button>
       </>,
-      { provider: { labels: { button: { pending: 'Yükleniyor' } } } },
+      { provider: { labels: { button: { pending: 'Working' } } } },
     );
+    await expect.element(screen.getByRole('progressbar', { name: 'Working' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Yükleniyor' }))
+      .element(screen.getByRole('progressbar', { name: 'Saving changes' }))
       .toBeInTheDocument();
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'Kaydediliyor' }))
-      .toBeInTheDocument();
+  });
+
+  it('honours provider reduced motion for press scale and disabled motion for pending fades', async () => {
+    for (const motion of ['reduced', 'disabled'] as const) {
+      const screen = await renderWithDS(
+        <>
+          <Button isPending>Save</Button>
+          <ButtonLink href="/docs">Docs</ButtonLink>
+        </>,
+        { provider: { motion } },
+      );
+      for (const control of [
+        screen.getByRole('button', { name: 'Save' }),
+        screen.getByRole('link', { name: 'Docs' }),
+      ]) {
+        const element = control.element();
+        element.style.transition = 'none';
+        element.setAttribute('data-pressed', 'true');
+        expect(getComputedStyle(element).scale).toBe('1');
+      }
+      if (motion === 'disabled') {
+        expect(
+          getComputedStyle(screen.container.querySelector('[data-slot="pending"]')!).animationName,
+        ).toBe('none');
+        expect(
+          getComputedStyle(screen.container.querySelector('[data-slot="content"]')!)
+            .transitionDuration,
+        ).toBe('0s');
+      }
+      await screen.unmount();
+    }
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

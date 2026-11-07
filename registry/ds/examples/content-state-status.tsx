@@ -11,7 +11,7 @@ const statuses: { id: ContentStatus; label: string }[] = [
   { id: 'content', label: 'Content' },
 ];
 
-const members = ['Ayşe Demir · Admin', 'Jonas Weber · Member', 'Lucía Romero · Member'];
+const members = ['Alex Morgan · Admin', 'Jonas Weber · Member', 'Lucía Romero · Member'];
 
 export default function ContentStateStatus() {
   const [status, setStatus] = useState<ContentStatus>('loading');

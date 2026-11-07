@@ -93,13 +93,15 @@ export function useIcons() {
 
 export function useLabels<T extends object>(namespace: string, defaults: T, labels?: Partial<T>) {
   const overrides = use(DSContext).labels[namespace] as Partial<T> | undefined;
-  const merged = mergeLabels(defaults, overrides, labels);
-  return {
-    ...merged,
-    format<K extends keyof T>(key: K, values: LabelTemplateValues<T[K]>) {
-      return formatLabel(merged[key] as LabelTemplate, values as LabelValues);
-    },
-  };
+  return useMemo(() => {
+    const merged = mergeLabels(defaults, overrides, labels);
+    return {
+      ...merged,
+      format<K extends keyof T>(key: K, values: LabelTemplateValues<T[K]>) {
+        return formatLabel(merged[key] as LabelTemplate, values as LabelValues);
+      },
+    };
+  }, [defaults, overrides, labels]);
 }
 
 export function useDirection() {

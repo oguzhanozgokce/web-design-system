@@ -177,12 +177,12 @@ describe('SearchField', () => {
     const screen = await renderWithDS(
       <div>
         <SearchField shortcut="Mod+Shift+F" />
-        <SearchField shortcut="Mod+Shift+F" labels={{ keyControl: 'Strg', keyShift: 'Umschalt' }} />
+        <SearchField shortcut="Mod+Shift+F" labels={{ keyControl: 'Ctl', keyShift: 'Shft' }} />
       </div>,
     );
     const [english, custom] = screen.container.querySelectorAll('[data-slot="shortcut"]');
     expect(english.textContent).toBe(isApple ? '⇧⌘F' : 'Ctrl+Shift+F');
-    expect(custom.textContent).toBe(isApple ? '⇧⌘F' : 'Strg+Umschalt+F');
+    expect(custom.textContent).toBe(isApple ? '⇧⌘F' : 'Ctl+Shft+F');
     expect(custom.getAttribute('dir')).toBe('ltr');
   });
 

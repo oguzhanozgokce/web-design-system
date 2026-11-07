@@ -5,7 +5,7 @@ import { SendIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { Toaster, toast } from '@/registry/ds/ui/toast';
 
-const recipients = ['Ayşe', 'Jonas', 'Priya', 'Lucía'];
+const recipients = ['Alex', 'Jonas', 'Priya', 'Lucía'];
 
 export default function ToastDemo() {
   const [sent, setSent] = useState(0);

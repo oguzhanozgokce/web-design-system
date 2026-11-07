@@ -5,7 +5,7 @@ import { AlertDialog } from '@/registry/ds/ui/alert-dialog';
 import { Button } from '@/registry/ds/ui/button';
 
 const initialMembers = [
-  { id: 'ayse', name: 'Ayşe Demir', role: 'Admin' },
+  { id: 'alex', name: 'Alex Morgan', role: 'Admin' },
   { id: 'jonas', name: 'Jonas Weber', role: 'Editor' },
   { id: 'mei', name: 'Mei Tanaka', role: 'Viewer' },
 ];

@@ -2,8 +2,8 @@ import { Badge, BadgeAnchor } from '@/registry/ds/ui/badge';
 
 const people = [
   {
-    name: 'Ayşe Demir',
-    initials: 'AD',
+    name: 'Alex Morgan',
+    initials: 'AM',
     badge: <Badge count={2} label="{count} unread messages" />,
   },
   { name: 'Jonas Weber', initials: 'JW', badge: <Badge tone="success" label="Online" /> },

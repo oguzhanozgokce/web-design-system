@@ -73,52 +73,66 @@ describe('AlertDialog', () => {
     await expect.element(cancel).toHaveAttribute('data-tone', 'neutral');
   });
 
-  it('takes its button text from props and the rest from labels, then DSProvider, then English', async () => {
+  it('takes action content from props and default text from labels, then DSProvider, then English', async () => {
     const screen = await renderWithDS(
       <DialogTrigger>
-        <Button>Yayınla</Button>
+        <Button>Publish update</Button>
         <AlertDialog
-          title="Mart güncellemesi yayınlansın mı?"
-          confirmLabel="Yayınla"
-          cancelLabel="Vazgeç"
-          requireConfirmation="YAYINLA"
+          title="Publish the March update?"
+          confirmLabel="Publish update"
+          requireConfirmation="PUBLISH"
           onConfirm={() => Promise.reject()}
           labels={{
-            typeToConfirm: 'Onaylamak için {phrase} yazın',
-            error: 'Bir sorun oluştu. Tekrar deneyin.',
+            confirm: 'Proceed',
+            cancel: 'Go back',
+            typeToConfirm: 'Enter {phrase} to proceed',
+            error: 'The action failed. Try again.',
           }}
         />
       </DialogTrigger>,
-      { provider: { labels: { alertDialog: { error: 'Hata' } } } },
+      {
+        provider: { labels: { alertDialog: { error: 'Action failed', cancel: 'Cancel action' } } },
+      },
     );
-    await screen.getByRole('button', { name: 'Yayınla' }).click();
+    await screen.getByRole('button', { name: 'Publish update' }).click();
     const dialog = page.getByRole('alertdialog');
-    const input = dialog.getByRole('textbox', { name: 'Onaylamak için YAYINLA yazın' });
+    const input = dialog.getByRole('textbox', { name: 'Enter PUBLISH to proceed' });
     await expect.element(input).toBeVisible();
     expect(document.querySelector('[data-slot="alert-dialog-phrase"]')).toHaveTextContent(
-      'YAYINLA',
+      'PUBLISH',
     );
-    await expect.element(dialog.getByRole('button', { name: 'Vazgeç' })).toBeVisible();
+    await expect.element(dialog.getByRole('button', { name: 'Go back' })).toBeVisible();
 
-    await userEvent.type(input, 'YAYINLA');
-    await dialog.getByRole('button', { name: 'Yayınla' }).click();
+    await userEvent.type(input, 'PUBLISH');
+    await dialog.getByRole('button', { name: 'Publish update' }).click();
     await expect
       .element(dialog.getByRole('alert'))
-      .toHaveTextContent('Bir sorun oluştu. Tekrar deneyin.');
+      .toHaveTextContent('The action failed. Try again.');
     await screen.unmount();
 
-    const provided = await renderWithDS(<DeleteFolder requireConfirmation="BORRAR" />, {
-      provider: {
-        labels: {
-          alertDialog: {
-            typeToConfirm: ({ phrase }: { phrase: string }) => `Escribe ${phrase} para confirmar`,
+    const provided = await renderWithDS(
+      <DeleteFolder confirmLabel={undefined} requireConfirmation="REMOVE" />,
+      {
+        provider: {
+          labels: {
+            alertDialog: {
+              confirm: 'Confirm action',
+              cancel: 'Cancel action',
+              typeToConfirm: ({ phrase }: { phrase: string }) => `Enter ${phrase} to confirm`,
+            },
           },
         },
       },
-    });
+    );
     const providedDialog = await openDialog(provided);
     await expect
-      .element(providedDialog.getByRole('textbox', { name: 'Escribe BORRAR para confirmar' }))
+      .element(providedDialog.getByRole('button', { name: 'Confirm action' }))
+      .toBeVisible();
+    await expect
+      .element(providedDialog.getByRole('button', { name: 'Cancel action' }))
+      .toBeVisible();
+    await expect
+      .element(providedDialog.getByRole('textbox', { name: 'Enter REMOVE to confirm' }))
       .toBeVisible();
     await provided.unmount();
 
@@ -419,7 +433,7 @@ describe('AlertDialog', () => {
       return (
         <>
           <Button variant="ghost" tone="error" onPress={() => setOpen(true)}>
-            Remove Ayşe Demir
+            Remove Alex Morgan
           </Button>
           <AlertDialog
             isOpen={isOpen}
@@ -428,7 +442,7 @@ describe('AlertDialog', () => {
               setOpen(open);
             }}
             tone="error"
-            title="Remove Ayşe Demir from Design?"
+            title="Remove Alex Morgan from Design?"
             confirmLabel="Remove"
             onConfirm={async () => {}}
           />
@@ -437,8 +451,8 @@ describe('AlertDialog', () => {
     }
 
     const screen = await renderWithDS(<RemoveMember />);
-    await screen.getByRole('button', { name: 'Remove Ayşe Demir' }).click();
-    const dialog = page.getByRole('alertdialog', { name: 'Remove Ayşe Demir from Design?' });
+    await screen.getByRole('button', { name: 'Remove Alex Morgan' }).click();
+    const dialog = page.getByRole('alertdialog', { name: 'Remove Alex Morgan from Design?' });
     await expect.element(dialog).toBeVisible();
     await dialog.getByRole('button', { name: 'Remove' }).click();
     await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();

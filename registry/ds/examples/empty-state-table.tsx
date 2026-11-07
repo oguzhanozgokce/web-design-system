@@ -6,7 +6,7 @@ import { Button } from '@/registry/ds/ui/button';
 import { EmptyState } from '@/registry/ds/ui/empty-state';
 
 const tasks = [
-  { id: 'review', name: 'Design review', owner: 'Ayşe Demir', status: 'Done' },
+  { id: 'review', name: 'Design review', owner: 'Alex Morgan', status: 'Done' },
   { id: 'docs', name: 'Update the docs', owner: 'Jonas Weber', status: 'In progress' },
   { id: 'launch', name: 'Plan the launch', owner: 'Priya Natarajan', status: 'To do' },
 ];

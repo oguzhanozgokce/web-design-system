@@ -289,9 +289,9 @@ describe('Table', () => {
             <TableLoadMore isLoading />
           </TableBody>
         </Table>
-        <Table aria-label="Städte" labels={{ loadingMore: 'Lädt weitere…' }}>
+        <Table aria-label="Other cities" labels={{ loadingMore: 'Fetching more…' }}>
           <TableHeader>
-            <Column isRowHeader>Stadt</Column>
+            <Column isRowHeader>City</Column>
           </TableHeader>
           <TableBody>
             <Row id="oslo">
@@ -315,7 +315,7 @@ describe('Table', () => {
     );
     await expect.poll(() => onLoadMore.mock.calls.length).toBeGreaterThan(0);
     await expect.element(screen.getByText('Loading more…')).toBeVisible();
-    await expect.element(screen.getByText('Lädt weitere…')).toBeVisible();
+    await expect.element(screen.getByText('Fetching more…')).toBeVisible();
   });
 });
 

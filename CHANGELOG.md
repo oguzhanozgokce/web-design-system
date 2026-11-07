@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Fixes and maintenance
+
+- Registry files install to the configured aliases without extra directory nesting. Development
+  and production builds include registry JSON endpoints; installation uses `DS_REGISTRY_URL`.
+  Preview code shows consumer imports. A clean-consumer check installs all items and typechecks
+  the documented examples with default and custom aliases.
+- File upload stops its queue on unmount. Single-selection tables replace off-page selections;
+  unrelated table state changes reuse processed rows. Functional state updates accumulate without
+  losing updates, and Turkish case folding preserves dotted and dotless I.
+- Button and ButtonLink honour provider motion preferences. AlertDialog default action text is
+  configurable through `labels.confirm` and `labels.cancel`, with explicit action props winning.
+- Generic examples, docs and test copy use English. Test policy lives in `docs/testing.md`;
+  pure helper tests run in Node and component tests run in Chromium.
+
 ### Wave 2: data, files, charts and live activity
 
 Built from the references the owner asked for (Bencho's stacked bars, upload dropzone, rolling

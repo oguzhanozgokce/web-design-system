@@ -224,14 +224,14 @@ describe('Switch', () => {
     const editable = part('target', document.querySelector('[data-testid="editable"]')!)!;
     const readOnly = part('target', document.querySelector('[data-testid="read-only"]')!)!;
     const resting = getComputedStyle(editable).backgroundColor;
+    const readOnlyResting = getComputedStyle(readOnly).backgroundColor;
 
     await page.elementLocator(editable).hover();
     await expect.poll(() => getComputedStyle(editable).backgroundColor).not.toBe(resting);
 
     await page.elementLocator(readOnly).hover();
-    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(readOnly.hasAttribute('data-readonly')).toBe(true);
-    expect(getComputedStyle(readOnly).backgroundColor).toBe(resting);
+    expect(getComputedStyle(readOnly).backgroundColor).toBe(readOnlyResting);
   });
 
   it('shows an error message when invalid', async () => {

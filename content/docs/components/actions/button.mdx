@@ -129,4 +129,6 @@ Text the button writes on its own. Pass `labels` to one button, or set them for 
 - The focus ring is a 2px outline with a 2px offset, drawn only for keyboard focus.
 - While pending, the button stays focusable and announces a progress bar, so focus never jumps.
 - The press scale follows `prefers-reduced-motion`.
+- `DSProvider motion="reduced"` also removes press scaling; `motion="disabled"` removes pending
+  fades and transitions as well.
 - Contrast is checked with axe in light, dark and RTL by `button.test.tsx`.

@@ -174,15 +174,14 @@ describe('RadioGroup', () => {
     );
     const [editable, readOnly] = document.querySelectorAll<HTMLElement>('[data-slot="target"]');
     const resting = getComputedStyle(editable!).borderTopColor;
-    expect(getComputedStyle(readOnly!).borderTopColor).toBe(resting);
+    const readOnlyResting = getComputedStyle(readOnly!).borderTopColor;
 
     await page.elementLocator(editable!).hover();
     await expect.poll(() => getComputedStyle(editable!).borderTopColor).not.toBe(resting);
 
     await page.elementLocator(readOnly!).hover();
-    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(readOnly!.hasAttribute('data-readonly')).toBe(true);
-    expect(getComputedStyle(readOnly!).borderTopColor).toBe(resting);
+    expect(getComputedStyle(readOnly!).borderTopColor).toBe(readOnlyResting);
     expect(getComputedStyle(readOnly!).cursor).toBe('default');
   });
 

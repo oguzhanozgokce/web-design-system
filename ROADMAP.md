@@ -1,23 +1,23 @@
 # Roadmap
 
-Every component planned for the library, grouped into waves. A wave is built in parallel, one agent
-per row, each followed by an independent review. References point at `docs/research/libraries.json`
+Every component planned for the library, grouped into waves. Coordinate ownership when a wave is
+explicitly assigned to parallel agents. References point at `docs/research/libraries.json`
 entries and `docs/research/web-style.md`; read them before designing.
 
 Status: ✅ built and reviewed · 🚧 in progress · ⬜ planned
 
 ## Wave 0 — Foundations
 
-| Item                                               | Status | Notes                                                                           |
-| -------------------------------------------------- | ------ | ------------------------------------------------------------------------------- |
-| Tokens from one seed                               | ✅     | Generated scheme, neutral layers, 3 contrast levels, spring `linear()`          |
-| `theme.css`                                        | ✅     | Roles, solid and soft fills, radius families, shadows, focus ring, keyframes    |
-| `utils`, `i18n`, `motion`, `color-scheme`, `icons` | ✅     | 115 Material Symbols Rounded glyphs                                             |
-| `DSProvider`                                       | ✅     | Locale, router, messages, icons, motion preference                              |
-| Hooks                                              | ✅     | `useControllableState`, `useMediaQuery`, `useLocalStorageState`                 |
-| Dynamic colour                                     | 🚧     | `DynamicTheme` (subtree or page), seeds from images, cached boot script, review |
-| Button, ButtonLink                                 | ✅     | Reference implementation                                                        |
-| Catalogue, registry, `check-ds`, browser tests     | ✅     | Fumadocs static export, axe in light/dark/RTL                                   |
+| Item                                                 | Status | Notes                                                                           |
+| ---------------------------------------------------- | ------ | ------------------------------------------------------------------------------- |
+| Tokens from one seed                                 | ✅     | Generated scheme, neutral layers, 3 contrast levels, spring `linear()`          |
+| `theme.css`                                          | ✅     | Roles, solid and soft fills, radius families, shadows, focus ring, keyframes    |
+| `utils`, `labels`, `motion`, `color-scheme`, `icons` | ✅     | 115 Material Symbols Rounded glyphs                                             |
+| `DSProvider`                                         | ✅     | Locale, router, labels, icons, motion preference                                |
+| Hooks                                                | ✅     | `useControllableState`, `useMediaQuery`, `useLocalStorageState`                 |
+| Dynamic colour                                       | 🚧     | `DynamicTheme` (subtree or page), seeds from images, cached boot script, review |
+| Button, ButtonLink                                   | ✅     | Reference implementation                                                        |
+| Catalogue, registry, `check-ds`, browser tests       | ✅     | Fumadocs static export, axe in light/dark/RTL                                   |
 
 ## Wave 1 — Core primitives
 

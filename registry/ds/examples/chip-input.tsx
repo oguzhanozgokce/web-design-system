@@ -5,7 +5,7 @@ import { Button } from '@/registry/ds/ui/button';
 import { Chip, ChipGroup } from '@/registry/ds/ui/chip';
 
 const collaborators = [
-  { id: 'ayse', name: 'Ayşe Demir', initials: 'AD' },
+  { id: 'alex', name: 'Alex Morgan', initials: 'AM' },
   { id: 'jonas', name: 'Jonas Weber', initials: 'JW' },
   { id: 'priya', name: 'Priya Natarajan', initials: 'PN' },
 ];

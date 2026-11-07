@@ -6,6 +6,19 @@ description: Add the registry to a project, install the theme and wrap the app i
 The library ships as a [shadcn registry](https://ui.shadcn.com/docs/registry). Components are
 copied into your project as source, so each project owns its copy and can change it.
 
+Use React 19 and Tailwind CSS 4. The catalogue and generators require Node.js 24 or newer.
+
+Set the registry origin in the consuming project's terminal. For local development, run
+`npm run dev` in this repository and use the address printed by Next.js:
+
+```bash
+export DS_REGISTRY_URL=http://localhost:3000
+```
+
+For a hosted registry, use that catalogue's origin instead. `npm run build` exports the catalogue
+and its `/r/*.json` registry items together; a GitHub repository's HTML URL is not a registry
+endpoint.
+
 <Steps>
 <Step>
 
@@ -29,7 +42,7 @@ Keeping them under `components/ds` avoids clashing with components the project a
     "utils": "@/lib/ds/utils"
   },
   "registries": {
-    "@ds": "https://github.com/oguzhanozgokce/web-design-system"
+    "@ds": "${DS_REGISTRY_URL}/r/{name}.json"
   }
 }
 ```
@@ -58,7 +71,7 @@ create the scheme at runtime with [`brandColors`](/docs/foundations/theming).
 
 <InstallCommand name="ds-provider" />
 
-`DSProvider` gives components the locale, client-side navigation, message overrides, icons and
+`DSProvider` gives components the locale, client-side navigation, label overrides, icons and
 the motion preference. With next-intl:
 
 ```tsx title="app/[locale]/providers.tsx"
@@ -87,7 +100,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 <InstallCommand name="button" />
 
-Dependencies such as `utils`, `i18n` and `spinner` install with it.
+Dependencies such as `utils`, `ds-provider` and `spinner` install with it. Registry targets follow
+the aliases above: UI files go in `components/ds`, shared helpers in `lib/ds` and hooks in
+`hooks/ds`.
 
 </Step>
 </Steps>

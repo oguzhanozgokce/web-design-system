@@ -172,7 +172,7 @@ describe('Sheet', () => {
               onOpenChange(open);
               setOpen(open);
             }}
-            aria-label="Edit Ayşe Demir"
+            aria-label="Edit Alex Morgan"
           >
             {({ close }) => (
               <SheetBody>
@@ -186,7 +186,7 @@ describe('Sheet', () => {
 
     const screen = await renderWithDS(<Controlled />);
     await screen.getByRole('button', { name: 'Edit member' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Edit Ayşe Demir' })).toBeVisible();
+    await expect.element(page.getByRole('dialog', { name: 'Edit Alex Morgan' })).toBeVisible();
     await expect.element(screen.getByText('Open')).toBeInTheDocument();
 
     await page.getByRole('button', { name: 'Save role' }).click();
@@ -513,7 +513,7 @@ describe('Sheet', () => {
           <SheetHeader title="Audit log" />
           <SheetBody>
             {Array.from({ length: 60 }, (_, index) => (
-              <p key={index}>Photo IMG-{2000 + index} added by Ayşe Demir.</p>
+              <p key={index}>Photo IMG-{2000 + index} added by Alex Morgan.</p>
             ))}
           </SheetBody>
         </Sheet>
@@ -665,11 +665,11 @@ describe('Sheet', () => {
   });
 
   it('names its controls in English, then from DSProvider, then from its labels prop first', async () => {
-    const provider = { labels: { sheet: { close: 'Kapat', dragHandle: 'Boyutlandır' } } };
-    const own = { close: 'Paneli kapat', dragHandle: 'Paneli yeniden boyutlandır' };
+    const provider = { labels: { sheet: { close: 'Dismiss', dragHandle: 'Resize panel' } } };
+    const own = { close: 'Close this panel', dragHandle: 'Resize this panel' };
     for (const [options, labels, close, handle] of [
       [{ locale: 'tr' }, undefined, 'Close', 'Resize sheet'],
-      [{ provider }, undefined, 'Kapat', 'Boyutlandır'],
+      [{ provider }, undefined, 'Dismiss', 'Resize panel'],
       [{ provider }, own, own.close, own.dragHandle],
     ] as const) {
       const screen = await renderWithDS(

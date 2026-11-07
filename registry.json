@@ -19,7 +19,8 @@
       "files": [
         {
           "path": "registry/ds/ui/activity-bars.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/activity-bars.tsx"
         }
       ],
       "meta": {
@@ -54,7 +55,8 @@
       "files": [
         {
           "path": "registry/ds/ui/alert-dialog.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/alert-dialog.tsx"
         }
       ]
     },
@@ -72,7 +74,8 @@
       "files": [
         {
           "path": "registry/ds/ui/area-chart.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/area-chart.tsx"
         }
       ]
     },
@@ -95,7 +98,8 @@
       "files": [
         {
           "path": "registry/ds/ui/avatar.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/avatar.tsx"
         }
       ]
     },
@@ -118,7 +122,8 @@
       "files": [
         {
           "path": "registry/ds/ui/badge.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/badge.tsx"
         }
       ]
     },
@@ -142,7 +147,8 @@
       "files": [
         {
           "path": "registry/ds/ui/banner.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/banner.tsx"
         }
       ]
     },
@@ -161,7 +167,8 @@
       "files": [
         {
           "path": "registry/ds/ui/bar-chart.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/bar-chart.tsx"
         }
       ],
       "meta": {
@@ -193,7 +200,8 @@
       "files": [
         {
           "path": "registry/ds/ui/button-group.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/button-group.tsx"
         }
       ]
     },
@@ -216,7 +224,8 @@
       "files": [
         {
           "path": "registry/ds/ui/button.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/button.tsx"
         }
       ]
     },
@@ -239,7 +248,8 @@
       "files": [
         {
           "path": "registry/ds/ui/card.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/card.tsx"
         }
       ]
     },
@@ -271,7 +281,8 @@
       "files": [
         {
           "path": "registry/ds/ui/chart-card.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/chart-card.tsx"
         }
       ],
       "meta": {
@@ -312,11 +323,13 @@
       "files": [
         {
           "path": "registry/ds/ui/chart.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/chart.tsx"
         },
         {
           "path": "registry/ds/lib/chart.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/chart.ts"
         }
       ],
       "meta": {
@@ -348,7 +361,8 @@
       "files": [
         {
           "path": "registry/ds/ui/checkbox.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/checkbox.tsx"
         }
       ]
     },
@@ -372,7 +386,8 @@
       "files": [
         {
           "path": "registry/ds/ui/chip.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/chip.tsx"
         }
       ]
     },
@@ -390,7 +405,8 @@
       "files": [
         {
           "path": "registry/ds/lib/color-scheme.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/color-scheme.ts"
         }
       ]
     },
@@ -417,7 +433,8 @@
       "files": [
         {
           "path": "registry/ds/ui/combo-box.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/combo-box.tsx"
         }
       ]
     },
@@ -443,7 +460,8 @@
       "files": [
         {
           "path": "registry/ds/ui/content-state.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/content-state.tsx"
         }
       ]
     },
@@ -467,11 +485,13 @@
       "files": [
         {
           "path": "registry/ds/ui/copy-button.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/copy-button.tsx"
         },
         {
           "path": "registry/ds/hooks/use-copy-to-clipboard.ts",
-          "type": "registry:hook"
+          "type": "registry:hook",
+          "target": "@hooks/use-copy-to-clipboard.ts"
         }
       ]
     },
@@ -509,11 +529,13 @@
       "files": [
         {
           "path": "registry/ds/ui/data-table.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/data-table.tsx"
         },
         {
           "path": "registry/ds/lib/data-table.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/data-table.ts"
         }
       ],
       "meta": {
@@ -549,7 +571,8 @@
       "files": [
         {
           "path": "registry/ds/ui/dialog.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/dialog.tsx"
         }
       ]
     },
@@ -571,7 +594,8 @@
       "files": [
         {
           "path": "registry/ds/ui/disclosure.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/disclosure.tsx"
         }
       ]
     },
@@ -593,7 +617,8 @@
       "files": [
         {
           "path": "registry/ds/ui/divider.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/divider.tsx"
         }
       ]
     },
@@ -601,7 +626,7 @@
       "name": "ds-provider",
       "type": "registry:ui",
       "title": "DSProvider",
-      "description": "Supplies locale, client-side routing, message overrides, icons and the motion preference to every component.",
+      "description": "Supplies locale, client-side routing, label overrides, icons and the motion preference to every component.",
       "categories": [
         "foundations"
       ],
@@ -618,7 +643,8 @@
       "files": [
         {
           "path": "registry/ds/ui/ds-provider.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/ds-provider.tsx"
         }
       ]
     },
@@ -639,7 +665,8 @@
       "files": [
         {
           "path": "registry/ds/lib/dynamic-color.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/dynamic-color.ts"
         }
       ]
     },
@@ -665,7 +692,8 @@
       "files": [
         {
           "path": "registry/ds/ui/dynamic-island.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/dynamic-island.tsx"
         }
       ],
       "meta": {
@@ -696,11 +724,13 @@
       "files": [
         {
           "path": "registry/ds/ui/dynamic-theme.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/dynamic-theme.tsx"
         },
         {
           "path": "registry/ds/ui/dynamic-theme-script.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/dynamic-theme-script.tsx"
         }
       ]
     },
@@ -722,7 +752,8 @@
       "files": [
         {
           "path": "registry/ds/ui/empty-state.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/empty-state.tsx"
         }
       ]
     },
@@ -747,7 +778,8 @@
       "files": [
         {
           "path": "registry/ds/ui/fab.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/fab.tsx"
         }
       ]
     },
@@ -770,7 +802,8 @@
       "files": [
         {
           "path": "registry/ds/ui/field.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/field.tsx"
         }
       ]
     },
@@ -794,7 +827,8 @@
       "files": [
         {
           "path": "registry/ds/ui/file-dropzone.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/file-dropzone.tsx"
         }
       ],
       "meta": {
@@ -831,7 +865,8 @@
       "files": [
         {
           "path": "registry/ds/ui/file-list.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/file-list.tsx"
         }
       ],
       "meta": {
@@ -867,7 +902,8 @@
       "files": [
         {
           "path": "registry/ds/ui/file-upload.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/file-upload.tsx"
         }
       ],
       "meta": {
@@ -892,7 +928,8 @@
       "files": [
         {
           "path": "registry/ds/lib/files.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/files.ts"
         }
       ]
     },
@@ -916,7 +953,8 @@
       "files": [
         {
           "path": "registry/ds/ui/icon-button.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/icon-button.tsx"
         }
       ]
     },
@@ -931,7 +969,8 @@
       "files": [
         {
           "path": "registry/ds/lib/icons.tsx",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/icons.tsx"
         }
       ]
     },
@@ -950,11 +989,13 @@
       "files": [
         {
           "path": "registry/ds/ui/kbd.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/kbd.tsx"
         },
         {
           "path": "registry/ds/hooks/use-kbd-platform.ts",
-          "type": "registry:hook"
+          "type": "registry:hook",
+          "target": "@hooks/use-kbd-platform.ts"
         }
       ],
       "meta": {
@@ -979,7 +1020,8 @@
       "files": [
         {
           "path": "registry/ds/lib/labels.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/labels.ts"
         }
       ]
     },
@@ -999,7 +1041,8 @@
       "files": [
         {
           "path": "registry/ds/ui/line-chart.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/line-chart.tsx"
         }
       ]
     },
@@ -1021,7 +1064,8 @@
       "files": [
         {
           "path": "registry/ds/ui/link.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/link.tsx"
         }
       ]
     },
@@ -1044,7 +1088,8 @@
       "files": [
         {
           "path": "registry/ds/ui/list-box.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/list-box.tsx"
         }
       ]
     },
@@ -1072,7 +1117,8 @@
       "files": [
         {
           "path": "registry/ds/ui/menu.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/menu.tsx"
         }
       ]
     },
@@ -1087,7 +1133,8 @@
       "files": [
         {
           "path": "registry/ds/lib/motion.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/motion.ts"
         }
       ]
     },
@@ -1112,7 +1159,8 @@
       "files": [
         {
           "path": "registry/ds/ui/number-field.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/number-field.tsx"
         }
       ],
       "meta": {
@@ -1149,11 +1197,13 @@
       "files": [
         {
           "path": "registry/ds/ui/pagination.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/pagination.tsx"
         },
         {
           "path": "registry/ds/lib/pagination.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/pagination.ts"
         }
       ],
       "meta": {
@@ -1189,7 +1239,8 @@
       "files": [
         {
           "path": "registry/ds/ui/password-field.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/password-field.tsx"
         }
       ]
     },
@@ -1214,7 +1265,8 @@
       "files": [
         {
           "path": "registry/ds/ui/popover.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/popover.tsx"
         }
       ]
     },
@@ -1236,7 +1288,8 @@
       "files": [
         {
           "path": "registry/ds/ui/progress.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/progress.tsx"
         }
       ]
     },
@@ -1258,7 +1311,8 @@
       "files": [
         {
           "path": "registry/ds/ui/radio-group.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/radio-group.tsx"
         }
       ]
     },
@@ -1282,11 +1336,13 @@
       "files": [
         {
           "path": "registry/ds/ui/rolling-number.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/rolling-number.tsx"
         },
         {
           "path": "registry/ds/lib/odometer.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/odometer.ts"
         }
       ],
       "meta": {
@@ -1320,7 +1376,8 @@
       "files": [
         {
           "path": "registry/ds/ui/search-field.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/search-field.tsx"
         }
       ]
     },
@@ -1342,7 +1399,8 @@
       "files": [
         {
           "path": "registry/ds/ui/segmented-control.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/segmented-control.tsx"
         }
       ],
       "meta": {
@@ -1379,7 +1437,8 @@
       "files": [
         {
           "path": "registry/ds/ui/select.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/select.tsx"
         }
       ]
     },
@@ -1407,7 +1466,8 @@
       "files": [
         {
           "path": "registry/ds/ui/sheet.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/sheet.tsx"
         }
       ],
       "meta": {
@@ -1436,7 +1496,8 @@
       "files": [
         {
           "path": "registry/ds/ui/skeleton.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/skeleton.tsx"
         }
       ]
     },
@@ -1458,7 +1519,8 @@
       "files": [
         {
           "path": "registry/ds/ui/slider.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/slider.tsx"
         }
       ]
     },
@@ -1478,7 +1540,8 @@
       "files": [
         {
           "path": "registry/ds/ui/sparkline.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/sparkline.tsx"
         }
       ]
     },
@@ -1497,7 +1560,8 @@
       "files": [
         {
           "path": "registry/ds/ui/spinner.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/spinner.tsx"
         }
       ]
     },
@@ -1517,7 +1581,8 @@
       "files": [
         {
           "path": "registry/ds/ui/status-tag.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/status-tag.tsx"
         }
       ]
     },
@@ -1539,7 +1604,8 @@
       "files": [
         {
           "path": "registry/ds/ui/switch.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/switch.tsx"
         }
       ]
     },
@@ -1563,7 +1629,8 @@
       "files": [
         {
           "path": "registry/ds/ui/table.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/table.tsx"
         }
       ],
       "meta": {
@@ -1596,7 +1663,8 @@
       "files": [
         {
           "path": "registry/ds/ui/tabs.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/tabs.tsx"
         }
       ]
     },
@@ -1619,7 +1687,8 @@
       "files": [
         {
           "path": "registry/ds/ui/tag.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/tag.tsx"
         }
       ]
     },
@@ -1642,7 +1711,8 @@
       "files": [
         {
           "path": "registry/ds/ui/text-area.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/text-area.tsx"
         }
       ]
     },
@@ -1665,7 +1735,8 @@
       "files": [
         {
           "path": "registry/ds/ui/text-field.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/text-field.tsx"
         }
       ]
     },
@@ -1680,7 +1751,8 @@
       "files": [
         {
           "path": "registry/ds/lib/theme-scope.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/theme-scope.ts"
         }
       ]
     },
@@ -1725,7 +1797,8 @@
       "files": [
         {
           "path": "registry/ds/ui/toast.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/toast.tsx"
         }
       ]
     },
@@ -1748,7 +1821,8 @@
       "files": [
         {
           "path": "registry/ds/ui/toggle-button.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/toggle-button.tsx"
         }
       ]
     },
@@ -1775,7 +1849,8 @@
       "files": [
         {
           "path": "registry/ds/ui/tooltip.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "@ui/tooltip.tsx"
         }
       ]
     },
@@ -1790,7 +1865,8 @@
       "files": [
         {
           "path": "registry/ds/hooks/use-controllable-state.ts",
-          "type": "registry:hook"
+          "type": "registry:hook",
+          "target": "@hooks/use-controllable-state.ts"
         }
       ]
     },
@@ -1808,7 +1884,8 @@
       "files": [
         {
           "path": "registry/ds/hooks/use-image-seed.ts",
-          "type": "registry:hook"
+          "type": "registry:hook",
+          "target": "@hooks/use-image-seed.ts"
         }
       ]
     },
@@ -1823,7 +1900,8 @@
       "files": [
         {
           "path": "registry/ds/hooks/use-local-storage-state.ts",
-          "type": "registry:hook"
+          "type": "registry:hook",
+          "target": "@hooks/use-local-storage-state.ts"
         }
       ]
     },
@@ -1838,7 +1916,8 @@
       "files": [
         {
           "path": "registry/ds/hooks/use-media-query.ts",
-          "type": "registry:hook"
+          "type": "registry:hook",
+          "target": "@hooks/use-media-query.ts"
         }
       ]
     },
@@ -1859,7 +1938,8 @@
       "files": [
         {
           "path": "registry/ds/lib/utils.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "@lib/utils.ts"
         }
       ]
     }

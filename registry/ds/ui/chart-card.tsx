@@ -3,7 +3,7 @@
 import { useCallback, useId, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
 import { useLocale, type Key } from 'react-aria-components';
 import { useControllableState } from '@/registry/ds/hooks/use-controllable-state';
-import { numberFormatter } from '@/registry/ds/lib/chart';
+import { numberFormatter } from '@/registry/ds/lib/chart.ts';
 import type { LabelTemplate } from '@/registry/ds/lib/labels';
 import { cn, tv } from '@/registry/ds/lib/utils';
 import {

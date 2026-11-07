@@ -232,13 +232,22 @@ describe('FileUpload', () => {
       .toHaveFocus();
   });
 
-  it('aborts running uploads when it unmounts', async () => {
-    const { pending, onUpload } = controlledUploads();
-    const screen = await renderWithDS(<FileUpload onUpload={onUpload} />);
-    pick(screen.container, [file('lake.png')]);
-    await expect.poll(() => pending.length).toBe(1);
-    screen.unmount();
-    expect(pending[0].context.signal.aborted).toBe(true);
+  it('aborts running uploads without starting queued files after unmount', async () => {
+    const onUpload = vi.fn(
+      (_file: File, { signal }: FileUploadContext) =>
+        new Promise<void>((_, reject) => {
+          signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+        }),
+    );
+    const screen = await renderWithDS(
+      <FileUpload allowsMultiple maxConcurrent={1} onUpload={onUpload} />,
+    );
+    pick(screen.container, [file('lake.png'), file('river.png')]);
+    await expect.poll(() => onUpload.mock.calls.length).toBe(1);
+    await screen.unmount();
+    await Promise.allSettled(onUpload.mock.results.map((result) => result.value));
+    expect(onUpload.mock.calls[0][1].signal.aborted).toBe(true);
+    expect(onUpload.mock.calls.map(([uploaded]) => uploaded.name)).toEqual(['lake.png']);
   });
 
   it('takes labels from the labels prop and from DSProvider', async () => {
@@ -246,18 +255,20 @@ describe('FileUpload', () => {
     const screen = await renderWithDS(
       <FileUpload
         onUpload={onUpload}
-        labels={{ uploadedAnnouncement: '{name} hochgeladen', cancel: '{name} abbrechen' }}
+        labels={{ uploadedAnnouncement: 'Uploaded {name}', cancel: 'Cancel upload of {name}' }}
       />,
-      { provider: { labels: { fileDropzone: { browse: 'auswählen' } } } },
+      { provider: { labels: { fileDropzone: { browse: 'choose files' } } } },
     );
     await expect
-      .element(screen.getByRole('button', { name: 'Drag a file here or auswählen' }))
+      .element(screen.getByRole('button', { name: 'Drag a file here or choose files' }))
       .toBeVisible();
     pick(screen.container, [file('lake.png')]);
     await expect.poll(() => pending.length).toBe(1);
-    await expect.element(screen.getByRole('button', { name: 'lake.png abbrechen' })).toBeVisible();
+    await expect
+      .element(screen.getByRole('button', { name: 'Cancel upload of lake.png' }))
+      .toBeVisible();
     pending[0].resolve();
-    await expect.element(announcer(screen.container)).toHaveTextContent('lake.png hochgeladen');
+    await expect.element(announcer(screen.container)).toHaveTextContent('Uploaded lake.png');
   });
 
   it.each([

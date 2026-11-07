@@ -34,14 +34,14 @@ function visualOf(root: Element) {
 
 describe('getAvatarInitials', () => {
   it('takes the first and last word', () => {
-    expect(getAvatarInitials('Ayşe Nur Demir')).toBe('AD');
-    expect(getAvatarInitials('  mehmet   kaya ')).toBe('MK');
+    expect(getAvatarInitials('Alex Taylor Morgan')).toBe('AM');
+    expect(getAvatarInitials('  morgan   king ')).toBe('MK');
     expect(getAvatarInitials('Madonna')).toBe('M');
   });
 
   it('skips words that do not start with a letter or digit', () => {
-    expect(getAvatarInitials('Elif Şahin (Design)')).toBe('EŞ');
-    expect(getAvatarInitials('@deniz')).toBe('D');
+    expect(getAvatarInitials('Emma Shaw (Design)')).toBe('ES');
+    expect(getAvatarInitials('@drew')).toBe('D');
     expect(getAvatarInitials('🦊')).toBe('');
   });
 
@@ -56,9 +56,9 @@ describe('getAvatarInitials', () => {
 
 describe('Avatar', () => {
   it('shows initials and is named after the person', async () => {
-    const screen = await renderWithDS(<Avatar name="Ayşe Demir" />);
-    const image = screen.getByRole('img', { name: 'Ayşe Demir' });
-    await expect.element(image).toHaveTextContent('AD');
+    const screen = await renderWithDS(<Avatar name="Alex Morgan" />);
+    const image = screen.getByRole('img', { name: 'Alex Morgan' });
+    await expect.element(image).toHaveTextContent('AM');
     const root = screen.container.querySelector('[data-slot="avatar"]')!;
     expect(root).toHaveAttribute('data-size', 'md');
     expect(root).toHaveAttribute('data-shape', 'circle');
@@ -76,9 +76,9 @@ describe('Avatar', () => {
     } as const;
     const screen = await renderWithDS(
       <>
-        <Avatar name="Ayşe Demir" data-testid="neutral" />
+        <Avatar name="Alex Morgan" data-testid="neutral" />
         {(['primary', 'success', 'warning', 'error', 'info'] as const).map((tone) => (
-          <Avatar key={tone} name="Ayşe Demir" tone={tone} data-testid={tone} />
+          <Avatar key={tone} name="Alex Morgan" tone={tone} data-testid={tone} />
         ))}
       </>,
     );
@@ -104,7 +104,7 @@ describe('Avatar', () => {
         {Object.keys(sizes).map((size) => (
           <Avatar
             key={size}
-            name="Ayşe Demir"
+            name="Alex Morgan"
             size={size as keyof typeof sizes}
             shape="rounded"
             data-testid={size}
@@ -122,28 +122,30 @@ describe('Avatar', () => {
   });
 
   it('uppercases initials in the current locale', async () => {
-    const screen = await renderWithDS(<Avatar name="ilkay şahin" />, { locale: 'tr' });
-    await expect.element(screen.getByRole('img', { name: 'ilkay şahin' })).toHaveTextContent('İŞ');
+    const screen = await renderWithDS(<Avatar name={'ilkay \u015fahin'} />, { locale: 'tr' });
+    await expect
+      .element(screen.getByRole('img', { name: 'ilkay \u015fahin' }))
+      .toHaveTextContent('\u0130\u015e');
   });
 
   it('shows the photo once it loads', async () => {
-    const screen = await renderWithDS(<Avatar name="Ayşe Demir" src={photo} />);
+    const screen = await renderWithDS(<Avatar name="Alex Morgan" src={photo} />);
     const root = screen.container.querySelector('[data-slot="avatar"]')!;
     await expect.poll(() => root.getAttribute('data-image-state')).toBe('loaded');
     expect(root.querySelector('img')).toHaveAttribute('data-loaded');
     expect(root.querySelector('[data-slot="avatar-initials"]')).toBeNull();
-    await expect.element(screen.getByRole('img', { name: 'Ayşe Demir' })).toBeVisible();
+    await expect.element(screen.getByRole('img', { name: 'Alex Morgan' })).toBeVisible();
   });
 
   it('falls back to initials when the photo fails', async () => {
     const onError = vi.fn();
     const screen = await renderWithDS(
-      <Avatar name="Mehmet Kaya" src={brokenPhoto} imageProps={{ onError }} />,
+      <Avatar name="Morgan King" src={brokenPhoto} imageProps={{ onError }} />,
     );
     const root = screen.container.querySelector('[data-slot="avatar"]')!;
     await expect.poll(() => root.getAttribute('data-image-state')).toBe('error');
     expect(root.querySelector('img')).toBeNull();
-    await expect.element(screen.getByRole('img', { name: 'Mehmet Kaya' })).toHaveTextContent('MK');
+    await expect.element(screen.getByRole('img', { name: 'Morgan King' })).toHaveTextContent('MK');
     expect(onError).toHaveBeenCalledOnce();
   });
 
@@ -152,7 +154,7 @@ describe('Avatar', () => {
       const [src, setSrc] = useState(brokenPhoto);
       return (
         <>
-          <Avatar name="Mehmet Kaya" src={src} />
+          <Avatar name="Morgan King" src={src} />
           <button type="button" onClick={() => setSrc(photo)}>
             Upload photo
           </button>
@@ -188,10 +190,10 @@ describe('Avatar', () => {
     const screen = await renderWithDS(
       <>
         <p>
-          <Avatar name="Ayşe Demir" alt="" size="xs" data-testid="plain" /> Ayşe Demir
+          <Avatar name="Alex Morgan" alt="" size="xs" data-testid="plain" /> Alex Morgan
         </p>
         <p>
-          <Avatar name="Ayşe Demir" alt="" status="busy" data-testid="busy" /> Ayşe Demir
+          <Avatar name="Alex Morgan" alt="" status="busy" data-testid="busy" /> Alex Morgan
         </p>
       </>,
     );
@@ -209,7 +211,7 @@ describe('Avatar', () => {
   it('takes its name from aria-labelledby', async () => {
     const screen = await renderWithDS(
       <figure>
-        <Avatar name="Ayşe Demir" aria-labelledby="owner-caption" />
+        <Avatar name="Alex Morgan" aria-labelledby="owner-caption" />
         <figcaption id="owner-caption">Workspace owner</figcaption>
       </figure>,
     );
@@ -223,7 +225,7 @@ describe('Avatar', () => {
     for (const locale of ['en', 'ar']) {
       for (const shape of ['circle', 'rounded'] as const) {
         const screen = await renderWithDS(
-          <Avatar name="Ayşe Demir" size="xl" shape={shape} status="online" />,
+          <Avatar name="Alex Morgan" size="xl" shape={shape} status="online" />,
           { locale },
         );
         const root = screen.container.querySelector('[data-slot="avatar"]')!;
@@ -241,9 +243,9 @@ describe('Avatar', () => {
   it('cuts the status dot out with the canvas, or the colour a container sets', async () => {
     const screen = await renderWithDS(
       <>
-        <Avatar name="Ayşe Demir" status="online" data-testid="page" />
+        <Avatar name="Alex Morgan" status="online" data-testid="page" />
         <div className="bg-surface-raised [--ds-avatar-ring:var(--surface-raised)]">
-          <Avatar name="Mehmet Kaya" status="online" data-testid="card" />
+          <Avatar name="Morgan King" status="online" data-testid="card" />
         </div>
       </>,
     );
@@ -258,20 +260,20 @@ describe('Avatar', () => {
   it('takes the status text from labels, then DSProvider, then the English default', async () => {
     const screen = await renderWithDS(
       <>
-        <Avatar name="Ayşe Demir" status="online" />
-        <Avatar name="Mehmet Kaya" status="busy" labels={{ busy: 'In a meeting until 14:00' }} />
-        <AvatarButton name="Elif Şahin" status="away" labels={{ away: 'Back at 15:00' }} />
-        <Avatar name="Can Yılmaz" status="offline" />
+        <Avatar name="Alex Morgan" status="online" />
+        <Avatar name="Morgan King" status="busy" labels={{ busy: 'In a meeting until 14:00' }} />
+        <AvatarButton name="Emma Shaw" status="away" labels={{ away: 'Back at 15:00' }} />
+        <Avatar name="Chris Wilson" status="offline" />
       </>,
-      { provider: { labels: { avatar: { online: 'Çevrimiçi', busy: 'Meşgul' } } } },
+      { provider: { labels: { avatar: { online: 'Available', busy: 'In a meeting' } } } },
     );
-    await expect.element(screen.getByText('Çevrimiçi', { exact: true })).toBeInTheDocument();
+    await expect.element(screen.getByText('Available', { exact: true })).toBeInTheDocument();
     await expect
       .element(screen.getByText('In a meeting until 14:00', { exact: true }))
       .toBeInTheDocument();
-    await expect.element(screen.getByText('Meşgul', { exact: true })).not.toBeInTheDocument();
+    await expect.element(screen.getByText('In a meeting', { exact: true })).not.toBeInTheDocument();
     await expect
-      .element(screen.getByRole('button', { name: 'Elif Şahin Back at 15:00' }))
+      .element(screen.getByRole('button', { name: 'Emma Shaw Back at 15:00' }))
       .toBeVisible();
     await expect.element(screen.getByText('Offline', { exact: true })).toBeInTheDocument();
   });
@@ -281,9 +283,9 @@ describe('AvatarButton', () => {
   it('is a button named after the person and fires onPress', async () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
-      <AvatarButton name="Ayşe Demir" status="away" onPress={onPress} />,
+      <AvatarButton name="Alex Morgan" status="away" onPress={onPress} />,
     );
-    const button = screen.getByRole('button', { name: 'Ayşe Demir Away' });
+    const button = screen.getByRole('button', { name: 'Alex Morgan Away' });
     await button.click();
     expect(onPress).toHaveBeenCalledOnce();
   });
@@ -292,7 +294,7 @@ describe('AvatarButton', () => {
     const onAction = vi.fn();
     const screen = await renderWithDS(
       <MenuTrigger>
-        <AvatarButton name="Ayşe Demir" aria-label="Account" />
+        <AvatarButton name="Alex Morgan" aria-label="Account" />
         <Menu onAction={onAction}>
           <MenuItem id="profile">Profile</MenuItem>
           <MenuItem id="sign-out">Sign out</MenuItem>
@@ -311,12 +313,12 @@ describe('AvatarButton', () => {
 
 describe('AvatarGroup', () => {
   const team = [
-    'Ayşe Demir',
-    'Mehmet Kaya',
-    'Elif Şahin',
-    'Can Yılmaz',
+    'Alex Morgan',
+    'Morgan King',
+    'Emma Shaw',
+    'Chris Wilson',
     'Zeynep Arslan',
-    'Emre Koç',
+    'Evan Clark',
   ];
 
   it('shows max avatars and a labelled overflow avatar', async () => {
@@ -330,16 +332,16 @@ describe('AvatarGroup', () => {
     const group = screen.getByRole('group', { name: 'Project approvers' });
     await expect.element(group).toBeVisible();
     expect(group.element().querySelectorAll('[data-slot="avatar-group-item"]')).toHaveLength(4);
-    await expect.element(screen.getByRole('img', { name: 'Ayşe Demir' })).toBeVisible();
-    await expect.element(screen.getByRole('img', { name: 'Can Yılmaz' })).not.toBeInTheDocument();
+    await expect.element(screen.getByRole('img', { name: 'Alex Morgan' })).toBeVisible();
+    await expect.element(screen.getByRole('img', { name: 'Chris Wilson' })).not.toBeInTheDocument();
     await expect.element(screen.getByRole('img', { name: '3 more' })).toHaveTextContent('+3');
   });
 
   it('overlaps each avatar by a quarter of its size and seams it with a ring', async () => {
     const screen = await renderWithDS(
       <AvatarGroup aria-label="Team" size="md">
-        <Avatar name="Ayşe Demir" />
-        <Avatar name="Mehmet Kaya" />
+        <Avatar name="Alex Morgan" />
+        <Avatar name="Morgan King" />
       </AvatarGroup>,
     );
     const group = screen.getByRole('group', { name: 'Team' }).element();
@@ -358,9 +360,9 @@ describe('AvatarGroup', () => {
     for (const shape of ['circle', 'rounded'] as const) {
       const screen = await renderWithDS(
         <AvatarGroup aria-label="Team" size="md" shape={shape} seam="clip" max={2}>
-          <Avatar name="Ayşe Demir" />
-          <Avatar name="Mehmet Kaya" />
-          <Avatar name="Elif Şahin" />
+          <Avatar name="Alex Morgan" />
+          <Avatar name="Morgan King" />
+          <Avatar name="Emma Shaw" />
         </AvatarGroup>,
       );
       const group = screen.getByRole('group', { name: 'Team' }).element();
@@ -382,14 +384,14 @@ describe('AvatarGroup', () => {
       <>
         <button type="button">Before</button>
         <AvatarGroup aria-label="Assign to" seam="clip">
-          <AvatarButton name="Ayşe Demir" />
-          <AvatarButton name="Mehmet Kaya" />
+          <AvatarButton name="Alex Morgan" />
+          <AvatarButton name="Morgan King" />
         </AvatarGroup>
       </>,
     );
     await screen.getByRole('button', { name: 'Before' }).click();
     await userEvent.keyboard('{Tab}');
-    const first = screen.getByRole('button', { name: 'Ayşe Demir' });
+    const first = screen.getByRole('button', { name: 'Alex Morgan' });
     await expect.element(first).toHaveFocus();
     const item = first.element().closest('[data-slot="avatar-group-item"]')!;
     expect(getComputedStyle(item).maskImage).toBe('none');
@@ -399,8 +401,8 @@ describe('AvatarGroup', () => {
   it('passes its size and shape to every avatar', async () => {
     const screen = await renderWithDS(
       <AvatarGroup size="lg" shape="rounded">
-        <Avatar name="Ayşe Demir" />
-        <Avatar name="Mehmet Kaya" />
+        <Avatar name="Alex Morgan" />
+        <Avatar name="Morgan King" />
       </AvatarGroup>,
     );
     for (const avatar of screen.container.querySelectorAll('[data-slot="avatar"]')) {
@@ -413,9 +415,9 @@ describe('AvatarGroup', () => {
   it('shows no overflow avatar when everyone fits', async () => {
     const screen = await renderWithDS(
       <AvatarGroup max={4} total={2}>
-        <Avatar name="Ayşe Demir" />
-        <Avatar name="Mehmet Kaya" />
-        <Avatar name="Elif Şahin" />
+        <Avatar name="Alex Morgan" />
+        <Avatar name="Morgan King" />
+        <Avatar name="Emma Shaw" />
       </AvatarGroup>,
     );
     expect(screen.container.querySelectorAll('[data-slot="avatar-group-item"]')).toHaveLength(3);
@@ -426,9 +428,9 @@ describe('AvatarGroup', () => {
     for (const locale of ['en', 'ar']) {
       const screen = await renderWithDS(
         <AvatarGroup max={2}>
-          <Avatar name="Ayşe Demir" />
-          <Avatar name="Mehmet Kaya" />
-          <Avatar name="Elif Şahin" />
+          <Avatar name="Alex Morgan" />
+          <Avatar name="Morgan King" />
+          <Avatar name="Emma Shaw" />
         </AvatarGroup>,
         { locale },
       );
@@ -452,8 +454,8 @@ describe('AvatarGroup', () => {
   it('takes the overflow text from labels, then DSProvider, then the English default', async () => {
     const english = await renderWithDS(
       <AvatarGroup total={1284} max={2}>
-        <Avatar name="Ayşe Demir" />
-        <Avatar name="Mehmet Kaya" />
+        <Avatar name="Alex Morgan" />
+        <Avatar name="Morgan King" />
       </AvatarGroup>,
     );
     await expect.element(english.getByRole('img', { name: '1,282 more' })).toHaveTextContent('99+');
@@ -466,25 +468,27 @@ describe('AvatarGroup', () => {
           max={1}
           labels={{ more: ({ count }) => `${count} more approvers` }}
         >
-          <Avatar name="Ayşe Demir" />
-          <Avatar name="Mehmet Kaya" />
-          <Avatar name="Elif Şahin" />
+          <Avatar name="Alex Morgan" />
+          <Avatar name="Morgan King" />
+          <Avatar name="Emma Shaw" />
         </AvatarGroup>
         <AvatarGroup aria-label="Members of #general" total={1284} max={1}>
           <Avatar name="Zeynep Arslan" />
         </AvatarGroup>
         <AvatarGroup aria-label="Reviewers" max={1} labels={{ more: '{count} more' }}>
-          <Avatar name="Can Yılmaz" />
-          <Avatar name="Emre Koç" />
+          <Avatar name="Chris Wilson" />
+          <Avatar name="Evan Clark" />
         </AvatarGroup>
       </>,
-      { provider: { labels: { avatar: { more: '{count} kişi daha', overflowCap: '+{max}' } } } },
+      {
+        provider: { labels: { avatar: { more: 'Another {count} people', overflowCap: '+{max}' } } },
+      },
     );
     await expect
       .element(screen.getByRole('img', { name: '2 more approvers' }))
       .toHaveTextContent('+2');
     await expect
-      .element(screen.getByRole('img', { name: '1,283 kişi daha' }))
+      .element(screen.getByRole('img', { name: 'Another 1,283 people' }))
       .toHaveTextContent('+99');
     await expect.element(screen.getByRole('img', { name: '1 more' })).toHaveTextContent('+1');
   });
@@ -495,20 +499,20 @@ describe('AvatarGroup', () => {
         <div className="flex flex-col gap-4 p-4">
           <div className="flex flex-wrap items-center gap-3">
             {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
-              <Avatar key={size} name="Ayşe Demir" size={size} />
+              <Avatar key={size} name="Alex Morgan" size={size} />
             ))}
-            <Avatar name="Mehmet Kaya" shape="rounded" status="busy" />
-            <Avatar name="Emre Koç" status="away" />
+            <Avatar name="Morgan King" shape="rounded" status="busy" />
+            <Avatar name="Evan Clark" status="away" />
             {(['primary', 'success', 'warning', 'error', 'info'] as const).map((tone) => (
-              <Avatar key={tone} name="Elif Şahin" tone={tone} />
+              <Avatar key={tone} name="Emma Shaw" tone={tone} />
             ))}
-            <Avatar name="Elif Şahin" status="online" shape="rounded" size="xs" />
-            <Avatar name="Can Yılmaz" tone="neutral" status="offline" />
+            <Avatar name="Emma Shaw" status="online" shape="rounded" size="xs" />
+            <Avatar name="Chris Wilson" tone="neutral" status="offline" />
             <Avatar alt="Design team" fallbackIcon={<GroupIcon />} />
             <Avatar name="Zeynep Arslan" src={photo} />
-            <Avatar name="Selin Aydın" alt="" status="away" />
-            <AvatarButton name="Ayşe Demir" status="online" />
-            <AvatarButton name="Burak Öztürk" isDisabled />
+            <Avatar name="Sam Adams" alt="" status="away" />
+            <AvatarButton name="Alex Morgan" status="online" />
+            <AvatarButton name="Blake Oliver" isDisabled />
           </div>
           <AvatarGroup aria-label="Project approvers" max={3} size="md">
             {team.map((name) => (

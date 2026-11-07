@@ -1,7 +1,7 @@
 import { Divider } from '@/registry/ds/ui/divider';
 
 const members = [
-  { initials: 'AD', name: 'Ayşe Demir', role: 'Owner' },
+  { initials: 'AM', name: 'Alex Morgan', role: 'Owner' },
   { initials: 'KT', name: 'Kenji Tanaka', role: 'Editor' },
   { initials: 'LS', name: 'Lena Schmidt', role: 'Viewer' },
 ];

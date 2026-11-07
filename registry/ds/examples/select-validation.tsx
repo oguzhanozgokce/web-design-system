@@ -18,8 +18,8 @@ export default function SelectValidation() {
         className="w-full"
       >
         <ListBoxItem id="en">English</ListBoxItem>
-        <ListBoxItem id="es">Español</ListBoxItem>
-        <ListBoxItem id="fr">Français</ListBoxItem>
+        <ListBoxItem id="es">Spanish</ListBoxItem>
+        <ListBoxItem id="fr">French</ListBoxItem>
         <ListBoxItem id="ja">日本語</ListBoxItem>
       </Select>
       <Button type="submit">Continue</Button>

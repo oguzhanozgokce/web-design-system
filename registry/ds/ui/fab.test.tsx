@@ -148,25 +148,19 @@ describe('Fab', () => {
 
     const screen = await renderWithDS(
       <>
-        <Fab aria-label="Eşitle" icon={<SyncIcon />} isPending />
-        <ExtendedFab icon={<SyncIcon />} isPending labels={{ pending: 'Eşitleniyor' }}>
-          Şimdi eşitle
+        <Fab aria-label="Sync" icon={<SyncIcon />} isPending />
+        <ExtendedFab icon={<SyncIcon />} isPending labels={{ pending: 'Syncing' }}>
+          Sync now
         </ExtendedFab>
-        <FabMenu aria-label="Oluştur" isPending labels={{ pending: 'Oluşturuluyor' }}>
+        <FabMenu aria-label="Create" isPending labels={{ pending: 'Creating' }}>
           <FabMenuItem id="document">Belge</FabMenuItem>
         </FabMenu>
       </>,
-      { provider: { labels: { fab: { pending: 'Yükleniyor' } } } },
+      { provider: { labels: { fab: { pending: 'Working' } } } },
     );
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'Yükleniyor' }))
-      .toBeInTheDocument();
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'Eşitleniyor' }))
-      .toBeInTheDocument();
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'Oluşturuluyor' }))
-      .toBeInTheDocument();
+    await expect.element(screen.getByRole('progressbar', { name: 'Working' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('progressbar', { name: 'Syncing' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('progressbar', { name: 'Creating' })).toBeInTheDocument();
   });
 });
 

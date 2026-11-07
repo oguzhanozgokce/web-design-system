@@ -12,13 +12,13 @@ replace it in one of two places.
 For one component, pass `labels`:
 
 ```tsx
-<Dialog labels={{ close: 'Kapat' }}>…</Dialog>
+<Dialog labels={{ close: 'Dismiss' }}>…</Dialog>
 ```
 
 For the whole app, give `DSProvider` the same keys under the component's namespace:
 
 ```tsx
-<DSProvider labels={{ dialog: { close: 'Kapat' }, select: { placeholder: 'Seçin' } }}>
+<DSProvider labels={{ dialog: { close: 'Dismiss' }, select: { placeholder: 'Choose an item' } }}>
 ```
 
 A component's own `labels` win over the provider's, and the provider's win over the defaults. Every

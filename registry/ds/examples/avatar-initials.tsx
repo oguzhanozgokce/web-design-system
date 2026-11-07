@@ -1,9 +1,9 @@
 import { Avatar } from '@/registry/ds/ui/avatar';
 
 const names = [
-  'Ayşe Nur Demir',
-  'ilkay şahin',
-  'Defne',
+  'Alex Taylor Morgan',
+  'Taylor Reed',
+  'Jordan',
   'Nguyễn Văn An',
   'Наталья Петрова',
   'محمد علي',

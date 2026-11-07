@@ -36,7 +36,7 @@ describe('Select', () => {
           English
         </ListBoxItem>
         <ListBoxItem id="tr" startIcon={<LanguageIcon />}>
-          Türkçe
+          Turkish
         </ListBoxItem>
       </Select>,
     );
@@ -45,10 +45,10 @@ describe('Select', () => {
     await button.click();
     const listbox = page.getByRole('listbox');
     await expect.element(listbox).toBeVisible();
-    await page.getByRole('option', { name: 'Türkçe' }).click();
+    await page.getByRole('option', { name: 'Turkish' }).click();
     await expect.element(listbox).not.toBeInTheDocument();
     expect(onChange).toHaveBeenLastCalledWith('tr');
-    await expect.element(button).toHaveAccessibleName('Türkçe Language');
+    await expect.element(button).toHaveAccessibleName('Turkish Language');
     const value = button.element().querySelector('[data-slot="value"]');
     expect(value?.querySelector('[data-slot="start-icon"]')).not.toBeNull();
     expect(value?.querySelector('[data-slot="check"]')).toBeNull();
@@ -139,7 +139,7 @@ describe('Select', () => {
           English
         </ListBoxItem>
         <ListBoxItem id="tr" startIcon={<LanguageIcon />}>
-          Türkçe
+          Turkish
         </ListBoxItem>
       </Select>,
     );

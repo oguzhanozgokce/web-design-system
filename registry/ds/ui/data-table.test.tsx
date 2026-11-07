@@ -1,18 +1,8 @@
 import { useState } from 'react';
-import type { Key, Selection, SortDescriptor } from 'react-aria-components';
+import type { Selection, SortDescriptor } from 'react-aria-components';
 import { page, userEvent, type Locator } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
-import {
-  compareValues,
-  getPageCount,
-  matchesFilterValue,
-  mergePageSelection,
-  paginateRows,
-  scopeSelection,
-  searchRows,
-  sortRows,
-  textOf,
-} from '@/registry/ds/lib/data-table';
+
 import { ArchiveIcon, CopyIcon, DeleteIcon, EditIcon } from '@/registry/ds/lib/icons';
 import {
   DataTable,
@@ -118,60 +108,44 @@ async function choose(trigger: Locator, option: string) {
   await page.getByRole('option', { name: option }).click();
 }
 
-describe('data table helpers', () => {
-  const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
-
-  it('compares numbers, dates, text and empty values', () => {
-    expect(compareValues(2, 10, collator)).toBeLessThan(0);
-    expect(compareValues('Item 2', 'Item 10', collator)).toBeLessThan(0);
-    expect(compareValues(new Date(2026, 0, 2), new Date(2026, 0, 1), collator)).toBeGreaterThan(0);
-    expect(compareValues(null, 'a', collator)).toBeGreaterThan(0);
-    expect(compareValues('a', '', collator)).toBeLessThan(0);
-    expect(compareValues('Écran', 'ecran', collator)).toBe(0);
-  });
-
-  it('sorts stably in both directions', () => {
-    const rows = [
-      { id: 'a', group: 1 },
-      { id: 'b', group: 2 },
-      { id: 'c', group: 1 },
-    ];
-    const byGroup = (left: (typeof rows)[number], right: (typeof rows)[number]) =>
-      left.group - right.group;
-    expect(sortRows(rows, byGroup, 'ascending').map((row) => row.id)).toEqual(['a', 'c', 'b']);
-    expect(sortRows(rows, byGroup, 'descending').map((row) => row.id)).toEqual(['b', 'a', 'c']);
-  });
-
-  it('searches every term, ignoring case and accents', () => {
-    const rows = ['Café Menu', 'Weather Lite', 'Music Pro'];
-    expect(searchRows(rows, 'cafe', (row) => row)).toEqual(['Café Menu']);
-    expect(searchRows(rows, 'lite weather', (row) => row)).toEqual(['Weather Lite']);
-    expect(searchRows(rows, '  ', (row) => row)).toEqual(rows);
-  });
-
-  it('matches filter values in lists and objects', () => {
-    expect(matchesFilterValue(['iOS', 'Web'], 'Web')).toBe(true);
-    expect(matchesFilterValue([{ id: 'ios', label: 'iOS' }], 'ios')).toBe(true);
-    expect(matchesFilterValue('live', 'draft')).toBe(false);
-    expect(textOf({ label: 'Beta' })).toBe('Beta');
-  });
-
-  it('pages and keeps selection from other pages', () => {
-    expect(getPageCount(12, 5)).toBe(3);
-    expect(getPageCount(0, 5)).toBe(1);
-    expect(paginateRows([1, 2, 3, 4, 5, 6], 2, 4)).toEqual([5, 6]);
-    expect([...mergePageSelection(new Set(['a', 'd']), new Set(['b']), ['a', 'b', 'c'])]).toEqual([
-      'd',
-      'b',
-    ]);
-    expect([...mergePageSelection(new Set(['d']), 'all', ['a', 'b'])]).toEqual(['d', 'a', 'b']);
-    expect([...(scopeSelection(new Set(['a', 'z']), ['a', 'b']) as Set<Key>)]).toEqual(['a']);
-  });
-});
-
 describe('DataTable', () => {
   beforeEach(async () => {
     await page.viewport(1280, 900);
+  });
+
+  it('replaces an off-page selection in single selection mode', async () => {
+    const onSelectionChange = vi.fn();
+    const screen = await renderWithDS(
+      <Apps
+        selectionMode="single"
+        defaultSelectedKeys={new Set(['photos'])}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+    await screen.getByRole('button', { name: 'Page 2' }).click();
+    await toggle(screen.getByRole('checkbox', { name: 'Select Maps' }));
+    expect([...onSelectionChange.mock.lastCall![0]]).toEqual(['maps']);
+  });
+
+  it('does not repeat sorting when only selection or page changes', async () => {
+    const compare = vi.fn((a: App, b: App) => a.downloads - b.downloads);
+    const sortable = columns.map((column) =>
+      column.id === 'downloads' ? { ...column, compare } : column,
+    );
+    const screen = await renderWithDS(
+      <Apps
+        columns={sortable}
+        selectionMode="multiple"
+        defaultSortDescriptor={{ column: 'downloads', direction: 'ascending' }}
+      />,
+    );
+    const comparisons = compare.mock.calls.length;
+    expect(comparisons).toBeGreaterThan(0);
+    await toggle(screen.getByRole('checkbox', { name: 'Select Photos' }));
+    await screen.getByRole('button', { name: 'Page 2' }).click();
+    expect(compare).toHaveBeenCalledTimes(comparisons);
+    await screen.getByRole('columnheader', { name: 'Downloads' }).click();
+    expect(compare.mock.calls.length).toBeGreaterThan(comparisons);
   });
 
   it('shows the result count and formats cells for the locale', async () => {
@@ -592,19 +566,19 @@ describe('DataTable', () => {
         selectionMode="multiple"
         defaultSelectedKeys={new Set(['photos'])}
         rowActions={[{ id: 'edit', label: 'Bearbeiten', onAction: () => {} }]}
-        labels={{ rowAction: '{row}: {action}', selectedCount: '{count} ausgewählt' }}
+        labels={{ rowAction: '{row}: {action}', selectedCount: '{count} picked' }}
       />,
       {
         provider: {
-          labels: { dataTable: { search: 'Suchen', clearSelection: 'Auswahl aufheben' } },
+          labels: { dataTable: { search: 'Find items', clearSelection: 'Reset selection' } },
         },
       },
     );
-    await expect.element(screen.getByRole('searchbox', { name: 'Suchen' })).toBeVisible();
-    await expect.element(screen.getByRole('button', { name: 'Auswahl aufheben' })).toBeVisible();
+    await expect.element(screen.getByRole('searchbox', { name: 'Find items' })).toBeVisible();
+    await expect.element(screen.getByRole('button', { name: 'Reset selection' })).toBeVisible();
     await expect.element(screen.getByRole('button', { name: 'Photos: Bearbeiten' })).toBeVisible();
     expect(spoken(screen.container.querySelector('[data-slot="data-table-selected-count"]'))).toBe(
-      '1 ausgewählt',
+      '1 picked',
     );
   });
 

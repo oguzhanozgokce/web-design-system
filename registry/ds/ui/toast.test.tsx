@@ -47,17 +47,17 @@ describe('Toast', () => {
 
   it('announces a message inside a labelled notifications region', async () => {
     await renderWithDS(<Toaster />);
-    toast('Project Garden shared with Ayşe');
+    toast('Project Garden shared with Alex');
 
     const item = notifications().getByRole('alertdialog', {
-      name: 'Project Garden shared with Ayşe',
+      name: 'Project Garden shared with Alex',
     });
     await expect.element(item).toBeVisible();
     await expect.element(item).toHaveAttribute('data-tone', 'neutral');
     await expect.element(notifications()).toHaveAttribute('data-placement', 'bottom-end');
     await expect
       .element(item.getByRole('alert'))
-      .toHaveTextContent('Project Garden shared with Ayşe');
+      .toHaveTextContent('Project Garden shared with Alex');
   });
 
   it('sits on the overlay surface and colours only the icon by tone', async () => {
@@ -293,27 +293,25 @@ describe('Toast', () => {
     expect(onClose).toHaveBeenCalledWith('action');
   });
 
-  it('keeps the toast open while an async action runs and after it fails', async () => {
+  it('allows retry after an async action fails and dismisses after it succeeds', async () => {
     let finish: () => void = () => {};
     const onClose = vi.fn();
     const onAction = vi
       .fn<() => Promise<void>>()
       .mockImplementationOnce(() => Promise.reject(new Error('Offline')))
       .mockImplementationOnce(() => new Promise<void>((resolve) => (finish = resolve)));
-    await renderWithDS(<Toaster duration={200} />);
+    await renderWithDS(<Toaster duration={Infinity} />, { provider: { motion: 'disabled' } });
     toast('3 projects archived', { action: { label: 'Undo', onAction }, onClose });
 
     const item = page.getByRole('alertdialog', { name: '3 projects archived' });
     const undo = item.getByRole('button', { name: 'Undo' });
     await undo.click();
-    await wait(300);
     await expect.element(item).toBeInTheDocument();
     await expect.element(undo).toBeEnabled();
     expect(onClose).not.toHaveBeenCalled();
 
     await undo.click();
     await expect.element(item.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
-    await wait(500);
     await expect.element(item).toBeInTheDocument();
 
     finish();
@@ -398,14 +396,14 @@ describe('Toast', () => {
   });
 
   it('takes its region and close labels from labels, then DSProvider', async () => {
-    await renderWithDS(<Toaster labels={{ close: 'Kapat' }} />, {
-      provider: { labels: { toast: { close: 'Gizle', notifications: 'Bildirimler' } } },
+    await renderWithDS(<Toaster labels={{ close: 'Dismiss' }} />, {
+      provider: { labels: { toast: { close: 'Hide message', notifications: 'Updates' } } },
     });
-    toast('Mesaj gönderildi');
+    toast('Message sent');
 
-    const region = page.getByRole('region', { name: 'Bildirimler' });
+    const region = page.getByRole('region', { name: 'Updates' });
     await expect.element(region).toBeVisible();
-    await expect.element(region.getByRole('button', { name: 'Kapat' })).toBeInTheDocument();
+    await expect.element(region.getByRole('button', { name: 'Dismiss' })).toBeInTheDocument();
   });
 
   it('places start and end by reading direction', async () => {

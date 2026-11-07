@@ -332,7 +332,10 @@ describe('BarChart', () => {
   it('takes its copy from labels and DSProvider', async () => {
     const screen = await renderWithDS(
       <Visits
-        labels={{ keyboardHint: 'Ok tuşlarıyla gezin.', seriesValue: '{value} ({series})' }}
+        labels={{
+          keyboardHint: 'Navigate with the arrow keys.',
+          seriesValue: '{value} ({series})',
+        }}
       />,
       {
         ...still,
@@ -340,9 +343,9 @@ describe('BarChart', () => {
           ...still.provider,
           labels: {
             chart: {
-              total: 'Toplam',
+              total: 'Overall total',
               summary: '{series}: {first} – {last}.',
-              legend: 'Açıklama',
+              legend: 'Series legend',
               roleDescription: 'grafik',
               pointAnnouncement: '{category} → {values}',
             },
@@ -354,13 +357,17 @@ describe('BarChart', () => {
     await expect.element(plot).toHaveAttribute('aria-roledescription', 'grafik');
     await expect
       .element(plot)
-      .toHaveAccessibleDescription('Direct, Search, and Bounced: Mon – Wed. Ok tuşlarıyla gezin.');
-    await expect.element(screen.getByRole('list', { name: 'Açıklama' })).toBeInTheDocument();
-    await expect.element(screen.getByRole('columnheader', { name: 'Toplam' })).toBeInTheDocument();
+      .toHaveAccessibleDescription(
+        'Direct, Search, and Bounced: Mon – Wed. Navigate with the arrow keys.',
+      );
+    await expect.element(screen.getByRole('list', { name: 'Series legend' })).toBeInTheDocument();
+    await expect
+      .element(screen.getByRole('columnheader', { name: 'Overall total' }))
+      .toBeInTheDocument();
     plot.element().focus();
     await userEvent.keyboard('{Home}');
     expect(liveText(screen.container)).toBe(
-      'Mon → 70 (Toplam), 40 (Direct), 30 (Search), 4 (Bounced)',
+      'Mon → 70 (Overall total), 40 (Direct), 30 (Search), 4 (Bounced)',
     );
   });
 

@@ -109,6 +109,7 @@ export function FileUpload({
   const nextId = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const focusBrowseNext = useRef(false);
+  const isMounted = useRef(false);
   const running = useRef(new Map<Key, AbortController>());
   const [internal, setInternal] = useState<FileUploadItem[]>(defaultValue ?? []);
   const [announcement, setAnnouncement] = useState({ message: '', count: 0 });
@@ -127,8 +128,10 @@ export function FileUpload({
   });
 
   useEffect(() => {
+    isMounted.current = true;
     const uploads = running.current;
     return () => {
+      isMounted.current = false;
       for (const controller of uploads.values()) controller.abort();
       uploads.clear();
     };
@@ -170,15 +173,16 @@ export function FileUpload({
     patch(item.id, { status: 'uploading', progress: undefined, error: undefined });
     let settled = false;
     Promise.resolve()
-      .then(() =>
-        upload(file, {
+      .then(() => {
+        if (controller.signal.aborted || !isMounted.current) return;
+        return upload(file, {
           signal: controller.signal,
           onProgress: (fraction) => {
             if (controller.signal.aborted || settled) return;
             patch(item.id, { progress: clampFraction(fraction) });
           },
-        }),
-      )
+        });
+      })
       .then(
         () => {
           if (controller.signal.aborted) return;
@@ -203,6 +207,7 @@ export function FileUpload({
   }
 
   function pump() {
+    if (!isMounted.current) return;
     const limit = Math.max(1, settings.current.maxConcurrent);
     for (const item of latest.current) {
       if (running.current.size >= limit) break;

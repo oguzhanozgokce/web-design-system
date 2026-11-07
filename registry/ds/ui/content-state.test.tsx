@@ -10,7 +10,7 @@ interface Project {
 }
 
 const projects: Project[] = [
-  { id: 'Garden', owner: 'Ayşe' },
+  { id: 'Garden', owner: 'Alex' },
   { id: 'Kitchen', owner: 'Jonas' },
 ];
 
@@ -235,42 +235,40 @@ describe('ContentState', () => {
         <ContentState
           status="error"
           onRetry={() => {}}
-          labels={{ errorTitle: 'Dosyalar yüklenemedi' }}
+          labels={{ errorTitle: 'Files could not be loaded' }}
         />
-        <ContentState status="empty" labels={{ emptyTitle: 'Henüz dosya yok' }} />
+        <ContentState status="empty" labels={{ emptyTitle: 'No files have been added' }} />
         <ContentState status="loading" />
         <ContentState
           status="loading"
-          loadingLabel="Kişiler yükleniyor"
-          labels={{ loading: 'Bekleniyor' }}
+          loadingLabel="Loading contacts"
+          labels={{ loading: 'Waiting for data' }}
         />
       </div>,
       {
         provider: {
           labels: {
             contentState: {
-              errorTitle: 'Bir şeyler ters gitti',
-              errorDescription: 'Lütfen biraz sonra tekrar dene.',
+              errorTitle: 'Something failed',
+              errorDescription: 'Please try again shortly.',
               retry: 'Tekrar dene',
-              loading: 'Yükleniyor',
+              loading: 'Working',
             },
           },
         },
       },
     );
     await expect
-      .element(screen.getByRole('heading', { name: 'Dosyalar yüklenemedi' }))
+      .element(screen.getByRole('heading', { name: 'Files could not be loaded' }))
       .toBeInTheDocument();
-    await expect.element(screen.getByText('Lütfen biraz sonra tekrar dene.')).toBeInTheDocument();
+    await expect.element(screen.getByText('Please try again shortly.')).toBeInTheDocument();
     await expect.element(screen.getByRole('button', { name: 'Tekrar dene' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('heading', { name: 'Henüz dosya yok' }))
+      .element(screen.getByRole('heading', { name: 'No files have been added' }))
       .toBeInTheDocument();
+    await expect.element(screen.getByRole('progressbar', { name: 'Working' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Yükleniyor' }))
-      .toBeInTheDocument();
-    await expect
-      .element(screen.getByRole('progressbar', { name: 'Kişiler yükleniyor' }))
+      .element(screen.getByRole('progressbar', { name: 'Loading contacts' }))
       .toBeInTheDocument();
   });
 

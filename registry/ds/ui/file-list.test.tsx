@@ -171,14 +171,18 @@ describe('FileList', () => {
         items={entries.slice(3, 4)}
         onRemove={() => {}}
         onRetry={() => {}}
-        labels={{ remove: '{name} entfernen' }}
+        labels={{ remove: 'Discard {name}' }}
       />,
-      { provider: { labels: { fileList: { retry: '{name} erneut senden', list: 'Dateien' } } } },
+      {
+        provider: {
+          labels: { fileList: { retry: 'Upload {name} again', list: 'Uploaded files' } },
+        },
+      },
     );
-    await expect.element(screen.getByRole('grid', { name: 'Dateien' })).toBeVisible();
-    await expect.element(screen.getByRole('button', { name: 'notes.pdf entfernen' })).toBeVisible();
+    await expect.element(screen.getByRole('grid', { name: 'Uploaded files' })).toBeVisible();
+    await expect.element(screen.getByRole('button', { name: 'Discard notes.pdf' })).toBeVisible();
     await expect
-      .element(screen.getByRole('button', { name: 'notes.pdf erneut senden' }))
+      .element(screen.getByRole('button', { name: 'Upload notes.pdf again' }))
       .toBeVisible();
   });
 

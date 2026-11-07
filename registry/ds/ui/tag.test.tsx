@@ -208,31 +208,25 @@ describe('TagGroup', () => {
 
     const screen = await renderWithDS(
       <>
-        <Labels initial={['Rapor']} />
-        <TagGroup
-          label="Etiketler"
-          onRemove={() => {}}
-          labels={{ remove: '{label} etiketini kaldır' }}
-        >
-          <Tag id="sharing">Tasarım</Tag>
-          <Tag id="urgent" labels={{ remove: ({ label }) => `${label} etiketini sil` }}>
-            Acil
+        <Labels initial={['Report']} />
+        <TagGroup label="Labels" onRemove={() => {}} labels={{ remove: 'Delete tag {label}' }}>
+          <Tag id="sharing">Design</Tag>
+          <Tag id="urgent" labels={{ remove: ({ label }) => `Drop tag ${label}` }}>
+            Urgent
           </Tag>
         </TagGroup>
-        <TagGroup label="Kategoriler" items={[]} labels={{ empty: 'Henüz kategori yok' }}>
+        <TagGroup label="Categories" items={[]} labels={{ empty: 'No categories have been added' }}>
           {(item: { id: string }) => <Tag id={item.id}>{item.id}</Tag>}
         </TagGroup>
       </>,
-      { provider: { labels: { tag: { remove: 'Kaldır: {label}', empty: 'Yok' } } } },
+      { provider: { labels: { tag: { remove: 'Remove tag: {label}', empty: 'Nothing here' } } } },
     );
-    await expect
-      .element(screen.getByRole('button', { name: 'Tasarım etiketini kaldır' }))
-      .toBeVisible();
-    await expect.element(screen.getByRole('button', { name: 'Acil etiketini sil' })).toBeVisible();
-    await expect.element(screen.getByText('Henüz kategori yok')).toBeVisible();
-    await expect.element(screen.getByText('Yok', { exact: true })).not.toBeInTheDocument();
-    await screen.getByRole('button', { name: 'Kaldır: Rapor' }).click();
-    await expect.element(screen.getByText('Yok', { exact: true })).toBeVisible();
+    await expect.element(screen.getByRole('button', { name: 'Delete tag Design' })).toBeVisible();
+    await expect.element(screen.getByRole('button', { name: 'Drop tag Urgent' })).toBeVisible();
+    await expect.element(screen.getByText('No categories have been added')).toBeVisible();
+    await expect.element(screen.getByText('Nothing here', { exact: true })).not.toBeInTheDocument();
+    await screen.getByRole('button', { name: 'Remove tag: Report' }).click();
+    await expect.element(screen.getByText('Nothing here', { exact: true })).toBeVisible();
   });
 
   it('selects tags, fills them and shows a check', async () => {

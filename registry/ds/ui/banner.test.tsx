@@ -271,22 +271,22 @@ describe('Banner', () => {
   it('takes its dismiss and tone labels from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <>
-        <Banner tone="error" isDismissable title="Kaydedilemedi" />
+        <Banner tone="error" isDismissable title="Could not save" />
         <Banner
           tone="warning"
           isDismissable
-          title="Depolama dolmak üzere"
-          labels={{ dismiss: 'Gizle', warning: 'Dikkat:' }}
+          title="Storage is almost full"
+          labels={{ dismiss: 'Hide message', warning: 'Attention:' }}
         />
       </>,
-      { provider: { labels: { banner: { dismiss: 'Kapat', error: 'Hata:' } } } },
+      { provider: { labels: { banner: { dismiss: 'Dismiss', error: 'Error:' } } } },
     );
-    await expect.element(screen.getByRole('button', { name: 'Kapat' })).toBeInTheDocument();
-    await expect.element(screen.getByRole('button', { name: 'Gizle' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('button', { name: 'Dismiss' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('button', { name: 'Hide message' })).toBeInTheDocument();
     const statuses = screen.getByRole('status').elements();
     expect(statuses.map((element) => element.textContent)).toEqual([
-      'Hata: Kaydedilemedi',
-      'Dikkat: Depolama dolmak üzere',
+      'Error: Could not save',
+      'Attention: Storage is almost full',
     ]);
   });
 

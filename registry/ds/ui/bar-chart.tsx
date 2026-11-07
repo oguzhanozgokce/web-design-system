@@ -9,7 +9,7 @@ import {
   normalizeRows,
   numberFormatter,
   stack,
-} from '@/registry/ds/lib/chart';
+} from '@/registry/ds/lib/chart.ts';
 import { cn, tv } from '@/registry/ds/lib/utils';
 import {
   ChartCategoryAxis,

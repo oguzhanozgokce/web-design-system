@@ -238,25 +238,31 @@ describe('ChartCard', () => {
 
   it('takes its copy from labels and DSProvider', async () => {
     const screen = await renderWithDS(
-      <Periods showTableToggle readout="headline" labels={{ increase: '{value} arttı' }} />,
+      <Periods showTableToggle readout="headline" labels={{ increase: 'Increase of {value}' }} />,
       {
         ...still,
         provider: {
           ...still.provider,
           labels: {
-            chartCard: { period: 'Dönem', showTable: 'Tablo olarak göster', total: 'Toplam' },
+            chartCard: {
+              period: 'Time range',
+              showTable: 'View data table',
+              total: 'Overall total',
+            },
           },
         },
       },
     );
-    await expect.element(screen.getByRole('radiogroup', { name: 'Dönem' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('button', { name: 'Tablo olarak göster' }))
+      .element(screen.getByRole('radiogroup', { name: 'Time range' }))
       .toBeInTheDocument();
-    expect(captionText(screen.container)).toBe('Toplam');
+    await expect
+      .element(screen.getByRole('button', { name: 'View data table' }))
+      .toBeInTheDocument();
+    expect(captionText(screen.container)).toBe('Overall total');
     expect(
       screen.container.querySelector('[data-slot="chart-card-delta"] .sr-only')!.textContent,
-    ).toBe('12.4% arttı');
+    ).toBe('Increase of 12.4%');
   });
 
   it('stacks the header at 375px', async () => {

@@ -44,11 +44,15 @@ export type AlertDialogSize = 'sm' | 'md' | 'lg';
 export type AlertDialogErrorMessage = ReactNode | ((error: unknown) => ReactNode);
 
 export interface AlertDialogLabels {
+  confirm: string;
+  cancel: string;
   typeToConfirm: LabelTemplate<{ phrase: string }>;
   error: string;
 }
 
 export const defaultAlertDialogLabels: AlertDialogLabels = {
+  confirm: 'Confirm',
+  cancel: 'Cancel',
   typeToConfirm: 'Type {phrase} to confirm',
   error: 'Something went wrong. Try again.',
 };
@@ -159,8 +163,8 @@ function AlertDialogContent({
   icon,
   children,
   tone,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   onConfirm,
   onCancel,
   isConfirmDisabled = false,
@@ -325,7 +329,7 @@ function AlertDialogContent({
           autoFocus={focusTarget === 'cancel'}
           data-action="cancel"
         >
-          {cancelLabel}
+          {cancelLabel === undefined ? t.cancel : cancelLabel}
         </Button>
         <Button
           variant="solid"
@@ -336,7 +340,7 @@ function AlertDialogContent({
           autoFocus={focusTarget === 'confirm'}
           data-action="confirm"
         >
-          {confirmLabel}
+          {confirmLabel === undefined ? t.confirm : confirmLabel}
         </Button>
       </DialogFooter>
     </>

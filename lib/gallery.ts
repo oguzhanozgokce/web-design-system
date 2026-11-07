@@ -1,6 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { source } from '@/lib/source';
+import { installedRegistryPath, type RegistryFile } from '@/lib/registry-paths';
 
 export interface GalleryEntry {
   name: string;
@@ -53,25 +54,10 @@ export async function getGalleryEntries(): Promise<GalleryEntry[]> {
     );
 }
 
-interface RegistryFile {
-  path: string;
-  type: string;
-  target?: string;
-}
-
 interface RegistryItem {
   name: string;
   files: RegistryFile[];
   registryDependencies?: string[];
-}
-
-function installedPath(file: RegistryFile) {
-  if (file.target) return file.target.replace(/^~\//, '');
-  const base = path.basename(file.path);
-  if (file.type === 'registry:ui') return `components/ds/${base}`;
-  if (file.type === 'registry:hook') return `hooks/ds/${base}`;
-  if (file.type === 'registry:lib') return `lib/ds/${base}`;
-  return base;
 }
 
 export async function getInstallFiles(name: string) {
@@ -86,7 +72,7 @@ export async function getInstallFiles(name: string) {
     seen.add(itemName);
     const item = byName.get(itemName);
     if (!item) return;
-    for (const file of item.files) files.push(installedPath(file));
+    for (const file of item.files) files.push(installedRegistryPath(file));
     for (const dependency of item.registryDependencies ?? [])
       visit(dependency.replace(/^@ds\//, ''));
   };

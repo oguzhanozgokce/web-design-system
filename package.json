@@ -8,8 +8,8 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "npm run generate && next dev --turbopack",
-    "build": "npm run generate && next build",
+    "dev": "npm run generate && shadcn build registry.json --output public/r && next dev --turbopack",
+    "build": "npm run generate && shadcn build registry.json --output public/r && next build",
     "start": "serve out",
     "generate": "tsx scripts/generate-tokens.ts && tsx scripts/generate-icons.ts && tsx scripts/build-registry.ts",
     "registry:build": "tsx scripts/build-registry.ts && shadcn build registry.json --output public/r",
@@ -20,6 +20,9 @@
     "check:ds": "tsx scripts/check-ds.ts",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run check:ds && npm run check:secrets",
     "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:browser": "vitest run --project browser",
+    "check:registry": "tsx scripts/check-registry.ts",
     "test:watch": "vitest",
     "check:secrets": "tsx scripts/check-secrets.ts"
   },
@@ -38,6 +41,7 @@
     "tailwind-variants": "^4.0.1"
   },
   "devDependencies": {
+    "@shadcn/registry": "0.2.1",
     "@material-symbols/svg-400": "^0.48.3",
     "@material/material-color-utilities": "^0.4.0",
     "@tailwindcss/postcss": "^4.3.4",

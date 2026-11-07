@@ -135,8 +135,8 @@ with `<DSProvider labels={{ searchField: { … } }}>`.
 | `keyShift`   | `Shift`        | the Shift key in the shortcut hint                                 |
 | `keyMeta`    | `Win`          | the Meta key in the shortcut hint                                  |
 
-The key names show only outside Apple platforms, which use ⌘, ⌥, ⇧ and ⌃. Keyboards label their keys
-in their own language: a German app passes `keyControl: 'Strg'` and `keyShift: 'Umschalt'`.
+The key names show only outside Apple platforms, which use ⌘, ⌥, ⇧ and ⌃. Override the words on
+other platforms with `keyControl: 'Ctl'` and `keyShift: 'Shft'`, for example.
 `labels` also takes the [Field labels](/docs/components/inputs/field#labels), which `DSProvider`
 sets under `field`.
 

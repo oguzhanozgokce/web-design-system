@@ -147,12 +147,16 @@ describe('Divider', () => {
     const screen = await renderWithDS(
       <>
         <OrDivider />
-        <OrDivider labels={{ or: 'ya da' }} />
+        <OrDivider labels={{ or: 'Alternatively' }} />
       </>,
-      { provider: { labels: { divider: { or: 'veya' } } } },
+      { provider: { labels: { divider: { or: 'Either option' } } } },
     );
-    await expect.element(screen.getByRole('separator', { name: 'veya' })).toBeInTheDocument();
-    await expect.element(screen.getByRole('separator', { name: 'ya da' })).toBeInTheDocument();
+    await expect
+      .element(screen.getByRole('separator', { name: 'Either option' }))
+      .toBeInTheDocument();
+    await expect
+      .element(screen.getByRole('separator', { name: 'Alternatively' }))
+      .toBeInTheDocument();
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {

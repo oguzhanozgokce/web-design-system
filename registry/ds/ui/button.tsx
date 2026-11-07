@@ -10,14 +10,15 @@ import {
   type LinkProps as AriaLinkProps,
   type PressEvent,
 } from 'react-aria-components';
-import { tv } from '@/registry/ds/lib/utils';
-import { useLabels } from '@/registry/ds/ui/ds-provider';
+import { cn, tv } from '@/registry/ds/lib/utils';
+import { useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
 import { Spinner } from '@/registry/ds/ui/spinner';
 
 export const buttonStyles = tv({
   base: [
     'focus-ring transition-control no-tap-highlight group/button relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control font-medium whitespace-nowrap no-underline select-none',
     'motion-reduce:data-[pressed]:scale-100',
+    'data-[reduced-motion]:data-[pressed]:scale-100 data-[motion=disabled]:transition-none',
     'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
   ],
   variants: {
@@ -182,12 +183,16 @@ interface ButtonContentProps {
 
 function ButtonContent({ startIcon, endIcon, children, isPending, labels }: ButtonContentProps) {
   const t = useLabels('button', defaultButtonLabels, labels);
+  const { effectsEnabled } = useMotionPreference();
 
   return (
     <>
       <span
         data-slot="content"
-        className="inline-flex items-center justify-center gap-[inherit] transition-opacity duration-150 group-data-[pending]/button:opacity-0 group-data-[pending]/button:delay-300"
+        className={cn(
+          'inline-flex items-center justify-center gap-[inherit] group-data-[pending]/button:opacity-0',
+          effectsEnabled && 'transition-opacity duration-150 group-data-[pending]/button:delay-300',
+        )}
       >
         {startIcon ? (
           <span data-slot="start-icon" className={iconSlot}>
@@ -206,7 +211,10 @@ function ButtonContent({ startIcon, endIcon, children, isPending, labels }: Butt
           isIndeterminate
           aria-label={t.pending}
           data-slot="pending"
-          className="absolute inset-0 flex animate-ds-fade-in-delayed items-center justify-center"
+          className={cn(
+            'absolute inset-0 flex items-center justify-center',
+            effectsEnabled && 'animate-ds-fade-in-delayed',
+          )}
         >
           <Spinner className="text-(length:--icon-size)" />
         </ProgressBar>
@@ -241,6 +249,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const { isGroupDisabled, ...style } = useGroupedStyle({ variant, tone, size });
+  const { preference } = useMotionPreference();
   const [isRunning, setRunning] = useState(false);
   const isPending = isPendingProp ?? isRunning;
 
@@ -265,6 +274,8 @@ export function Button({
       data-variant={style.variant}
       data-tone={style.tone}
       data-size={style.size}
+      data-motion={preference}
+      data-reduced-motion={preference !== 'system' || undefined}
       className={composeRenderProps(className, (className) =>
         buttonStyles({ ...style, fullWidth, className }),
       )}
@@ -297,6 +308,7 @@ export function ButtonLink({
   ...props
 }: ButtonLinkProps) {
   const { isGroupDisabled, ...style } = useGroupedStyle({ variant, tone, size });
+  const { preference } = useMotionPreference();
 
   return (
     <AriaLink
@@ -306,6 +318,8 @@ export function ButtonLink({
       data-variant={style.variant}
       data-tone={style.tone}
       data-size={style.size}
+      data-motion={preference}
+      data-reduced-motion={preference !== 'system' || undefined}
       className={composeRenderProps(className, (className) =>
         buttonStyles({ ...style, fullWidth, className }),
       )}

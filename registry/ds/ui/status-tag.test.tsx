@@ -75,10 +75,10 @@ describe('StatusTag', () => {
         <StatusTag status="inReview" />
         <StatusTag status="draft">Unsaved</StatusTag>
       </div>,
-      { provider: { labels: { statusTag: { inReview: 'Wird geprüft' } } } },
+      { provider: { labels: { statusTag: { inReview: 'Review in progress' } } } },
     );
     await expect.element(screen.getByText('Published')).toBeVisible();
-    await expect.element(screen.getByText('Wird geprüft')).toBeVisible();
+    await expect.element(screen.getByText('Review in progress')).toBeVisible();
     await expect.element(screen.getByText('Unsaved')).toBeVisible();
   });
 
