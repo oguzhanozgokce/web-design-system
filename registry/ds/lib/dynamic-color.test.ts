@@ -95,6 +95,21 @@ describe('schemeKey', () => {
 });
 
 describe('dynamicSchemeCss', () => {
+  it('builds a scheme once and reuses it for every scope that shows it', () => {
+    const options = { seed: seedTeal, paletteStyle: 'vibrant' as const };
+    const target = { scope: 'element' as const, key: schemeKey(options) };
+    const first = performance.now();
+    const css = dynamicSchemeCss(options, target);
+    const built = performance.now() - first;
+    const again = performance.now();
+    for (let index = 0; index < 50; index++) {
+      expect(dynamicSchemeCss({ ...options }, { ...target })).toBe(css);
+    }
+    expect(performance.now() - again).toBeLessThan(built);
+    expect(dynamicSchemeCss(options, { scope: 'root' })).not.toBe(css);
+    expect(dynamicSchemeCss(options, { scope: 'element', key: 'other' })).toContain('"other"');
+  });
+
   const light = brandColors({ seed: seedTeal, mode: 'light' });
   const dark = brandColors({ seed: seedTeal, mode: 'dark' });
 

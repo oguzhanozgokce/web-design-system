@@ -103,7 +103,26 @@ function lightDark(light: BrandColors, dark: BrandColors) {
     .join(';');
 }
 
+const schemeCssCache = new Map<string, string>();
+const schemeCssCacheSize = 32;
+
 export function dynamicSchemeCss(options: DynamicSchemeOptions, target: DynamicScope) {
+  const id = `${schemeKey(options)} ${target.scope === 'root' ? 'root' : `element ${target.key}`}`;
+  const cached = schemeCssCache.get(id);
+  if (cached !== undefined) {
+    schemeCssCache.delete(id);
+    schemeCssCache.set(id, cached);
+    return cached;
+  }
+  const css = buildSchemeCss(options, target);
+  schemeCssCache.set(id, css);
+  if (schemeCssCache.size > schemeCssCacheSize) {
+    schemeCssCache.delete(schemeCssCache.keys().next().value!);
+  }
+  return css;
+}
+
+function buildSchemeCss(options: DynamicSchemeOptions, target: DynamicScope) {
   const { seed, paletteStyle, contrast, mode, surfaces } = resolveOptions(options);
   const isRoot = target.scope === 'root';
   if (!isRoot && !target.key) throw new Error('An element scope needs a key');
