@@ -2,8 +2,9 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { memo, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { GalleryEntry } from '@/lib/gallery';
+import { filterGallery, type GalleryCategory } from '@/lib/gallery-search';
 import { SearchIcon } from '@/registry/ds/lib/icons';
 import { cn } from '@/registry/ds/lib/utils';
 import { Chip, ChipGroup } from '@/registry/ds/ui/chip';
@@ -13,10 +14,7 @@ import { entrance } from '@/components/showcase/motion';
 import { PreviewThemePicker, PreviewThemeScope } from '@/components/showcase/preview-theme';
 import { galleryPreviews } from '@/components/showcase/previews';
 
-export interface GalleryCategory {
-  id: string;
-  label: string;
-}
+export type { GalleryCategory } from '@/lib/gallery-search';
 
 const stageWidth = 320;
 
@@ -47,7 +45,7 @@ function FitPreview({ children }: { children: ReactNode }) {
   );
 }
 
-function GalleryTile({ entry }: { entry: GalleryEntry }) {
+const GalleryTile = memo(function GalleryTile({ entry }: { entry: GalleryEntry }) {
   const Preview = galleryPreviews[entry.name];
 
   return (
@@ -88,7 +86,7 @@ function GalleryTile({ entry }: { entry: GalleryEntry }) {
       </Link>
     </motion.li>
   );
-}
+});
 
 export function GalleryGrid({
   entries,
@@ -117,12 +115,7 @@ export function ComponentGallery({
 }) {
   const [category, setCategory] = useState('all');
   const [query, setQuery] = useState('');
-  const needle = query.trim().toLocaleLowerCase();
-  const visible = entries.filter(
-    (entry) =>
-      (category === 'all' || entry.category === category) &&
-      (!needle || `${entry.title} ${entry.description}`.toLocaleLowerCase().includes(needle)),
-  );
+  const visible = filterGallery(entries, categories, category, query);
 
   return (
     <div className="flex flex-col gap-5">

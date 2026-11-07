@@ -4,6 +4,9 @@
 
 ### Fixes and maintenance
 
+- Hidden chart data tables no longer widen compact charts or reformat every cell when the active
+  point changes. Media-query subscriptions survive unrelated renders, and gallery search reuses
+  unchanged component previews and finds category names such as Charts.
 - Theme builder computes palettes in a worker, keeps only the latest queued selection and
   prevents copying an outdated export while updating. Documentation examples use the catalogue
   theme; accent selection stays in the gallery and theme builder, where its effect is visible.

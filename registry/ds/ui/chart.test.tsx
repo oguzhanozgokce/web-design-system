@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
+import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
+import { numberFormatter } from '@/registry/ds/lib/chart.ts';
 
 import { BarChart } from '@/registry/ds/ui/bar-chart';
 import { ChartCard } from '@/registry/ds/ui/chart-card';
@@ -66,6 +69,86 @@ const series: ChartSeries<Row>[] = [
 ];
 
 describe('chart parts', () => {
+  it('keeps a wide screen-reader data table from overflowing a compact chart', async () => {
+    const columns = Array.from({ length: 8 }, (_, index) => ({
+      id: String(index),
+      label: `Series ${index + 1}`,
+      value: () => 123456789,
+    }));
+    const screen = await renderWithDS(
+      <div style={{ width: 240 }}>
+        <BarChart
+          aria-label="Compact chart"
+          data={rows}
+          category="month"
+          series={columns}
+          size="sm"
+        />
+      </div>,
+      still,
+    );
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="bar-chart"]')!;
+    expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth);
+    await expect
+      .element(screen.getByRole('table', { name: 'Data for Compact chart' }))
+      .toBeInTheDocument();
+    expect(
+      screen
+        .getByRole('table', { name: 'Data for Compact chart' })
+        .element()
+        .querySelectorAll('tbody tr'),
+    ).toHaveLength(2);
+  });
+
+  it('reuses inactive data rows on point changes and refreshes them when data changes', async () => {
+    const options = { notation: 'scientific', maximumFractionDigits: 4 } as const;
+    const formatter = numberFormatter('en', options);
+    const format = vi.fn(formatter.format);
+    Object.defineProperty(formatter, 'format', { value: format, configurable: true });
+    function UpdatableChart() {
+      const [data, setData] = useState(rows);
+      return (
+        <>
+          <BarChart
+            aria-label="Uploads"
+            data={data}
+            category="month"
+            series={series}
+            valueFormatOptions={options}
+          />
+          <button
+            onClick={() => setData(rows.map((row) => ({ ...row, photos: row.photos + 1000 })))}
+          >
+            Update data
+          </button>
+        </>
+      );
+    }
+    try {
+      const screen = await renderWithDS(<UpdatableChart />, still);
+      format.mockClear();
+      const plot = screen.getByRole('group', { name: 'Uploads' });
+      (plot.element() as HTMLElement).focus();
+      await userEvent.keyboard('{Home}');
+      await expect
+        .poll(() => screen.container.querySelector('[data-slot="chart-tooltip"]')?.textContent)
+        .toContain('Jan');
+      const formatted = format.mock.calls.map(([value]) => value);
+      expect(formatted).not.toContain(rows[1].photos);
+      expect(formatted).not.toContain(rows[1].videos);
+      await screen.getByRole('button', { name: 'Update data' }).click();
+      await expect
+        .element(
+          screen
+            .getByRole('table', { name: 'Data for Uploads' })
+            .getByRole('cell', { name: '1.388E3', exact: true }),
+        )
+        .toBeInTheDocument();
+    } finally {
+      Reflect.deleteProperty(formatter, 'format');
+    }
+  });
+
   it('renders a named legend with a marker per series', async () => {
     const screen = await renderWithDS(
       <ChartLegend

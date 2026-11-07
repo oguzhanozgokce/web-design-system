@@ -5,6 +5,7 @@ declare const process: { env: { NODE_ENV?: string } };
 import { animate, motion, useMotionValue, type MotionValue } from 'motion/react';
 import {
   createContext,
+  memo,
   use,
   useCallback,
   useEffect,
@@ -1131,7 +1132,7 @@ export function ChartDataTable<T>({
   const table = (
     <table
       data-slot="chart-table"
-      className={isVisible ? styles.table() : 'sr-only'}
+      className={styles.table()}
       aria-labelledby={caption === null ? labelledBy : undefined}
     >
       {caption !== null ? <caption className={styles.caption()}>{caption}</caption> : null}
@@ -1173,7 +1174,7 @@ export function ChartDataTable<T>({
       </tbody>
     </table>
   );
-  if (!isVisible) return table;
+  if (!isVisible) return <div className="sr-only">{table}</div>;
   return (
     <div
       data-slot="chart-table-view"
@@ -1188,6 +1189,8 @@ export function ChartDataTable<T>({
     </div>
   );
 }
+
+const MemoChartDataTable = memo(ChartDataTable) as typeof ChartDataTable;
 
 export interface ChartNameProps {
   'aria-label'?: string;
@@ -1296,7 +1299,7 @@ export function ChartShell<T>({
     >
       {legend === 'top' ? legendNode : null}
       {view === 'table' ? (
-        <ChartDataTable
+        <MemoChartDataTable
           model={model}
           labels={labels}
           caption={caption}
@@ -1319,7 +1322,7 @@ export function ChartShell<T>({
         {descriptionText}
       </span>
       {view === 'chart' ? (
-        <ChartDataTable
+        <MemoChartDataTable
           model={model}
           labels={labels}
           caption={caption}

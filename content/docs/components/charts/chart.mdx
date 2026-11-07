@@ -106,6 +106,9 @@ readers can read it, and `view="table"` shows it instead of the chart, inside a 
 that scrolls when it is taller than the chart was. [Chart card](/docs/components/charts/chart-card)
 puts a toggle for it in the header.
 
+The hidden table stays inside a clipped wrapper so long values cannot widen a compact chart.
+Moving between points reuses the table; changing the data, labels or locale updates its cells.
+
 <ComponentPreview name="chart-table" align="stretch" />
 
 ## API
