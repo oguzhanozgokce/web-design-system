@@ -1,0 +1,16 @@
+{
+  "name": "activity-bars",
+  "type": "registry:ui",
+  "title": "Activity Bars",
+  "description": "A small equaliser whose bars rise and fall at different speeds while something plays, records or speaks, lie down when it stops and hold a still silhouette with reduced motion.",
+  "category": "feedback",
+  "files": ["ui/activity-bars.tsx"],
+  "credits": [
+    {
+      "source": "Bencho",
+      "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/dynamic-island",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+    }
+  ]
+}

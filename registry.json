@@ -4,6 +4,36 @@
   "homepage": "https://github.com/oguzhanozgokce/web-design-system",
   "items": [
     {
+      "name": "activity-bars",
+      "type": "registry:ui",
+      "title": "Activity Bars",
+      "description": "A small equaliser whose bars rise and fall at different speeds while something plays, records or speaks, lie down when it stops and hold a still silhouette with reduced motion.",
+      "categories": [
+        "feedback"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/motion",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/activity-bars.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Bencho",
+            "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/dynamic-island",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+          }
+        ]
+      }
+    },
+    {
       "name": "alert-dialog",
       "type": "registry:ui",
       "title": "Alert Dialog",
@@ -24,6 +54,24 @@
       "files": [
         {
           "path": "registry/ds/ui/alert-dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "area-chart",
+      "type": "registry:ui",
+      "title": "Area Chart",
+      "description": "Filled lines that overlap with a gradient, stack into a total or share a whole, with a crosshair, a tooltip and dashed comparison lines.",
+      "categories": [
+        "charts"
+      ],
+      "registryDependencies": [
+        "@ds/line-chart"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/area-chart.tsx",
           "type": "registry:ui"
         }
       ]
@@ -99,6 +147,35 @@
       ]
     },
     {
+      "name": "bar-chart",
+      "type": "registry:ui",
+      "title": "Bar Chart",
+      "description": "Grouped, stacked and percent bars, vertical or horizontal, with capsule segments, a series below the baseline, full-height tracks, a ringed active column and a gliding tooltip.",
+      "categories": [
+        "charts"
+      ],
+      "registryDependencies": [
+        "@ds/chart",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/bar-chart.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Bencho",
+            "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/stacked-bars",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+          }
+        ]
+      }
+    },
+    {
       "name": "button-group",
       "type": "registry:ui",
       "title": "Button Group",
@@ -165,6 +242,93 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "chart-card",
+      "type": "registry:ui",
+      "title": "Chart Card",
+      "description": "A card around one chart with a title, a rolling headline figure and a delta tag, a period switch, a table toggle, loading and empty states, and a readout mode that swaps the headline for the active bar.",
+      "categories": [
+        "charts"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/card",
+        "@ds/chart",
+        "@ds/content-state",
+        "@ds/ds-provider",
+        "@ds/icon-button",
+        "@ds/labels",
+        "@ds/rolling-number",
+        "@ds/segmented-control",
+        "@ds/skeleton",
+        "@ds/tag",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/chart-card.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Bencho",
+            "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/stacked-bars",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+          },
+          {
+            "source": "BoardUI",
+            "url": "https://github.com/BoardUI/boardui/blob/main/components/application/dashboard/orders-chart-card.tsx",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "chart",
+      "type": "registry:ui",
+      "title": "Chart",
+      "description": "The parts every chart shares, from scales, ticks, stacking and curves to the colour roles, a legend, a tooltip card and the data table that gives each chart its accessible view.",
+      "categories": [
+        "charts"
+      ],
+      "dependencies": [
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/labels",
+        "@ds/motion",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/chart.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/ds/lib/chart.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "d3-shape",
+            "url": "https://github.com/d3/d3-shape/blob/main/src/curve/monotone.js",
+            "license": "ISC",
+            "copyright": "Copyright 2010-2022 Mike Bostock"
+          }
+        ]
+      }
     },
     {
       "name": "checkbox",
@@ -312,6 +476,58 @@
       ]
     },
     {
+      "name": "data-table",
+      "type": "registry:ui",
+      "title": "Data Table",
+      "description": "Table driven by column definitions, with sorting, search, filters and paging in the client or on the server, status and tag cells, row actions, bulk selection, loading skeletons and empty states.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/empty-state",
+        "@ds/icon-button",
+        "@ds/labels",
+        "@ds/list-box",
+        "@ds/menu",
+        "@ds/pagination",
+        "@ds/rolling-number",
+        "@ds/search-field",
+        "@ds/select",
+        "@ds/skeleton",
+        "@ds/status-tag",
+        "@ds/table",
+        "@ds/tag",
+        "@ds/tooltip",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/data-table.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/ds/lib/data-table.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "BoardUI",
+            "url": "https://github.com/BoardUI/boardui/blob/main/components/application/data-table/data-table.tsx",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+          }
+        ]
+      }
+    },
+    {
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
@@ -428,6 +644,42 @@
       ]
     },
     {
+      "name": "dynamic-island",
+      "type": "registry:ui",
+      "title": "Dynamic Island",
+      "description": "A pill that holds one live activity and grows into a card on one spring, with the compact and expanded faces swapping through a blurred cross-fade, a nudge when the activity changes, separate buttons for its controls and announcements for discrete events.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/labels",
+        "@ds/motion",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/dynamic-island.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Bencho",
+            "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/dynamic-island",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+          }
+        ]
+      }
+    },
+    {
       "name": "dynamic-theme",
       "type": "registry:ui",
       "title": "Dynamic theme",
@@ -523,6 +775,128 @@
       ]
     },
     {
+      "name": "file-dropzone",
+      "type": "registry:ui",
+      "title": "File dropzone",
+      "description": "A filled drop box that grows toward a file held over it, opens the file picker on click or Enter, takes paste, refuses files by type, size or count with a shake and a red line, and gulps the files it accepts.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/files",
+        "@ds/labels",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/file-dropzone.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Bencho",
+            "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/upload-dropzone",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+          }
+        ]
+      }
+    },
+    {
+      "name": "file-list",
+      "type": "registry:ui",
+      "title": "File list",
+      "description": "Rows of files, each with a page icon whose coloured extension label sticks out of it, the name truncated in the middle, the size, a rolling percentage over a thin bar while it uploads, a check when it is done, and retry, cancel and remove actions.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/files",
+        "@ds/icon-button",
+        "@ds/labels",
+        "@ds/progress",
+        "@ds/rolling-number",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/file-list.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Bencho",
+            "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/upload-dropzone",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+          }
+        ]
+      }
+    },
+    {
+      "name": "file-upload",
+      "type": "registry:ui",
+      "title": "File upload",
+      "description": "A file dropzone and a file list wired to your upload function, with progress, concurrency, cancel through an AbortSignal, retry, announcements, and a single-file layout whose box closes around the one file it holds.",
+      "categories": [
+        "inputs"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/file-dropzone",
+        "@ds/file-list",
+        "@ds/files",
+        "@ds/labels",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/file-upload.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Bencho",
+            "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/upload-dropzone",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+          }
+        ]
+      }
+    },
+    {
+      "name": "files",
+      "type": "registry:lib",
+      "title": "File helpers",
+      "description": "Checks and formatting for picked and dropped files: type, size and count validation, locale-aware sizes, file kinds and extensions.",
+      "categories": [
+        "foundations"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/lib/files.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "icon-button",
       "type": "registry:ui",
       "title": "Icon Button",
@@ -606,6 +980,26 @@
         {
           "path": "registry/ds/lib/labels.ts",
           "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "line-chart",
+      "type": "registry:ui",
+      "title": "Line Chart",
+      "description": "One or several lines with monotone, linear or step curves, gaps for missing values, dashed comparison series and a crosshair that carries the tooltip.",
+      "categories": [
+        "charts"
+      ],
+      "registryDependencies": [
+        "@ds/chart",
+        "@ds/motion",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/line-chart.tsx",
+          "type": "registry:ui"
         }
       ]
     },
@@ -701,20 +1095,18 @@
       "name": "number-field",
       "type": "registry:ui",
       "title": "Number field",
-      "description": "Number input with minus and plus or stacked chevrons inside the field, locale-aware formats and an optional rolling odometer.",
+      "description": "Number input with minus and plus, stacked chevrons or a compact quantity slab, locale-aware formats and digits that roll like an odometer.",
       "categories": [
         "inputs"
       ],
       "dependencies": [
-        "@number-flow/react",
-        "motion",
         "react-aria-components"
       ],
       "registryDependencies": [
         "@ds/ds-provider",
         "@ds/field",
         "@ds/labels",
-        "@ds/motion",
+        "@ds/rolling-number",
         "@ds/utils"
       ],
       "files": [
@@ -722,7 +1114,58 @@
           "path": "registry/ds/ui/number-field.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Bencho",
+            "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/rolling-counter",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pagination",
+      "type": "registry:ui",
+      "title": "Pagination",
+      "description": "Numbered page navigation with ellipses, a sliding current-page indicator, and a compact form with icon arrows when its container is narrow.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/button",
+        "@ds/ds-provider",
+        "@ds/labels",
+        "@ds/motion",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/pagination.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/ds/lib/pagination.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "BoardUI",
+            "url": "https://github.com/BoardUI/boardui/blob/main/components/base/pagination/pagination.tsx",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+          }
+        ]
+      }
     },
     {
       "name": "password-field",
@@ -818,6 +1261,44 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "rolling-number",
+      "type": "registry:ui",
+      "title": "Rolling number",
+      "description": "A formatted number whose digits roll like an odometer, each column counting forward through its carry, with the plain value read to screen readers.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/motion",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/rolling-number.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/ds/lib/odometer.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "Bencho",
+            "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/rolling-counter",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+          }
+        ]
+      }
     },
     {
       "name": "search-field",
@@ -982,6 +1463,26 @@
       ]
     },
     {
+      "name": "sparkline",
+      "type": "registry:ui",
+      "title": "Sparkline",
+      "description": "A word-sized line or area for stat tiles and table cells, named and described by its trend, with an end dot at the latest value.",
+      "categories": [
+        "charts"
+      ],
+      "registryDependencies": [
+        "@ds/chart",
+        "@ds/motion",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/sparkline.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "spinner",
       "type": "registry:ui",
       "title": "Spinner",
@@ -996,6 +1497,26 @@
       "files": [
         {
           "path": "registry/ds/ui/spinner.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "status-tag",
+      "type": "registry:ui",
+      "title": "Status Tag",
+      "description": "Status labels driven by a key, sixteen built-in states with a tone and a dot each, extended with the app's own keys, labels and tones, plus a StatusDot for lists.",
+      "categories": [
+        "data-display"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/tag",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/status-tag.tsx",
           "type": "registry:ui"
         }
       ]
@@ -1021,6 +1542,40 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "title": "Table",
+      "description": "Styled React Aria table parts with a tinted header, sortable columns, checkbox selection, two densities, a sticky header and row header, and a load-more row.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/checkbox",
+        "@ds/ds-provider",
+        "@ds/spinner",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/table.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "credits": [
+          {
+            "source": "BoardUI",
+            "url": "https://github.com/BoardUI/boardui/blob/main/components/base/table/table.tsx",
+            "license": "MIT",
+            "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+          }
+        ]
+      }
     },
     {
       "name": "tabs",

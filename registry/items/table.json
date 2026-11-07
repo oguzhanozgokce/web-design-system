@@ -1,0 +1,16 @@
+{
+  "name": "table",
+  "type": "registry:ui",
+  "title": "Table",
+  "description": "Styled React Aria table parts with a tinted header, sortable columns, checkbox selection, two densities, a sticky header and row header, and a load-more row.",
+  "category": "data-display",
+  "files": ["ui/table.tsx"],
+  "credits": [
+    {
+      "source": "BoardUI",
+      "url": "https://github.com/BoardUI/boardui/blob/main/components/base/table/table.tsx",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "area-chart",
+  "type": "registry:ui",
+  "title": "Area Chart",
+  "description": "Filled lines that overlap with a gradient, stack into a total or share a whole, with a crosshair, a tooltip and dashed comparison lines.",
+  "category": "charts",
+  "files": ["ui/area-chart.tsx"]
+}

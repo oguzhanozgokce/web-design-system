@@ -1,0 +1,215 @@
+---
+title: Dynamic Island
+description: A pill that holds one live activity and grows into a card on one spring, with the compact and expanded faces swapping through a blurred cross-fade, a nudge when the activity changes, separate buttons for its controls and announcements for discrete events.
+---
+
+<ComponentPreview name="dynamic-island-demo" />
+
+## Installation
+
+<InstallCommand name="dynamic-island" />
+
+## Usage
+
+```tsx
+import {
+  DynamicIsland,
+  DynamicIslandCompact,
+  DynamicIslandExpanded,
+} from '@/components/ds/dynamic-island';
+
+<DynamicIsland title="Timer" activityKey={state} announcement={isDone ? 'Timer done' : undefined}>
+  <DynamicIslandCompact leading={<TimerIcon />} trailing={<RollingNumber value={left} />} />
+  <DynamicIslandExpanded>
+    <IconButton aria-label="Pause timer" icon={<PauseIcon />} onPress={pause} />
+    <span className="text-4xl">{clock(left)}</span>
+  </DynamicIslandExpanded>
+</DynamicIsland>;
+```
+
+The island knows nothing about timers, calls or music. It holds two faces you fill:
+`DynamicIslandCompact` is the pill, with a glyph at each end and the middle left quiet, and
+`DynamicIslandExpanded` is the card it grows into. Pressing the pill switches between them.
+
+The faces never stretch into each other. The pill measures the face it is about to show and
+springs its width, height and corners there, all on one spring, while the old face leaves through a
+small blur and scale and the new one arrives a beat later. For an instant only the shape is moving,
+which is what makes it read as one object. The island sits in the middle of its container and grows
+evenly from there, so give the container room for the expanded face, or a fixed height as the demo
+does, and nothing around it moves.
+
+## Examples
+
+### Timer
+
+A countdown whose digits roll with [Rolling Number](/docs/components/data-display/rolling-number).
+The pill starts compact; the expanded face holds a pause button. When the time is up the example
+opens the island itself, swaps to a done face with a restart button and announces "Timer done".
+
+<ComponentPreview name="dynamic-island-timer" />
+
+### Call
+
+A call that starts expanded, with mute and end buttons inside the card. Ending the call collapses
+the island to a red "Ended" pill and announces it. Because the button that held focus leaves with
+its face, focus moves to the island's toggle instead of falling back to the page.
+
+<ComponentPreview name="dynamic-island-call" />
+
+### Music
+
+[Activity Bars](/docs/components/feedback/activity-bars) dance in the compact pill and beside the
+track while it plays and lie down when it is paused. Changing the track changes `activityKey`, so
+the faces cross-fade and the island gives a small nudge, the way a new activity arrives on a phone.
+The example sits in a fixed-height frame, so the page below it does not move when the card opens.
+
+<ComponentPreview name="dynamic-island-music" />
+
+### Upload
+
+The percentage rolls like an odometer in both faces. A cancel button sits in the card; finishing or
+cancelling swaps to a result face and says so to screen readers. The progress bar inside is an
+ordinary [Progress](/docs/components/feedback/progress) indicator with its own name.
+
+<ComponentPreview name="dynamic-island-upload" />
+
+### Download
+
+A circular progress ring leads the compact pill and the card pauses and resumes. Status colours
+inside the island come from the dark theme, so `text-info` and `bg-success-soft` keep their contrast
+on the dark pill without any extra classes.
+
+<ComponentPreview name="dynamic-island-download" />
+
+### Stats with stacked bars
+
+The island can hold a chart. The expanded card carries a small stacked
+[Bar Chart](/docs/components/charts/bar-chart) of visits per hour, and new visits keep arriving: the
+last column grows and the total rolls in both faces. Hovering or arrowing to a column swaps the
+headline for that hour, the way a [Chart card](/docs/components/charts/chart-card) does with
+`readout="headline"`; the chart's own tooltip is off because the pill clips what overflows it. The
+chart sets `--chart-surface` to the island's colour, so the columns that step back mix toward the
+pill and not toward a card. Pressing the plot does not close the island, since the plot is its own
+tab stop with its own keys.
+
+<ComponentPreview name="dynamic-island-stats" />
+
+### Tones
+
+`tone="dark"`, the default, is dark in both colour schemes: the island is the screen switched off
+around a camera, not a surface of the page. `tone="light"` is a raised white pill with a soft
+shadow, also in both schemes. Each tone scopes its own theme, so everything inside, including
+buttons, follows the island and not the page.
+
+<ComponentPreview name="dynamic-island-tones" />
+
+## API
+
+### DynamicIsland
+
+| Prop               | Type                            | Default  |
+| ------------------ | ------------------------------- | -------- |
+| `title`            | `string`                        |          |
+| `isExpanded`       | `boolean`                       |          |
+| `defaultExpanded`  | `boolean`                       | `false`  |
+| `onExpandedChange` | `(isExpanded: boolean) => void` |          |
+| `isDisabled`       | `boolean`                       | `false`  |
+| `tone`             | `'dark' \| 'light'`             | `'dark'` |
+| `activityKey`      | `Key`                           |          |
+| `announcement`     | `string`                        |          |
+| `labels`           | `Partial<DynamicIslandLabels>`  |          |
+| `className`        | `string`                        |          |
+| `children`         | `ReactNode`                     |          |
+
+`title` names the activity ("Timer", "Upload of photos.zip") and becomes the toggle's accessible
+name through the `toggle` label. Change `activityKey` when a different activity, or a different
+state of one, takes the island: the faces cross-fade even when the island stays compact, and the
+pill nudges. Ticking values such as a clock do not need a new key; the pill follows their size on
+its own. Every other `div` attribute is passed to the root.
+
+`announcement` is read out by screen readers when it changes. Use it for discrete events, such as
+"Upload complete" or "Call ended", never for a value that ticks. Set it to an empty string to clear
+it; the same text twice in a row is announced once.
+
+### DynamicIslandCompact
+
+| Prop        | Type        | Default |
+| ----------- | ----------- | ------- |
+| `leading`   | `ReactNode` |         |
+| `trailing`  | `ReactNode` |         |
+| `children`  | `ReactNode` |         |
+| `className` | `string`    |         |
+
+A 36px row, at least 152px wide, with `leading` at the start, `trailing` at the end and `children`
+truncated in the middle. Its text is `text-sm font-medium` with tabular digits.
+
+### DynamicIslandExpanded
+
+| Prop        | Type        | Default |
+| ----------- | ----------- | ------- |
+| `children`  | `ReactNode` |         |
+| `className` | `string`    |         |
+
+A column 320px wide with `px-4 py-3.5` and a 12px gap, never wider than its container. Change the
+width or padding with `className`, such as `w-72` or `gap-4 px-5 py-4`. Without an expanded face the
+island is a status pill with no toggle.
+
+### Styling
+
+| Part    | Classes                                                                                             |
+| ------- | --------------------------------------------------------------------------------------------------- |
+| pill    | `rounded-[min(2.5rem,var(--radius-control))] overflow-hidden`, a 1px inset ring of `outline-subtle` |
+| dark    | `bg-surface-container-lowest` under `data-theme="dark"`, `bg-surface-container-low` when hovered    |
+| light   | `bg-surface-raised shadow-sm` under `data-theme="light"`, `bg-surface-overlay-hover` when hovered   |
+| pressed | the pill scales to 0.97                                                                             |
+| focus   | a 2px outline 2px outside the pill, in the page's `primary`                                         |
+
+The corner radius is 40px, capped by the pill's height, so the compact pill is fully round and a
+tall card lands on 40px corners as it grows. A theme with a smaller `--radius-control` makes the
+island squarer too.
+
+### Styles
+
+`dynamicIslandStyles` exposes the slots `root`, `nudge`, `pill`, `toggle`, `faces`, `compact`,
+`leading`, `center`, `trailing`, `expanded` and `announcer`, with the variants `tone`,
+`interactive` and `motion`. `DynamicIslandStyleProps` is its variant props type.
+
+### Data attributes
+
+Root: `data-slot="dynamic-island"`, `data-tone`, `data-expanded`. Pill:
+`data-slot="dynamic-island-pill"` with `data-theme`. Toggle: `data-slot="dynamic-island-toggle"`
+with React Aria's `data-hovered`, `data-pressed`, `data-focus-visible` and `data-disabled`. Faces:
+`data-slot="dynamic-island-compact"` and `"dynamic-island-expanded"`, with `data-exiting` while a
+face leaves. Parts: `data-slot="dynamic-island-nudge"`, `"dynamic-island-faces"`, `"leading"`,
+`"center"`, `"trailing"`, `"dynamic-island-announcer"`.
+
+### Labels
+
+Pass `labels` to one island, or set them for every island with
+`<DSProvider labels={{ dynamicIsland: { … } }}>`.
+
+| Key      | Default   | Used for                                              |
+| -------- | --------- | ----------------------------------------------------- |
+| `toggle` | `{title}` | the accessible name of the button that opens the card |
+
+## Accessibility
+
+- The toggle is a real React Aria `Button` laid over the pill's background, with `aria-expanded`
+  and `aria-controls` pointing at the faces. While the island is compact it is also described by
+  the compact face, so screen readers hear "Timer, button, collapsed, 4:59".
+- Controls in the expanded face are ordinary buttons and siblings of the toggle, never inside it, so
+  there is no interactive content nested in a button. Pressing an empty part of the pill reaches
+  the toggle; pressing a control reaches only that control.
+- Enter and Space toggle the island. Tab moves from the toggle into the card's controls. Escape
+  collapses the card from anywhere inside it and returns focus to the toggle. When the control that
+  holds focus leaves with its face, focus moves to the toggle.
+- The face that is leaving is `inert` and hidden from assistive technology during its cross-fade,
+  so it cannot be focused or read twice.
+- `announcement` writes discrete events into a polite status region outside the pill. Ticking
+  values are never announced.
+- The island takes its direction from the locale, so `leading` sits on the right in Arabic.
+- With reduced motion, from the system or `DSProvider motion="reduced"`, the pill snaps to its new
+  size, the faces fade without blur or scale, and the nudge and press scale are off.
+  `motion="disabled"` swaps the faces at once.
+- Contrast and structure are checked with axe in light, dark and RTL, for both tones and both faces,
+  by `dynamic-island.test.tsx`.

@@ -1,0 +1,16 @@
+{
+  "name": "file-upload",
+  "type": "registry:ui",
+  "title": "File upload",
+  "description": "A file dropzone and a file list wired to your upload function, with progress, concurrency, cancel through an AbortSignal, retry, announcements, and a single-file layout whose box closes around the one file it holds.",
+  "category": "inputs",
+  "files": ["ui/file-upload.tsx"],
+  "credits": [
+    {
+      "source": "Bencho",
+      "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/upload-dropzone",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+---
+title: Pagination
+description: Numbered page navigation with ellipses, a sliding current-page indicator, and a compact form with icon arrows when its container is narrow.
+---
+
+<ComponentPreview name="pagination-demo" />
+
+## Installation
+
+<InstallCommand name="pagination" />
+
+## Usage
+
+```tsx
+import { Pagination } from '@/components/ds/pagination';
+
+const [page, setPage] = useState(1);
+
+<Pagination page={page} onPageChange={setPage} pageCount={12} />;
+```
+
+Pagination moves through a list that is split into pages, under a table or a grid of results. For a
+feed that grows as people scroll, use a load-more row instead (see
+[Table](/docs/components/data-display/table)). [DataTable](/docs/components/data-display/data-table)
+renders a pagination of its own.
+
+Previous and Next sit at the ends as outline buttons; the pages sit between them as quiet numbers.
+The current page is raised on the segment surface, the same white pill a
+[Segmented Control](/docs/components/navigation/segmented-control) uses, and slides to the new page
+over 250ms on the fluid curve.
+
+## Examples
+
+### Ellipses
+
+The first and last pages always show. Around the current page, `siblingCount` pages show on each
+side (1 by default) and the gaps collapse into an ellipsis. An ellipsis always stands for two pages
+or more, and the number of slots stays the same as the page moves, so the arrows never jump.
+
+<ComponentPreview name="pagination-siblings" />
+
+### Narrow containers
+
+The pagination watches its own width with a container query, not the window. When it is narrower
+than 36rem (30rem at `sm`), Previous and Next become icon buttons, keeping their names for screen
+readers, and the sibling pages drop out. Both layouts are in the server-rendered HTML, so nothing
+shifts on hydration.
+
+<ComponentPreview name="pagination-compact" />
+
+### Sizes
+
+`md` cells are 40px, `sm` cells 32px for card footers and tables.
+
+<ComponentPreview name="pagination-sizes" />
+
+### Disabled
+
+`isDisabled` turns every button off, for example while the next page loads. With one page, both
+arrows are disabled and the single page shows as current.
+
+<ComponentPreview name="pagination-disabled" />
+
+## API
+
+| Prop           | Type                        | Default        |
+| -------------- | --------------------------- | -------------- |
+| `pageCount`    | `number`                    |                |
+| `page`         | `number`, 1-based           |                |
+| `defaultPage`  | `number`                    | `1`            |
+| `onPageChange` | `(page: number) => void`    |                |
+| `siblingCount` | `number`                    | `1`            |
+| `size`         | `'sm' \| 'md'`              | `'md'`         |
+| `isDisabled`   | `boolean`                   | `false`        |
+| `labels`       | `Partial<PaginationLabels>` |                |
+| `aria-label`   | `string`                    | `"Pagination"` |
+
+Every other `<nav>` attribute is passed through. A page outside `1…pageCount` is clamped.
+
+`lib/pagination` exports the pure helpers behind the layout: `getPageNumbers(page, pageCount,
+siblingCount)` returns the pages with `null` for each ellipsis, and `getPaginationSlots` merges the
+wide and compact layouts with stable keys.
+
+### Data attributes
+
+`data-slot="pagination"` with `data-size` and `data-disabled`; parts `"pagination-list"`,
+`"pagination-page"` (with `data-current`), `"pagination-indicator"` and `"pagination-ellipsis"`.
+
+### Labels
+
+Pass `labels`, or set them for every pagination with `<DSProvider labels={{ pagination: { … } }}>`.
+
+| Key            | Default         | Used for                                   |
+| -------------- | --------------- | ------------------------------------------ |
+| `navigation`   | `Pagination`    | the name of the `<nav>` landmark           |
+| `previous`     | `Previous`      | the visible text of the Previous button    |
+| `next`         | `Next`          | the visible text of the Next button        |
+| `previousPage` | `Previous page` | the accessible name of the Previous button |
+| `nextPage`     | `Next page`     | the accessible name of the Next button     |
+| `page`         | `Page {page}`   | the accessible name of each page button    |
+
+`{page}` is the page number formatted for the `DSProvider` locale. Give each pagination on a page its
+own `aria-label`, such as "Pages of Projects", when there is more than one.
+
+## Accessibility
+
+- A `<nav>` landmark holds a list of buttons. The current page has `aria-current="page"`, and the
+  ellipses are hidden from screen readers.
+- Every page and arrow is a real button in the tab order, pressed with Enter or Space.
+- When an arrow turns off at the first or last page, focus moves to the current page instead of
+  being lost.
+- The arrows mirror in right-to-left languages, and page numbers use the locale's digits.
+- Under reduced motion the current page changes without sliding.
+- `pagination.test.tsx` checks contrast and names with axe in light, dark and RTL.

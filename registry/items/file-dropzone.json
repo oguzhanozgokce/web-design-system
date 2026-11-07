@@ -1,0 +1,16 @@
+{
+  "name": "file-dropzone",
+  "type": "registry:ui",
+  "title": "File dropzone",
+  "description": "A filled drop box that grows toward a file held over it, opens the file picker on click or Enter, takes paste, refuses files by type, size or count with a shake and a red line, and gulps the files it accepts.",
+  "category": "inputs",
+  "files": ["ui/file-dropzone.tsx"],
+  "credits": [
+    {
+      "source": "Bencho",
+      "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/upload-dropzone",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 title: Number field
-description: Number input with minus and plus or stacked chevrons inside the field, locale-aware formats and an optional rolling odometer.
+description: Number input with minus and plus, stacked chevrons or a compact quantity slab, locale-aware formats and digits that roll like an odometer.
 ---
 
 <ComponentPreview name="number-field-demo" />
@@ -35,8 +35,33 @@ guest counts, where most changes are one or two steps and the buttons are the ma
 `layout="inline"` stacks two half-height chevrons at the end and leaves the value where a text field
 would put it, so it lines up with the other fields in a form. Its buttons are small, so prefer the
 stepper layout on touch-first screens. In both, a button tints on hover and darkens while pressed.
+`layout="compact"` is a small slab that hugs its number, described [below](#compact).
 
 <ComponentPreview name="number-field-layouts" />
+
+### Compact
+
+`layout="compact"` is a quantity stepper for cards, list rows and carts: a slab with a small inset
+that holds two soft square keys and the number between them. The keys sit concentric in the
+slab's corner, sink slightly while pressed, and the slab is only as wide as the number it shows.
+When a digit arrives, as in 9 to 10, the slab widens with it while the digits roll, and narrows
+again when one leaves. Holding a key repeats the step, and the number is still a text box: click
+or tab into it and type, and the slab fits what is typed. Compact fields roll by default; pass
+`isAnimated={false}` to turn that off.
+
+<ComponentPreview name="number-field-compact" />
+
+The slab is 32, 40 or 48 px tall, like every field, with keys of 24, 30 and 38 px. Use `sm` in
+list rows and table cells, `md` in cards, and `lg` where the quantity is the main choice on the
+screen.
+
+<ComponentPreview name="number-field-compact-sizes" />
+
+In a list, give each field an `aria-label` that names its row, so the keys read as "Increase Prints,
+10 × 15 cm" rather than a run of identical buttons. A [rolling number](/docs/components/data-display/rolling-number)
+for the total keeps the summary moving with the rows.
+
+<ComponentPreview name="number-field-compact-list" />
 
 ### Formats
 
@@ -60,9 +85,9 @@ limits, and the scroll wheel steps while the field has focus. Holding a button r
 ### Sizes
 
 `md` (40 px) is the default. `sm` (32 px) suits table rows and filter bars, `lg` (48 px) suits
-sign-up forms and touch screens. The stepper buttons are as wide as the field is tall. Each size
-has a minimum width that fits about eight characters; set a width with `className` for longer
-values.
+sign-up forms and touch screens. The stepper buttons are as wide as the field is tall. In the stepper
+and inline layouts each size has a minimum width that fits about eight characters; set a width
+with `className` for longer values. The compact layout fits its number instead.
 
 <ComponentPreview name="number-field-sizes" />
 
@@ -84,15 +109,16 @@ hover. It takes every size and layout.
 
 ### Animated
 
-`isAnimated` renders the value with [Number Flow](https://number-flow.barvian.me) while nobody is
-typing in the field, so each step rolls digit by digit like an odometer, on the library's spatial
-spring for the current motion profile. The input underneath keeps the real value, so typing,
-selection, screen readers and forms work as usual: the moment someone types, the plain input shows,
-and a typed value appears without rolling when it is committed. Under reduced motion and in
-forced-colours mode the field shows plain text instead. It also does when the digits are not Latin,
-as in `ar-EG` or when someone types Arabic-Indic digits, and in right-to-left locales where a
-currency, percent, unit or sign would change order. It needs the `@number-flow/react` package, which
-the install command adds.
+`isAnimated` shows the value as a [rolling number](/docs/components/data-display/rolling-number)
+while nobody is typing in the field, so each step rolls like an odometer: every column counts
+forward through its carry, the ones first and each column to the left a beat later, on the
+library's spatial spring for the current motion profile. The input underneath keeps the real value,
+so typing, selection, screen readers and forms work as usual: the moment someone types, the plain
+input shows, and a typed value appears without rolling when it is committed. It rolls in every
+locale, including right-to-left ones and those with their own digits, such as Arabic-Indic digits
+in `ar-EG`. Under reduced motion and in forced-colours mode the field shows plain text instead, and
+so it does while the text in the box is not what the formatter would write, such as Latin digits
+typed into an `ar-EG` field. The compact layout rolls by default; the others need `isAnimated`.
 
 <ComponentPreview name="number-field-animated" />
 
@@ -123,27 +149,27 @@ preview text here.
 
 ### NumberField
 
-| Prop                 | Type                                       | Default     |
-| -------------------- | ------------------------------------------ | ----------- |
-| `value`              | `number`                                   |             |
-| `defaultValue`       | `number`                                   | `NaN`       |
-| `onChange`           | `(value: number) => void`                  |             |
-| `minValue`           | `number`                                   |             |
-| `maxValue`           | `number`                                   |             |
-| `step`               | `number`                                   | `1`         |
-| `formatOptions`      | `Intl.NumberFormatOptions`                 |             |
-| `commitBehavior`     | `'snap' \| 'validate'`                     | `'snap'`    |
-| `layout`             | `'stepper' \| 'inline'`                    | `'stepper'` |
-| `size`               | `'sm' \| 'md' \| 'lg'`                     | `'md'`      |
-| `variant`            | `'outline' \| 'soft'`                      | `'outline'` |
-| `isAnimated`         | `boolean`                                  | `false`     |
-| `placeholder`        | `string`                                   |             |
-| `isWheelDisabled`    | `boolean`                                  | `false`     |
-| `incrementAriaLabel` | `string`                                   |             |
-| `decrementAriaLabel` | `string`                                   |             |
-| `inputRef`           | `Ref<HTMLInputElement>`                    |             |
-| `labels`             | `Partial<NumberFieldLabels & FieldLabels>` |             |
-| `className`          | `string \| ((renderProps) => string)`      |             |
+| Prop                 | Type                                       | Default                         |
+| -------------------- | ------------------------------------------ | ------------------------------- |
+| `value`              | `number`                                   |                                 |
+| `defaultValue`       | `number`                                   | `NaN`                           |
+| `onChange`           | `(value: number) => void`                  |                                 |
+| `minValue`           | `number`                                   |                                 |
+| `maxValue`           | `number`                                   |                                 |
+| `step`               | `number`                                   | `1`                             |
+| `formatOptions`      | `Intl.NumberFormatOptions`                 |                                 |
+| `commitBehavior`     | `'snap' \| 'validate'`                     | `'snap'`                        |
+| `layout`             | `'stepper' \| 'inline' \| 'compact'`       | `'stepper'`                     |
+| `size`               | `'sm' \| 'md' \| 'lg'`                     | `'md'`                          |
+| `variant`            | `'outline' \| 'soft'`                      | `'outline'`                     |
+| `isAnimated`         | `boolean`                                  | `true` in compact, else `false` |
+| `placeholder`        | `string`                                   |                                 |
+| `isWheelDisabled`    | `boolean`                                  | `false`                         |
+| `incrementAriaLabel` | `string`                                   |                                 |
+| `decrementAriaLabel` | `string`                                   |                                 |
+| `inputRef`           | `Ref<HTMLInputElement>`                    |                                 |
+| `labels`             | `Partial<NumberFieldLabels & FieldLabels>` |                                 |
+| `className`          | `string \| ((renderProps) => string)`      |                                 |
 
 Plus the [shared Field props](/docs/components/inputs/field#shared-props) and every other [React Aria NumberField](https://react-aria.adobe.com/NumberField)
 prop, such as `name`, `validate`, `onBlur` and `isDisabled`. `className` styles the root.
@@ -151,7 +177,7 @@ prop, such as `name`, `validate`, `onBlur` and `isDisabled`. `className` styles 
 ### numberFieldStyles
 
 `numberFieldStyles(variants)` returns one class function per slot: `container`, `value`, `input`,
-`roller`, `steppers` and `stepper`. They add to the [Field](/docs/components/inputs/field#fieldstyles)
+`roller`, `sizer`, `steppers` and `stepper`. They add to the [Field](/docs/components/inputs/field#fieldstyles)
 slots. Variants: `layout`, `size` and `isRolling`; the outline or soft frame comes from
 `fieldStyles`.
 
@@ -163,7 +189,8 @@ buttons
 are `data-slot="decrement"` and `"increment"` with `data-pressed` and `data-disabled`; in the inline
 layout they sit in `data-slot="steppers"`. The input and the animated number sit in
 `data-slot="value"`; the animated number is `data-slot="roller"`, and the input has `data-rolling`
-while it shows. The other parts are listed on [Field](/docs/components/inputs/field#data-attributes).
+while it shows. In the compact layout an invisible `data-slot="sizer"` copy of the text sets the
+slab's width while someone types or motion is reduced. The other parts are listed on [Field](/docs/components/inputs/field#data-attributes).
 
 ### Labels
 
@@ -192,8 +219,10 @@ named by reference to the label element in the same order. `incrementAriaLabel` 
   closed. Each button is named from the field's label, in the word order of the `increase` and
   `decrease` labels, and turns off at the limits.
 - The animated number is hidden from assistive technology; the input it covers keeps the value,
-  the caret and the selection.
-- Stepper buttons are as large as the field is tall: 32, 40 or 48 px. The inline chevrons are half
-  that height, which is why that layout suits forms used with a keyboard; the input itself takes
-  typing and the arrow keys. A disabled field fades once as a whole; its buttons do not fade again.
+  the caret and the selection. Under reduced motion the keys of the compact layout do not sink when
+  pressed and the value changes without rolling.
+- Stepper buttons are as large as the field is tall: 32, 40 or 48 px. The compact keys are 24, 30
+  and 38 px, at least the 24 px minimum target, with the slab's inset around them. The inline
+  chevrons are half the field's height, which is why that layout suits forms used with a keyboard;
+  the input itself takes typing and the arrow keys. A disabled field fades once as a whole; its buttons do not fade again.
 - Contrast is checked with axe in light, dark and RTL by `number-field.test.tsx`.

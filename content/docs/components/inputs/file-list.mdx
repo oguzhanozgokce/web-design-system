@@ -1,0 +1,179 @@
+---
+title: File list
+description: Rows of files, each with a page icon whose coloured extension label sticks out of it, the name truncated in the middle, the size, a rolling percentage over a thin bar while it uploads, a check when it is done, and retry, cancel and remove actions.
+---
+
+<ComponentPreview name="file-list-demo" />
+
+## Installation
+
+<InstallCommand name="file-list" />
+
+## Usage
+
+```tsx
+import { FileList } from '@/components/ds/file-list';
+
+<FileList
+  items={[
+    { id: 'beach', file: { name: 'beach.jpg', size: 3_200_000 }, status: 'complete' },
+    { id: 'interview', file: interviewFile, status: 'uploading', progress: 0.42 },
+  ]}
+  onRemove={(id) => remove(id)}
+  onCancel={(id) => cancel(id)}
+  onRetry={(id) => retry(id)}
+/>;
+```
+
+A file list shows files and what is happening to them; it does not choose or send them. Pair it
+with a [file dropzone](/docs/components/inputs/file-dropzone) when your own code does the sending,
+or use [file upload](/docs/components/inputs/file-upload), which wires the two together around an
+upload function.
+
+Each item needs an `id` and a `file`: a `File`, or any `{ name, size, type? }` for files that are
+already on a server. `status` and `progress` (a fraction from 0 to 1) describe the upload; leave
+them out for a plain list of picked files.
+
+While a file uploads, its percentage rolls digit by digit beside the size and a 4px bar fills
+under the name. When it finishes, the bar fills, folds away half a second later and a check pops
+in at the end of the row.
+
+## Examples
+
+### States
+
+`idle` lists a file with nothing to report. `queued` waits its turn with an empty bar. `uploading`
+shows the percentage and the bar; without `progress` the bar slides back and forth and the row
+says "Uploading". `complete` shows the check. `error` shows the reason in red (from `error`, or
+"Upload failed") and an error mark, with a retry action when `onRetry` is given.
+
+<ComponentPreview name="file-list-states" />
+
+### File icons
+
+`FileIcon` draws a page with a folded corner and the extension on a pill that sticks out past its
+start edge. The pill's colour says what kind of file it is before the word is read: images, video,
+audio, PDFs, documents, spreadsheets, presentations and archives each take one of the eight
+[chart roles](/docs/components/charts/chart#colour), and code and anything else stays grey. A file
+without an extension gets a plain page. Pass `icon` to a row to show something else, such as a
+thumbnail of a picked photo.
+
+<ComponentPreview name="file-list-icons" />
+
+### Variants
+
+`outline` (the default) draws each row as a raised card with a hairline, for lists on the page.
+`soft` sits rows on a neutral fill, for lists inside a card or a dialog. `transparent` draws no
+container, for a single row or a dense list inside something that already frames it.
+
+<ComponentPreview name="file-list-variants" align="stretch" />
+
+### Picked files
+
+Without a status, a row shows the name and size and, with `onRemove`, a remove action. Give the
+list a `renderEmptyState` to say something when the last file is removed.
+
+<ComponentPreview name="file-list-picked" />
+
+## API
+
+### FileList
+
+| Prop               | Type                                   | Default     |
+| ------------------ | -------------------------------------- | ----------- |
+| `items`            | `Iterable<FileListEntry>`              |             |
+| `children`         | `ReactNode \| (item) => ReactNode`     |             |
+| `variant`          | `'outline' \| 'soft' \| 'transparent'` | `'outline'` |
+| `onRemove`         | `(id: Key) => void`                    |             |
+| `onCancel`         | `(id: Key) => void`                    |             |
+| `onRetry`          | `(id: Key) => void`                    |             |
+| `isDisabled`       | `boolean`                              | `false`     |
+| `renderEmptyState` | `() => ReactNode`                      |             |
+| `labels`           | `Partial<FileListLabels>`              |             |
+| `className`        | `string`                               |             |
+
+Plus the other [React Aria GridList](https://react-aria.adobe.com/GridList) props, such as
+`aria-label`, `selectionMode` and `onAction`. Without `children` each item renders as a `FileItem`.
+A `FileListEntry` is `{ id: Key; file: { name: string; size: number; type?: string }; status?;
+progress?; error? }`.
+
+Running rows (`queued` and `uploading`) offer cancel when `onCancel` is given and remove
+otherwise; every other row offers remove when `onRemove` is given.
+
+### FileItem
+
+| Prop         | Type                                                         | Default  |
+| ------------ | ------------------------------------------------------------ | -------- |
+| `id`         | `Key`                                                        |          |
+| `file`       | `{ name: string; size: number; type?: string }`              |          |
+| `status`     | `'idle' \| 'queued' \| 'uploading' \| 'complete' \| 'error'` | `'idle'` |
+| `progress`   | `number`                                                     |          |
+| `error`      | `string`                                                     |          |
+| `icon`       | `ReactNode`                                                  |          |
+| `onRemove`   | `() => void`                                                 |          |
+| `onCancel`   | `() => void`                                                 |          |
+| `onRetry`    | `() => void`                                                 |          |
+| `isDisabled` | `boolean`                                                    | `false`  |
+| `labels`     | `Partial<FileListLabels>`                                    |          |
+| `className`  | `string`                                                     |          |
+
+A row's own handlers win over the list's. Use `FileItem` as a child of `FileList` to compose rows
+by hand.
+
+### FileIcon
+
+| Prop        | Type                              | Default       |
+| ----------- | --------------------------------- | ------------- |
+| `file`      | `{ name: string; type?: string }` |               |
+| `kind`      | `FileKind`                        | from the file |
+| `className` | `string`                          | `size-10`     |
+
+Plus any SVG attribute. The icon is decorative and hidden from assistive technology.
+`fileKindTones` maps each kind to its fill and text classes, and `getFileKind` from `lib/files`
+sorts a file into a kind by its extension, then by its MIME type.
+
+### fileListStyles
+
+`fileListStyles(variants)` returns one class function per slot: `list`, `row`, `icon`, `body`,
+`name`, `nameText`, `stem`, `extension`, `meta`, `metaStatus`, `separator`, `barRow`, `barClip`,
+`bar`, `end`, `statusSlot`, `check` and `failed`. Variants: `variant` and `motion` (`full`,
+`reduced`, `none`).
+
+### Data attributes
+
+The list has `data-slot="file-list"` and `data-variant`. Each row has `data-status` and React
+Aria's `data-focus-visible` and `data-disabled`. Inside a row are `file-icon` (with `data-kind`),
+`body`, `name`, `meta`, `status`, `progress-row` (with `data-collapsed` once the bar has folded),
+`actions`, `status-icon` and `check`.
+
+### Labels
+
+Text the list writes on its own. Pass `labels` to one list or row, or set them for every list with
+`<DSProvider labels={{ fileList: { … } }}>`.
+
+| Key         | Default         | Used for                                       |
+| ----------- | --------------- | ---------------------------------------------- |
+| `list`      | `Files`         | the list's name when it has no `aria-label`    |
+| `remove`    | `Remove {name}` | the remove action                              |
+| `cancel`    | `Cancel {name}` | the cancel action on a running file            |
+| `retry`     | `Retry {name}`  | the retry action on a failed file              |
+| `queued`    | `Waiting`       | the status of a queued file                    |
+| `uploading` | `Uploading`     | the status of an uploading file                |
+| `complete`  | `Uploaded`      | the status of a finished file                  |
+| `failed`    | `Upload failed` | the status of a failed file without an `error` |
+
+## Accessibility
+
+- Built on React Aria `GridList`. The list is one tab stop; the arrow keys move between rows and,
+  inside a row, Left and Right reach its actions. Each row is named by the file name, its size and
+  its status, so "beach.jpg, 3.2 MB, Uploaded" is read on arrival.
+- Every action is a real button named with the file, such as "Retry notes.pdf".
+- While a file uploads, its bar is a progress bar named by the file, and the percentage is read
+  with the row. The rolling digits are visual; the number is read once as plain text. Progress is
+  never announced on its own; [file upload](/docs/components/inputs/file-upload) announces only
+  when a file finishes or fails.
+- The extension is drawn inside a decorative icon; the name keeps the whole file name for screen
+  readers even when it is truncated on screen.
+- Under reduced motion rows fade in instead of sliding, the percentage changes without rolling and
+  the check appears without popping.
+- Contrast is checked with axe in light, dark and RTL by `file-list.test.tsx`.

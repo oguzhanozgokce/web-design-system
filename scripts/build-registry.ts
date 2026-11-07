@@ -181,7 +181,7 @@ const credits = [
 ];
 
 for (const credit of credits) {
-  if (!['MIT', 'Apache-2.0'].includes(credit.license))
+  if (!['MIT', 'ISC', 'Apache-2.0'].includes(credit.license))
     problems.push(
       `${credit.item}: credit ${credit.source} has unsupported license ${credit.license}`,
     );
@@ -204,10 +204,29 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FO
 OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`;
 
+const iscText = (copyright: string) => `${copyright}
+
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without
+fee is hereby granted, provided that the above copyright notice and this permission notice appear
+in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+OF THIS SOFTWARE.`;
+
 const apacheText = (copyright: string) => `${copyright}
 
 Licensed under the Apache License, Version 2.0, the same license as this project; the full text is
 in LICENSE.`;
+
+const licenseText: Record<string, (copyright: string) => string> = {
+  MIT: mitText,
+  ISC: iscText,
+  'Apache-2.0': apacheText,
+};
 
 const bySource = new Map<string, (Credit & { item: string })[]>();
 for (const credit of credits) {
@@ -227,9 +246,7 @@ ${[...bySource.entries()]
   .map(([source, entries]) => {
     const copyrights = [...new Set(entries.map((entry) => entry.copyright))];
     const license = entries[0].license;
-    const text = copyrights
-      .map((copyright) => (license === 'MIT' ? mitText(copyright) : apacheText(copyright)))
-      .join('\n\n');
+    const text = copyrights.map((copyright) => licenseText[license](copyright)).join('\n\n');
     return `## ${source}
 
 ${entries.map((entry) => `- \`${entry.item}\`: <${entry.url}>`).join('\n')}

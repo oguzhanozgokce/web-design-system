@@ -13,20 +13,20 @@ copy, so the source in `registry/ds` must work after the shadcn CLI copies it so
 
 ## Layout
 
-| Path                    | Contains                                                                |
-| ----------------------- | ----------------------------------------------------------------------- |
-| `registry/ds/ui/`       | Components and their `*.test.tsx` tests                                 |
-| `registry/ds/lib/`      | `utils`, `labels`, `icons` (generated), `motion`, `color-scheme`        |
-| `registry/ds/hooks/`    | Shared hooks                                                            |
-| `registry/ds/blocks/`   | Whole sections: app shell, settings page, sign-in                       |
-| `registry/ds/styles/`   | `theme.css` (hand-written) and `tokens.css` (generated)                 |
-| `registry/ds/examples/` | Docs examples, one default export each; never installed                 |
-| `registry/items/*.json` | One registry item each; `registry.json` is generated from them          |
-| `content/docs/`         | The catalogue (Fumadocs MDX)                                            |
-| `tokens/config.json`    | Seed colour and palette style                                           |
-| `scripts/`              | Generators and `check-ds`                                               |
-| `docs/research/`        | Reference-library research and license verdicts. Read before designing. |
-| `ROADMAP.md`            | Every planned component, its wave and its references                    |
+| Path                    | Contains                                                                   |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `registry/ds/ui/`       | Components and their `*.test.tsx` tests                                    |
+| `registry/ds/lib/`      | `utils`, `labels`, `icons`, `motion`, `color-scheme`, helpers like `chart` |
+| `registry/ds/hooks/`    | Shared hooks                                                               |
+| `registry/ds/blocks/`   | Whole sections: app shell, settings page, sign-in                          |
+| `registry/ds/styles/`   | `theme.css` (hand-written) and `tokens.css` (generated)                    |
+| `registry/ds/examples/` | Docs examples, one default export each; never installed                    |
+| `registry/items/*.json` | One registry item each; `registry.json` is generated from them             |
+| `content/docs/`         | The catalogue (Fumadocs MDX)                                               |
+| `tokens/config.json`    | Seed colour, palette style and the eight chart colours                     |
+| `scripts/`              | Generators and `check-ds`                                                  |
+| `docs/research/`        | Reference-library research and license verdicts. Read before designing.    |
+| `ROADMAP.md`            | Every planned component, its wave and its references                       |
 
 ## How to work
 

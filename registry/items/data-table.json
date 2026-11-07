@@ -1,0 +1,16 @@
+{
+  "name": "data-table",
+  "type": "registry:ui",
+  "title": "Data Table",
+  "description": "Table driven by column definitions, with sorting, search, filters and paging in the client or on the server, status and tag cells, row actions, bulk selection, loading skeletons and empty states.",
+  "category": "data-display",
+  "files": ["ui/data-table.tsx", "lib/data-table.ts"],
+  "credits": [
+    {
+      "source": "BoardUI",
+      "url": "https://github.com/BoardUI/boardui/blob/main/components/application/data-table/data-table.tsx",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+    }
+  ]
+}

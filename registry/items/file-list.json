@@ -1,0 +1,16 @@
+{
+  "name": "file-list",
+  "type": "registry:ui",
+  "title": "File list",
+  "description": "Rows of files, each with a page icon whose coloured extension label sticks out of it, the name truncated in the middle, the size, a rolling percentage over a thin bar while it uploads, a check when it is done, and retry, cancel and remove actions.",
+  "category": "inputs",
+  "files": ["ui/file-list.tsx"],
+  "credits": [
+    {
+      "source": "Bencho",
+      "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/upload-dropzone",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+    }
+  ]
+}

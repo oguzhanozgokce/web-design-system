@@ -1,0 +1,8 @@
+{
+  "name": "sparkline",
+  "type": "registry:ui",
+  "title": "Sparkline",
+  "description": "A word-sized line or area for stat tiles and table cells, named and described by its trend, with an end dot at the latest value.",
+  "category": "charts",
+  "files": ["ui/sparkline.tsx"]
+}

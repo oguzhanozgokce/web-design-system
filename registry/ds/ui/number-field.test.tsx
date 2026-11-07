@@ -5,6 +5,22 @@ import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { Button } from '@/registry/ds/ui/button';
 import { NumberField } from '@/registry/ds/ui/number-field';
 
+function offsetOf(column: HTMLElement) {
+  const strip = column.lastElementChild as HTMLElement;
+  const cell = strip.getBoundingClientRect().height / 11;
+  return -new DOMMatrix(getComputedStyle(strip).transform).m42 / cell;
+}
+
+function digitsOf(element: Element) {
+  return [...element.querySelectorAll('[data-slot="rolling-number-digit"]')].map(
+    (column) => column.firstElementChild!.textContent,
+  );
+}
+
+function widthOf(element: Element | null) {
+  return element!.getBoundingClientRect().width;
+}
+
 describe('NumberField', () => {
   it('renders a labelled number input between named stepper buttons', async () => {
     const screen = await renderWithDS(<NumberField label="Seats" defaultValue={5} />);
@@ -364,7 +380,9 @@ describe('NumberField', () => {
     );
     const input = screen.getByRole('textbox', { name: 'Quantity' });
     await expect.element(input).toHaveAttribute('data-rolling', 'true');
-    expect(screen.container.querySelector('[data-slot="roller"] number-flow-react')).not.toBeNull();
+    expect(
+      screen.container.querySelector('[data-slot="roller"] [data-slot="rolling-number"]'),
+    ).not.toBeNull();
     await screen.getByRole('button', { name: 'Increase Quantity' }).click();
     await expect.element(input).toHaveValue('4');
   });
@@ -440,7 +458,7 @@ describe('NumberField', () => {
     const input = screen.getByRole('textbox', { name: 'Seats' });
     const roller = () => screen.container.querySelector<HTMLElement>('[data-slot="roller"]')!;
     expect(roller().getAttribute('aria-hidden')).toBe('true');
-    expect(roller().querySelector('number-flow-react')).not.toBeNull();
+    expect(roller().querySelector('[data-slot="rolling-number"]')).not.toBeNull();
     await expect.element(input).toHaveAttribute('data-rolling', 'true');
     await expect.element(roller()).toBeVisible();
     expect(getComputedStyle(input.element()).color).toBe('rgba(0, 0, 0, 0)');
@@ -461,14 +479,22 @@ describe('NumberField', () => {
     await expect.element(roller()).toBeVisible();
   });
 
-  it('rolls on the library spatial spring', async () => {
-    const screen = await renderWithDS(<NumberField label="Seats" defaultValue={5} isAnimated />);
-    const flow = screen.container.querySelector('number-flow-react') as
-      (Element & { transformTiming: EffectTiming }) | null;
-    expect(flow).not.toBeNull();
-    expect(String(flow!.transformTiming.easing)).toMatch(/^linear\(/);
-    expect(Number(flow!.transformTiming.duration)).toBeGreaterThan(200);
-    expect(Number(flow!.transformTiming.duration)).toBeLessThan(700);
+  it('rolls each step forward through its carry with RollingNumber', async () => {
+    const screen = await renderWithDS(<NumberField label="Seats" defaultValue={9} isAnimated />);
+    const roller = screen.container.querySelector('[data-slot="roller"]')!;
+    expect(
+      roller.querySelector('[data-slot="rolling-number"]')!.hasAttribute('data-animated'),
+    ).toBe(true);
+    expect(digitsOf(roller)).toEqual(['9']);
+    await screen.getByRole('button', { name: 'Increase Seats' }).click();
+    const ones: number[] = [];
+    for (let frame = 0; frame < 30; frame++) {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      const columns = roller.querySelectorAll<HTMLElement>('[data-slot="rolling-number-digit"]');
+      ones.push(offsetOf(columns[columns.length - 1]));
+    }
+    expect(ones.filter((offset) => offset > 0.5 && offset < 8.5)).toEqual([]);
+    expect(digitsOf(roller)).toEqual(['1', '0']);
   });
 
   it('falls back to plain text when motion is reduced', async () => {
@@ -482,7 +508,7 @@ describe('NumberField', () => {
       .not.toHaveAttribute('data-rolling');
   });
 
-  it('falls back to plain text in RTL when symbols would change order', async () => {
+  it('rolls in right-to-left locales, with symbols and Arabic-Indic digits', async () => {
     const arabic = await renderWithDS(
       <div>
         <NumberField label="المقاعد" defaultValue={5} isAnimated />
@@ -495,20 +521,22 @@ describe('NumberField', () => {
       </div>,
       { locale: 'ar' },
     );
-    const rollers = arabic.container.querySelectorAll('[data-slot="number-field"]');
-    expect(rollers[0].querySelector('[data-slot="roller"]')).not.toBeNull();
-    expect(rollers[1].querySelector('[data-slot="roller"]')).toBeNull();
-  });
+    const fields = arabic.container.querySelectorAll('[data-slot="number-field"]');
+    expect(fields[0].querySelector('[data-slot="roller"]')).not.toBeNull();
+    expect(fields[1].querySelector('[data-slot="roller"]')).not.toBeNull();
+    await expect
+      .element(arabic.getByRole('textbox', { name: 'سعر التذكرة' }))
+      .toHaveAttribute('data-rolling', 'true');
+    await arabic.unmount();
 
-  it('falls back to plain text in locales that use other digits', async () => {
-    const screen = await renderWithDS(
+    const egyptian = await renderWithDS(
       <NumberField label="المقاعد" defaultValue={25} isAnimated />,
       { locale: 'ar-EG' },
     );
-    const input = screen.getByRole('textbox', { name: 'المقاعد' });
+    const input = egyptian.getByRole('textbox', { name: 'المقاعد' });
     await expect.element(input).toHaveValue('٢٥');
-    expect(screen.container.querySelector('[data-slot="roller"]')).toBeNull();
-    await expect.element(input).not.toHaveAttribute('data-rolling');
+    await expect.element(input).toHaveAttribute('data-rolling', 'true');
+    expect(digitsOf(egyptian.container.querySelector('[data-slot="roller"]')!)).toEqual(['٢', '٥']);
   });
 
   it('falls back to plain text when someone types other digits', async () => {
@@ -534,6 +562,147 @@ describe('NumberField', () => {
     await userEvent.keyboard('{Home}');
     await expect.element(input).toHaveValue('1');
     await expect.element(input).toHaveAttribute('data-rolling', 'true');
+  });
+
+  it('holds two soft keys and the number in a slab that hugs its digits', async () => {
+    const screen = await renderWithDS(
+      <div className="w-96">
+        <NumberField label="Guests" layout="compact" defaultValue={2} minValue={1} />
+      </div>,
+    );
+    const root = screen.container.querySelector('[data-slot="number-field"]')!;
+    expect(root.getAttribute('data-layout')).toBe('compact');
+    expect(root.getAttribute('data-animated')).toBe('true');
+    const container = root.querySelector<HTMLElement>('[data-slot="container"]')!;
+    expect([...container.children].map((child) => child.getAttribute('data-slot'))).toEqual([
+      'decrement',
+      'value',
+      'increment',
+    ]);
+    const frame = container.getBoundingClientRect();
+    expect(frame.height).toBe(40);
+    expect(frame.width).toBeLessThan(120);
+    for (const name of ['Decrease Guests', 'Increase Guests']) {
+      const key = screen.getByRole('button', { name }).element();
+      const box = key.getBoundingClientRect();
+      expect(box.width).toBe(30);
+      expect(box.height).toBe(30);
+      expect(box.top - frame.top).toBe(5);
+      expect(getComputedStyle(key).borderTopLeftRadius).toBe('7px');
+    }
+    await expect
+      .element(screen.getByRole('textbox', { name: 'Guests' }))
+      .toHaveAttribute('data-rolling', 'true');
+  });
+
+  it('sizes the compact slab at 32, 40 and 48 pixels with keys inset inside it', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <NumberField label="Small" layout="compact" size="sm" defaultValue={3} />
+        <NumberField label="Medium" layout="compact" defaultValue={3} />
+        <NumberField label="Large" layout="compact" size="lg" defaultValue={3} />
+      </div>,
+    );
+    const containers = [...screen.container.querySelectorAll('[data-slot="container"]')];
+    expect(containers.map((element) => element.getBoundingClientRect().height)).toEqual([
+      32, 40, 48,
+    ]);
+    expect(
+      containers.map((element) => element.querySelector('[data-slot="increment"]')!.clientWidth),
+    ).toEqual([24, 30, 38]);
+  });
+
+  it('widens the slab as digits arrive', async () => {
+    const screen = await renderWithDS(
+      <NumberField label="Copies" layout="compact" defaultValue={9} />,
+    );
+    const container = screen.container.querySelector('[data-slot="container"]')!;
+    const before = widthOf(container);
+    await screen.getByRole('button', { name: 'Increase Copies' }).click();
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const during = widthOf(container);
+    await expect.poll(() => digitsOf(container)).toEqual(['1', '0']);
+    await expect.poll(() => widthOf(container) - before).toBeGreaterThan(6);
+    const after = widthOf(container);
+    expect(during).toBeLessThan(after);
+    await expect.element(screen.getByRole('textbox', { name: 'Copies' })).toHaveValue('10');
+  });
+
+  it('stays typeable, and the slab fits what is typed', async () => {
+    const onChange = vi.fn();
+    const screen = await renderWithDS(
+      <NumberField label="Copies" layout="compact" defaultValue={2} onChange={onChange} />,
+    );
+    const input = screen.getByRole('textbox', { name: 'Copies' });
+    const container = screen.container.querySelector('[data-slot="container"]')!;
+    const before = widthOf(container);
+    await input.fill('12500');
+    await expect.element(input).not.toHaveAttribute('data-rolling');
+    expect(screen.container.querySelector('[data-slot="sizer"]')!.textContent).toBe('12500');
+    expect(widthOf(container)).toBeGreaterThan(before + 20);
+    const text = input.element() as HTMLInputElement;
+    expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
+    await userEvent.keyboard('{Enter}');
+    expect(onChange).toHaveBeenLastCalledWith(12500);
+    await expect.element(input).toHaveValue('12,500');
+    await userEvent.keyboard('{ArrowUp}');
+    await expect.element(input).toHaveValue('12,501');
+    await expect.element(input).toHaveAttribute('data-rolling', 'true');
+  });
+
+  it('repeats while a key is held', async () => {
+    const onChange = vi.fn();
+    const screen = await renderWithDS(
+      <NumberField label="Copies" layout="compact" defaultValue={1} onChange={onChange} />,
+    );
+    await screen.getByRole('button', { name: 'Increase Copies' }).click({ delay: 900 });
+    expect(onChange.mock.calls.length).toBeGreaterThan(3);
+    const last = onChange.mock.calls.at(-1)![0] as number;
+    expect(last).toBeGreaterThan(4);
+    await expect.element(screen.getByRole('textbox', { name: 'Copies' })).toHaveValue(String(last));
+  });
+
+  it('names the compact keys from labels and mirrors them in RTL', async () => {
+    const screen = await renderWithDS(
+      <NumberField
+        label="الضيوف"
+        layout="compact"
+        defaultValue={2}
+        labels={{ increase: 'زيادة {label}', decrease: 'إنقاص {label}' }}
+      />,
+      { locale: 'ar' },
+    );
+    const increase = screen.getByRole('button', { name: 'زيادة الضيوف' }).element();
+    const decrease = screen.getByRole('button', { name: 'إنقاص الضيوف' }).element();
+    expect(decrease.getBoundingClientRect().left).toBeGreaterThan(
+      increase.getBoundingClientRect().left,
+    );
+    await screen.getByRole('button', { name: 'زيادة الضيوف' }).click();
+    await expect.element(screen.getByRole('textbox', { name: 'الضيوف' })).toHaveValue('3');
+  });
+
+  it('sizes the compact slab from plain text when motion is reduced or rolling is off', async () => {
+    for (const [props, provider] of [
+      [{}, { motion: 'reduced' as const }],
+      [{ isAnimated: false }, {}],
+    ] as const) {
+      const screen = await renderWithDS(
+        <NumberField label="Copies" layout="compact" defaultValue={1284} {...props} />,
+        { provider },
+      );
+      expect(screen.container.querySelector('[data-slot="roller"]')).toBeNull();
+      const input = screen.getByRole('textbox', { name: 'Copies' });
+      await expect.element(input).not.toHaveAttribute('data-rolling');
+      const sizer = screen.container.querySelector<HTMLElement>('[data-slot="sizer"]')!;
+      expect(sizer.textContent).toBe('1,284');
+      expect(getComputedStyle(sizer).display).not.toBe('none');
+      expect(getComputedStyle(input.element()).color).not.toBe('rgba(0, 0, 0, 0)');
+      const text = input.element() as HTMLInputElement;
+      expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
+      const key = screen.getByRole('button', { name: 'Increase Copies' }).element();
+      expect(key.hasAttribute('data-reduced-motion')).toBe('motion' in provider);
+      await screen.unmount();
+    }
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {
@@ -572,6 +741,21 @@ describe('NumberField', () => {
           <NumberField label="Copies" variant="soft" defaultValue={12} isAnimated />
           <NumberField label="Tickets" variant="soft" size="lg" defaultValue={2} isReadOnly />
           <NumberField label="Retries" variant="soft" layout="inline" size="sm" defaultValue={2} />
+          <NumberField label="Guests" layout="compact" defaultValue={2} minValue={1} />
+          <NumberField label="Copies" layout="compact" variant="soft" size="lg" defaultValue={98} />
+          <NumberField
+            aria-label="Prints"
+            layout="compact"
+            size="sm"
+            defaultValue={0}
+            minValue={0}
+          />
+          <NumberField
+            label="Ticket price"
+            layout="compact"
+            defaultValue={12.5}
+            formatOptions={{ style: 'currency', currency: 'EUR' }}
+          />
         </div>,
         options,
       );

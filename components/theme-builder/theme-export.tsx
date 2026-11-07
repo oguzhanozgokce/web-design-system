@@ -70,8 +70,8 @@ export function ThemeExport({ css, config }: ThemeExportProps) {
         </TabList>
         <ExportBlock id="css" fileName="tokens.css" copyLabel="Copy CSS" code={css}>
           Replaces the colour blocks of <InlineCode>registry/ds/styles/tokens.css</InlineCode>:
-          light, dark, and the medium and high contrast levels. The motion variables below them stay
-          as they are.
+          light, dark, the medium and high contrast levels, and the eight chart colours for each
+          mode. The motion variables below them stay as they are.
         </ExportBlock>
         <ExportBlock id="config" fileName="tokens/config.json" copyLabel="Copy JSON" code={config}>
           Save it as <InlineCode>tokens/config.json</InlineCode> and run{' '}

@@ -8,11 +8,13 @@ import {
   type PaletteStyle,
   type SurfaceStyle,
 } from '../registry/ds/lib/color-scheme.ts';
+import { chartCss, type ChartTokens } from '../lib/chart-tokens.ts';
 
 interface TokenConfig {
   seed: string;
   style: PaletteStyle;
   surfaces?: SurfaceStyle;
+  chart: ChartTokens;
 }
 
 interface SpringSpec {
@@ -108,6 +110,8 @@ const css = [
   header,
   '',
   schemeCss(schemes),
+  '',
+  chartCss(config.chart),
   '',
   `:root {\n${motionDeclarations(expressiveSprings)}\n}`,
   '',

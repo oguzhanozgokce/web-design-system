@@ -1,0 +1,16 @@
+{
+  "name": "bar-chart",
+  "type": "registry:ui",
+  "title": "Bar Chart",
+  "description": "Grouped, stacked and percent bars, vertical or horizontal, with capsule segments, a series below the baseline, full-height tracks, a ringed active column and a gliding tooltip.",
+  "category": "charts",
+  "files": ["ui/bar-chart.tsx"],
+  "credits": [
+    {
+      "source": "Bencho",
+      "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/stacked-bars",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+---
+title: Area Chart
+description: Filled lines that overlap with a gradient, stack into a total or share a whole, with a crosshair, a tooltip and dashed comparison lines.
+---
+
+<ComponentPreview name="area-chart-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="area-chart" />
+
+## Usage
+
+```tsx
+import { AreaChart } from '@/components/ds/area-chart';
+
+<AreaChart
+  aria-label="Photo uploads this week"
+  data={days}
+  category="day"
+  series={[{ id: 'uploads', label: 'Uploads', value: 'uploads' }]}
+/>;
+```
+
+An area chart is a [Line chart](/docs/components/charts/line-chart) with the space under each line
+filled. It takes the same props, curves, dots, crosshair and keyboard, plus `layout` and `fill`.
+Use it when the volume under the line matters, or to show how a total is made up over time. To
+compare several trends that cross each other, lines read better.
+
+## Examples
+
+### Stacked
+
+`layout="stacked"` piles the series so the top edge is the total. Each band is filled at 32%
+opacity of its colour, and the tooltip and table add a total.
+
+<ComponentPreview name="area-chart-stacked" align="stretch" />
+
+### Percent
+
+`layout="percent"` stacks every category to 100%, which shows how shares shift over time. The
+axis is formatted as a percentage; the tooltip and table keep the real values.
+
+<ComponentPreview name="area-chart-percent" align="stretch" />
+
+### Comparison
+
+With the default `layout="overlap"` a single series fills with a gradient that fades to the
+baseline. A dashed series is a comparison, such as last week, and is drawn as a line only, so it
+never muddies the fill of the series it is compared with.
+
+<ComponentPreview name="area-chart-comparison" align="stretch" />
+
+## API
+
+### AreaChart
+
+Takes every [shared chart prop](/docs/components/charts/chart#shared-chart-props) and the
+[LineChart](/docs/components/charts/line-chart#linechart) props, plus:
+
+| Prop     | Type                                  | Default                                       |
+| -------- | ------------------------------------- | --------------------------------------------- |
+| `layout` | `'overlap' \| 'stacked' \| 'percent'` | `'overlap'`                                   |
+| `fill`   | `'gradient' \| 'solid'`               | `'gradient'` when overlapping, else `'solid'` |
+
+A solid fill is 14% of the series colour when overlapping and 32% when stacked; the gradient runs
+from 32% at the line to 2% at the baseline.
+
+### Data attributes
+
+`data-layout`, `data-size`, `data-curve`, `data-view`, `data-palette`, `data-pending`. Parts:
+`data-slot="area-chart"`, `"area"`, and every part of the
+[line chart](/docs/components/charts/line-chart#data-attributes).
+
+### Labels
+
+Area charts use the [Chart labels](/docs/components/charts/chart#labels).
+
+## Accessibility
+
+- Keyboard, pointer, announcements and the data table work as in the
+  [Line chart](/docs/components/charts/line-chart#accessibility). Stacked and percent layouts
+  announce the total first.
+- Fills are decoration: each band is also edged by its line in the series colour, and the legend,
+  tooltip and table name every series.
+- Areas reveal from the start of the time axis on first view. Under reduced motion the final chart
+  is drawn at once.
+- Contrast is checked with axe in light, dark and RTL by `area-chart.test.tsx`.

@@ -1,0 +1,16 @@
+{
+  "name": "chart",
+  "type": "registry:ui",
+  "title": "Chart",
+  "description": "The parts every chart shares, from scales, ticks, stacking and curves to the colour roles, a legend, a tooltip card and the data table that gives each chart its accessible view.",
+  "category": "charts",
+  "files": ["ui/chart.tsx", "lib/chart.ts"],
+  "credits": [
+    {
+      "source": "d3-shape",
+      "url": "https://github.com/d3/d3-shape/blob/main/src/curve/monotone.js",
+      "license": "ISC",
+      "copyright": "Copyright 2010-2022 Mike Bostock"
+    }
+  ]
+}

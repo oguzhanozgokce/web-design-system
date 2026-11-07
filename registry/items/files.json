@@ -1,0 +1,8 @@
+{
+  "name": "files",
+  "type": "registry:lib",
+  "title": "File helpers",
+  "description": "Checks and formatting for picked and dropped files: type, size and count validation, locale-aware sizes, file kinds and extensions.",
+  "category": "foundations",
+  "files": ["lib/files.ts"]
+}

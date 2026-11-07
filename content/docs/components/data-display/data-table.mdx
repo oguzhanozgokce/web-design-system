@@ -1,0 +1,262 @@
+---
+title: Data Table
+description: Table driven by column definitions, with sorting, search, filters and paging in the client or on the server, status and tag cells, row actions, bulk selection, loading skeletons and empty states.
+---
+
+<ComponentPreview name="data-table-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="data-table" />
+
+## Usage
+
+```tsx
+import { DataTable, type DataTableColumn } from '@/components/ds/data-table';
+
+const columns: DataTableColumn<App>[] = [
+  { id: 'name', header: 'App', isRowHeader: true, allowsSorting: true },
+  { id: 'platforms', header: 'Platforms', type: 'tags' },
+  { id: 'status', header: 'Status', type: 'status', allowsSorting: true },
+  { id: 'downloads', header: 'Downloads', type: 'number', allowsSorting: true },
+  { id: 'updated', header: 'Updated', type: 'date', allowsSorting: true },
+];
+
+<DataTable
+  aria-label="Apps"
+  data={apps}
+  columns={columns}
+  getRowId={(app) => app.id}
+  selectionMode="multiple"
+  rowActions={[{ id: 'edit', label: 'Edit', icon: <EditIcon />, onAction: edit }]}
+/>;
+```
+
+A data table is a [Table](/docs/components/data-display/table) configured by data: the columns are
+an array, each saying where its value comes from, how to show it and whether it sorts. The table
+adds a toolbar with the result count, filter selects and a search field, paging, row actions, bulk
+selection, and the loading, empty, no-results and error states. It sorts, searches, filters and
+pages in the browser, or hands all of that to your server.
+
+It is built on React Aria's table, so sorting sets `aria-sort` and selection sets `aria-selected`.
+There is no TanStack dependency: sorting, searching, filtering and paging are small pure functions
+in `lib/data-table`.
+
+## Examples
+
+### Apps
+
+The preview at the top is the full table: a custom first column with the app icon, the bundle name
+under it in the normal density, platform tags that collapse into a `+N` button, the version as a
+quiet chip, statuses in many states including an app-defined `beta`, compact download counts and
+dates. Two row actions show as outline icon buttons with tooltips and the rest open from the menu
+button. Selecting rows swaps the result count for a selection bar with bulk actions; the select-all
+checkbox covers the current page and shows a dash when some rows are selected; selection survives
+paging. The switch below changes the density, and every control in the rows shrinks with it.
+
+### Column types
+
+`type` picks how a value is shown, sorted and searched:
+
+| Type     | Shows                                                                               | Sorts by                   |
+| -------- | ----------------------------------------------------------------------------------- | -------------------------- |
+| `text`   | the value as text                                                                   | the text, numbers in order |
+| `number` | `Intl.NumberFormat` with `formatOptions`, tabular digits, aligned to the end        | the number                 |
+| `date`   | `Intl.DateTimeFormat` with `formatOptions` in a `<time>` element                    | the date                   |
+| `status` | a [StatusTag](/docs/components/data-display/status-tag)                             | the status label           |
+| `tags`   | up to `maxVisibleTags` tags, then a `+N` button whose tooltip lists the rest        | the tag labels             |
+| `custom` | whatever `cell(row, { density, rowLabel })` returns; the default when `cell` is set | `compare`, or the value    |
+
+`accessor` reads the value: a key of the row or a function. It defaults to the column `id`. `chip`
+shows any value as a quiet grey chip, for versions, sizes or prices. Tags can be strings or
+`{ label, tone }` objects, so a row can carry extra labels such as "Beta" or "Offline" in a tone
+of their own.
+
+<ComponentPreview name="data-table-columns" align="stretch" />
+
+### Editable status
+
+Give a `status` column `onStatusChange` and `statusOptions`, and each cell becomes a small select
+that shows the status dot and label. The column's `statuses` add your own keys and tones, here a
+rollout state. `StatusSelect` is exported for the same control in a form.
+
+<ComponentPreview name="data-table-editable" align="stretch" />
+
+### Server data
+
+`processing="server"` turns the table into a view of your query. It shows `data` as given and reports
+every change through `onSortChange`, `onSearchChange`, `onFilterChange` and `onPageChange`; a new
+search, filter or sort also asks for page 1. `totalCount` drives the count and the page count.
+Control the state you send to the server and set `isLoading` while it answers.
+
+<ComponentPreview name="data-table-server" align="stretch" />
+
+### Loading, empty and error
+
+`isLoading` replaces the rows with skeleton rows shaped like the columns and sets `aria-busy` on
+the grid. With no data at all the table shows `emptyState` (by default "Nothing here yet"); when a
+search or filter leaves nothing it shows `noResultsState` (by default "No results" with a Clear
+filters button), so people can tell an empty list from an over-narrow search. `error` shows an
+error message with a retry button when `onRetry` is given.
+
+<ComponentPreview name="data-table-states" align="stretch" />
+
+### Variants
+
+`outline` (the default) frames the table in a hairline card. `elevated` uses a shadow instead.
+`transparent` drops the frame and the toolbar padding to sit inside a card or a page section of
+your own, and turns the sticky row header off because its background could differ from yours.
+
+<ComponentPreview name="data-table-variants" align="stretch" />
+
+## API
+
+### DataTable
+
+| Prop                    | Type                                                                   | Default                   |
+| ----------------------- | ---------------------------------------------------------------------- | ------------------------- |
+| `data`                  | `readonly T[]`                                                         |                           |
+| `columns`               | `DataTableColumn<T>[]`                                                 |                           |
+| `getRowId`              | `(row: T) => Key`                                                      |                           |
+| `getRowLabel`           | `(row: T) => string`, names the row in action labels                   | the row-header value      |
+| `processing`            | `'client' \| 'server'`                                                 | `'client'`                |
+| `totalCount`            | `number`, in server mode                                               | `data.length`             |
+| `sortDescriptor`        | `SortDescriptor \| null`                                               |                           |
+| `defaultSortDescriptor` | `SortDescriptor \| null`                                               | `null`                    |
+| `onSortChange`          | `(descriptor: SortDescriptor \| null) => void`                         |                           |
+| `selectionMode`         | `'none' \| 'single' \| 'multiple'`                                     | `'none'`                  |
+| `selectedKeys`          | `Selection`                                                            |                           |
+| `defaultSelectedKeys`   | `Selection`                                                            |                           |
+| `onSelectionChange`     | `(keys: Selection) => void`                                            |                           |
+| `disabledKeys`          | `Iterable<Key>`                                                        |                           |
+| `selectionActions`      | `DataTableSelectionAction[]`                                           |                           |
+| `showSearch`            | `boolean`                                                              | `true`                    |
+| `searchValue`           | `string`                                                               |                           |
+| `defaultSearchValue`    | `string`                                                               | `''`                      |
+| `onSearchChange`        | `(value: string) => void`                                              |                           |
+| `getSearchText`         | `(row: T) => string`                                                   | every column's text       |
+| `filters`               | `DataTableFilter<T>[]`                                                 |                           |
+| `filterValues`          | `Record<string, Key \| null>`                                          |                           |
+| `defaultFilterValues`   | `Record<string, Key \| null>`                                          | `{}`                      |
+| `onFilterChange`        | `(values: Record<string, Key \| null>) => void`                        |                           |
+| `paging`                | `boolean`                                                              | `true`                    |
+| `page`                  | `number`                                                               |                           |
+| `defaultPage`           | `number`                                                               | `1`                       |
+| `onPageChange`          | `(page: number) => void`                                               |                           |
+| `pageSize`              | `number`                                                               | `10`                      |
+| `rowActions`            | `DataTableAction<T>[] \| (row: T) => DataTableAction<T>[]`             |                           |
+| `inlineActionCount`     | `number`, actions shown as icon buttons before the menu                | `2`                       |
+| `onRowAction`           | `(key: Key) => void`, makes the whole row actionable                   |                           |
+| `isLoading`             | `boolean`                                                              | `false`                   |
+| `error`                 | `unknown`, anything but `undefined`, `null` or `false` shows the error |                           |
+| `onRetry`               | `() => void \| Promise<unknown>`                                       |                           |
+| `emptyState`            | `ReactNode`                                                            |                           |
+| `noResultsState`        | `ReactNode`                                                            |                           |
+| `showCount`             | `boolean`                                                              | `true`                    |
+| `toolbarActions`        | `ReactNode`, after the search field                                    |                           |
+| `density`               | `'sm' \| 'md'`                                                         | `'md'`                    |
+| `variant`               | `'outline' \| 'elevated' \| 'transparent'`                             | `'outline'`               |
+| `stickyRowHeader`       | `boolean`                                                              | `true` unless transparent |
+| `labels`                | `Partial<DataTableLabels>`                                             |                           |
+| `paginationLabels`      | `Partial<PaginationLabels>`                                            |                           |
+
+Name the table with `aria-label` or `aria-labelledby`; `aria-describedby`, `className` and `style`
+are passed through.
+
+### DataTableColumn
+
+| Field                           | Type                                                              |
+| ------------------------------- | ----------------------------------------------------------------- |
+| `id`                            | `string`                                                          |
+| `header`                        | `ReactNode`                                                       |
+| `textValue`                     | `string`, the header's text when `header` is not a string         |
+| `type`                          | `'text' \| 'number' \| 'date' \| 'status' \| 'tags' \| 'custom'`  |
+| `accessor`                      | `keyof T \| (row: T) => unknown`                                  |
+| `cell`                          | `(row: T, context: { density, rowLabel }) => ReactNode`           |
+| `compare`                       | `(a: T, b: T) => number`                                          |
+| `getSearchText`                 | `(row: T) => string`                                              |
+| `formatOptions`                 | `Intl.NumberFormatOptions \| Intl.DateTimeFormatOptions`          |
+| `statuses`                      | `Record<string, StatusDefinition>`, for `status` columns          |
+| `statusOptions`                 | `string[]`, the choices of an editable status                     |
+| `onStatusChange`                | `(row: T, status: string) => void`, makes the status editable     |
+| `maxVisibleTags`                | `number`, for `tags` columns (default 2)                          |
+| `chip`                          | `boolean`                                                         |
+| `isRowHeader`                   | `boolean`; the first column is the row header when none is        |
+| `allowsSorting`                 | `boolean`                                                         |
+| `align`                         | `'start' \| 'center' \| 'end'`; `number` columns default to `end` |
+| `width`, `minWidth`, `maxWidth` | `number \| string`                                                |
+| `skeleton`                      | `'text' \| 'avatar' \| 'pill'`, the loading placeholder           |
+
+### Actions and filters
+
+`DataTableAction<T>`: `{ id, label, icon?, tone?: 'neutral' | 'error', isDisabled?, onAction(row) }`.
+When `onAction` returns a promise, the button shows a spinner until it settles; for a menu action
+the menu button does.
+
+`DataTableSelectionAction`: `{ id, label, icon?, tone?, onAction(keys: Set<Key>) }`. The selection
+clears when the action finishes. Below a container width of 28rem, actions with an icon show only
+the icon.
+
+`DataTableFilter<T>`: `{ id, label, allLabel?, options: { id, label }[], accessor?, predicate? }`.
+A filter matches the column with the same `id` unless it has its own `accessor`; list values such as
+tags match when any item matches. `predicate(row, value)` replaces the match entirely.
+
+### Data attributes
+
+`data-slot="data-table"` with `data-variant`, `data-density`, `data-processing`, `data-loading`; parts
+`"data-table-toolbar"`, `"data-table-summary"`, `"data-table-total"`, `"data-table-selection-bar"`,
+`"data-table-selected-count"`, `"data-table-filters"`, `"data-table-body"`, `"data-table-tags"`,
+`"data-table-more-tags"`, `"data-table-chip"`, `"data-table-actions"`, `"data-table-empty"`,
+`"data-table-no-results"`, `"data-table-error"`, `"data-table-footer"`, `"data-table-status"`, plus
+the Table parts.
+
+### Labels
+
+Pass `labels`, or set them for every data table with `<DSProvider labels={{ dataTable: { … } }}>`.
+Status labels come from `statusTag` and the page buttons from `pagination` (or `paginationLabels`).
+
+| Key                    | Default                             | Used for                                                         |
+| ---------------------- | ----------------------------------- | ---------------------------------------------------------------- |
+| `totalResults`         | `Total results`                     | the small heading above the count                                |
+| `resultCount`          | `{count} results`                   | the count, and what screen readers hear after a search or filter |
+| `selectedCount`        | `{count} selected`                  | the selection bar                                                |
+| `clearSelection`       | `Clear selection`                   | the selection bar's close button                                 |
+| `search`               | `Search`                            | the search field's name and placeholder                          |
+| `all`                  | `All`                               | a filter's first option when it has no `allLabel`                |
+| `actions`              | `Actions`                           | the hidden header of the actions column                          |
+| `rowAction`            | `{action} {row}`                    | an inline action button, such as "Edit Photos"                   |
+| `moreActions`          | `More actions for {row}`            | the menu button                                                  |
+| `more`                 | `More actions`                      | the menu button's tooltip                                        |
+| `editCell`             | `{column} for {row}`                | an editable status select                                        |
+| `moreTags`             | `+{count}`                          | the visible text of the extra-tags button                        |
+| `moreTagsLabel`        | `{count} more: {tags}`              | that button's accessible name                                    |
+| `emptyTitle`           | `Nothing here yet`                  | the empty state                                                  |
+| `emptyDescription`     | `New items will show up here.`      | the empty state                                                  |
+| `noResultsTitle`       | `No results`                        | the no-results state                                             |
+| `noResultsDescription` | `Try a different search or filter.` | the no-results state                                             |
+| `clearFilters`         | `Clear filters`                     | the no-results state's button                                    |
+| `errorTitle`           | `Something went wrong`              | the error state                                                  |
+| `errorDescription`     | `The data could not be loaded.`     | the error state                                                  |
+| `retry`                | `Try again`                         | the error state's button                                         |
+| `loading`              | `Loading`                           | the status message and the skeleton rows' names                  |
+| `pagination`           | `Pages of {table}`                  | the pagination landmark, from `aria-label`                       |
+
+Write `resultCount` with the thing being counted, such as `{count} apps`. The number in it rolls to
+its new value when the count changes.
+
+## Accessibility
+
+- The grid comes from React Aria: arrow keys move between rows and cells, Space selects the focused
+  row, Enter on a sortable header sorts. `aria-sort`, `aria-selected` and the row headers are all
+  React Aria's own.
+- Every action is a real button named after its row, such as "Edit Photos"; icon buttons also have a
+  tooltip. The extra-tags button is named with the tags it hides.
+- After a search or a filter change, a polite status message says the new count once typing pauses.
+  It says "Loading" while `isLoading` is true, and nothing on the first render.
+- Clearing the selection moves focus into the table, and clearing the filters moves it to the
+  search field, so focus is never lost when a control disappears.
+- With `stickyRowHeader`, the row-header column stays in view when the table scrolls sideways on a
+  narrow screen, and the row's focus ring is drawn across it.
+- Under reduced motion rows appear without fading and the count changes without rolling.
+- `data-table.test.tsx` checks the table, its loading, error and empty states and every variant
+  with axe in light, dark and RTL.

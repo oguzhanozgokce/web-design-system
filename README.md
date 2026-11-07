@@ -16,6 +16,9 @@ on neutral surfaces, built on React Aria and themed from a single colour.
   owns its copy; `--diff` brings upstream changes.
 - **Accessible.** Interactive components are built on React Aria Components. Every component is
   tested in a real browser with axe, in light, dark and right-to-left.
+- **Data and motion included.** Tables with sorting, filters, selection and paging; hand-written
+  bar, line and area charts with a table view for screen readers; file upload with progress;
+  rolling numbers and a dynamic island. No chart or table library underneath.
 - **Your words.** The library ships no translations. Every string a component writes on its own
   is an English default you replace per component (`labels`) or once for the app
   (`DSProvider labels`). Dates, numbers and calendars follow the locale, and layouts mirror for

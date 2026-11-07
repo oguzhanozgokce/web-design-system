@@ -1,0 +1,141 @@
+---
+title: File upload
+description: A file dropzone and a file list wired to your upload function, with progress, concurrency, cancel through an AbortSignal, retry, announcements, and a single-file layout whose box closes around the one file it holds.
+---
+
+<ComponentPreview name="file-upload-demo" />
+
+## Installation
+
+<InstallCommand name="file-upload" />
+
+## Usage
+
+```tsx
+import { FileUpload, type FileUploadContext } from '@/components/ds/file-upload';
+
+async function upload(file: File, { signal, onProgress }: FileUploadContext) {
+  const url = await getUploadUrl(file.name);
+  await putWithProgress(url, file, { signal, onProgress });
+}
+
+<FileUpload allowsMultiple maxSize={20_000_000} onUpload={upload} />;
+```
+
+`FileUpload` is a [file dropzone](/docs/components/inputs/file-dropzone) and a
+[file list](/docs/components/inputs/file-list) with the upload lifecycle in between. Every file
+that passes the dropzone's checks gets a row and is handed to `onUpload` with two helpers:
+
+- `onProgress(fraction)` moves the row's percentage and bar. Call it with a number from 0 to 1 as
+  bytes go out, from an `XMLHttpRequest` `progress` event or a streaming body. Until it is called,
+  the bar slides back and forth.
+- `signal` is an `AbortSignal` that fires when someone cancels the row, drops a replacement in the
+  single layout, or the component unmounts. Pass it to `fetch` or listen for `abort`.
+
+When the promise resolves the row turns complete; when it rejects, the row turns red with a retry
+action. The component owns this state, runs up to `maxConcurrent` uploads at a time (3 by default)
+and queues the rest. Only the end of each upload is announced: "lake.png uploaded" or "lake.png
+couldn't be uploaded".
+
+Without `onUpload` it only collects files, for a form that sends them on submit.
+
+## Examples
+
+### Single file
+
+`layout="single"` holds one file, for a profile photo, a cover image or one document. The box
+takes the file and closes in around its row, as Bencho's upload dropzone does: width and height
+ease down to fit the row inside a slot of fixed height, so nothing below it moves. The percentage
+rolls, the bar fills, and a check pops in at the end. Dropping or pasting another file replaces it,
+and the line under the box says so while a file is held over it. Removing the file opens the box
+again and puts focus back on its prompt.
+
+<ComponentPreview name="file-upload-single" />
+
+### Errors and retry
+
+Reject with a `FileUploadError` to show its message on the row, such as "Connection lost" or
+"Storage is full". Any other error shows "Upload failed", so a raw technical message never reaches
+the page. Retry calls `onUpload` again with the same file.
+
+<ComponentPreview name="file-upload-errors" />
+
+### Controlled
+
+Pass `value` and `onChange` to keep the items in your own state, for a count, a submit button that
+waits for every upload, or files already on the server. `onChange` fires on every change,
+including progress, with the whole list.
+
+<ComponentPreview name="file-upload-controlled" />
+
+### Collecting for a form
+
+Without `onUpload`, picked files are listed with a remove action and nothing is sent. Read the
+`File` objects from `value` when the form is submitted.
+
+<ComponentPreview name="file-upload-collect" />
+
+## API
+
+### FileUpload
+
+| Prop            | Type                                                              | Default     |
+| --------------- | ----------------------------------------------------------------- | ----------- |
+| `onUpload`      | `(file: File, context: FileUploadContext) => Promise<unknown>`    |             |
+| `value`         | `FileUploadItem[]`                                                |             |
+| `defaultValue`  | `FileUploadItem[]`                                                | `[]`        |
+| `onChange`      | `(items: FileUploadItem[]) => void`                               |             |
+| `maxConcurrent` | `number`                                                          | `3`         |
+| `layout`        | `'list' \| 'single'`                                              | `'list'`    |
+| `listVariant`   | `'outline' \| 'soft' \| 'transparent'`                            | `'outline'` |
+| `labels`        | `Partial<FileUploadLabels & FileDropzoneLabels & FileListLabels>` |             |
+
+Plus every [FileDropzone](/docs/components/inputs/file-dropzone#filedropzone) prop except
+`onSelect`, `children` and `fileCount`: `acceptedFileTypes`, `allowsMultiple`, `maxSize`,
+`maxFiles`, `onReject`, `label`, `description`, `variant`, `size` and the rest. `maxFiles` counts
+the files already in the list. The single layout ignores `allowsMultiple` and `maxFiles`.
+
+A `FileUploadItem` is `{ id: Key; file: File | { name, size, type? }; status; progress?; error? }`
+with `status` one of `idle`, `queued`, `uploading`, `complete` and `error`. Items given in `value`
+or `defaultValue` are shown as they are; uploads start only for files added through the dropzone,
+and retry is offered only for items whose `file` is a `File`.
+
+`FileUploadContext` is `{ signal: AbortSignal; onProgress: (fraction: number) => void }`.
+`FileUploadError` is an `Error` whose message is shown on the row.
+
+### Data attributes
+
+The root has `data-slot="file-upload"` and `data-layout`. The dropzone and the list inside it keep
+their own [dropzone](/docs/components/inputs/file-dropzone#data-attributes) and
+[list](/docs/components/inputs/file-list#data-attributes) attributes. The polite live region is
+`upload-announcer`.
+
+### Labels
+
+Text the component writes on its own. Pass `labels` to one upload, or set them for every upload
+with `<DSProvider labels={{ fileUpload: { … } }}>`. `labels` also takes the
+[dropzone labels](/docs/components/inputs/file-dropzone#labels) and the
+[list labels](/docs/components/inputs/file-list#labels).
+
+| Key                    | Default                                | Used for                                                                                |
+| ---------------------- | -------------------------------------- | --------------------------------------------------------------------------------------- |
+| `dropToReplace`        | `Drop to replace`                      | the line while a file is held over a full single layout                                 |
+| `uploadedAnnouncement` | `{name} uploaded`                      | announced when an upload finishes                                                       |
+| `failedAnnouncement`   | `{name} couldn’t be uploaded`          | announced when an upload fails                                                          |
+| `addedAnnouncement`    | `{name} added` / `{count} files added` | announced when files are collected without `onUpload`; a function of `name` and `count` |
+
+## Accessibility
+
+- The dropzone and the list keep their own keyboard paths: Tab reaches the drop and paste target,
+  then the prompt that opens the file picker, then the list, where the arrow keys move between
+  files and their actions.
+- When a file is picked from the keyboard in the single layout, focus moves to its row; when that
+  row is removed, focus returns to the prompt. Removing the last file of a list does the same.
+- Progress is never announced as it changes; it is read with each row and exposed by the row's
+  progress bar. A finished or failed upload is announced once through a polite live region, and so
+  are refused files.
+- Cancel aborts the upload's `AbortSignal` and removes the row; nothing is left running in the
+  background, and unmounting aborts every upload in flight.
+- Under reduced motion the box changes colour and text only and the percentage changes without
+  rolling.
+- Contrast is checked with axe in light, dark and RTL by `file-upload.test.tsx`.

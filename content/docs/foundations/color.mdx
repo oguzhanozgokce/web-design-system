@@ -47,6 +47,15 @@ tab indicator, the focus ring, the focused field border, accent links and select
 Everything else is neutral. Text-coloured accents (links, ghost and outline labels, the focus ring)
 use `text-primary`, which is lighter in dark mode and stays readable on dark surfaces.
 
+## Charts
+
+`chart-1` to `chart-8` (`bg-chart-3`, `fill-chart-3`, `stroke-chart-3`, `text-chart-3`) colour the
+series of a chart with several series, always in that order. They are fixed rather than generated
+from the seed, because the order is checked for every common colour-vision deficiency and against
+card surfaces in both themes; the dark values are lifted to stay apart on dark cards. A chart with
+one series uses `primary`. Charts never rely on colour alone: each carries a legend, a tooltip and a
+table view. See [Chart](/docs/components/charts/chart).
+
 ## Rules
 
 - Pair a fill with its text role: `bg-error-soft` with `text-on-error-soft`, `bg-surface-raised`

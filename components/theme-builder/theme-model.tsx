@@ -10,6 +10,7 @@ import {
   type PaletteStyle,
 } from '@/registry/ds/lib/color-scheme';
 import { parseSeed } from '@/registry/ds/lib/dynamic-color';
+import { chartCss } from '@/lib/chart-tokens';
 import tokenConfig from '@/tokens/config.json';
 
 export interface PaletteStyleOption {
@@ -119,7 +120,7 @@ export type { SchemeSet };
 export function tokensCss(schemes: SchemeSet) {
   const header = '/* Generated from tokens/config.json. Do not edit. */';
 
-  return [header, '', schemeCss(schemes), ''].join('\n');
+  return [header, '', schemeCss(schemes), '', chartCss(tokenConfig.chart), ''].join('\n');
 }
 
 export function configJson(seed: string, style: PaletteStyle) {

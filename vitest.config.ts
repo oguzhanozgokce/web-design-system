@@ -20,7 +20,6 @@ export default defineConfig({
       'react/jsx-dev-runtime',
       'react-aria-components',
       'motion/react',
-      '@number-flow/react',
       '@internationalized/date',
       '@material/material-color-utilities',
       'tailwind-variants/config',

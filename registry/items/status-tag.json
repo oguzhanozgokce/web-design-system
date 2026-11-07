@@ -1,0 +1,8 @@
+{
+  "name": "status-tag",
+  "type": "registry:ui",
+  "title": "Status Tag",
+  "description": "Status labels driven by a key, sixteen built-in states with a tone and a dot each, extended with the app's own keys, labels and tones, plus a StatusDot for lists.",
+  "category": "data-display",
+  "files": ["ui/status-tag.tsx"]
+}

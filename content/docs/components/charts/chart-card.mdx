@@ -1,0 +1,166 @@
+---
+title: Chart Card
+description: A card around one chart with a title, a rolling headline figure and a delta tag, a period switch, a table toggle, loading and empty states, and a readout mode that swaps the headline for the active bar.
+---
+
+<ComponentPreview name="chart-card-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="chart-card" />
+
+## Usage
+
+```tsx
+import { BarChart } from '@/components/ds/bar-chart';
+import { ChartCard } from '@/components/ds/chart-card';
+
+<ChartCard
+  title="Downloads"
+  description="Across every platform"
+  value={total}
+  delta={{ value: 0.124 }}
+  periods={[
+    { id: 'week', label: 'Week' },
+    { id: 'month', label: 'Month' },
+  ]}
+  period={period}
+  onPeriodChange={setPeriod}
+  readout="headline"
+>
+  <BarChart data={data} category="label" series={series} showTrack radius="full" />
+</ChartCard>;
+```
+
+The card names the chart after its title and describes it with the description, so the chart
+inside needs no `aria-label`. The headline figure is a [Rolling number](/docs/components/data-display/rolling-number):
+when the period changes, each digit rolls forward to the new total instead of jumping.
+
+## Examples
+
+### Headline readout
+
+With `readout="headline"` there is no floating tooltip. Hovering or arrowing to a bar swaps the
+headline for that bar: the caption becomes its label and the figure rolls to its value, while the
+delta tag steps aside. Leaving the chart rolls back to the total. The chart at the top shows it
+with bars standing in full-height tracks.
+
+`readoutValue` picks the figure from the active point. By default it is a stack's total or the
+first series' value, which for this line chart is this year rather than the dashed comparison;
+pass your own to show something else, such as the change from last year.
+
+<ComponentPreview name="chart-card-line" align="stretch" />
+
+### Tracks in a small card
+
+The compact dashboard card: every bar stands in a full-height track, hovering a bar swaps the
+caption and figure for that bar instead of floating a tooltip, and a Weekly, Monthly and Yearly
+switch rolls the total to the new period with its delta beside it. `caption` names what the total
+covers, `unit` follows the figure, and `categoryAxis={{ ticks: 'ends' }}` labels only the first
+and last bar so the narrow card stays quiet. A falling delta turns red because up is good here.
+
+<ComponentPreview name="chart-card-tracks" />
+
+### Tooltip readout
+
+The default `readout="tooltip"` keeps the headline on the total and lets the chart's tooltip glide
+beside the active column. This is Bencho's stacked bars card: a Day and Week switch, a total with
+a unit, and a series that hangs below the baseline.
+
+<ComponentPreview name="chart-card-tooltip" align="stretch" />
+
+### Delta
+
+`delta.value` is a fraction: `0.124` reads 12.4% with an up arrow. `polarity` decides the colour:
+with `'increase-is-good'` (default) up is `success` and down is `error`, `'decrease-is-good'`
+turns that around for figures such as load time or churn, and `'neutral'` keeps it grey. Screen
+readers hear "Up 12.4%" rather than a bare number. `delta.formatOptions` replaces the percent
+format.
+
+### Table view and actions
+
+`showTableToggle` adds a toggle that shows the chart's data as a table in the card's place; `view`,
+`defaultView` and `onViewChange` control it. `actions` goes at the end of the header, for an icon
+button or a [Menu](/docs/components/overlays/menu).
+
+<ComponentPreview name="chart-card-table" align="stretch" />
+
+### Loading, empty and error
+
+`status` hands the body to [Content state](/docs/components/feedback/content-state). Loading keeps
+the card's height with a skeleton for the headline and the plot, empty says "No data for this
+period", and error offers Try again through `onRetry`.
+
+<ComponentPreview name="chart-card-states" align="stretch" />
+
+## API
+
+### ChartCard
+
+| Prop                 | Type                                                 | Default                   |
+| -------------------- | ---------------------------------------------------- | ------------------------- |
+| `title`              | `ReactNode`                                          |                           |
+| `description`        | `ReactNode`                                          |                           |
+| `headingLevel`       | `1 \| 2 \| 3 \| 4 \| 5 \| 6`                         | `3`                       |
+| `value`              | `number`                                             |                           |
+| `valueFormatOptions` | `Intl.NumberFormatOptions`                           |                           |
+| `unit`               | `ReactNode`                                          |                           |
+| `caption`            | `ReactNode`                                          | `labels.total` in readout |
+| `delta`              | `{ value: number; formatOptions?; polarity? }`       |                           |
+| `periods`            | `{ id: Key; label: string }[]`                       |                           |
+| `period`             | `Key`                                                |                           |
+| `defaultPeriod`      | `Key`                                                | the first period          |
+| `onPeriodChange`     | `(period: Key) => void`                              |                           |
+| `readout`            | `'tooltip' \| 'headline'`                            | `'tooltip'`               |
+| `readoutValue`       | `(point: ChartPoint) => number`                      | total or first value      |
+| `actions`            | `ReactNode`                                          |                           |
+| `showTableToggle`    | `boolean`                                            | `false`                   |
+| `view`               | `'chart' \| 'table'`                                 |                           |
+| `defaultView`        | `'chart' \| 'table'`                                 | `'chart'`                 |
+| `onViewChange`       | `(view) => void`                                     |                           |
+| `status`             | `'loading' \| 'error' \| 'empty' \| 'content'`       | `'content'`               |
+| `error`              | `unknown`                                            |                           |
+| `onRetry`            | `() => void \| Promise<unknown>`                     |                           |
+| `variant`            | `'outline' \| 'elevated' \| 'soft' \| 'transparent'` | `'outline'`               |
+| `labels`             | `Partial<ChartCardLabels>`                           |                           |
+| `children`           | the chart                                            |                           |
+
+Every other `div` prop goes to the [Card](/docs/components/layout/card) root. `chartCardStyles`
+is exported. The card sets `--chart-surface` for its variant, so dimmed bars mix toward the card
+colour.
+
+### Data attributes
+
+`data-readout`, `data-view`. Parts: `data-slot="chart-card"`, `"chart-card-header"`,
+`"chart-card-controls"`, `"chart-card-headline"`, `"chart-card-caption"`, `"chart-card-value"`,
+`"chart-card-delta"` (with `data-direction` `up`, `down` or `none`).
+
+### Labels
+
+Copy the card writes when you pass none. Pass `labels` to one card, or set them for every one with
+`<DSProvider labels={{ chartCard: { … } }}>`. The chart inside uses the
+[Chart labels](/docs/components/charts/chart#labels).
+
+| Key          | Default                   | Used for                                     |
+| ------------ | ------------------------- | -------------------------------------------- |
+| `increase`   | `Up {value}`              | the spoken delta when it rises               |
+| `decrease`   | `Down {value}`            | the spoken delta when it falls               |
+| `noChange`   | `No change`               | the spoken delta at zero                     |
+| `period`     | `Period`                  | the name of the period switch                |
+| `total`      | `Total`                   | the headline caption in readout mode at rest |
+| `showTable`  | `Show as table`           | the table toggle                             |
+| `loading`    | `Loading chart`           | the name of the loading indicator            |
+| `emptyTitle` | `No data for this period` | the empty state heading                      |
+
+## Accessibility
+
+- The title is a heading (`headingLevel`, 3 by default) and names the chart; the description
+  describes it along with the chart's own summary.
+- The period switch is a [Segmented control](/docs/components/navigation/segmented-control): a
+  radio group named "Period" with arrow keys. The table toggle is a toggle button with
+  `aria-pressed`.
+- The delta's arrow and number are hidden from screen readers in favour of "Up 12.4%".
+- In readout mode the headline follows the active bar but is not a live region; the chart's own
+  announcement already says the category and value when a key moves it, so nothing is read twice.
+- The headline rolls digit by digit when it changes. Under reduced motion it changes at once.
+- Contrast is checked with axe in light, dark and RTL by `chart-card.test.tsx`.

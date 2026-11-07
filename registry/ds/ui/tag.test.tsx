@@ -289,13 +289,14 @@ describe('TagGroup', () => {
     const message = screen.getByRole('row', { name: 'Message received' });
     expect(getComputedStyle(message.element()).cursor).toBe('pointer');
     expect(message.element().querySelector('[data-slot="check"]')).toBeNull();
-    const outlineBackground = getComputedStyle(message.element()).backgroundColor;
+    await expect
+      .poll(() => getComputedStyle(message.element()).backgroundColor)
+      .toBe('rgba(0, 0, 0, 0)');
 
     await message.click();
     await expect.element(message).toHaveAttribute('aria-selected', 'true');
     expect([...onSelectionChange.mock.lastCall![0]]).toEqual(['message']);
     expect(message.element().querySelector('[data-slot="check"]')).not.toBeNull();
-    expect(outlineBackground).toBe('rgba(0, 0, 0, 0)');
     await userEvent.unhover(message);
     await expect
       .poll(() => getComputedStyle(message.element()).backgroundColor)

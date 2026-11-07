@@ -1,0 +1,22 @@
+{
+  "name": "chart-card",
+  "type": "registry:ui",
+  "title": "Chart Card",
+  "description": "A card around one chart with a title, a rolling headline figure and a delta tag, a period switch, a table toggle, loading and empty states, and a readout mode that swaps the headline for the active bar.",
+  "category": "charts",
+  "files": ["ui/chart-card.tsx"],
+  "credits": [
+    {
+      "source": "Bencho",
+      "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/stacked-bars",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+    },
+    {
+      "source": "BoardUI",
+      "url": "https://github.com/BoardUI/boardui/blob/main/components/application/dashboard/orders-chart-card.tsx",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+    }
+  ]
+}

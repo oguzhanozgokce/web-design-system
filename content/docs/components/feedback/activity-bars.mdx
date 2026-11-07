@@ -1,0 +1,103 @@
+---
+title: Activity Bars
+description: A small equaliser whose bars rise and fall at different speeds while something plays, records or speaks, lie down when it stops and hold a still silhouette with reduced motion.
+---
+
+<ComponentPreview name="activity-bars-demo" />
+
+## Installation
+
+<InstallCommand name="activity-bars" />
+
+## Usage
+
+```tsx
+import { ActivityBars } from '@/components/ds/activity-bars';
+
+<ActivityBars isActive={isPlaying} className="text-primary" />;
+```
+
+Each bar runs its own loop, 0.9, 0.7, 1.1, 0.8 and 1 seconds long and started a beat apart, so the
+bars never line up into a pattern. When `isActive` turns off they ease down to a quarter of their
+height over 250 ms instead of stopping where they were, and they start again from there.
+
+The keyframes ship inside the component as a React 19 hoisted `<style>`, so there is nothing to add
+to your CSS beyond the theme. A Content Security Policy that blocks inline styles blocks them too;
+allow `'unsafe-inline'` in `style-src` on pages that show activity bars.
+
+## Examples
+
+### Sizes
+
+`sm` is 12px tall with 2px bars, `md` (the default) 16px with 3px bars and `lg` 24px with 4px bars.
+Use `sm` beside a line of text or a list row, `md` in a player row or a
+[Dynamic Island](/docs/components/feedback/dynamic-island) pill, and `lg` next to a title.
+
+<ComponentPreview name="activity-bars-sizes" />
+
+### Bar count
+
+Three, four (the default) or five bars. The width follows the count, so the bars stay the same
+width and gap.
+
+<ComponentPreview name="activity-bars-count" />
+
+### Colour and state
+
+The bars are painted in the current text colour, so they take the colour of the label beside them.
+Give them a role colour that says what is happening, and keep the state in words as well: colour
+and motion alone do not tell everyone that something is playing or paused.
+
+<ComponentPreview name="activity-bars-colors" />
+
+### Labelled
+
+By default the bars are decorative and hidden from screen readers, because the text next to them
+already says what is going on. When the bars are the only sign, give them an `aria-label` or
+`aria-labelledby` and they become a named image, such as "Speaking" beside the person who talks.
+
+<ComponentPreview name="activity-bars-labelled" />
+
+## API
+
+### ActivityBars
+
+| Prop              | Type                   | Default |
+| ----------------- | ---------------------- | ------- |
+| `isActive`        | `boolean`              | `true`  |
+| `count`           | `3 \| 4 \| 5`          | `4`     |
+| `size`            | `'sm' \| 'md' \| 'lg'` | `'md'`  |
+| `aria-label`      | `string`               |         |
+| `aria-labelledby` | `string`               |         |
+| `className`       | `string`               |         |
+
+Every other `span` attribute is passed to the root.
+
+### Styling
+
+| Part | Classes                                                                                    |
+| ---- | ------------------------------------------------------------------------------------------ |
+| root | `inline-flex items-center`, `h-3`, `h-4` or `h-6` by size, sized from the bar count        |
+| bar  | `rounded-full bg-current`, resting at 25% of the height, rising to 100% while it is active |
+
+### Styles
+
+`activityBarsStyles` exposes the slots `root` and `bar`, with the variants `size` and `still`.
+`ActivityBarsStyleProps` is its variant props type. The width, gap and rest height of the bars are
+the custom properties `--ds-bar-width`, `--ds-bar-gap` and `--ds-bar-rest` on the root.
+
+### Data attributes
+
+Root: `data-slot="activity-bars"`, `data-size`, `data-active`, and `data-running` while the bars
+move. Bars: `data-slot="bar"`.
+
+## Accessibility
+
+- Decorative by default: the root is `aria-hidden`. With `aria-label` or `aria-labelledby` it
+  becomes `role="img"` with that name.
+- It is not a live region. When playback starts or stops, the control that started it changes its
+  own name, such as Play to Pause, which is what screen readers follow.
+- With reduced motion, from the system or `DSProvider motion="reduced"`, active bars stop and hold a
+  still silhouette of different heights, so playing still looks different from paused.
+- The bars follow the text direction, so they mirror in right-to-left languages.
+- Contrast and structure are checked with axe in light, dark and RTL by `activity-bars.test.tsx`.

@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### Wave 2: data, files, charts and live activity
+
+Built from the references the owner asked for (Bencho's stacked bars, upload dropzone, rolling
+counter and dynamic island; BoardUI's data table and the idea of its earnings chart card).
+
+- Charts, a new category: `BarChart` (grouped, stacked, percent, horizontal, capsule segments, a
+  series below the baseline, full-height tracks, a ringed active column and a gliding tooltip),
+  `LineChart`, `AreaChart`, `Sparkline` and `ChartCard` (rolling headline, delta tag, period switch,
+  table toggle, `readout="headline"`). Hand-written SVG and HTML on `lib/chart.ts`, percent layouts
+  that do not move on hydration, one tab stop per plot with arrow keys, and a table view for every
+  chart. The monotone curve is adapted from d3-shape (ISC).
+- Eight categorical chart roles, `chart-1` to `chart-8`, in a fixed order validated for colour-vision
+  deficiencies in both modes. `tokens/config.json` holds them, the generator writes them, and the
+  theme builder's CSS export includes them.
+- Data: `Table` parts on React Aria Table, `DataTable` driven by column definitions (sorting, search,
+  filters, paging in the client or on the server, selection with bulk actions, row actions, status
+  and tag cells, loading, empty and error states), `StatusTag` and `StatusDot` with sixteen built-in
+  keys, and `Pagination` with a compact form driven by container queries.
+- Files: `FileDropzone`, `FileList` with `FileIcon`, and `FileUpload`, which wires both to an upload
+  function with progress, concurrency, cancel through an `AbortSignal` and retry. `lib/files.ts` is
+  its own registry item.
+- `RollingNumber`, an odometer whose columns roll forward through their carry, and a compact layout
+  for `NumberField`, whose rolling digits now use it in every locale and direction.
+- `DynamicIsland`, a pill that grows into a card on one spring, and `ActivityBars`. The island's
+  docs show it holding a small stacked `BarChart`.
+- Catalogue: a Charts section, gallery previews for every new component, and a chart colour group
+  on the Color page.
+
+### Removed
+
+- `@number-flow/react`. Nothing imports it now that `RollingNumber` exists.
+
 ### Web style
 
 - The library has its own web look: HeroUI's shapes and liveliness on Astryx's neutral surfaces and

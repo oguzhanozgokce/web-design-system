@@ -105,6 +105,44 @@ const groups: { title: string; description: string; swatches: Swatch[] }[] = [
   },
 ];
 
+const chartSwatches = [
+  'bg-chart-1',
+  'bg-chart-2',
+  'bg-chart-3',
+  'bg-chart-4',
+  'bg-chart-5',
+  'bg-chart-6',
+  'bg-chart-7',
+  'bg-chart-8',
+];
+
+function ChartSwatches() {
+  return (
+    <section className="flex flex-col gap-3">
+      <div className="flex flex-col gap-0.5">
+        <h3 className="text-base font-semibold text-on-surface">Chart colours</h3>
+        <p className="text-sm text-on-surface-variant">
+          Eight categorical series colours in a fixed order. One series uses primary instead.
+        </p>
+      </div>
+      <ul className="grid grid-cols-4 gap-2 sm:grid-cols-8">
+        {chartSwatches.map((className, index) => (
+          <li
+            key={className}
+            data-role={`chart-${index + 1}`}
+            className="flex flex-col gap-1.5 rounded-field border border-outline-subtle bg-surface-raised p-1.5"
+          >
+            <span className={cn('h-10 rounded-sm', className)} />
+            <span className="px-1 pb-0.5 text-xs font-medium text-on-surface">
+              chart-{index + 1}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function PaletteSwatches() {
   return (
     <div className="not-prose my-6 flex flex-col gap-8">
@@ -131,6 +169,7 @@ export function PaletteSwatches() {
           </ul>
         </section>
       ))}
+      <ChartSwatches />
     </div>
   );
 }

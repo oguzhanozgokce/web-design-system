@@ -1,0 +1,16 @@
+{
+  "name": "rolling-number",
+  "type": "registry:ui",
+  "title": "Rolling number",
+  "description": "A formatted number whose digits roll like an odometer, each column counting forward through its carry, with the plain value read to screen readers.",
+  "category": "data-display",
+  "files": ["ui/rolling-number.tsx", "lib/odometer.ts"],
+  "credits": [
+    {
+      "source": "Bencho",
+      "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/rolling-counter",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+    }
+  ]
+}

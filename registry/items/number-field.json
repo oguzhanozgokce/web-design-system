@@ -2,7 +2,15 @@
   "name": "number-field",
   "type": "registry:ui",
   "title": "Number field",
-  "description": "Number input with minus and plus or stacked chevrons inside the field, locale-aware formats and an optional rolling odometer.",
+  "description": "Number input with minus and plus, stacked chevrons or a compact quantity slab, locale-aware formats and digits that roll like an odometer.",
   "category": "inputs",
-  "files": ["ui/number-field.tsx"]
+  "files": ["ui/number-field.tsx"],
+  "credits": [
+    {
+      "source": "Bencho",
+      "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/rolling-counter",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+    }
+  ]
 }

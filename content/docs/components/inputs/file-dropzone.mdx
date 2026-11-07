@@ -1,0 +1,204 @@
+---
+title: File dropzone
+description: A filled drop box that grows toward a file held over it, opens the file picker on click or Enter, takes paste, refuses files by type, size or count with a shake and a red line, and gulps the files it accepts.
+---
+
+<ComponentPreview name="file-dropzone-demo" />
+
+## Installation
+
+<InstallCommand name="file-dropzone" />
+
+## Usage
+
+```tsx
+import { FileDropzone } from '@/components/ds/file-dropzone';
+
+<FileDropzone
+  acceptedFileTypes={['image/*']}
+  maxSize={5_000_000}
+  allowsMultiple
+  onSelect={(files) => addPhotos(files)}
+/>;
+```
+
+The dropzone takes files three ways: dragged in from the desktop, chosen in the system file picker
+(a click anywhere on the box, or Enter on its prompt), and pasted while the box has focus. Every
+file goes through the same checks, then `onSelect` receives the ones that fit and `onReject`
+receives the rest, each with a reason. The dropzone keeps no list of its own; show what was added
+with a [file list](/docs/components/inputs/file-list), or use
+[file upload](/docs/components/inputs/file-upload), which does both and sends the files too.
+
+The box is a plain fill without a dashed edge. Hold a file over it and it grows by 2% while its
+arrow tile lifts 4px, both on the library's spatial spring, and the line under the tile says "Drop
+to add". Let go and the box gulps: it dips, swells past its size and settles in under half a second.
+A file it will refuse is answered before it is let go: the box does not grow and the line turns red.
+
+## Examples
+
+### Restrictions
+
+`acceptedFileTypes` takes MIME types (`image/png`), wildcards (`image/*`) and extensions (`.pdf`),
+the same list the file picker filters by. `maxSize` and `minSize` are in bytes, and `maxFiles`
+limits how many files `allowsMultiple` lets through at once. The hint under the prompt is written
+from these props, with sizes formatted for the locale.
+
+A refused file shakes the box along the inline axis, writes the reason in red for 1.8 seconds and
+announces it. When some files fit and some do not, the ones that fit are added and the box only
+reports the rest. Type is checked while a file is held over the box where the browser exposes it;
+size and count are known only after the drop.
+
+<ComponentPreview name="file-dropzone-restrictions" />
+
+### Variants
+
+`soft` (the default) is a neutral fill with no edge, the box Bencho draws. `outline` is a dashed
+hairline on a transparent ground for pages that already sit on a tinted surface. Both darken while
+hovered or while a file is held over them.
+
+<ComponentPreview name="file-dropzone-variants" align="stretch" />
+
+### Sizes
+
+`md` is a 176px block. `lg` is 240px with a larger tile and type, for a page whose main job is
+taking files. `sm` is one 64px row with the tile at the start, sized to sit in a form beside other
+fields.
+
+<ComponentPreview name="file-dropzone-sizes" align="stretch" />
+
+### In a form
+
+`label`, `description`, `isInvalid` and `errorMessage` work as on other fields. The label names the
+group and is read before the prompt, and the description replaces the generated hint.
+
+<ComponentPreview name="file-dropzone-field" />
+
+### Disabled
+
+A disabled box fades to half opacity, takes no drop, paste or click, and keeps its hint so it can
+say why.
+
+<ComponentPreview name="file-dropzone-disabled" />
+
+### A button instead
+
+When a form needs a plain "Choose file" button rather than a drop target, use React Aria's
+`FileTrigger` around a [Button](/docs/components/actions/button). It opens the same file picker
+and passes the same `acceptedFileTypes`, but it does not check sizes; run
+`validateFiles` from `lib/files` in `onSelect` when you need that.
+
+<ComponentPreview name="file-dropzone-trigger" />
+
+### Holding content
+
+Children replace the prompt, and the box closes in around them: its width and height ease to fit
+the content inside a slot of fixed height, so nothing below it moves. It still takes drops and
+paste, and a refusal is written under it instead of inside. This is how the `single` layout of
+[file upload](/docs/components/inputs/file-upload#single-file) holds its one file row.
+
+<ComponentPreview name="file-dropzone-content" />
+
+## API
+
+### FileDropzone
+
+| Prop                | Type                                    | Default  |
+| ------------------- | --------------------------------------- | -------- |
+| `acceptedFileTypes` | `string[]`                              |          |
+| `allowsMultiple`    | `boolean`                               | `false`  |
+| `acceptDirectory`   | `boolean`                               | `false`  |
+| `defaultCamera`     | `'user' \| 'environment'`               |          |
+| `maxSize`           | `number`                                |          |
+| `minSize`           | `number`                                |          |
+| `maxFiles`          | `number`                                |          |
+| `fileCount`         | `number`                                | `0`      |
+| `onSelect`          | `(files: File[]) => void`               |          |
+| `onReject`          | `(rejections: FileRejection[]) => void` |          |
+| `label`             | `ReactNode`                             |          |
+| `description`       | `ReactNode`                             |          |
+| `errorMessage`      | `ReactNode`                             |          |
+| `isInvalid`         | `boolean`                               | `false`  |
+| `isDisabled`        | `boolean`                               | `false`  |
+| `icon`              | `ReactNode`                             | upload   |
+| `variant`           | `'soft' \| 'outline'`                   | `'soft'` |
+| `size`              | `'sm' \| 'md' \| 'lg'`                  | `'md'`   |
+| `children`          | `ReactNode`                             |          |
+| `labels`            | `Partial<FileDropzoneLabels>`           |          |
+| `className`         | `string`                                |          |
+
+Plus `id`, `aria-label`, `aria-labelledby` and `aria-describedby`. Without `allowsMultiple` the box
+takes one file at a time. `fileCount` is the number of files already added, which `maxFiles`
+counts against. `acceptDirectory` lets the picker choose a folder; a dropped folder is always read
+file by file. `defaultCamera` asks a phone to open its camera instead of the file picker.
+
+A `FileRejection` is `{ file: File; reason: 'type' | 'too-large' | 'too-small' | 'too-many' }`.
+
+### Helpers
+
+`lib/files` holds the checks the dropzone runs, for code that receives files some other way:
+`validateFiles(files, { acceptedFileTypes, maxSize, minSize, maxFiles, fileCount })` returns
+`{ accepted, rejected }`, `isFileTypeAccepted(file, types)` checks one file, `formatFileSize(bytes,
+locale)` writes `2.4 MB` or `820 kB` with `Intl`, `getFileKind(file)` sorts a file into `image`,
+`video`, `audio`, `pdf`, `document`, `spreadsheet`, `presentation`, `archive`, `code` or `other`,
+and `getFileExtension(name)` returns the lower-case extension.
+
+### fileDropzoneStyles
+
+`fileDropzoneStyles(variants)` returns one class function per slot: `root`, `label`, `stage`,
+`zone`, `tile`, `text`, `stack`, `browse`, `browseLink`, `message`, `hint`, `content`, `float`,
+`error` and `status`. Variants: `variant`, `size`, `hugging`, `motion` (`full`, `reduced`, `none`),
+`grows` and `tone` (`neutral`, `error`).
+
+### Data attributes
+
+The root has `data-slot="file-dropzone"`, `data-variant`, `data-size`, `data-disabled`,
+`data-invalid` and `data-hugging` while it holds children. The box is `data-slot="zone"` with
+`data-drop-target` while a file is held over it, `data-drop-refused` while that file is of a type
+it will refuse, `data-rejecting` while a refusal shows, and React Aria's `data-hovered`,
+`data-focus-visible` and `data-disabled`. Inside it are `tile`, `text`, the prompt button
+`file-dropzone-browse` with its `browse-link`, the `message` line (`data-line` is `prompt`, `drop`,
+`refused`, `rejected` or `paste`), `hint` and, while it holds children, `content`. A refusal under
+held content is `float-message`; the polite live region is `announcer`.
+
+### Labels
+
+Text the dropzone writes on its own. Pass `labels` to one dropzone, or set them for every dropzone
+with `<DSProvider labels={{ fileDropzone: { … } }}>`.
+
+| Key                | Default                                             | Used for                                                         |
+| ------------------ | --------------------------------------------------- | ---------------------------------------------------------------- |
+| `prompt`           | `Drag a file here or {browse}`                      | the prompt and the name of its button                            |
+| `promptMultiple`   | `Drag files here or {browse}`                       | the same with `allowsMultiple`                                   |
+| `browse`           | `browse`                                            | the link-styled word put in place of `{browse}`                  |
+| `dropzone`         | `Drop or paste files`                               | the name of the drop and paste target                            |
+| `dropTitle`        | `Drop to add`                                       | the line while a file that fits is held over the box             |
+| `dropRefused`      | `This file type isn’t accepted`                     | the line while a file of another type is held over it            |
+| `pasteTitle`       | `Paste to add`                                      | the line while the drop target has keyboard focus                |
+| `hintSize`         | `Up to {size}`                                      | the hint with `maxSize` only                                     |
+| `hintTypes`        | `{types}`                                           | the hint with `acceptedFileTypes` only                           |
+| `hintTypesAndSize` | `{types} · up to {size}`                            | the hint with both                                               |
+| `typeImage`        | `Images`                                            | `image/*` in the hint; also `typeVideo`, `typeAudio`, `typeText` |
+| `rejectedType`     | `{name} isn’t a supported file type`                | a file of a type not in `acceptedFileTypes`                      |
+| `rejectedTooLarge` | `{name} is larger than {size}`                      | a file over `maxSize`                                            |
+| `rejectedTooSmall` | `{name} is smaller than {size}`                     | a file under `minSize`                                           |
+| `rejectedTooMany`  | `You can add only one file` / `up to {count} files` | files over the count; a function of `count`                      |
+| `rejectedSeveral`  | `{count} files weren’t added`                       | several files refused at once                                    |
+
+`{browse}` marks where the link-styled word goes, so a language can put it anywhere in the
+sentence. `{types}` is a list formatted with `Intl.ListFormat`, and `{size}` and `{count}` are
+formatted for the locale.
+
+## Accessibility
+
+- Built on React Aria `DropZone` and `FileTrigger`. The prompt is a real button that opens the file
+  picker on click, Enter or Space; it is named by the prompt (and the label, when there is one) and
+  described by the hint and the error message.
+- The drop target is its own tab stop before the prompt, a button named "Drop or paste files". While
+  it has focus, Ctrl+V or Cmd+V pastes files from the clipboard and the line under the tile says
+  "Paste to add"; it also takes items dragged with the keyboard from another React Aria collection.
+- Refusals are announced once through a polite live region. Holding a file over the box changes
+  what it shows, but announces nothing.
+- Under reduced motion the box does not grow, shake or gulp and the tile does not lift; the fill,
+  the line and its colour still change. The shake moves along the inline axis by the same amount
+  each way, so it reads the same in right-to-left layouts.
+- Contrast is checked with axe in light, dark and RTL by `file-dropzone.test.tsx`.

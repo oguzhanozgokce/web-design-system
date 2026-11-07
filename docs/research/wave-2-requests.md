@@ -9,6 +9,57 @@ Method: `gh api` for licences, file trees, commit history and source of public r
 `curl` and a page reader for the public pages and the bencho.dev bundle. Nothing was installed or
 run. No Pro source was requested: the Earnings chart card was read from its public page only.
 
+## Visual study and build plan (2026-11-07)
+
+Each page was opened in a browser, in dark mode for Bencho, and used: hovering, dragging a file in,
+pressing the stepper, scrolling the table sideways. The source of the MIT blocks was read alongside.
+What the eye adds to the earlier notes:
+
+- **Stacked bars.** Every segment is its own capsule (2.5px radius, 2px apart), so the stack reads
+  as layers, not one bar cut into colours. Hovering rings the whole column (a 1.5px outline 3px
+  outside it), every other column mixes 62% toward the card colour, and one tooltip glides beside
+  the column on a spring with the date, the total, the two largest series and the escalated count.
+  The negative series hangs below a hairline baseline in red. Data changes ease each segment to its
+  new height a beat after its left neighbour, and the headline total re-enters digit by digit.
+- **Upload dropzone.** A filled box without a dashed edge. A file held over it makes it grow 2% and
+  lifts the arrow tile 4px; dropping makes it gulp (in, past, settle) and then hug a single upload
+  row: a file icon whose coloured extension label sticks out of the page, the name, "2.4 MB · 4%"
+  with the percentage rolling like an odometer, and a thin bar. A refused file shakes the box and
+  turns the line red for 1.8s. The tray of fake files is demo material and is not part of a real
+  component.
+- **Rolling counter.** A slab with 5px padding holding two soft square keys and the number between
+  them. Each column rolls forward through its carry (9 → 10 moves the ones on to 0 and the tens on
+  to 1, never back through 8…0), columns start 45ms apart from the right, spinning digits blur, the
+  window fades at its top and bottom, and the whole control widens as a digit arrives. Holding a key
+  repeats, faster after 0.9s and in tens after 1.5s.
+- **Data table.** A toolbar with "Total results / 48 customers" on the left and filter selects plus
+  a pill search on the right; a tinted header row; a select-all checkbox that goes indeterminate; an
+  avatar and name in the first column; an editable status per row (a select showing a dot and the
+  label); a status tag; a sortable date and a price shown as a quiet chip; three bordered icon
+  actions, the last opening a menu. Selected rows take a tinted background. Pagination below with
+  numbered cells that collapse to ellipses and to icon-only arrows when narrow. A Normal/Compact
+  switch changes row height and the size of every control in the rows.
+- **Earnings chart card.** There is no floating tooltip: hovering a bar swaps the headline label and
+  figure for that bar ("March", "$7,511") and darkens the bar. Every bar stands in a full-height
+  light track, which keeps the grid quiet and makes small months readable. A Weekly/Monthly/Yearly
+  switch sits top right, and the headline counts up to the new total with a delta tag beside it.
+
+Decisions taken for the build, following the earlier recommendations:
+
+1. `DataTable` is built on React Aria `Table` with no TanStack dependency. Sorting, filtering,
+   selection and paging are small pure helpers over RAC's controlled state, and a server mode hands
+   the same state to the caller.
+2. Charts are hand-written SVG and HTML on a shared `lib/chart.ts`. No Recharts or visx.
+3. Chart colour: one series uses `primary` (it stays readable on dark cards, where the vivid solid
+   fill measures 2.4:1). Several series use eight fixed categorical roles, `chart-1` to `chart-8`,
+   in a validated order: it passes every colour-blindness and separation check against our card
+   surfaces in both modes. Three light-mode slots sit under 3:1, so every chart carries a legend, a
+   tooltip and a table view. `palette="mono"` gives Bencho's tonal ramp of one role instead.
+4. Time axes follow the document direction in RTL; a prop pins them left to right.
+5. `DynamicIsland` and `ActivityBars` ship in this wave.
+6. The quantity request becomes a compact stepper layout of `NumberField`, using its rolling
+   digits; a standalone `RollingNumber` serves chart headlines, upload progress and the island.
+
 ## Verdicts at a glance
 
 | Reference                     | Where the source is                                   | Licence and tier           | May we copy code?                     |

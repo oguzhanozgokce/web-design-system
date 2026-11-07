@@ -1,0 +1,8 @@
+{
+  "name": "line-chart",
+  "type": "registry:ui",
+  "title": "Line Chart",
+  "description": "One or several lines with monotone, linear or step curves, gaps for missing values, dashed comparison series and a crosshair that carries the tooltip.",
+  "category": "charts",
+  "files": ["ui/line-chart.tsx"]
+}

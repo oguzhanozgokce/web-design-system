@@ -18,6 +18,7 @@ export const galleryCategories = [
   { id: 'overlays', label: 'Overlays' },
   { id: 'feedback', label: 'Feedback' },
   { id: 'data-display', label: 'Data display' },
+  { id: 'charts', label: 'Charts' },
 ] as const;
 
 interface ItemFile {

@@ -1,0 +1,103 @@
+---
+title: Line Chart
+description: One or several lines with monotone, linear or step curves, gaps for missing values, dashed comparison series and a crosshair that carries the tooltip.
+---
+
+<ComponentPreview name="line-chart-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="line-chart" />
+
+## Usage
+
+```tsx
+import { LineChart } from '@/components/ds/line-chart';
+
+<LineChart
+  aria-label="Visits per month, this year against last year"
+  data={months}
+  category="month"
+  series={[
+    { id: 'this-year', label: 'This year', value: 'thisYear' },
+    { id: 'last-year', label: 'Last year', value: 'lastYear', color: 'neutral', lineStyle: 'dashed' },
+  ]}
+/>;
+```
+
+Each series is one SVG path in a `0 0 1000 100` view box stretched to the plot, with a stroke that
+keeps its 2px width at any size. Dots, labels and the tooltip are HTML placed in percent, so text
+never stretches and the server renders the finished chart. Data, categories, series, colours and
+the shared props are described on the [Chart](/docs/components/charts/chart) page.
+
+Hover, drag or arrow along the plot and a crosshair snaps to the nearest category, a ringed dot
+marks each series on it, and the tooltip glides beside it on the side where it fits.
+
+## Examples
+
+### Several series
+
+Two or more lines take the categorical roles in order and get a legend. A comparison series such
+as last year reads best in `neutral` with `lineStyle="dashed"`, as in the chart at the top.
+
+<ComponentPreview name="line-chart-multiple" align="stretch" />
+
+### Curves
+
+`curve="monotone"`, the default, passes through every point without overshooting it, so a smooth
+line never shows a peak or dip the data does not have. `linear` draws straight segments, and
+`step` holds each value until halfway to the next, for values that change in steps such as a plan
+or a price. `dots="all"` marks every point; `"active"` (default) only the ones under the
+crosshair; `"none"` removes them.
+
+<ComponentPreview name="line-chart-curves" align="stretch" />
+
+### Missing values
+
+A missing value breaks the line instead of drawing through it, and the tooltip and table show a
+dash. Say why in `description`; it becomes part of the chart's accessible description.
+`valueAxis={{ domain: [10, 'auto'] }}` starts the axis above zero when the floor is not meaningful,
+as for a temperature.
+
+<ComponentPreview name="line-chart-gaps" align="stretch" />
+
+## API
+
+### LineChart
+
+Takes every [shared chart prop](/docs/components/charts/chart#shared-chart-props), plus:
+
+| Prop    | Type                               | Default      |
+| ------- | ---------------------------------- | ------------ |
+| `curve` | `'monotone' \| 'linear' \| 'step'` | `'monotone'` |
+| `dots`  | `'none' \| 'active' \| 'all'`      | `'active'`   |
+
+`lineChartStyles` is exported. `LineChartBase` is the shared implementation behind `LineChart` and
+`AreaChart`.
+
+### Data attributes
+
+`data-size`, `data-curve`, `data-view`, `data-palette`, `data-pending` (before the first reveal).
+Parts: `data-slot="line-chart"`, `"chart-body"`, `"plot"` (with `data-active`), `"chart-svg"`,
+`"line"` (with `data-series`), `"dot"`, `"active-dot"`, `"crosshair"`, `"grid-line"`,
+`"baseline"`, `"value-axis"`, `"category-axis"`, `"tooltip-layer"`, `"chart-legend"`,
+`"chart-table"`, `"chart-live"`.
+
+### Labels
+
+Line charts use the [Chart labels](/docs/components/charts/chart#labels).
+
+## Accessibility
+
+- The plot is one tab stop. Left and right arrows move the crosshair from point to point,
+  mirrored in right-to-left layouts, where time runs from the right; Home and End jump to the ends;
+  Escape clears it; Enter and Space call `onAction`. Every key move announces the category and
+  each series' value, and a missing value is left out of the announcement.
+- The paths, dots, crosshair and tooltip are `aria-hidden`; the visually hidden data table carries
+  the numbers.
+- Dashed series are dashed in the legend and the tooltip too, so a comparison line is told apart by
+  its pattern as well as its colour.
+- The line draws in from the start of the time axis over 700ms on first view, and new data morphs
+  the path over 450ms where the browser can animate it. Under reduced motion the final chart is
+  drawn at once.
+- Contrast is checked with axe in light, dark and RTL by `line-chart.test.tsx`.

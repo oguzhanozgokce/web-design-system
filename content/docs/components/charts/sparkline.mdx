@@ -1,0 +1,90 @@
+---
+title: Sparkline
+description: A word-sized line or area for stat tiles and table cells, named and described by its trend, with an end dot at the latest value.
+---
+
+<ComponentPreview name="sparkline-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="sparkline" />
+
+## Usage
+
+```tsx
+import { Sparkline } from '@/components/ds/sparkline';
+
+<Sparkline aria-label="Visits, last 12 weeks" data={[31, 34, 33, 38, 41, 39, 44]} />;
+```
+
+A sparkline shows the shape of a trend next to the figure it belongs to, with no axes, grid or
+tooltip. It takes a plain array of numbers; `null` leaves a gap. The scale is fitted to the data
+with a little room above and below, so the line uses the whole height. It is 96 by 32px by
+default; size it with `className`, as with any inline element.
+
+When people need to read values off the chart, use a [Line chart](/docs/components/charts/line-chart)
+instead, or a `BarChart` with `size="sm"` for a sparkbar.
+
+## Examples
+
+### Variants and colours
+
+`variant="area"` adds a gradient under the line. `color` takes any chart role; use a status role
+only when the trend means that state. `curve` is `monotone` (default), `linear` or `step`, and
+`showEndDot={false}` removes the dot at the latest value.
+
+<ComponentPreview name="sparkline-variants" />
+
+### In a table
+
+Pass `categories` to label the rows of the sparkline's hidden data table, for example with the
+dates of each value.
+
+<ComponentPreview name="sparkline-table" align="stretch" />
+
+## API
+
+### Sparkline
+
+| Prop                 | Type                                             | Default                |
+| -------------------- | ------------------------------------------------ | ---------------------- |
+| `aria-label`         | `string`                                         | required               |
+| `data`               | `readonly (number \| null)[]`                    |                        |
+| `categories`         | `readonly (string \| number \| Date)[]`          | 1, 2, 3…               |
+| `variant`            | `'line' \| 'area'`                               | `'line'`               |
+| `color`              | `ChartColor`                                     | `'primary'`            |
+| `curve`              | `'monotone' \| 'linear' \| 'step'`               | `'monotone'`           |
+| `showEndDot`         | `boolean`                                        | `true`                 |
+| `valueFormatOptions` | `Intl.NumberFormatOptions`                       |                        |
+| `formatCategory`     | `(value, context: 'axis' \| 'detail') => string` | `Intl` with the locale |
+| `categoryDirection`  | `'auto' \| 'ltr'`                                | `'auto'`               |
+| `isAnimated`         | `boolean`                                        | `true`                 |
+| `labels`             | `Partial<ChartLabels>`                           |                        |
+
+Every other `div` prop goes to the root. `sparklineStyles` is exported.
+
+### Data attributes
+
+`data-variant`. Parts: `data-slot="sparkline"`, `"line"`, `"area"`, `"end-dot"`, `"chart-table"`.
+
+### Labels
+
+Sparklines use three of the [Chart labels](/docs/components/charts/chart#labels): `trend` for the
+description, `noData` when there is nothing to draw, and `dataTable` for the table caption.
+
+| Key         | Default                                                |
+| ----------- | ------------------------------------------------------ |
+| `trend`     | `From {first} to {last}, lowest {min}, highest {max}.` |
+| `noData`    | `No data`                                              |
+| `dataTable` | `Data for {title}`                                     |
+
+## Accessibility
+
+- A sparkline is an image named by `aria-label` and described by its trend: "From 31 to 58, lowest
+  31, highest 58." The numbers use `valueFormatOptions` and the provider's locale.
+- A visually hidden table lists every value, so screen reader users can read the series itself.
+- It has no focus stop and no tooltip; the figure beside it carries the number people act on.
+- In right-to-left layouts the line runs from the right; `categoryDirection="ltr"` keeps it left
+  to right.
+- The line draws in from the start over 700ms on first view, and not at all under reduced motion.
+- Contrast is checked with axe in light, dark and RTL by `sparkline.test.tsx`.

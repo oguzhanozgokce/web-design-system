@@ -1,0 +1,161 @@
+---
+title: Status Tag
+description: Status labels driven by a key, sixteen built-in states with a tone and a dot each, extended with the app's own keys, labels and tones, plus a StatusDot for lists.
+---
+
+<ComponentPreview name="status-tag-demo" />
+
+## Installation
+
+<InstallCommand name="status-tag" />
+
+## Usage
+
+```tsx
+import { StatusTag, StatusTagProvider } from '@/components/ds/status-tag';
+
+<StatusTag status="inReview" />;
+
+<StatusTagProvider statuses={{ beta: { tone: 'primary', dot: true, label: 'Beta' } }}>
+  <StatusTag status={app.status} />
+</StatusTagProvider>;
+```
+
+A status tag is a [Tag](/docs/components/data-display/tag) that takes a key instead of a tone and a
+label. Store the key with the record (`'live'`, `'inReview'`) and let the tag choose the colour and
+the words, so every table, list and card shows the same state the same way.
+
+## Examples
+
+### Built-in statuses
+
+Sixteen keys cover the states most apps need. Each has an English label and a tone; every one has a
+dot, so a column of mixed statuses lines up, and `processing` pulses because it is still moving.
+
+| Tone      | Keys                                                              |
+| --------- | ----------------------------------------------------------------- |
+| `success` | `active`, `live`, `completed`                                     |
+| `info`    | `inReview`, `scheduled`                                           |
+| `primary` | `processing` (pulsing dot)                                        |
+| `warning` | `pending`, `paused`                                               |
+| `error`   | `failed`, `rejected`                                              |
+| `neutral` | `inactive`, `draft`, `archived`, `expired`, `canceled`, `unknown` |
+
+<ComponentPreview name="status-tag-built-in" />
+
+### Your own statuses
+
+`statuses` maps any key to a `tone`, a `dot` (`true` or `'pulse'`), an `icon` and a `label`. It adds
+new keys and overrides built-in ones. Put the map on a `StatusTagProvider` once for the app or a
+screen; providers nest, and a tag's own `statuses` win over the provider's. A key that nothing
+defines renders the neutral `unknown` status rather than an empty tag. The labels of your own keys
+are your content, so translate them where you translate the rest of the app.
+
+<ComponentPreview name="status-tag-custom" />
+
+### Variants and sizes
+
+Every [Tag](/docs/components/data-display/tag) prop except `tone` and `dot` passes through. `soft`
+is the default and suits tables; `outline` keeps a busy card calm; `solid` is for the one status
+that must stand out. `sm` (20px) fits compact rows.
+
+<ComponentPreview name="status-tag-variants" />
+
+### Status dot
+
+`StatusDot` draws only the 8px dot in the status's tone, for lists and menus where a tag would be
+too heavy. It is hidden from screen readers, so put the status in words next to it, as the
+description line does here. Pass `statuses` or use the provider, as with the tag.
+
+<ComponentPreview name="status-tag-dot" />
+
+## API
+
+### StatusTag
+
+| Prop       | Type                                           | Default  |
+| ---------- | ---------------------------------------------- | -------- |
+| `status`   | `StatusKey \| string`                          |          |
+| `statuses` | `Record<string, StatusDefinition>`             |          |
+| `labels`   | `Partial<StatusTagLabels>`                     |          |
+| `children` | `ReactNode`, replaces the label                |          |
+| `icon`     | `ReactNode`, replaces the status's icon or dot |          |
+| `variant`  | `'soft' \| 'outline' \| 'solid'`               | `'soft'` |
+| `size`     | `'sm' \| 'md'`                                 | `'md'`   |
+
+Every other `Tag` prop and HTML attribute is passed through.
+
+### StatusDefinition
+
+| Field   | Type                                                                    |
+| ------- | ----------------------------------------------------------------------- |
+| `tone`  | `'neutral' \| 'primary' \| 'success' \| 'warning' \| 'error' \| 'info'` |
+| `dot`   | `boolean \| 'pulse'`                                                    |
+| `icon`  | `ReactNode`                                                             |
+| `label` | `string`; built-in keys fall back to `labels`, other keys to the key    |
+
+### StatusTagProvider
+
+| Prop       | Type                               |
+| ---------- | ---------------------------------- |
+| `statuses` | `Record<string, StatusDefinition>` |
+| `children` | `ReactNode`                        |
+
+### StatusDot
+
+| Prop       | Type                               |
+| ---------- | ---------------------------------- |
+| `status`   | `StatusKey \| string`              |
+| `statuses` | `Record<string, StatusDefinition>` |
+
+Every other `<span>` attribute is passed through.
+
+### Helpers
+
+`resolveStatus(status, definitions, labels)` returns `{ key, tone, dot, icon, label, isKnown }`
+without rendering, for sorting, filtering or a chart legend. `useStatusResolver(statuses?, labels?)`
+returns the same function with the provider's statuses and the label overrides applied.
+`defaultStatusDefinitions` and `defaultStatusTagLabels` hold the built-in values.
+
+### Data attributes
+
+`StatusTag` adds `data-status` (the key) and `data-status-known` (when the key is defined) to the
+tag's own `data-tone`, `data-variant` and `data-size`. `StatusDot`: `data-slot="status-dot"`,
+`data-status`, `data-tone`.
+
+### Labels
+
+The label of each built-in key. Pass `labels` to one tag, or set them for every status tag, status
+dot and data table with `<DSProvider labels={{ statusTag: { … } }}>`.
+
+| Key          | Default      |
+| ------------ | ------------ |
+| `active`     | `Active`     |
+| `inactive`   | `Inactive`   |
+| `draft`      | `Draft`      |
+| `pending`    | `Pending`    |
+| `inReview`   | `In review`  |
+| `scheduled`  | `Scheduled`  |
+| `processing` | `Processing` |
+| `live`       | `Live`       |
+| `paused`     | `Paused`     |
+| `completed`  | `Completed`  |
+| `failed`     | `Failed`     |
+| `rejected`   | `Rejected`   |
+| `archived`   | `Archived`   |
+| `expired`    | `Expired`    |
+| `canceled`   | `Canceled`   |
+| `unknown`    | `Unknown`    |
+
+A `label` in a `StatusDefinition` wins over these, so an app that renames a built-in state in one
+place can do it there.
+
+## Accessibility
+
+- The tag is plain text: screen readers read the label. The dot and icon are decorative and hidden,
+  so colour is never the only signal.
+- `StatusDot` has no text of its own. Use it only next to words that say the status.
+- The pulse stops when the visitor prefers reduced motion or `DSProvider` sets `motion` to
+  `'reduced'` or `'disabled'`.
+- Contrast for every built-in status in all three variants is checked with axe in light, dark and
+  RTL by `status-tag.test.tsx`.

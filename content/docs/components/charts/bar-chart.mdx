@@ -1,0 +1,166 @@
+---
+title: Bar Chart
+description: Grouped, stacked and percent bars, vertical or horizontal, with capsule segments, a series below the baseline, full-height tracks, a ringed active column and a gliding tooltip.
+---
+
+<ComponentPreview name="bar-chart-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="bar-chart" />
+
+## Usage
+
+```tsx
+import { BarChart } from '@/components/ds/bar-chart';
+
+<BarChart
+  aria-label="Visits by source, last 20 days"
+  data={days}
+  category="date"
+  layout="stacked"
+  series={[
+    { id: 'direct', label: 'Direct', value: 'direct' },
+    { id: 'search', label: 'Search', value: 'search' },
+    { id: 'bounced', label: 'Bounced', value: 'bounced', isBelowBaseline: true },
+  ]}
+/>;
+```
+
+Bars are HTML boxes placed in percent of the plot, so the server renders the finished chart and
+nothing moves when the page hydrates. Data, categories, series, colours and the shared props are
+described on the [Chart](/docs/components/charts/chart) page.
+
+The chart above follows Bencho's stacked bars: every segment is its own capsule, 2px apart, so a
+stack reads as layers rather than one bar cut into colours. Hover or arrow to a column and it is
+ringed, the other columns mix toward the card colour, and one tooltip glides beside it with the
+date, the total and every series.
+
+## Examples
+
+### Stacked
+
+`layout="stacked"` piles each category's series into one column. Positive values stack up from the
+baseline and negative values down from it, each segment at least 2px tall. The tooltip and the
+table add a total.
+
+<ComponentPreview name="bar-chart-stacked" align="stretch" />
+
+### Below the baseline
+
+A series with `isBelowBaseline` hangs under a hairline baseline on its own scale, in the bottom
+18% of the plot, so a small related count such as bounced visits or failed builds stays readable
+next to large totals. It is `error` unless you give it a colour, hatched in the mono palette, and
+it is not part of the total. The chart at the top of the page shows it.
+
+### Grouped
+
+`layout="grouped"`, the default, puts one bar per series side by side with a 2px gap. Use it to
+compare series within each category, such as this year against last year in `neutral`.
+
+<ComponentPreview name="bar-chart-grouped" align="stretch" />
+
+### Percent
+
+`layout="percent"` stacks every category to the full height, so the shares can be compared
+while the totals cannot. The axis is formatted as a percentage; the tooltip and table keep the
+real values.
+
+<ComponentPreview name="bar-chart-percent" align="stretch" />
+
+### Horizontal
+
+`orientation="horizontal"` lays bars along the inline axis, which suits long category names and
+ranked lists. Every row is labelled, the plot grows by 32px per row (20px at `sm`, 40px at `lg`),
+up and down arrows move the active row, and the value axis drops every other label below 448px.
+
+<ComponentPreview name="bar-chart-horizontal" align="stretch" />
+
+### Negative values
+
+Bars below zero grow down from the baseline. The axis domain always includes zero, and
+`valueFormatOptions={{ signDisplay: 'exceptZero' }}` marks the direction in the labels.
+
+<ComponentPreview name="bar-chart-negative" align="stretch" />
+
+### Tracks
+
+`showTrack` stands every bar in a full-height soft track and drops the grid, which keeps a dense
+card quiet and makes small values readable against their possible maximum. Pair it with
+`radius="full"` for pill bars. In a [Chart card](/docs/components/charts/chart-card) with
+`readout="headline"` the tooltip gives way to the card's headline.
+
+<ComponentPreview name="bar-chart-track" align="stretch" />
+
+### Sizes and spacing
+
+`md` is 192px tall and suits a card; `lg` is 288px. `sm` is a 48px sparkbar with no axes, grid,
+legend or tooltip, and it becomes a named image. `barGap` sets the space between categories
+(6px by default); it shrinks before any bar gets thinner than 3px. `maxBarSize` caps a bar's
+thickness (24px), and `radius` rounds the segments: `none`, `sm` (4px, default) or `full`.
+
+<ComponentPreview name="bar-chart-sizes" align="stretch" />
+
+### Actions
+
+`onAction` makes the columns pressable: a click, a tap, or Enter and Space on the active column
+call it with the point. Use it to filter a list or open details.
+
+<ComponentPreview name="bar-chart-action" align="stretch" />
+
+### Custom tooltip
+
+Pass a function as `tooltip` to build the card from the active point. `ChartTooltip` keeps the
+look; the point gives you the row, the formatted values and the total.
+
+<ComponentPreview name="bar-chart-tooltip" align="stretch" />
+
+## API
+
+### BarChart
+
+Takes every [shared chart prop](/docs/components/charts/chart#shared-chart-props), plus:
+
+| Prop          | Type                                  | Default      |
+| ------------- | ------------------------------------- | ------------ |
+| `layout`      | `'grouped' \| 'stacked' \| 'percent'` | `'grouped'`  |
+| `orientation` | `'vertical' \| 'horizontal'`          | `'vertical'` |
+| `barGap`      | `number`                              | `6`          |
+| `maxBarSize`  | `number`                              | `24`         |
+| `radius`      | `'none' \| 'sm' \| 'full'`            | `'sm'`       |
+| `showTrack`   | `boolean`                             | `false`      |
+| `showGrid`    | `boolean`                             | `!showTrack` |
+
+`barChartStyles` is exported.
+
+### Data attributes
+
+`data-layout`, `data-orientation`, `data-size`, `data-track`, `data-view`, `data-palette`,
+`data-pending` (before the first grow). Parts: `data-slot="bar-chart"`, `"chart-body"`, `"plot"`
+(with `data-active`), `"bar-group"` (with `data-index` and `data-active`), `"bar"`,
+`"bar-track"`, `"bar-segment"` (with `data-series`), `"bar-below"`, `"bar-ring"`, `"baseline"`,
+`"grid-line"`, `"value-axis"`, `"category-axis"`, `"tooltip-layer"`, `"chart-tooltip"`,
+`"chart-legend"`, `"chart-table"`, `"chart-live"`.
+
+### Labels
+
+Bar charts use the [Chart labels](/docs/components/charts/chart#labels).
+
+## Accessibility
+
+- The plot is one tab stop. Left and right arrows move the active column (up and down for
+  horizontal bars), mirrored in right-to-left layouts; Home and End jump to the ends; Escape
+  clears it; Enter and Space call `onAction`. Every key move announces the category, the total
+  of a stack and each series.
+- A pointer scrubs across the plot; touch captures the pointer so a finger can drag along the
+  columns and the page still scrolls vertically.
+- The bars, the ring and the tooltip are `aria-hidden`; the visually hidden data table, with a
+  total column for stacks, carries the numbers.
+- The active column is shown three ways: a ring, full colour against dimmed neighbours, and the
+  tooltip. Dimming mixes the other columns 62% toward the card colour instead of fading them, so
+  nothing behind shows through.
+- Columns grow from the baseline over 600ms on the fluid curve when they first scroll into view,
+  each 14ms after its neighbour, and ease to new values the same way. The ring and the tooltip
+  glide on a spring between columns and fade over 150ms. Under reduced motion the final chart is
+  drawn at once and the ring and tooltip move without animation.
+- Contrast is checked with axe in light, dark and RTL by `bar-chart.test.tsx`.

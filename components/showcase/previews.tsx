@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   AddIcon,
   BookmarkIcon,
@@ -23,17 +23,23 @@ import {
   ViewColumnIcon,
 } from '@/registry/ds/lib/icons';
 import { cn } from '@/registry/ds/lib/utils';
+import { ActivityBars } from '@/registry/ds/ui/activity-bars';
+import { AreaChart } from '@/registry/ds/ui/area-chart';
 import { Avatar, AvatarGroup } from '@/registry/ds/ui/avatar';
 import { Badge, BadgeAnchor } from '@/registry/ds/ui/badge';
 import { Banner } from '@/registry/ds/ui/banner';
+import { BarChart } from '@/registry/ds/ui/bar-chart';
 import { Button } from '@/registry/ds/ui/button';
 import { ButtonGroup } from '@/registry/ds/ui/button-group';
 import { Card, CardContent, CardFooter, CardHeader } from '@/registry/ds/ui/card';
+import { ChartLegend, ChartTooltip, type ChartSeries } from '@/registry/ds/ui/chart';
+import { ChartCard } from '@/registry/ds/ui/chart-card';
 import { Checkbox } from '@/registry/ds/ui/checkbox';
 import { Chip, ChipGroup } from '@/registry/ds/ui/chip';
 import { ComboBox } from '@/registry/ds/ui/combo-box';
 import { ContentState } from '@/registry/ds/ui/content-state';
 import { CopyButton } from '@/registry/ds/ui/copy-button';
+import { DataTable, type DataTableColumn } from '@/registry/ds/ui/data-table';
 import {
   Accordion,
   Disclosure,
@@ -41,23 +47,37 @@ import {
   DisclosureTrigger,
 } from '@/registry/ds/ui/disclosure';
 import { OrDivider } from '@/registry/ds/ui/divider';
+import {
+  DynamicIsland,
+  DynamicIslandCompact,
+  DynamicIslandExpanded,
+} from '@/registry/ds/ui/dynamic-island';
 import { EmptyState } from '@/registry/ds/ui/empty-state';
 import { Fab } from '@/registry/ds/ui/fab';
+import { FileDropzone } from '@/registry/ds/ui/file-dropzone';
+import { FileList, type FileListEntry } from '@/registry/ds/ui/file-list';
+import { FileUpload, type FileUploadItem } from '@/registry/ds/ui/file-upload';
 import { IconButton } from '@/registry/ds/ui/icon-button';
 import { Kbd, KbdCombo } from '@/registry/ds/ui/kbd';
+import { LineChart } from '@/registry/ds/ui/line-chart';
 import { Link } from '@/registry/ds/ui/link';
 import { ListBox, ListBoxItem } from '@/registry/ds/ui/list-box';
 import { NumberField } from '@/registry/ds/ui/number-field';
+import { Pagination } from '@/registry/ds/ui/pagination';
 import { PasswordField } from '@/registry/ds/ui/password-field';
 import { CircularProgress, LinearProgress } from '@/registry/ds/ui/progress';
 import { Radio, RadioGroup } from '@/registry/ds/ui/radio-group';
+import { RollingNumber } from '@/registry/ds/ui/rolling-number';
 import { SearchField } from '@/registry/ds/ui/search-field';
 import { SegmentedControl, SegmentedControlItem } from '@/registry/ds/ui/segmented-control';
 import { Select } from '@/registry/ds/ui/select';
 import { Skeleton } from '@/registry/ds/ui/skeleton';
 import { Slider } from '@/registry/ds/ui/slider';
+import { Sparkline } from '@/registry/ds/ui/sparkline';
 import { Spinner } from '@/registry/ds/ui/spinner';
+import { StatusTag } from '@/registry/ds/ui/status-tag';
 import { Switch } from '@/registry/ds/ui/switch';
+import { Cell, Column, Row, Table, TableBody, TableHeader } from '@/registry/ds/ui/table';
 import { Tab, TabList, TabPanel, Tabs } from '@/registry/ds/ui/tabs';
 import { Tag } from '@/registry/ds/ui/tag';
 import { TextArea } from '@/registry/ds/ui/text-area';
@@ -71,6 +91,153 @@ const dialog = 'rounded-dialog bg-surface-overlay text-on-surface shadow-lg';
 
 function Shortcut({ keys }: { keys: string[] }) {
   return <KbdCombo keys={keys} size="sm" />;
+}
+
+const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+interface TrafficDay {
+  day: number;
+  direct: number;
+  search: number;
+  social: number;
+  bounced: number;
+}
+
+const traffic: TrafficDay[] = Array.from({ length: 14 }, (_, index) => {
+  const wave = 1 + 0.32 * Math.sin(index * 0.85 + 1) + 0.12 * Math.cos(index * 2.1);
+  return {
+    day: index + 1,
+    direct: Math.round(52 * wave),
+    search: Math.round(36 * (wave * 0.85 + 0.15)),
+    social: Math.round(21 * (1.25 - wave * 0.35)),
+    bounced: Math.round(9 * (1.4 - wave * 0.4)),
+  };
+});
+
+const trafficSeries: ChartSeries<TrafficDay>[] = [
+  { id: 'direct', label: 'Direct', value: 'direct' },
+  { id: 'search', label: 'Search', value: 'search' },
+  { id: 'social', label: 'Social', value: 'social' },
+  { id: 'bounced', label: 'Bounced', value: 'bounced', isBelowBaseline: true },
+];
+
+const visitsByMonth = [
+  { month: 'Jan', thisYear: 98, lastYear: 82 },
+  { month: 'Feb', thisYear: 101, lastYear: 85 },
+  { month: 'Mar', thisYear: 114, lastYear: 99 },
+  { month: 'Apr', thisYear: 110, lastYear: 102 },
+  { month: 'May', thisYear: 122, lastYear: 109 },
+  { month: 'Jun', thisYear: 127, lastYear: 110 },
+  { month: 'Jul', thisYear: 140, lastYear: 118 },
+  { month: 'Aug', thisYear: 131, lastYear: 120 },
+  { month: 'Sep', thisYear: 142, lastYear: 122 },
+];
+
+const uploads = [182, 236, 214, 298, 341, 276, 312].map((count, index) => ({
+  day: weekdays[index],
+  uploads: count,
+}));
+
+const downloads = [1240, 1612, 1498, 1877, 2104, 1320, 1186].map((count, index) => ({
+  day: weekdays[index],
+  downloads: count,
+}));
+
+interface Folder {
+  id: string;
+  name: string;
+  files: number;
+  status: string;
+}
+
+const folders: Folder[] = [
+  { id: 'photos', name: 'Photos', files: 2481, status: 'completed' },
+  { id: 'documents', name: 'Documents', files: 312, status: 'processing' },
+  { id: 'music', name: 'Music', files: 1045, status: 'paused' },
+];
+
+const folderColumns: DataTableColumn<Folder>[] = [
+  { id: 'name', header: 'Folder', isRowHeader: true, allowsSorting: true },
+  { id: 'files', header: 'Files', type: 'number', allowsSorting: true },
+  { id: 'status', header: 'Sync', type: 'status' },
+];
+
+const pickedFiles: (FileListEntry & FileUploadItem)[] = [
+  {
+    id: 'beach',
+    file: { name: 'beach-at-sunrise.jpg', size: 3_200_000, type: 'image/jpeg' },
+    status: 'complete',
+  },
+  {
+    id: 'interview',
+    file: { name: 'team-interview.mp4', size: 48_600_000, type: 'video/mp4' },
+    status: 'uploading',
+    progress: 0.64,
+  },
+];
+
+function useSettledValue(from: number, to: number, delay = 600) {
+  const [value, setValue] = useState(from);
+  useEffect(() => {
+    const timer = setTimeout(() => setValue(to), delay);
+    return () => clearTimeout(timer);
+  }, [to, delay]);
+  return value;
+}
+
+function RollingPreview() {
+  const value = useSettledValue(1279, 1289);
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span className="text-sm text-on-surface-variant">Downloads this week</span>
+      <RollingNumber
+        value={value}
+        className="text-5xl font-semibold tracking-tight text-on-surface"
+      />
+    </div>
+  );
+}
+
+function IslandPreview() {
+  const hours = traffic.slice(0, 12);
+  const total = hours.reduce((sum, hour) => sum + hour.direct + hour.search + hour.social, 0);
+  return (
+    <div className="w-80">
+      <DynamicIsland title="Visits today" defaultExpanded>
+        <DynamicIslandCompact
+          leading={<ActivityBars count={3} className="text-success" />}
+          trailing={<RollingNumber value={total} />}
+        />
+        <DynamicIslandExpanded className="w-72 gap-2.5 px-4 pt-3.5 pb-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col">
+              <span className="text-xs text-on-surface-variant">Visits today</span>
+              <RollingNumber value={total} className="text-xl font-semibold tracking-tight" />
+            </div>
+            <span className="flex items-center gap-1.5 text-xs font-medium text-success">
+              <ActivityBars count={3} size="sm" />
+              Live
+            </span>
+          </div>
+          <BarChart
+            aria-label="Visits per hour today"
+            data={hours}
+            category="day"
+            series={trafficSeries.slice(0, 3)}
+            layout="stacked"
+            height={64}
+            barGap={4}
+            valueAxis={{ isVisible: false }}
+            categoryAxis={{ isVisible: false }}
+            showGrid={false}
+            legend="none"
+            tooltip="none"
+            className="[--chart-surface:var(--surface-container-lowest)]"
+          />
+        </DynamicIslandExpanded>
+      </DynamicIsland>
+    </div>
+  );
 }
 
 export const galleryPreviews: Record<string, () => ReactNode> = {
@@ -163,7 +330,12 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
   'password-field': () => (
     <PasswordField className="w-60" label="Password" placeholder="Enter your password" />
   ),
-  'number-field': () => <NumberField label="Quantity" defaultValue={2} minValue={0} />,
+  'number-field': () => (
+    <div className="flex items-end gap-5">
+      <NumberField label="Quantity" defaultValue={2} minValue={0} className="w-32" />
+      <NumberField label="Guests" layout="compact" defaultValue={4} minValue={1} />
+    </div>
+  ),
   checkbox: () => (
     <div className="flex flex-col gap-1">
       <Checkbox defaultSelected>Remember me</Checkbox>
@@ -470,5 +642,210 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
       <Kbd>Esc</Kbd>
       <KbdCombo keys={['shift', 'Enter']} />
     </div>
+  ),
+  'status-tag': () => (
+    <div className="flex w-64 flex-wrap justify-center gap-2">
+      <StatusTag status="live" />
+      <StatusTag status="inReview" />
+      <StatusTag status="scheduled" />
+      <StatusTag status="processing" />
+      <StatusTag status="rejected" />
+    </div>
+  ),
+  'rolling-number': () => <RollingPreview />,
+  table: () => (
+    <div className="w-72 rounded-container border border-outline-subtle bg-surface-raised p-1.5 shadow-xs">
+      <Table aria-label="Folders" density="sm">
+        <TableHeader>
+          <Column isRowHeader>Folder</Column>
+          <Column align="end">Files</Column>
+          <Column>Sync</Column>
+        </TableHeader>
+        <TableBody>
+          {folders.map((folder) => (
+            <Row key={folder.id} id={folder.id}>
+              <Cell className="font-medium">{folder.name}</Cell>
+              <Cell align="end" className="tabular-digits">
+                {folder.files.toLocaleString('en')}
+              </Cell>
+              <Cell>
+                <StatusTag status={folder.status} size="sm" />
+              </Cell>
+            </Row>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  ),
+  'data-table': () => (
+    <DataTable
+      aria-label="Storage"
+      className="w-80"
+      data={folders}
+      columns={folderColumns}
+      getRowId={(folder) => folder.id}
+      selectionMode="multiple"
+      showSearch={false}
+      showCount={false}
+      paging={false}
+      density="sm"
+    />
+  ),
+  pagination: () => (
+    <div className="w-80">
+      <Pagination aria-label="Gallery pages" size="sm" defaultPage={4} pageCount={9} />
+    </div>
+  ),
+  'file-dropzone': () => <FileDropzone className="w-72" acceptedFileTypes={['image/*']} />,
+  'file-list': () => <FileList aria-label="Uploads" className="w-72" items={pickedFiles} />,
+  'file-upload': () => (
+    <FileUpload
+      className="w-72"
+      size="sm"
+      label="Attachments"
+      allowsMultiple
+      defaultValue={pickedFiles.slice(1)}
+    />
+  ),
+  'activity-bars': () => (
+    <div className="flex w-64 items-center gap-3 rounded-container border border-outline-subtle bg-surface-raised p-3 shadow-xs">
+      <span
+        aria-hidden
+        className="size-10 shrink-0 rounded-item bg-linear-to-br from-tertiary to-primary"
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-on-surface">Morning Light</p>
+        <p className="truncate text-xs text-on-surface-variant">Harbor Lines</p>
+      </div>
+      <ActivityBars className="text-primary" />
+    </div>
+  ),
+  'dynamic-island': () => <IslandPreview />,
+  chart: () => (
+    <div className="flex flex-col items-center gap-3">
+      <ChartTooltip
+        title="Thursday"
+        total="1,212"
+        items={[
+          { id: 'direct', label: 'Direct', value: '574', color: 'chart-1' },
+          { id: 'search', label: 'Search', value: '402', color: 'chart-2' },
+          { id: 'social', label: 'Social', value: '236', color: 'chart-3' },
+        ]}
+      />
+      <ChartLegend
+        items={[
+          { id: 'direct', label: 'Direct', color: 'chart-1' },
+          { id: 'search', label: 'Search', color: 'chart-2' },
+          { id: 'social', label: 'Social', color: 'chart-3' },
+          { id: 'last-year', label: 'Last year', color: 'neutral', marker: 'dashed' },
+        ]}
+        className="justify-center"
+      />
+    </div>
+  ),
+  'bar-chart': () => (
+    <BarChart
+      aria-label="Visits by source, last 14 days"
+      className="w-72"
+      data={traffic}
+      category="day"
+      series={trafficSeries}
+      layout="stacked"
+      height={136}
+      formatCategory={(day) => `Oct ${day}`}
+      valueAxis={{ isVisible: false }}
+      categoryAxis={{ ticks: 'ends' }}
+      showGrid={false}
+      legend="none"
+      tooltip="none"
+    />
+  ),
+  'line-chart': () => (
+    <LineChart
+      aria-label="Visits per month, this year against last year"
+      className="w-72"
+      data={visitsByMonth}
+      category="month"
+      series={[
+        { id: 'this-year', label: 'This year', value: 'thisYear', color: 'primary' },
+        {
+          id: 'last-year',
+          label: 'Last year',
+          value: 'lastYear',
+          color: 'neutral',
+          lineStyle: 'dashed',
+        },
+      ]}
+      height={128}
+      valueAxis={{ isVisible: false }}
+      categoryAxis={{ ticks: 'ends' }}
+      legend="none"
+      tooltip="none"
+    />
+  ),
+  'area-chart': () => (
+    <AreaChart
+      aria-label="Photo uploads this week"
+      className="w-72"
+      data={uploads}
+      category="day"
+      series={[{ id: 'uploads', label: 'Uploads', value: 'uploads' }]}
+      height={128}
+      valueAxis={{ isVisible: false }}
+      categoryAxis={{ ticks: 'ends' }}
+      tooltip="none"
+    />
+  ),
+  sparkline: () => (
+    <div className="flex w-64 flex-col gap-2">
+      {[
+        { label: 'Visits', value: '48.2K', data: [31, 34, 33, 38, 41, 39, 44, 47, 46, 52, 55, 58] },
+        {
+          label: 'Bounce rate',
+          value: '38%',
+          data: [46, 45, 47, 44, 43, 44, 41, 42, 40, 39, 39, 38],
+        },
+      ].map((tile) => (
+        <div
+          key={tile.label}
+          className="flex items-end justify-between gap-3 rounded-container border border-outline-subtle bg-surface-raised px-4 py-3 shadow-xs"
+        >
+          <div className="flex min-w-0 flex-col">
+            <span className="text-xs text-on-surface-variant">{tile.label}</span>
+            <span className="text-lg font-semibold tracking-tight text-on-surface">
+              {tile.value}
+            </span>
+          </div>
+          <Sparkline
+            aria-label={`${tile.label}, last 12 weeks`}
+            data={tile.data}
+            variant="area"
+            className="h-9 w-24"
+          />
+        </div>
+      ))}
+    </div>
+  ),
+  'chart-card': () => (
+    <ChartCard
+      className="w-72 gap-3"
+      title="Downloads"
+      caption="This week"
+      value={10837}
+      delta={{ value: 0.124 }}
+      readout="headline"
+    >
+      <BarChart
+        data={downloads}
+        category="day"
+        series={[{ id: 'downloads', label: 'Downloads', value: 'downloads' }]}
+        showTrack
+        radius="full"
+        maxBarSize={18}
+        height={88}
+        valueAxis={{ isVisible: false }}
+        categoryAxis={{ isVisible: false }}
+      />
+    </ChartCard>
   ),
 };

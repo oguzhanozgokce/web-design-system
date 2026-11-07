@@ -1,0 +1,16 @@
+{
+  "name": "pagination",
+  "type": "registry:ui",
+  "title": "Pagination",
+  "description": "Numbered page navigation with ellipses, a sliding current-page indicator, and a compact form with icon arrows when its container is narrow.",
+  "category": "navigation",
+  "files": ["ui/pagination.tsx", "lib/pagination.ts"],
+  "credits": [
+    {
+      "source": "BoardUI",
+      "url": "https://github.com/BoardUI/boardui/blob/main/components/base/pagination/pagination.tsx",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Mertcan Dundar Esmergul (BoardUI)"
+    }
+  ]
+}

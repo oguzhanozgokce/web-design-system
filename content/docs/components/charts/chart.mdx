@@ -1,0 +1,256 @@
+---
+title: Chart
+description: The parts every chart shares, from scales, ticks, stacking and curves to the colour roles, a legend, a tooltip card and the data table that gives each chart its accessible view.
+---
+
+<ComponentPreview name="chart-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="chart" />
+
+Every chart installs this item. It holds `ui/chart.tsx` (colours, legend, tooltip, data table,
+keyboard and pointer handling) and `lib/chart.ts` (scales, nice ticks, stacking, curves and
+formatters). There is no charting dependency: bars are HTML boxes sized in percent, lines and areas
+are one SVG path each, and the server renders the finished chart.
+
+## Usage
+
+Every chart takes the same three things: the rows, which field is the category, and the series to
+draw from each row.
+
+```tsx
+import { BarChart } from '@/components/ds/bar-chart';
+
+const data = [
+  { month: 'Jan', photos: 412, videos: 96 },
+  { month: 'Feb', photos: 388, videos: 104 },
+];
+
+<BarChart
+  aria-label="Uploads per month"
+  data={data}
+  category="month"
+  series={[
+    { id: 'photos', label: 'Photos', value: 'photos' },
+    { id: 'videos', label: 'Videos', value: 'videos' },
+  ]}
+/>;
+```
+
+`category` and each series' `value` are a key of the row or a function of it. A value that is not a
+finite number (`null`, `undefined`, `NaN`) is a missing value: bars skip it, lines break at it, and
+the table shows a dash. Categories can be strings, numbers or `Date`s; dates and numbers are
+formatted with the provider's locale, and `formatCategory` replaces that for axis labels
+(`'axis'`) and for the tooltip and table (`'detail'`).
+
+Pick the chart from what the reader compares:
+
+| Comparing                                    | Use                                                                 |
+| -------------------------------------------- | ------------------------------------------------------------------- |
+| Amounts per category, or parts of a total    | [Bar chart](/docs/components/charts/bar-chart)                      |
+| A trend over time, or several trends         | [Line chart](/docs/components/charts/line-chart)                    |
+| A trend whose volume or composition matters  | [Area chart](/docs/components/charts/area-chart)                    |
+| A trend at a glance, inside a tile or a cell | [Sparkline](/docs/components/charts/sparkline)                      |
+| One figure with the chart behind it          | [Chart card](/docs/components/charts/chart-card) around any of them |
+
+## Examples
+
+### Colour
+
+One series is drawn in `primary`. Several series take the eight categorical roles `chart-1` to
+`chart-8` in that order. The order is fixed and validated: neighbours stay apart for every common
+colour-vision deficiency and against card surfaces in both themes, so a series keeps its colour when
+the chart is filtered and never borrows another's. The roles are never cycled. A ninth series is
+drawn in `neutral` and a development warning suggests folding the smallest series into an "Other"
+series instead.
+
+Set `color` on a series to choose a role yourself: `neutral` for a comparison such as last year,
+or a status role (`success`, `warning`, `error`, `info`) when the series means that state. A
+series below the baseline is `error` unless you say otherwise, and does not use up a categorical
+slot. The chart at the top of this page uses all eight.
+
+Three light-mode slots sit under 3:1 against a white card, which is why every chart carries a
+legend, a tooltip and a data table: colour is never the only way to tell series apart.
+
+### Mono palette
+
+`palette="mono"` draws every series as a tonal ramp of one role instead: the first series at full
+strength, then 78, 60, 44, 32 and 22% mixed toward the surface. The stacked segments stay apart
+by their 2px gaps rather than by hue, and a series below the baseline is hatched. `monoColor` picks
+the role: `primary` (default) or `neutral`, the text colour.
+
+<ComponentPreview name="chart-mono" align="stretch" />
+
+### Legend
+
+Charts with more than one series show a legend below the plot; `legend="top"` moves it above and
+`legend="none"` removes it. The legend lists every series with the same marker as its tooltip
+row: a square for bars and areas, a line for lines, a dashed line for dashed series and a hatched
+square for textured ones. `ChartLegend` is exported for legends you place yourself.
+
+<ComponentPreview name="chart-legend" />
+
+### Tooltip
+
+`ChartTooltip` is the card the charts float beside the active category: a title, an optional total
+and a row per series. Pass a function as a chart's `tooltip` to build your own from the active
+point, and `tooltip="none"` to remove it.
+
+<ComponentPreview name="chart-tooltip" />
+
+### Table view
+
+Every chart renders its data as a table. It is visually hidden while the chart shows, so screen
+readers can read it, and `view="table"` shows it instead of the chart, inside a focusable region
+that scrolls when it is taller than the chart was. [Chart card](/docs/components/charts/chart-card)
+puts a toggle for it in the header.
+
+<ComponentPreview name="chart-table" align="stretch" />
+
+## API
+
+### Shared chart props
+
+`BarChart`, `LineChart` and `AreaChart` take these.
+
+| Prop                  | Type                                                               | Default                    |
+| --------------------- | ------------------------------------------------------------------ | -------------------------- |
+| `aria-label`          | `string`                                                           | the card title, or `Chart` |
+| `aria-labelledby`     | `string`                                                           |                            |
+| `aria-describedby`    | `string`                                                           |                            |
+| `data`                | `readonly T[]`                                                     |                            |
+| `category`            | `keyof T \| (datum: T, index: number) => string \| number \| Date` |                            |
+| `series`              | `readonly ChartSeries<T>[]`                                        |                            |
+| `description`         | `string`                                                           |                            |
+| `formatCategory`      | `(value, context: 'axis' \| 'detail') => string`                   | `Intl` with the locale     |
+| `categoryLabel`       | `string`                                                           | `labels.category`          |
+| `valueFormatOptions`  | `Intl.NumberFormatOptions`                                         |                            |
+| `valueAxis`           | `ChartValueAxis`                                                   |                            |
+| `categoryAxis`        | `ChartCategoryAxis`                                                |                            |
+| `categoryDirection`   | `'auto' \| 'ltr'`                                                  | `'auto'`                   |
+| `showGrid`            | `boolean`                                                          | `true`                     |
+| `legend`              | `'top' \| 'bottom' \| 'none'`                                      | `'bottom'` for 2+ series   |
+| `tooltip`             | `'default' \| 'none' \| (point: ChartPoint<T>) => ReactNode`       | `'default'`                |
+| `activeIndex`         | `number \| null`                                                   |                            |
+| `defaultActiveIndex`  | `number \| null`                                                   | `null`                     |
+| `onActiveIndexChange` | `(index: number \| null) => void`                                  |                            |
+| `onAction`            | `(point: ChartPoint<T>) => void`                                   |                            |
+| `size`                | `'sm' \| 'md' \| 'lg'`                                             | `'md'`                     |
+| `height`              | `number \| string`                                                 | 48, 192 or 288px by size   |
+| `palette`             | `'categorical' \| 'mono'`                                          | `'categorical'`            |
+| `monoColor`           | `'primary' \| 'neutral'`                                           | `'primary'`                |
+| `isAnimated`          | `boolean`                                                          | `true`                     |
+| `view`                | `'chart' \| 'table'`                                               | `'chart'`                  |
+| `labels`              | `Partial<ChartLabels>`                                             |                            |
+| `className`, `style`  |                                                                    |                            |
+
+`size="sm"` hides the axes, grid, legend and tooltip and turns the chart into a named image, for a
+sparkbar in a tile. `categoryDirection="auto"` runs categories from the inline start, so time runs
+right to left in Arabic and Hebrew; `'ltr'` keeps it left to right in every language.
+
+### ChartSeries
+
+| Field             | Type                                                     | Default               |
+| ----------------- | -------------------------------------------------------- | --------------------- |
+| `id`              | `string`                                                 |                       |
+| `label`           | `string`                                                 |                       |
+| `value`           | `keyof T \| (datum: T, index: number) => number \| null` |                       |
+| `color`           | `ChartColor`                                             | from the palette      |
+| `lineStyle`       | `'solid' \| 'dashed'`                                    | `'solid'`             |
+| `texture`         | `'none' \| 'hatched'`                                    | hatched below in mono |
+| `isBelowBaseline` | `boolean`                                                | `false`               |
+| `formatOptions`   | `Intl.NumberFormatOptions`                               | `valueFormatOptions`  |
+
+`ChartColor` is `'primary' | 'neutral' | 'chart-1'` … `'chart-8' | 'mono-1'` … `'mono-6' |
+'success' | 'warning' | 'error' | 'info'`.
+
+### Axes
+
+| `ChartValueAxis` | Type                                   | Default         |
+| ---------------- | -------------------------------------- | --------------- |
+| `isVisible`      | `boolean`                              | `true`          |
+| `tickCount`      | `number`                               | 4, or 5 at `lg` |
+| `formatOptions`  | `Intl.NumberFormatOptions`             | compact at 10K+ |
+| `domain`         | `[number \| 'auto', number \| 'auto']` | nice, from zero |
+
+| `ChartCategoryAxis` | Type                        | Default  |
+| ------------------- | --------------------------- | -------- |
+| `isVisible`         | `boolean`                   | `true`   |
+| `ticks`             | `'all' \| 'ends' \| 'auto'` | `'auto'` |
+
+`'auto'` keeps at most twelve labels and hides every other one when the chart is narrower than
+448px. `'ends'` labels only the first and last category, as Bencho's stacked bars do.
+
+### ChartPoint
+
+What `tooltip`, `onAction` and the chart card's readout receive: `index`, `datum`, `category`,
+`label` (the detail label), `values` (one entry per series with `id`, `label`, `color`, `value`
+and `formatted`), `total`, `formattedTotal` and `isStacked`.
+
+### ChartLegend and ChartTooltip
+
+| `ChartLegend` | Type                                        |
+| ------------- | ------------------------------------------- |
+| `items`       | `{ id, label, color, marker?, texture? }[]` |
+| `labels`      | `Partial<ChartLabels>`                      |
+
+| `ChartTooltip` | Type                                               |
+| -------------- | -------------------------------------------------- |
+| `title`        | `ReactNode`                                        |
+| `total`        | `ReactNode`                                        |
+| `items`        | `{ id, label, value, color, marker?, texture? }[]` |
+
+Every other `ul` or `div` prop goes to the root. `chartStyles`, `chartLegendStyles`,
+`chartTooltipStyles`, `chartDataTableStyles`, `chartMarkerStyles`, `chartColorClasses` and
+`seriesColors` are exported.
+
+### Surface
+
+Dimmed marks, hatching and the ring around dots mix toward `--chart-surface`, which defaults to
+`--surface-raised`, the card colour. Chart card sets it for its variants; set it yourself when a
+chart sits on another surface, for example `className="[--chart-surface:var(--canvas)]"`.
+
+### lib/chart
+
+`niceTicks`, `linearScale`, `bandScale`, `pointScale`, `stack` (positive values up and negative
+values down from zero), `normalizeRows`, `linePath` and `areaPath` (`'monotone'`, `'linear'` or
+`'step'`, broken at missing values), `axisFormatOptions`, `numberFormatter`, `dateFormatter` and
+`formatCategory`. The monotone curve is adapted from d3-shape's `monotoneX` (ISC).
+
+### Labels
+
+Copy the charts write when you pass none. Pass `labels` to one chart, or set them for every chart
+with `<DSProvider labels={{ chart: { … } }}>`.
+
+| Key                 | Default                                                | Used for                                     |
+| ------------------- | ------------------------------------------------------ | -------------------------------------------- |
+| `chart`             | `Chart`                                                | the name of a chart that has no other name   |
+| `roleDescription`   | `chart`                                                | `aria-roledescription` of the plot           |
+| `dataTable`         | `Data for {title}`                                     | the caption of the data table                |
+| `category`          | `Category`                                             | the first column of the data table           |
+| `total`             | `Total`                                                | the total column and the announced total     |
+| `legend`            | `Legend`                                               | the name of the legend list                  |
+| `summary`           | `{series}, {first} to {last}.`                         | the description of every chart               |
+| `keyboardHint`      | `Use the arrow keys to move between points.`           | the end of the description                   |
+| `pointAnnouncement` | `{category}: {values}`                                 | what is announced when a key moves the point |
+| `seriesValue`       | `{series} {value}`                                     | one series inside the announcement           |
+| `trend`             | `From {first} to {last}, lowest {min}, highest {max}.` | the sparkline description                    |
+| `noData`            | `No data`                                              | the description of an empty chart            |
+
+## Accessibility
+
+- The plot is one tab stop, a `group` with `aria-roledescription="chart"`, named by `aria-label`
+  or by the chart card's title, and described by your `description`, a generated summary ("Photos
+  and Videos, Jan to Jun.") and the keyboard hint.
+- Arrow keys move the active category (mirrored in right-to-left layouts), Home and End jump to
+  the ends, Escape clears it, and Enter or Space calls `onAction`. Each key move writes the
+  category and its values into a polite live region. Hovering does not announce anything.
+- The drawn marks, the axes and the tooltip are `aria-hidden`; the visually hidden data table
+  carries the same numbers, so nothing is only visual.
+- Colour is never the only cue: every multi-series chart has a legend and the tooltip and table
+  name each series.
+- Charts grow in on first view and ease to new values. Under reduced motion they draw the final
+  state at once, and `isAnimated={false}` turns motion off for one chart.
+- In forced-colours mode the tooltip gets a border and the active ring uses `Highlight`.
+- Contrast is checked with axe in light, dark and RTL by `chart.test.tsx`.

@@ -1,0 +1,144 @@
+---
+title: Rolling number
+description: A formatted number whose digits roll like an odometer, each column counting forward through its carry, with the plain value read to screen readers.
+---
+
+<ComponentPreview name="rolling-number-demo" />
+
+## Installation
+
+<InstallCommand name="rolling-number" />
+
+## Usage
+
+```tsx
+import { RollingNumber } from '@/components/ds/rolling-number';
+
+<RollingNumber value={1289} />;
+
+<RollingNumber value={0.42} formatOptions={{ style: 'percent' }} />;
+```
+
+`RollingNumber` renders an inline `<span>` that takes the font, size and colour around it, so it
+sits in a sentence, a table cell or a headline without extra styling. Give it a number and it
+formats it with `Intl.NumberFormat` for the current locale; when the number changes, the digits
+roll to the new value.
+
+Every digit is a strip of 0 to 9 seen through a window that fades at its top and bottom edge. A
+column does not jump to its new digit: it counts. Going from 9 to 10, the ones column moves forward
+one step to 0 and the tens column moves forward to 1; nothing runs back down through 8, 7 and 6.
+Each column has its own spring, the ones start first and every column to the left follows about
+45 ms later, so a carry ripples up the number. A spinning strip blurs slightly and is sharp again
+at rest. A digit that arrives, as in 999 to 1,000, grows from nothing into its place and pushes the
+rest aside, and one that leaves rolls to 0 as it closes, so the number is never wider than what it
+shows.
+
+Use it for counts that change while someone is looking: a total after a filter, a live visitor
+count, a headline figure in a chart card, the percentage of an upload. For a number that is typed
+or stepped, use a [number field](/docs/components/inputs/number-field), which rolls the same way.
+
+## Examples
+
+### Formats
+
+`formatOptions` takes any `Intl.NumberFormat` option. Group separators and the decimal point stay
+in place while the digits around them roll; currency and unit text sits beside the digits; a minus
+or plus sign slides in and out as the value crosses zero. With `style: 'percent'`, the value is a
+fraction, so `0.42` reads `42%`.
+
+<ComponentPreview name="rolling-number-formats" />
+
+### Locales
+
+The number follows the locale from `DSProvider` or React Aria's `I18nProvider`: German groups with
+dots and uses a decimal comma, French groups with narrow spaces, Hindi groups in lakhs, and Arabic
+in Egypt rolls Arabic-Indic digits ٠ to ٩. In right-to-left text the currency, percent sign and
+minus land where the plain formatted string puts them. Digits always run from the largest place
+to the smallest, as they do in every script.
+
+<ComponentPreview name="rolling-number-locales" />
+
+### Live values
+
+A value that changes on its own, such as visitors on a site right now, rolls on every update.
+Changes that arrive faster than a roll takes pick up the moving strip and carry its speed into the
+next target, so a stream of updates reads as one continuous movement. A column more than 24 steps
+from its target skips ahead in whole turns first, so a large jump never leaves the ones spinning
+for a second.
+
+<ComponentPreview name="rolling-number-live" />
+
+### Progress
+
+Beside a progress bar the percentage rolls with each update. The bar already reports its value to
+assistive technology, so the number here is `aria-hidden`.
+
+<ComponentPreview name="rolling-number-progress" />
+
+### Without rolling
+
+`isAnimated={false}` shows the new value straight away, with the same layout and formatting. Use
+it where numbers change in bulk, such as a whole table refreshing at once, and keep the roll for
+the one or two figures people watch. Reduced motion does the same for everyone who asks for it.
+
+<ComponentPreview name="rolling-number-static" />
+
+## API
+
+### RollingNumber
+
+| Prop            | Type                       | Default |
+| --------------- | -------------------------- | ------- |
+| `value`         | `number`                   |         |
+| `formatOptions` | `Intl.NumberFormatOptions` |         |
+| `isAnimated`    | `boolean`                  | `true`  |
+| `className`     | `string`                   |         |
+
+Every other attribute is passed to the root `<span>`, such as `id`, `aria-hidden` or `data-*`.
+The locale comes from `DSProvider` or the nearest React Aria `I18nProvider`. `NaN` and `Infinity`
+render as plain text. Compact and scientific notation roll their digits and keep the suffix or the
+exponent as text.
+
+### rollingNumberStyles
+
+`rollingNumberStyles()` returns one class function per slot: `root`, `value`, `digits`, `column`,
+`sizer`, `strip`, `cell` and `symbol`. Two custom properties on the column tune the window:
+`--rolling-pad` (`0.2em`) is how far it reaches above and below the line, and `--rolling-fade`
+(`0.3em`) is how deep the fade at each edge is.
+
+### Helpers
+
+`lib/odometer` holds the pure parts, for anything else that needs to roll a number:
+`odometerLayout(value, formatter, glyphs)` splits a formatted number into affixes, digit columns
+and separators, each column with the count it rolls to; `odometerGlyphs(locale, numberingSystem)`
+returns the ten digits of a numbering system; `odometerSpring(spring, travel)` damps a spring just
+enough that a long roll lands no more than a third of a digit past its target.
+
+### Data attributes
+
+The root has `data-slot="rolling-number"` and `data-animated` while it rolls. Parts:
+`data-slot="rolling-number-value"` (the visible number), `"rolling-number-digits"`,
+`"rolling-number-digit"` (one per column), `"rolling-number-separator"` and
+`"rolling-number-sign"`.
+
+### Labels
+
+Rolling number writes no text of its own. Everything it shows, including separators, signs,
+currency symbols and units, comes from `Intl.NumberFormat` for the locale.
+
+## Accessibility
+
+- Screen readers read the formatted value as plain text, such as "$1,234.50", from a visually
+  hidden copy. The strips, which hold every digit from 0 to 9, are hidden from assistive
+  technology, so nobody hears a column of digits.
+- A change is not announced, because most rolling numbers change often and an announcement on
+  every tick would talk over everything else. When a change matters, announce it once with a
+  [toast](/docs/components/feedback/toast) or a polite live region of your own.
+- With reduced motion, from the operating system or `DSProvider motion="reduced"`, the number
+  changes in place with no roll, no blur and no width animation. The same happens with
+  `isAnimated={false}`.
+- Digits are tabular, so a rolling column never changes width and the text around it does not
+  shift while it moves.
+- Nothing is measured: the window and the strip are sized in `em` and percentages, so the server
+  render already has every digit in place and hydration moves nothing.
+- Contrast is checked with axe in light, dark and RTL by `rolling-number.test.tsx`.

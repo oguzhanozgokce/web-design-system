@@ -1,0 +1,16 @@
+{
+  "name": "dynamic-island",
+  "type": "registry:ui",
+  "title": "Dynamic Island",
+  "description": "A pill that holds one live activity and grows into a card on one spring, with the compact and expanded faces swapping through a blurred cross-fade, a nudge when the activity changes, separate buttons for its controls and announcements for discrete events.",
+  "category": "feedback",
+  "files": ["ui/dynamic-island.tsx"],
+  "credits": [
+    {
+      "source": "Bencho",
+      "url": "https://github.com/cabralorenzo/bencho/tree/main/blocks/dynamic-island",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Lorenzo Cabra"
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+---
+title: Table
+description: Styled React Aria table parts with a tinted header, sortable columns, checkbox selection, two densities, a sticky header and row header, and a load-more row.
+---
+
+<ComponentPreview name="table-demo" />
+
+## Installation
+
+<InstallCommand name="table" />
+
+## Usage
+
+```tsx
+import { Cell, Column, Row, Table, TableBody, TableHeader } from '@/components/ds/table';
+
+<Table aria-label="Files" sortDescriptor={sort} onSortChange={setSort}>
+  <TableHeader>
+    <Column id="name" isRowHeader allowsSorting>
+      Name
+    </Column>
+    <Column id="size" align="end" allowsSorting>
+      Size
+    </Column>
+  </TableHeader>
+  <TableBody items={files}>
+    {(file) => (
+      <Row id={file.id}>
+        <Cell>{file.name}</Cell>
+        <Cell align="end">{file.size}</Cell>
+      </Row>
+    )}
+  </TableBody>
+</Table>;
+```
+
+These are the parts of a table, built on [React Aria Table](https://react-aria.adobe.com/Table): you
+write the columns and rows, and sort, select and page the data yourself. For a table configured by
+column definitions that sorts, searches, filters and pages for you, use
+[DataTable](/docs/components/data-display/data-table), which is built from these parts.
+
+The header row is a pale neutral band with rounded ends; rows are separated by hairlines and take a
+neutral tint on hover when they are interactive. The table has no frame of its own, so put it on a
+card or a page surface.
+
+## Examples
+
+### Sorting
+
+`allowsSorting` on a column makes its header a sort button with a chevron. The chevron is faint
+until the column is sorted, then turns to point up for ascending. React Aria sets `aria-sort` and
+calls `onSortChange`; sorting the rows is yours. Pressing the header, or Enter on it, flips the
+direction. The preview at the top of this page sorts by any of three columns.
+
+### Selection
+
+`selectionMode="multiple"` adds a checkbox column, with a select-all checkbox in the header that
+shows a dash when only some rows are selected. Selected rows take the pale primary tint and carry
+`aria-selected`. Space toggles the focused row; with `selectionBehavior="replace"` the checkboxes go
+and clicks select rows the way a file list does.
+
+<ComponentPreview name="table-selection" />
+
+### Density
+
+`density="md"` rows are 52px with a 40px header. `density="sm"` rows are 40px with a 32px header,
+and the selection checkboxes shrink to 16px. Read the density in a cell with `useTableDensity()` to
+size what you put there.
+
+<ComponentPreview name="table-density" />
+
+### Sticky header and row header
+
+In a container with a maximum height, `stickyHeader` keeps the header row in view. `stickyRowHeader`
+keeps the selection column and the row-header column at the inline start while the table scrolls
+sideways, which keeps rows identifiable on a phone. Sticky cells paint the table surface, set with
+the `--table-surface` variable (the raised surface by default), plus the row's hover or selection
+tint, and they draw their share of the row's focus ring so it stays closed.
+
+<ComponentPreview name="table-sticky" />
+
+### Load more
+
+`TableLoadMore` as the last child of `TableBody` calls `onLoadMore` when it scrolls into view and
+shows a spinner and "Loading more…" while `isLoading` is true. Give the container a maximum height
+with `containerClassName`.
+
+<ComponentPreview name="table-load-more" />
+
+### Empty state
+
+`renderEmptyState` on `TableBody` fills the body when there are no rows. An
+[EmptyState](/docs/components/feedback/empty-state) at `size="sm"` fits.
+
+<ComponentPreview name="table-empty" />
+
+## API
+
+### Table
+
+| Prop                 | Type                                   | Default  |
+| -------------------- | -------------------------------------- | -------- |
+| `density`            | `'sm' \| 'md'`                         | `'md'`   |
+| `stickyHeader`       | `boolean`                              | `false`  |
+| `stickyRowHeader`    | `boolean`                              | `false`  |
+| `containerClassName` | `string`, for the scroll container     |          |
+| `containerStyle`     | `CSSProperties`                        |          |
+| `labels`             | `Partial<TableLabels>`                 |          |
+| `selectionMode`      | `'none' \| 'single' \| 'multiple'`     | `'none'` |
+| `sortDescriptor`     | `SortDescriptor`                       |          |
+| `onSortChange`       | `(descriptor: SortDescriptor) => void` |          |
+| `onRowAction`        | `(key: Key) => void`                   |          |
+
+Every other [React Aria Table](https://react-aria.adobe.com/Table) prop is passed through, such as
+`selectedKeys`, `onSelectionChange`, `selectionBehavior` and `disabledKeys`. Name the table with
+`aria-label` or `aria-labelledby`.
+
+### Column
+
+| Prop            | Type                           | Default   |
+| --------------- | ------------------------------ | --------- |
+| `align`         | `'start' \| 'center' \| 'end'` | `'start'` |
+| `isRowHeader`   | `boolean`                      | `false`   |
+| `allowsSorting` | `boolean`                      | `false`   |
+| `children`      | `ReactNode`                    |           |
+
+An end-aligned column puts its chevron before the label so the label lines up with the numbers
+below.
+
+### Row and Cell
+
+`Row` takes the React Aria Row props plus `index`, which staggers the row's fade-in by 24ms per row
+when it first appears (capped at 20 rows), and `isPlaceholder` for skeleton rows. `Cell` takes
+`align`. `TableHeader`, `TableBody` and `TableLoadMore` take the React Aria props of the same parts.
+
+### Data attributes
+
+`data-slot="table-container"`, `"table"` (with `data-density`, `data-sticky-header`,
+`data-sticky-row-header`), `"table-header"`, `"table-column"` (with `data-align`, `data-row-header`),
+`"table-sort-indicator"` (with `data-direction`), `"table-body"`, `"table-row"`, `"table-cell"`,
+`"table-selection-column"`, `"table-selection-cell"`, `"table-load-more"`, plus the React Aria
+states `data-selected`, `data-hovered`, `data-pressed`, `data-focus-visible`, `data-sort-direction`.
+
+### Labels
+
+Pass `labels` to the `Table`, or set them for every table with
+`<DSProvider labels={{ table: { … } }}>`.
+
+| Key           | Default         | Used for                                                |
+| ------------- | --------------- | ------------------------------------------------------- |
+| `selection`   | `Selection`     | the hidden header of the checkbox column in single mode |
+| `loadingMore` | `Loading more…` | the text beside the spinner in `TableLoadMore`          |
+
+The checkbox names "Select All" and "Select" come from React Aria and are translated for the
+`DSProvider` locale.
+
+## Accessibility
+
+- React Aria renders a grid: arrow keys move between rows and cells, Home and End jump to the ends,
+  and the row-header column names each row for screen readers.
+- Sorting sets `aria-sort` on the column; the chevron is decorative.
+- Selection sets `aria-selected` on rows, and the checkboxes are named after the row header.
+- Buttons and menus inside cells are reached with the arrow keys, the way React Aria grids work.
+- Under reduced motion rows appear without the fade and the chevron turns without a transition.
+- `table.test.tsx` checks the table with axe in light, dark and RTL.
