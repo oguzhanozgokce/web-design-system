@@ -1,9 +1,9 @@
 import type { CSSProperties } from 'react';
 import {
   brandColors,
-  colorDeclarations,
   colorRoleNames,
-  lightDarkDeclarations,
+  schemeCss,
+  type SchemeSet,
   type BrandColors,
   type ColorMode,
   type ContrastLevel,
@@ -82,8 +82,6 @@ export const defaultSettings: ThemeSettings = {
   mode: 'light',
 };
 
-export type SchemeSet = Record<ColorMode, Record<ContrastLevel, BrandColors>>;
-
 export function buildSchemes(seed: string, style: PaletteStyle): SchemeSet {
   return Object.fromEntries(
     colorModes.map((mode) => [
@@ -116,54 +114,12 @@ export function schemeStyle(colors: BrandColors, mode: ColorMode): CSSProperties
   return properties as CSSProperties;
 }
 
-const raisedContrasts = ['medium', 'high'] as const;
-
-function lightDarkBlocks(schemes: SchemeSet) {
-  const both = (contrast: ContrastLevel, indent = '    ') =>
-    lightDarkDeclarations(schemes.light[contrast], schemes.dark[contrast], indent);
-
-  return [
-    `@supports (color: light-dark(red, red)) {`,
-    `  :root {\n    color-scheme: light;\n${both('standard')}\n  }`,
-    '',
-    `  .light,\n  [data-theme='light'] {\n    color-scheme: light;\n  }`,
-    '',
-    `  .dark,\n  [data-theme='dark'] {\n    color-scheme: dark;\n  }`,
-    '',
-    ...raisedContrasts.flatMap((contrast) => [
-      `  :root[data-contrast='${contrast}'] {\n${both(contrast)}\n  }`,
-      '',
-    ]),
-    `  @media (prefers-contrast: more) {\n    :root:not([data-contrast]) {\n${both('high', '      ')}\n    }\n  }`,
-    `}`,
-  ];
-}
-
-function fallbackBlocks(schemes: SchemeSet) {
-  const declarations = (mode: ColorMode, contrast: ContrastLevel, indent = '    ') =>
-    colorDeclarations(schemes[mode][contrast], indent);
-
-  return [
-    `@supports not (color: light-dark(red, red)) {`,
-    `  :root,\n  .light,\n  [data-theme='light'] {\n    color-scheme: light;\n${declarations('light', 'standard')}\n  }`,
-    '',
-    `  .dark,\n  [data-theme='dark'] {\n    color-scheme: dark;\n${declarations('dark', 'standard')}\n  }`,
-    '',
-    ...raisedContrasts.flatMap((contrast) => [
-      `  :root[data-contrast='${contrast}'] {\n${declarations('light', contrast)}\n  }`,
-      '',
-      `  :root.dark[data-contrast='${contrast}'],\n  :root[data-theme='dark'][data-contrast='${contrast}'] {\n${declarations('dark', contrast)}\n  }`,
-      '',
-    ]),
-    `  @media (prefers-contrast: more) {\n    :root:not([data-contrast]) {\n${declarations('light', 'high', '      ')}\n    }\n\n    :root.dark:not([data-contrast]),\n    :root[data-theme='dark']:not([data-contrast]) {\n${declarations('dark', 'high', '      ')}\n    }\n  }`,
-    `}`,
-  ];
-}
+export type { SchemeSet };
 
 export function tokensCss(schemes: SchemeSet) {
   const header = '/* Generated from tokens/config.json. Do not edit. */';
 
-  return [header, '', ...lightDarkBlocks(schemes), '', ...fallbackBlocks(schemes), ''].join('\n');
+  return [header, '', schemeCss(schemes), ''].join('\n');
 }
 
 export function configJson(seed: string, style: PaletteStyle) {

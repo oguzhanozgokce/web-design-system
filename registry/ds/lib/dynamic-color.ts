@@ -127,33 +127,36 @@ export function dynamicSchemeCss(options: DynamicSchemeOptions, target: DynamicS
   const both = (level: ContrastLevel) => lightDark(colors('light', level), colors('dark', level));
   const colorScheme = mode ? `color-scheme:${mode};` : '';
   const self = isRoot ? 'html:root' : `[data-ds-scheme=${cssString(target.key)}]`;
+  const islands = (root: string, match: string) =>
+    `${root} :is(${match}):not([data-ds-scheme],[data-ds-scheme] *)`;
+  const anyMode = '.light,.dark,[data-theme]';
   const when = (condition: string) =>
-    isRoot ? `html:root${condition}` : `:root${condition} ${self}`;
-  const pinnedSelf = isRoot
-    ? 'html:root,html:root[data-contrast],html:root:not([data-contrast])'
-    : self;
+    isRoot
+      ? `html:root${condition},${islands(`html:root${condition}`, anyMode)}`
+      : `:root${condition} ${self}`;
+  const selfAndIslands = isRoot ? when('') : self;
 
   const modern =
     contrast === 'auto'
       ? [
-          `${self}{${colorScheme}${both('standard')}}`,
+          `${selfAndIslands}{${colorScheme}${both('standard')}}`,
           `${when('[data-contrast=medium]')}{${both('medium')}}`,
           `${when('[data-contrast=high]')}{${both('high')}}`,
           `@media (prefers-contrast: more){${when(':not([data-contrast])')}{${both('high')}}}`,
         ]
-      : [`${pinnedSelf}{${colorScheme}${both(contrast)}}`];
+      : [`${selfAndIslands}{${colorScheme}${both(contrast)}}`];
 
   const level = contrast === 'auto' ? 'standard' : contrast;
+  const lightSelf = isRoot
+    ? `html:root,${islands('html:root', ".light,[data-theme='light']")}`
+    : self;
   const darkSelf = isRoot
-    ? pinnedSelf
-        .split(',')
-        .map((selector) => `${selector}${darkMatch}`)
-        .join(',')
+    ? `html:root${darkMatch},${islands('html:root', ".dark,[data-theme='dark']")}`
     : `${darkMatch} ${self}`;
   const legacy = mode
-    ? [`${pinnedSelf}{${single(colors(mode, level))}}`]
+    ? [`${self}{${single(colors(mode, level))}}`]
     : [
-        `${pinnedSelf}{${single(colors('light', level))}}`,
+        `${lightSelf}{${single(colors('light', level))}}`,
         `${darkSelf}{${single(colors('dark', level))}}`,
       ];
 

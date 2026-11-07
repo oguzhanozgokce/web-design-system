@@ -146,13 +146,18 @@ describe('dynamicSchemeCss', () => {
     }
   });
 
-  it('targets the root with selectors that outrank the static tokens', () => {
+  it('targets the root and the mode islands below it', () => {
+    const islands = ':is(.light,.dark,[data-theme]):not([data-ds-scheme],[data-ds-scheme] *)';
     const css = dynamicSchemeCss({ seed: seedTeal }, { scope: 'root' });
-    expect(css).toContain('html:root{');
-    expect(css).toContain('html:root[data-contrast=medium]{');
-    expect(css).toContain('@media (prefers-contrast: more){html:root:not([data-contrast]){');
+    expect(css).toContain(`html:root,html:root ${islands}{`);
+    expect(css).toContain(
+      `html:root[data-contrast=medium],html:root[data-contrast=medium] ${islands}{`,
+    );
+    expect(css).toContain(
+      `@media (prefers-contrast: more){html:root:not([data-contrast]),html:root:not([data-contrast]) ${islands}{`,
+    );
     const pinned = dynamicSchemeCss({ seed: seedTeal, contrast: 'high' }, { scope: 'root' });
-    expect(pinned).toContain('html:root,html:root[data-contrast],html:root:not([data-contrast]){');
+    expect(pinned).toContain(`html:root,html:root ${islands}{`);
   });
 
   it('throws for an element scope without a key', () => {

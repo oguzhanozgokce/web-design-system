@@ -226,10 +226,11 @@ functions here call it `paletteStyle`, like the component, whose `style` prop is
 
 ## How it works
 
-Each role is written once per contrast level as `light-dark(light, dark)`. CSS resolves it against
-the `color-scheme` of the element that uses it, which every `.light`, `.dark` and `data-theme`
-element sets and every child inherits, so the nearest mode always wins without any selector knowing
-about it. The static tokens work the same way, which is why a root theme reaches mode islands too.
+A scope writes each role once per contrast level as `light-dark(light, dark)`. The style is added at
+runtime, so no build step rewrites it, and CSS resolves each role against the `color-scheme` of the
+element that uses it: the nearest `.light`, `.dark` or `data-theme` wins without any selector
+knowing about it. A root theme also names the mode islands below it, because the static tokens
+declare the roles again on every island and would otherwise cover it there.
 
 The scheme's styles live in the document head, one per distinct scheme however many scopes use it,
 and leave when the last of those scopes unmounts. During server rendering a scope writes its style
@@ -239,8 +240,8 @@ A scope following the page's contrast writes about 14 KB of CSS; pinning `contra
 and pinning `mode` as well to 4.5 KB. Identical schemes are written once.
 
 Browsers without `light-dark()` (before Chrome 123, Firefox 120 and Safari 17.5) get a fallback in
-the same stylesheet: the scheme at its standard contrast level, following a dark class on any
-ancestor, and a root theme that stops at mode islands.
+the same stylesheet: the scheme at its standard contrast level. A root theme follows the nearest mode;
+an element scope follows a dark class on any ancestor.
 
 ## Accessibility
 

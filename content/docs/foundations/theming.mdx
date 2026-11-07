@@ -34,10 +34,15 @@ same source colours and tones. The same seed and style give the same hex values 
 
 ## Dark mode and contrast
 
-Each role is declared once as `light-dark(light, dark)` and resolves against the nearest
-`color-scheme`, which `.light`, `.dark` and `[data-theme]` set on any element. `next-themes` sets it
-on `<html>`; a `.dark` section inside a light page is dark, and a `.light` island inside it is light
-again.
+Each role is declared per mode. `:root` and every `.light` or `[data-theme='light']` element get the
+light values, every `.dark` or `[data-theme='dark']` element the dark ones. `next-themes` sets the
+class on `<html>`; a `.dark` section inside a light page is dark, and a `.light` island inside it is
+light again. The blocks sit in `:where()`, so they carry no specificity and a runtime theme always
+wins over them.
+
+The tokens do not use `light-dark()`. Tailwind lowers it for older browsers into variables that
+resolve where a role is declared, which would freeze every role at the page's mode and leave a
+`.dark` section light.
 
 Medium and high contrast apply with `data-contrast` on `<html>`. Without it, the tokens follow the
 operating system's increased-contrast setting (`prefers-contrast: more`) and switch to high:
@@ -46,8 +51,7 @@ operating system's increased-contrast setting (`prefers-contrast: more`) and swi
 <html class="dark" data-contrast="high"></html>
 ```
 
-Components never use `dark:`. The roles change underneath them. Browsers without `light-dark()`
-(before Chrome 123, Firefox 120 and Safari 17.5) get the same values through per-mode blocks.
+Components never use `dark:`. The roles change underneath them.
 
 ## Runtime themes
 

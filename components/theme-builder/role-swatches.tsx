@@ -76,6 +76,19 @@ export const swatchGroups: SwatchGroup[] = [
     ],
   },
   {
+    title: 'Layers',
+    description:
+      'The page, the panels on it, the menus above them and the track and thumb of segmented controls.',
+    columns: '@2xl:grid-cols-3',
+    swatches: [
+      sample('canvas'),
+      sample('surface-raised'),
+      sample('surface-overlay'),
+      sample('surface-segment'),
+      sample('surface-thumb'),
+    ],
+  },
+  {
     title: 'Fixed',
     description: 'The same in light and dark, for surfaces that must not flip with the theme.',
     columns: '@2xl:grid-cols-3',

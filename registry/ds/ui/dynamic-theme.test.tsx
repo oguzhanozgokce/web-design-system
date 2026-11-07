@@ -125,6 +125,21 @@ describe('DynamicTheme', () => {
     expect(background(screen.getByTestId('nested').element())).toBe(expected(seedCoral, 'light'));
   });
 
+  it('keeps its colours in a static mode island inside it', async () => {
+    const screen = await render(
+      <DynamicTheme seed={seedTeal}>
+        <div className="dark">
+          <Swatch id="dark" />
+          <div className="light">
+            <Swatch id="light" />
+          </div>
+        </div>
+      </DynamicTheme>,
+    );
+    expect(background(screen.getByTestId('dark').element())).toBe(expected(seedTeal, 'dark'));
+    expect(background(screen.getByTestId('light').element())).toBe(expected(seedTeal, 'light'));
+  });
+
   it('follows a mode class on its own element', async () => {
     const screen = await renderWithDS(
       <DynamicTheme seed={seedTeal} className="dark">
@@ -347,7 +362,7 @@ describe('DynamicTheme', () => {
       const screen = await render(
         <DynamicTheme scope="root" seed={seedCoral} storageKey="ds-test" />,
       );
-      await expect.poll(() => localStorage.getItem('ds-test')).toContain('html:root{');
+      await expect.poll(() => localStorage.getItem('ds-test')).toContain('html:root,');
       expect(document.querySelector(`style[${dynamicBootAttribute}]`)).toBeNull();
 
       await screen.rerender(<DynamicTheme scope="root" seed="" storageKey="ds-test" />);

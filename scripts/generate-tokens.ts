@@ -1,9 +1,8 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import {
   brandColors,
-  colorDeclarations,
   colorRoleNames,
-  lightDarkDeclarations,
+  schemeCss,
   type BrandColors,
   type ContrastLevel,
   type PaletteStyle,
@@ -105,47 +104,10 @@ for (const mode of ['light', 'dark'] as const) {
 
 const header = '/* Generated from tokens/config.json. Do not edit. */';
 
-const both = (contrast: ContrastLevel, indent = '    ') =>
-  lightDarkDeclarations(schemes.light[contrast], schemes.dark[contrast], indent);
-
-const supported = [
-  `@supports (color: light-dark(red, red)) {`,
-  `  :root {\n    color-scheme: light;\n${both('standard')}\n  }`,
-  '',
-  `  .light,\n  [data-theme='light'] {\n    color-scheme: light;\n  }`,
-  '',
-  `  .dark,\n  [data-theme='dark'] {\n    color-scheme: dark;\n  }`,
-  '',
-  ...(['medium', 'high'] as const).flatMap((contrast) => [
-    `  :root[data-contrast='${contrast}'] {\n${both(contrast)}\n  }`,
-    '',
-  ]),
-  `  @media (prefers-contrast: more) {\n    :root:not([data-contrast]) {\n${both('high', '      ')}\n    }\n  }`,
-  `}`,
-];
-
-const fallback = [
-  `@supports not (color: light-dark(red, red)) {`,
-  `  :root,\n  .light,\n  [data-theme='light'] {\n    color-scheme: light;\n${colorDeclarations(schemes.light.standard, '    ')}\n  }`,
-  '',
-  `  .dark,\n  [data-theme='dark'] {\n    color-scheme: dark;\n${colorDeclarations(schemes.dark.standard, '    ')}\n  }`,
-  '',
-  ...(['medium', 'high'] as const).flatMap((contrast) => [
-    `  :root[data-contrast='${contrast}'] {\n${colorDeclarations(schemes.light[contrast], '    ')}\n  }`,
-    '',
-    `  :root.dark[data-contrast='${contrast}'],\n  :root[data-theme='dark'][data-contrast='${contrast}'] {\n${colorDeclarations(schemes.dark[contrast], '    ')}\n  }`,
-    '',
-  ]),
-  `  @media (prefers-contrast: more) {\n    :root:not([data-contrast]) {\n${colorDeclarations(schemes.light.high, '      ')}\n    }\n\n    :root.dark:not([data-contrast]),\n    :root[data-theme='dark']:not([data-contrast]) {\n${colorDeclarations(schemes.dark.high, '      ')}\n    }\n  }`,
-  `}`,
-];
-
 const css = [
   header,
   '',
-  ...supported,
-  '',
-  ...fallback,
+  schemeCss(schemes),
   '',
   `:root {\n${motionDeclarations(expressiveSprings)}\n}`,
   '',

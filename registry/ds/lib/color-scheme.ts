@@ -111,7 +111,10 @@ export type FeedbackRole =
   | 'info-container'
   | 'on-info-container';
 
-export type ColorRole = SchemeRole | FeedbackRole;
+export type LayerRole =
+  'canvas' | 'surface-raised' | 'surface-overlay' | 'surface-segment' | 'surface-thumb';
+
+export type ColorRole = SchemeRole | FeedbackRole | LayerRole;
 
 export type BrandColors = Record<ColorRole, string>;
 
@@ -132,7 +135,21 @@ export const feedbackRoleNames: FeedbackRole[] = [
   'on-info-container',
 ];
 
-export const colorRoleNames: ColorRole[] = [...schemeRoleNames, ...feedbackRoleNames];
+const layerSources: Record<LayerRole, Record<ColorMode, SchemeRole>> = {
+  canvas: { light: 'surface-container-low', dark: 'surface' },
+  'surface-raised': { light: 'surface-container-lowest', dark: 'surface-container' },
+  'surface-overlay': { light: 'surface-container-lowest', dark: 'surface-container-high' },
+  'surface-segment': { light: 'surface-container-lowest', dark: 'surface-container-highest' },
+  'surface-thumb': { light: 'surface-container-lowest', dark: 'on-surface' },
+};
+
+export const layerRoleNames = Object.keys(layerSources) as LayerRole[];
+
+export const colorRoleNames: ColorRole[] = [
+  ...schemeRoleNames,
+  ...feedbackRoleNames,
+  ...layerRoleNames,
+];
 
 function createScheme(source: Hct, dark: boolean, style: PaletteStyle, contrast: number) {
   switch (style) {
@@ -200,6 +217,7 @@ export function brandColors({
     const accents = brandColors({ seed, mode, style, contrast });
     const neutrals = brandColors({ seed, mode, style: 'monochrome', contrast });
     for (const role of neutralRoleNames) accents[role] = neutrals[role];
+    for (const role of layerRoleNames) accents[role] = neutrals[role];
     return accents;
   }
   const argb = argbFromHex(seed);
@@ -214,6 +232,9 @@ export function brandColors({
   for (const role of schemeRoleNames) {
     result[role] = hexFromArgb(schemeRoles[role].getArgb(scheme));
   }
+  for (const role of layerRoleNames) {
+    result[role] = result[layerSources[role][mode]];
+  }
   return { ...result, ...feedbackColors(argb, dark) };
 }
 
@@ -221,10 +242,43 @@ export function colorDeclarations(colors: BrandColors, indent = '  ') {
   return colorRoleNames.map((role) => `${indent}--${role}: ${colors[role]};`).join('\n');
 }
 
-export function lightDarkDeclarations(light: BrandColors, dark: BrandColors, indent = '  ') {
-  return colorRoleNames
-    .map((role) => `${indent}--${role}: light-dark(${light[role]}, ${dark[role]});`)
-    .join('\n');
+export type SchemeSet = Record<ColorMode, Record<ContrastLevel, BrandColors>>;
+
+const outsideScope = ':not([data-ds-scheme] *)';
+const lightIsland = `:is(.light, [data-theme='light'])${outsideScope}`;
+const darkIsland = `:is(.dark, [data-theme='dark'])${outsideScope}`;
+const darkSelf = `:is(.dark, [data-theme='dark'])`;
+
+function schemeBlock(selectors: string[], colors: BrandColors, indent: string) {
+  const list = selectors.map((selector) => `${indent}  ${selector}`).join(',\n');
+  return `${indent}:where(\n${list}\n${indent}) {\n${colorDeclarations(colors, `${indent}  `)}\n${indent}}`;
+}
+
+export function schemeCss(schemes: SchemeSet) {
+  const blocks = [
+    `:where(:root, .light, [data-theme='light']) {\n  color-scheme: light;\n}`,
+    `:where(.dark, [data-theme='dark']) {\n  color-scheme: dark;\n}`,
+    schemeBlock([':root', lightIsland], schemes.light.standard, ''),
+    schemeBlock([darkIsland], schemes.dark.standard, ''),
+  ];
+  for (const contrast of ['medium', 'high'] as const) {
+    const root = `:root[data-contrast='${contrast}']`;
+    blocks.push(
+      schemeBlock([root, `${root} ${lightIsland}`], schemes.light[contrast], ''),
+      schemeBlock([`${root}${darkSelf}`, `${root} ${darkIsland}`], schemes.dark[contrast], ''),
+    );
+  }
+  const auto = ':root:not([data-contrast])';
+  blocks.push(
+    [
+      '@media (prefers-contrast: more) {',
+      schemeBlock([auto, `${auto} ${lightIsland}`], schemes.light.high, '  '),
+      '',
+      schemeBlock([`${auto}${darkSelf}`, `${auto} ${darkIsland}`], schemes.dark.high, '  '),
+      '}',
+    ].join('\n'),
+  );
+  return blocks.join('\n\n');
 }
 
 export function brandColorsStyle(options: Omit<BrandColorsOptions, 'mode'>) {

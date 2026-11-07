@@ -68,6 +68,25 @@ for (const file of files) {
   });
 }
 
+for (const file of files.filter((candidate) => candidate.endsWith('.css'))) {
+  const css = await readFile(file, 'utf8');
+  const inline = [...css.matchAll(/@theme inline \{/g)].map((match) => {
+    let depth = 0;
+    for (let index = match.index; index < css.length; index++) {
+      if (css[index] === '{') depth++;
+      if (css[index] === '}' && --depth === 0) return [match.index, index];
+    }
+    return [match.index, css.length];
+  });
+  for (const match of css.matchAll(/light-dark\(/g)) {
+    if (inline.some(([from, to]) => match.index > from && match.index < to)) continue;
+    const line = css.slice(0, match.index).split('\n').length;
+    problems.push(
+      `${path.relative(root, file)}:${line} light-dark() in a declared variable resolves where it is declared once Tailwind lowers it; write per-mode blocks or keep it in @theme inline`,
+    );
+  }
+}
+
 for (const file of files.filter((candidate) => candidate.endsWith('.messages.ts'))) {
   problems.push(
     `${path.relative(root, file)}: the library ships no translations; put built-in text in labels`,
