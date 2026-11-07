@@ -1,0 +1,77 @@
+---
+title: Lightbox
+description: A full-screen image viewer with thumbnails, zoom, native panning and recoverable image errors.
+---
+
+<ComponentPreview name="lightbox-demo" />
+
+## Installation
+
+<InstallCommand name="lightbox" />
+
+## Usage
+
+```tsx
+import { Lightbox } from '@/components/ds/lightbox';
+
+<Lightbox
+  items={photos}
+  isOpen={isOpen}
+  onOpenChange={setOpen}
+  selectedKey={selectedKey}
+  onSelectionChange={setSelectedKey}
+/>;
+```
+
+`items` is an ordered list of `{ id, src, alt, thumbnailSrc?, title?, description? }`.
+Keep IDs unique and stable. Supply useful alternative text for each full-size image; thumbnail
+names use its title or alternative text. `thumbnailSrc` lets a gallery use small preview assets
+instead of decoding every full-resolution image as a thumbnail.
+
+## Examples
+
+### Gallery, zoom and panning
+
+The first example uses original procedural sample images. Previous and next stop at the ends;
+the thumbnail strip supports arrow-key selection through React Aria. Zoom runs from fit to 3×
+in half-step increments. A zoomed image uses native scrolling, including touch panning; a
+selection change resets it to fit. The image does not animate while panning or zooming.
+
+Open state can be controlled, use `defaultOpen`, or inherit from a
+[DialogTrigger](/docs/components/overlays/dialog). Selection supports the same controlled and
+uncontrolled patterns. If the selected ID disappears, the first remaining image is shown;
+an empty list renders nothing.
+
+### Image failure
+
+Loading has an accessible spinner. A failed image offers retry and keeps navigation available.
+
+<ComponentPreview name="lightbox-error" />
+
+## API
+
+| Prop                                    | Type                      | Default          |
+| --------------------------------------- | ------------------------- | ---------------- |
+| `items`                                 | `readonly LightboxItem[]` | required         |
+| `isOpen`, `defaultOpen`, `onOpenChange` | Dialog open state         | closed           |
+| `selectedKey`, `defaultSelectedKey`     | `Key`                     | first item       |
+| `onSelectionChange`                     | `(key: Key) => void`      |                  |
+| `labels`                                | `Partial<LightboxLabels>` | English defaults |
+| `className`                             | `string`                  | modal surface    |
+
+`defaultLightboxLabels` exports `title`, `close`, `previous`, `next`, `thumbnails`, `viewport`,
+`zoomIn`, `zoomOut`, `fit`, `loading`, `error`, `retry`, `position` (`'{current} of {total}'`) and
+`thumbnail` (`'Image {number}: {name}'`). Override them locally or under the provider's `lightbox`
+namespace. Counter values follow the provider locale. Template labels also accept functions.
+
+Parts expose `lightbox-panel` and `lightbox-viewport`; the viewport reports `data-zoom` (1–3).
+The full-screen surface uses the Dialog slots.
+
+## Accessibility
+
+Built on Dialog for modal focus containment, dismissal, theme scope and focus restoration, with
+React Aria Tabs for thumbnail selection. The dialog title follows the selected image title;
+the position is announced politely. Controls have explicit names. Escape closes the viewer,
+and Tab reaches navigation, zoom, the scrollable image region and the thumbnail strip.
+Reduced and disabled motion follow the provider. The component does not implement pinch-to-zoom,
+image editing or a download action; a consuming application can compose those separately.

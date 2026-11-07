@@ -28,6 +28,10 @@ import { AreaChart } from '@/registry/ds/ui/area-chart';
 import { Avatar, AvatarGroup } from '@/registry/ds/ui/avatar';
 import { Badge, BadgeAnchor } from '@/registry/ds/ui/badge';
 import { Banner } from '@/registry/ds/ui/banner';
+import { Breadcrumb, Breadcrumbs } from '@/registry/ds/ui/breadcrumbs';
+import { CookieConsent } from '@/registry/ds/ui/cookie-consent';
+import { FunnelChart } from '@/registry/ds/ui/funnel-chart';
+import { NotFound } from '@/registry/ds/ui/not-found';
 import { BarChart } from '@/registry/ds/ui/bar-chart';
 import { Button } from '@/registry/ds/ui/button';
 import { ButtonGroup } from '@/registry/ds/ui/button-group';
@@ -241,6 +245,60 @@ function IslandPreview() {
 }
 
 export const galleryPreviews: Record<string, () => ReactNode> = {
+  breadcrumbs: () => (
+    <Breadcrumbs>
+      <Breadcrumb href="/">Home</Breadcrumb>
+      <Breadcrumb href="/docs">Projects</Breadcrumb>
+      <Breadcrumb>Overview</Breadcrumb>
+    </Breadcrumbs>
+  ),
+  'cookie-consent': () => (
+    <CookieConsent
+      title="Your privacy, your choice."
+      description="Choose which cookies work for you."
+      onConfirm={() => {}}
+      layout="compact"
+      className="w-72"
+    />
+  ),
+  'not-found': () => <NotFound size="sm" className="py-4" />,
+  lightbox: () => (
+    <div className="w-64 overflow-clip rounded-overlay border border-outline-subtle bg-surface-overlay p-2 shadow-sm">
+      <div
+        aria-hidden
+        className="h-32 w-full rounded-item bg-cover bg-center"
+        style={{ backgroundImage: 'url(/samples/lagoon.jpg)' }}
+      />
+      <div className="flex items-center justify-between gap-3 px-1 pt-3 pb-1">
+        <span className="text-xs font-medium">A closer look</span>
+        <span className="text-xs text-on-surface-variant">1 / 4</span>
+      </div>
+      <div className="mt-2 grid grid-cols-4 gap-1.5">
+        {['lagoon', 'dusk', 'moss', 'dune'].map((name) => (
+          <div
+            key={name}
+            aria-hidden
+            className="h-8 w-full rounded-sm bg-cover bg-center"
+            style={{ backgroundImage: `url(/samples/${name}.jpg)` }}
+          />
+        ))}
+      </div>
+    </div>
+  ),
+  'funnel-chart': () => (
+    <div className="w-full px-2">
+      <FunnelChart
+        aria-label="Activation funnel"
+        className="[&_[data-slot=funnel-flow]]:h-24! [&_ol_p:nth-child(n+3)]:hidden"
+
+        stages={[
+          { id: 'visits', label: 'Visits', value: 12400 },
+          { id: 'signed-in', label: 'Signed in', value: 8680 },
+          { id: 'active', label: 'Active', value: 4340 },
+        ]}
+      />
+    </div>
+  ),
   button: () => (
     <div className="flex items-center justify-center gap-1.5">
       <Button size="sm">Save</Button>
@@ -423,12 +481,16 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
   ),
   card: () => (
     <Card variant="outline" className="w-64">
-      <CardHeader title="Card title" description="Supporting text" />
+      <CardHeader title="A shared space" description="Everything for your next project." />
       <CardContent className="text-on-surface-variant">
-        Cards group related content and actions.
+        <AvatarGroup aria-label="Project team" size="sm">
+          <Avatar name="Alex Kim" />
+          <Avatar name="Sam Rivera" />
+          <Avatar name="Mia Chen" />
+        </AvatarGroup>
       </CardContent>
       <CardFooter>
-        <Button size="sm">Action</Button>
+        <Button size="sm">Open workspace</Button>
       </CardFooter>
     </Card>
   ),

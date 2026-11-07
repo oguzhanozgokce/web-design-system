@@ -3,10 +3,7 @@ import { baseOptions } from '@/lib/layout.shared';
 
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
-    <HomeLayout {...baseOptions()}>
-      <noscript>
-        <style>{'[data-reveal]{opacity:1!important;transform:none!important}'}</style>
-      </noscript>
+    <HomeLayout {...baseOptions()} className="[--fd-layout-width:1248px]">
       {children}
     </HomeLayout>
   );

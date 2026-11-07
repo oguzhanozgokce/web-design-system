@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/registry/ds/lib/utils';
-import { Reveal } from '@/components/showcase/reveal';
 
 export function SectionHeading({
   eyebrow,
@@ -14,15 +13,16 @@ export function SectionHeading({
   className?: string;
 }) {
   return (
-    <Reveal className={cn('flex max-w-3xl flex-col gap-3', className)}>
-      <p className="inline-flex items-center gap-2 text-sm font-medium text-on-surface-variant">
-        <span aria-hidden className="size-1.5 rounded-full bg-primary-solid" />
-        {eyebrow}
-      </p>
-      <h2 className="text-3xl font-semibold tracking-tight text-balance text-on-surface sm:text-4xl">
-        {title}
-      </h2>
-      <p className="text-base text-pretty text-on-surface-variant sm:text-lg">{body}</p>
-    </Reveal>
+    <div className={cn('flex flex-col gap-5', className)}>
+      <p className="font-mono text-xs tracking-wide text-on-surface-variant">{eyebrow}</p>
+      <div className="grid items-end gap-5 md:grid-cols-[1.5fr_1fr] md:gap-12">
+        <h2 className="max-w-xl text-4xl leading-[1.1] font-medium tracking-[-0.04em] text-balance sm:text-5xl">
+          {title}
+        </h2>
+        <p className="max-w-sm text-sm leading-relaxed text-pretty text-on-surface-variant sm:text-base">
+          {body}
+        </p>
+      </div>
+    </div>
   );
 }

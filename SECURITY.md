@@ -6,13 +6,10 @@ This pre-1.0 project maintains the latest `main` source. Installed registry comp
 consumer applications must review and apply fixes themselves. There are no maintained older
 release branches yet.
 
-Do not post credentials, personal data or exploit details in an issue or pull request. During the
-private preparation phase, use an existing private channel to the repository owner,
-[@oguzhanozgokce](https://github.com/oguzhanozgokce). This repository does not yet offer a public
-confidential reporting channel. Establish a private contact before publication. GitHub private
-vulnerability reporting becomes available once the repository is public; enable it during
-publication and update this policy with the working reporting link. The final checklist is in
-[docs/open-source-readiness.md](docs/open-source-readiness.md).
+Do not post credentials, personal data or exploit details in an issue or pull request. Use
+[GitHub private vulnerability reporting](https://github.com/oguzhanozgokce/web-design-system/security/advisories/new)
+to report a vulnerability confidentially to the repository owner,
+[@oguzhanozgokce](https://github.com/oguzhanozgokce).
 
 Include the affected component/tool version, a minimal reproduction, impact and suggested
 mitigation. Remove real credentials and user data. The maintainer will coordinate a fix and
@@ -27,10 +24,16 @@ disclosure; no response-time guarantee is offered at this stage.
   npm and GitHub Actions updates; updates still require review and checks.
 - Workflows use read-only repository permissions, immutable action revisions and no application
   secrets. Pull request code is never run through `pull_request_target`.
+- Repository settings allow only GitHub-owned actions and require full commit SHA pinning.
+- GitHub's managed CodeQL setup scans JavaScript/TypeScript and Actions workflows. Its analysis
+  job can upload security results; it does not have permission to merge code.
+- External fork workflows need maintainer approval before running. Actions cannot approve pull
+  requests, and automated merging is disabled. Branch safeguards and their owner-only review
+  exception are documented in [publication controls](docs/open-source-readiness.md).
 
 ## Dependency audit exceptions
 
-Reviewed on 2026-11-07. `deepmerge` 4.3.1 has an unpatched low-severity prototype-poisoning advisory,
+Reviewed on 2026-11-08. `deepmerge` 4.3.1 has an unpatched low-severity prototype-poisoning advisory,
 [GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4). It is a transitive dependency
 of the development-only shadcn CLI and registry installation checker, not installed component
 runtime code. Do not process registry metadata from untrusted sources. Track the upstream fix;

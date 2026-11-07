@@ -1,0 +1,216 @@
+---
+title: Cookie consent
+description: A quiet privacy notice with three layouts, animated preferences and explicit, async decisions.
+---
+
+<ComponentPreview name="cookie-consent-demo" />
+
+## Installation
+
+<InstallCommand name="cookie-consent" />
+
+## Usage
+
+```tsx
+import { CookieConsent } from '@/components/ds/cookie-consent';
+
+<CookieConsent
+  placement="bottom-end"
+  title="Your privacy, your call."
+  description="Essential cookies keep things working. Anything extra is up to you."
+  categories={[
+    { id: 'essential', label: 'Essential', isRequired: true },
+    { id: 'analytics', label: 'Usage analytics' },
+  ]}
+  privacyPolicyHref="/privacy"
+  onConfirm={saveConsent}
+/>;
+```
+
+`onConfirm` receives `{ action, value }`. Persist and apply that decision in your application.
+Optional categories start off; required categories remain on. The first layer offers both accept
+and reject actions with the same visual weight. Opening preferences or changing a switch does
+not confirm consent.
+
+## Examples
+
+### Floating card
+
+The default `card` layout is at most 384px wide. Use `placement="bottom-start"`, `"bottom"` or
+`"bottom-end"` near the application root to float it above the page. Start and end follow the
+document direction. Bottom placement respects the device's bottom safe area, and a long notice
+can scroll within the viewport.
+
+The catalogue uses `placement="inline"` so a preview stays inside its frame. Fixed placement
+does not create a portal: place it outside ancestors that clip content or establish a transformed
+containing block. Use `className` for other positions and widths.
+
+<ComponentPreview name="cookie-consent-placement" />
+
+### Wide banner
+
+`banner` puts the copy and actions side by side when its container is wide enough. It stacks
+without horizontal scrolling in a narrow column or on a phone. Preferences expand into a full
+row below the copy.
+
+<ComponentPreview name="cookie-consent-banner" align="stretch" className="p-3 sm:p-6" />
+
+### Compact capsule
+
+`compact` uses a pill at wide sizes and a small card in narrow containers. Opening preferences
+relaxes the corners and reveals the categories without opening another overlay.
+
+<ComponentPreview name="cookie-consent-compact" align="stretch" className="p-3 sm:p-6" />
+
+### Controlled preferences
+
+`value`, `defaultValue` and `onChange` represent the editable draft. A required category is always
+on, even if a supplied value says otherwise. Only declared category IDs are included in the
+decision. Use stable, unique IDs and apply the result from `onConfirm`, rather than from
+`onChange`.
+
+Use `isOpen` and `onOpenChange` to reopen the notice from a footer's cookie-preferences action.
+The example's saved message reflects the last confirmation, not unsaved edits.
+
+<ComponentPreview name="cookie-consent-controlled" />
+
+### Saving and retrying
+
+Return a promise from `onConfirm`. The chosen action shows a delayed pending indicator and the
+other controls wait until the save finishes. The notice closes only after success. A thrown
+error or rejected promise leaves the choices in place, announces an error and lets the visitor
+retry. There is no automatic timeout or dismissal.
+
+<ComponentPreview name="cookie-consent-async" />
+
+## Integration
+
+This component presents choices. It does not write storage, load or block scripts, delete cookies,
+or subscribe to an analytics service. Connect those behaviours to your application's consent
+store. With no `categories`, the decision still distinguishes `accept-all` from `reject-all` and
+contains an empty value object; the preferences button is omitted.
+
+Restore a saved decision before showing the notice, retain a way to reopen it, and decide how
+your application handles expiry and policy revisions. If the server can read a consent cookie,
+pass that initial state to avoid briefly showing the notice to a returning visitor.
+
+```tsx
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ds/button';
+import {
+  CookieConsent,
+  type CookieConsentDecision,
+  type CookieConsentValue,
+} from '@/components/ds/cookie-consent';
+
+export function PrivacyNotice({
+  initialConsent,
+  saveConsent,
+}: {
+  initialConsent: CookieConsentValue | null;
+  saveConsent: (decision: CookieConsentDecision) => Promise<void>;
+}) {
+  const [isOpen, setOpen] = useState(initialConsent === null);
+  const [draft, setDraft] = useState<CookieConsentValue>(initialConsent ?? {});
+
+  return (
+    <>
+      <Button variant="ghost" onPress={() => setOpen(true)}>
+        Cookie preferences
+      </Button>
+      <CookieConsent
+        title="Your privacy choices"
+        placement="bottom-end"
+        categories={[
+          { id: 'essential', label: 'Essential', isRequired: true },
+          { id: 'analytics', label: 'Usage analytics' },
+        ]}
+        value={draft}
+        onChange={setDraft}
+        isOpen={isOpen}
+        onOpenChange={setOpen}
+        onConfirm={saveConsent}
+      />
+    </>
+  );
+}
+```
+
+### Privacy policy
+
+Provide your policy's real URL through `privacyPolicyHref`. The optional link uses the provider's
+navigation handler and its text can be replaced with `labels.privacyPolicy`. Supply your own
+title, description and category wording; the library does not invent a site's cookie policy.
+
+## API
+
+### CookieConsent
+
+| Prop                     | Type                                                            | Default                       |
+| ------------------------ | --------------------------------------------------------------- | ----------------------------- |
+| `title`                  | `ReactNode`                                                     | required                      |
+| `description`            | `ReactNode`                                                     |                               |
+| `layout`                 | `'card' \| 'banner' \| 'compact'`                               | `'card'`                      |
+| `placement`              | `'inline' \| 'bottom-start' \| 'bottom' \| 'bottom-end'`        | `'inline'`                    |
+| `categories`             | `readonly CookieConsentCategory[]`                              | `[]`                          |
+| `value` / `defaultValue` | `CookieConsentValue`                                            | optional categories off       |
+| `onChange`               | `(value: CookieConsentValue) => void`                           | draft changes only            |
+| `onConfirm`              | `(decision: CookieConsentDecision) => void \| Promise<unknown>` | required                      |
+| `isOpen` / `defaultOpen` | `boolean`                                                       | `defaultOpen: true`           |
+| `onOpenChange`           | `(isOpen: boolean) => void`                                     |                               |
+| `isDisabled`             | `boolean`                                                       | `false`                       |
+| `privacyPolicyHref`      | `string`                                                        | no link                       |
+| `icon`                   | `ReactNode`                                                     | cookie glyph; `null` hides it |
+| `labels`                 | `Partial<CookieConsentLabels>`                                  | English defaults              |
+| `className`              | `string`                                                        |                               |
+
+Native section props and a section ref are forwarded. `cookieConsentStyles` exports the styles
+for individual slots.
+
+### Categories and decisions
+
+`CookieConsentCategory` has `id: string`, `label: ReactNode`, optional `description: ReactNode`
+and `isRequired?: boolean`. Required categories are read-only and carry an “Always on” marker.
+
+`CookieConsentValue` is a read-only record of category IDs to booleans. `CookieConsentDecision`
+contains `action: 'accept-all' | 'reject-all' | 'save-preferences'` and `value: CookieConsentValue`.
+The result excludes obsolete IDs and never grants optional consent from an inherited or
+non-boolean value.
+
+### Data attributes
+
+The root exposes `data-layout`, `data-placement`, `data-expanded`, `data-pending` and
+`data-invalid`. Slots: `cookie-consent`, `cookie-consent-surface`, `cookie-consent-header`,
+`cookie-consent-preferences`, `cookie-consent-actions`, `icon`, `title`, `description` and `required`.
+
+### Labels
+
+Override one instance through `labels`, or use
+`<DSProvider labels={{ cookieConsent: { preferences: 'Cookie settings' } }}>` app-wide.
+
+| Key             | Default                                            |
+| --------------- | -------------------------------------------------- |
+| `acceptAll`     | `Accept all`                                       |
+| `rejectAll`     | `Reject optional`                                  |
+| `preferences`   | `Preferences`                                      |
+| `back`          | `Back`                                             |
+| `save`          | `Save choices`                                     |
+| `required`      | `Always on`                                        |
+| `saving`        | `Saving choices`                                   |
+| `error`         | `We couldn't save your choices. Please try again.` |
+| `privacyPolicy` | `Privacy policy`                                   |
+
+## Accessibility and motion
+
+- A named, non-modal region leaves the rest of the page usable and does not take focus on arrival.
+- React Aria owns disclosure semantics and switch interactions. No checkbox, focus trap or
+  keyboard protocol is reimplemented.
+- Optional categories start off. Preferences can be reviewed without saving, and the notice has
+  no close icon that could be mistaken for a consent decision.
+- Pending decisions prevent competing submissions. Save errors are announced without moving focus.
+- Entrance and exit use a 250ms fluid fade and a small vertical movement; preferences use the
+  disclosure's measured height. There are no continuous loops, springs or blur animations.
+- Reduced motion uses opacity only and changes the panel height immediately. Disabled motion
+  removes all effects. RTL, light and dark surfaces use the same semantic roles.

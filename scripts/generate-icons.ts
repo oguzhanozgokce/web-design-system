@@ -32,6 +32,7 @@ const glyphs: Record<string, string> = {
   colorize: 'colorize',
   contentPaste: 'content_paste',
   contrast: 'contrast',
+  cookie: 'cookie',
   copy: 'content_copy',
   darkMode: 'dark_mode',
   dashboard: 'dashboard',
@@ -146,7 +147,7 @@ const body = sources
 const file = `/* @license
  * Copyright 2022 Google LLC
  * SPDX-License-Identifier: Apache-2.0
- * Modified by Web Design System contributors: selected SVG paths wrapped as React components.
+ * Modified by Highwren UI contributors: selected SVG paths wrapped as React components.
  * Full licence and notices are installed in licenses/ds/LICENSE and licenses/ds/NOTICE.
  */
 import type { ComponentType, SVGProps } from 'react';

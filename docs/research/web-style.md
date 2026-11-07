@@ -1021,6 +1021,27 @@ Our **Chip** is HeroUI's **Tag** (pressable, selectable, removable) and our **Ta
   wants it.
 - **Follows:** HeroUI shape, Astryx size steps.
 
+### 2.43 Cookie consent
+
+- **References:** Astryx neutral overlay surfaces and clear action groups; HeroUI control shapes
+  and short transitions; Bencho's compact-to-expanded continuity; CookieConsent's first-layer
+  decisions and read-only required categories. See `cookie-consent.md` for the visual study.
+  No upstream source is copied.
+- **Layouts:** `card` (default, at most 384px), `banner` (wide copy and actions), `compact`
+  (a capsule when wide). All stack in narrow containers. `placement` is `inline` by default, or
+  fixed at `bottom-start`, `bottom`, `bottom-end` with logical edges and safe-area spacing.
+- **Surface:** `bg-surface-overlay text-on-surface`, a subtle border, `rounded-container` and
+  `shadow-lg`. Compact uses `rounded-control` at wide sizes and returns to container corners
+  while editing. Actions are 40px pills; accept and reject share neutral soft styling. Saving
+  edited preferences is the primary solid action.
+- **Behaviour:** a non-modal named region; no focus stealing, backdrop, implicit dismissal or
+  timer. RAC Disclosure reveals category Switch rows inside the same surface. Required categories
+  stay on. Draft edits never confirm consent; `onConfirm` owns persistence and applies the result.
+  Promises block competing choices, close after success and show a retryable error after failure.
+- **Motion:** 250ms fluid opacity/vertical arrival and exit, measured disclosure height and a
+  short corner transition. Reduced motion removes spatial changes; disabled motion is instant.
+  No continuous animations, blur or gesture springs.
+
 ### Shared recipes
 
 All overlays (popover, menu, select list, combo-box list, tooltip, toast) share `overlay-panel` motion;
@@ -1028,6 +1049,30 @@ all fields share `field-frame`; all actions share `transition-control`, the pres
 `opacity-50` disabled. Changing one of those changes the library consistently.
 
 ---
+
+### 2.44 Recovery, media and conversion flow
+
+- **References:** [BoardUI Breadcrumb](https://www.boardui.com/components/breadcrumb) uses quiet
+  ancestor links and a non-interactive current item. [BoardUI Funnel Chart Card](https://www.boardui.com/components/funnel-chart-card)
+  shows a horizontal narrowing flow; it is Pro, so only the public visual preview informs our
+  original geometry. Astryx's EmptyState and Lightbox inventory informs recovery and modal media
+  patterns; existing Dialog and EmptyState remain the foundation here.
+- **Breadcrumbs:** wrapping ordered links inside a named navigation landmark, neutral hover fills,
+  a text-only current page and directional chevrons. Real URLs remain crawlable. Schema.org data
+  belongs to the application's server route model, not a client component parsing arbitrary children.
+- **NotFound:** EmptyState with original page/search artwork, one 300ms entrance and explicit
+  recovery links. Server-render the meaningful copy and heading. HTTP status and `noindex` belong
+  to the application's routing layer; see [Next](https://nextjs.org/docs/app/api-reference/file-conventions/not-found)
+  and [Google](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics).
+- **Lightbox:** full-screen Dialog, React Aria thumbnail Tabs, native overflow for zoomed images,
+  named controls and recoverable loading errors. Reuse the site's calm canvas and overlay roles;
+  do not introduce a separate hard-coded dark viewer theme or animate panning.
+- **FunnelChart:** mono by default, generated chart roles for categorical stages, counts and named
+  rate denominators outside the ribbon. A semantic table mirrors every observation. No hover-only
+  information or pointer-move geometry. Compose period controls and table switching with ChartCard.
+- **Onboarding:** a Card example composing Checkbox, Disclosure and LinearProgress. Keep it a
+  prototype until an application needs a distinct reusable state contract; actual completion
+  comes from account data rather than link clicks.
 
 ## 3. Variant API for actions and the rest of the library
 

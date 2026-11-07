@@ -1,0 +1,87 @@
+---
+title: Funnel Chart
+description: A continuous stage flow with counts, explicit conversion denominators and an accessible data table. Composes with ChartCard.
+---
+
+<ComponentPreview name="funnel-chart-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="funnel-chart" />
+
+## Usage
+
+```tsx
+import { ChartCard } from '@/components/ds/chart-card';
+import { FunnelChart } from '@/components/ds/funnel-chart';
+
+<ChartCard title="Activation funnel" showTableToggle>
+  <FunnelChart stages={[
+    { id: 'installed', label: 'App installs', value: 12400 },
+    { id: 'signed-in', label: 'Signed in', value: 8680 },
+    { id: 'active', label: 'First action', value: 4340 },
+    { id: 'upgraded', label: 'Upgraded', value: 1302 },
+  ]} />
+</ChartCard>;
+```
+
+The ribbon narrows as people move through an ordered flow. Counts are visible below each stage,
+with two explicitly named rates: `Of previous step` and `Of first step`. In the example those
+give 70%, 50%, 30% per transition and 10.5% overall. Geometry uses the largest count as its scale.
+Use observations from the same cohort and measurement window; unrelated event totals do not
+describe a conversion funnel.
+
+The chart inherits the card's accessible title, description and table view. Period changes belong
+to ChartCard and the application; FunnelChart only renders the supplied stages. Standalone charts
+accept an accessible name and an explicit `view`.
+
+## Examples
+
+### Categorical colours
+
+Mono is the default and follows the generated primary roles. Use categorical colours when stages
+need separate identities. Per-stage `color` accepts the existing chart role vocabulary.
+
+<ComponentPreview name="funnel-chart-categorical" align="stretch" />
+
+### Data table and zero counts
+
+The same data remains available as a semantic table, including in chart view for assistive
+technology. Narrow charts scroll within their own region instead of shrinking labels below a
+readable size or widening the page.
+
+<ComponentPreview name="funnel-chart-table" align="stretch" />
+
+Zero is a real count. Division by a zero baseline is unavailable, displayed as an em dash.
+Negative and non-finite values are missing observations and are not treated as zero; a missing
+step also makes the next step's previous-step conversion unavailable. Increasing counts remain
+visible, including rates above 100%; they are not silently clamped to a decreasing funnel.
+
+## API
+
+| Prop                                                | Type                         | Default                |
+| --------------------------------------------------- | ---------------------------- | ---------------------- |
+| `stages`                                            | `readonly FunnelStage[]`     | required               |
+| `palette`                                           | `'mono' \| 'categorical'`    | `'mono'`               |
+| `monoColor`                                         | `'primary' \| 'neutral'`     | `'primary'`            |
+| `view`                                              | `'chart' \| 'table'`         | card view or `'chart'` |
+| `valueFormatOptions`                                | `Intl.NumberFormatOptions`   | locale default         |
+| `labels`                                            | `Partial<FunnelChartLabels>` | English defaults       |
+| `aria-label`, `aria-labelledby`, `aria-describedby` | `string`                     | inherited from card    |
+| `className`                                         | `string`                     |                        |
+
+`FunnelStage` has a unique `id`, a `label`, a numeric `value` and optional `ChartColor`.
+`defaultFunnelChartLabels` exports `title`, `flow`, `stage`, `count`, `previous`, `first`, `overall`,
+`unavailable` and `empty`. Override through `labels` or `DSProvider`'s `funnelChart` namespace.
+Counts and percentages follow the provider locale.
+
+The root is `data-slot="funnel-chart"` with `data-palette` and `data-view`; the SVG uses
+`data-slot="funnel-flow"`. Table parts reuse the shared Chart slots.
+
+## Accessibility and motion
+
+The ribbon is decorative; a named table communicates every count and rate without relying on
+colour, hovering or SVG keyboard interactions. The chart has no pointer-move state or per-frame
+data recalculation. Only the ribbon enters, using a short tween; reduced motion removes scaling
+and disabled motion removes the fade too. BoardUI's public funnel preview informed the flow
+idea; its Pro source is not used.

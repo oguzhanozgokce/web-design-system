@@ -12,7 +12,7 @@ Status: ✅ built and reviewed · 🚧 in progress · ⬜ planned
 | ---------------------------------------------------- | ------ | ------------------------------------------------------------------------------- |
 | Tokens from one seed                                 | ✅     | Generated scheme, neutral layers, 3 contrast levels, spring `linear()`          |
 | `theme.css`                                          | ✅     | Roles, solid and soft fills, radius families, shadows, focus ring, keyframes    |
-| `utils`, `labels`, `motion`, `color-scheme`, `icons` | ✅     | 115 Material Symbols Rounded glyphs                                             |
+| `utils`, `labels`, `motion`, `color-scheme`, `icons` | ✅     | 116 Material Symbols Rounded glyphs                                             |
 | `DSProvider`                                         | ✅     | Locale, router, labels, icons, motion preference                                |
 | Hooks                                                | ✅     | `useControllableState`, `useMediaQuery`, `useLocalStorageState`                 |
 | Dynamic colour                                       | 🚧     | `DynamicTheme` (subtree or page), seeds from images, cached boot script, review |
@@ -67,7 +67,7 @@ on 2026-11-07. `docs/research/wave-2-requests.md` has the visual study and the d
 | Table, StatusTag, StatusDot                                                         | data-display | Table, Tag                             | ✅     |
 | DataTable (after BoardUI's data table; no TanStack)                                 | data-display | Table, Pagination, lib/data-table      | ✅     |
 | Pagination                                                                          | navigation   | Button, IconButton                     | ✅     |
-| Breadcrumbs                                                                         | navigation   | Breadcrumbs                            | ⬜     |
+| Breadcrumbs                                                                         | navigation   | Breadcrumbs                            | ✅     |
 | Sidebar, NavigationRail                                                             | navigation   | Disclosure, Link                       | ⬜     |
 | NavigationBar (bottom), TopAppBar, Toolbar                                          | navigation   | Toolbar, Link                          | ⬜     |
 | Stepper (wizard steps)                                                              | navigation   | —                                      | ⬜     |
@@ -77,6 +77,10 @@ on 2026-11-07. `docs/research/wave-2-requests.md` has the visual study and the d
 | StatCard                                                                            | data-display | Card, RollingNumber, Sparkline         | ⬜     |
 | Chart, BarChart, LineChart, AreaChart, Sparkline, ChartCard (Bencho, BoardUI ideas) | charts       | hand-written SVG and HTML, lib/chart   | ✅     |
 | DynamicIsland, ActivityBars; the stats island is an example, not a prop             | feedback     | RAC Button, motion                     | ✅     |
+| CookieConsent (card, banner, compact; inline preferences and async confirmation)    | feedback     | Disclosure, Switch, Button             | ✅     |
+| NotFound (animated missing-page state, catalogue 404)                               | feedback     | EmptyState, ButtonLink                 | ✅     |
+| Lightbox (thumbnails, fit/zoom, native pan, image retry)                            | overlays     | Dialog, Tabs, IconButton               | ✅     |
+| FunnelChart (stage flow, conversion rates, shared card/table)                       | charts       | ChartCard, own SVG geometry            | ✅     |
 | Meter                                                                               | feedback     | Meter                                  | ⬜     |
 | SplitButton                                                                         | actions      | Button + Menu                          | ⬜     |
 | Form (validation, sections, actions)                                                | inputs       | Form                                   | ⬜     |
@@ -96,7 +100,7 @@ rolling counter moved into wave 2.
 
 AppShell (sidebar + top bar), DashboardOverview, DataTablePage, SettingsPage, SignIn, SignUp,
 OtpVerification, ForgotPassword, AccountMenu, ActiveSessions, NotificationsPanel, SupportInbox,
-FeedbackForm, DeleteAccount, Pricing, Faq, Hero, FeatureGrid, Cta, Footer, NotFound, EmptyStates,
+FeedbackForm, DeleteAccount, Pricing, Faq, Hero, FeatureGrid, Cta, Footer, EmptyStates,
 KanbanBoard, OnboardingSteps, LegalPage with table of contents.
 
 ## Wave 5 — Distribution

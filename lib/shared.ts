@@ -1,6 +1,6 @@
 import { createGetUrl } from 'fumadocs-core/source';
 
-export const appName = 'Web Design System';
+export const appName = 'Highwren UI';
 export const docsRoute = '/docs';
 export const docsContentRoute = '/llms.mdx/docs';
 
