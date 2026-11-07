@@ -18,8 +18,8 @@ it does not authorise publication.
 
 1. Confirm the complete Git history is intended for publication. The current Gitleaks audit found
    one dummy password fixture, precisely allowlisted; automated scanning is not a content review.
-2. Establish a confidential security contact, enable GitHub private vulnerability reporting and
-   update `SECURITY.md` with the working reporting link.
+2. Establish a confidential security contact before publication. Once the repository is public,
+   enable GitHub private vulnerability reporting and update `SECURITY.md` with the reporting link.
 3. Configure a `main` rule requiring the `Verify` CI check and pull request review, block force
    pushes and branch deletion. The current private repository's plan does not support rulesets;
    enabling Actions alone does not enforce review or passing checks.

@@ -9,8 +9,9 @@ release branches yet.
 Do not post credentials, personal data or exploit details in an issue or pull request. During the
 private preparation phase, use an existing private channel to the repository owner,
 [@oguzhanozgokce](https://github.com/oguzhanozgokce). This repository does not yet offer a public
-confidential reporting channel. Establish one and enable GitHub private vulnerability reporting
-before making the repository public; the final publication checklist is in
+confidential reporting channel. Establish a private contact before publication. GitHub private
+vulnerability reporting becomes available once the repository is public; enable it during
+publication and update this policy with the working reporting link. The final checklist is in
 [docs/open-source-readiness.md](docs/open-source-readiness.md).
 
 Include the affected component/tool version, a minimal reproduction, impact and suggested
