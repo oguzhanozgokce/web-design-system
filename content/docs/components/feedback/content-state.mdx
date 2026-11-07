@@ -1,6 +1,6 @@
 ---
 title: Content State
-description: Switches between loading, error, empty and content for data you fetch, from an explicit status or from data and error, with default copy you can replace, an async retry, a skeleton slot and a refresh-error banner over stale content.
+description: Switches between loading, error, empty and content for fetched data, with default copy, an async retry, a skeleton slot and a refresh-error banner.
 ---
 
 <ComponentPreview name="content-state-demo" />
@@ -49,8 +49,8 @@ function receives it as is.
 
 ### Every status
 
-The defaults need no copy: a delayed spinner, an error with Try again, and an empty state.
-Replace any part with the props below.
+The defaults need no copy: a delayed grey spinner, an error with a Try again button, and an empty
+state, all built from `Spinner`, `EmptyState` and `Button`. Replace any part with the props below.
 
 <ComponentPreview name="content-state-status" />
 
@@ -86,8 +86,9 @@ again appears above it. People keep working with what they had.
 
 ### Sizes
 
-`size` is passed to the built-in empty and error states and sets the loading area's height.
-`compact` suits dashboard cards, `default` a table or a section, `page` a whole screen.
+`size` is passed to the built-in empty and error states and sets the loading area's height and
+spinner. `sm` suits dashboard cards (a 24px spinner), `md` a table or a section (32px), `lg` a whole
+screen (40px).
 
 <ComponentPreview name="content-state-sizes" align="stretch" />
 
@@ -103,7 +104,7 @@ again appears above it. People keep working with what they had.
 | `isEmpty`          | `(data: T) => boolean`                         | `null` or `[]`            |
 | `isRefreshing`     | `boolean`                                      | `false`                   |
 | `onRetry`          | `() => void \| Promise<unknown>`               |                           |
-| `size`             | `'compact' \| 'default' \| 'page'`             | `'default'`               |
+| `size`             | `'sm' \| 'md' \| 'lg'`                         | `'md'`                    |
 | `headingLevel`     | `1 \| 2 \| 3 \| 4 \| 5 \| 6`                   | `2`                       |
 | `loadingLabel`     | `string`                                       | `labels.loading`          |
 | `loadingContent`   | `ReactNode`                                    | spinner                   |

@@ -50,7 +50,7 @@ export default function FieldValidation() {
       <Button type="submit" className="justify-self-start">
         Create account
       </Button>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {created ? `Account @${created} created.` : null}
       </p>
     </Form>

@@ -25,11 +25,11 @@ export default function ListBoxMultiple() {
         selectionMode="multiple"
         selectedKeys={selected}
         onSelectionChange={setSelected}
-        variant="outlined"
+        variant="outline"
       >
         {(fruit) => <ListBoxItem>{fruit.name}</ListBoxItem>}
       </ListBox>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {count} of {fruits.length} selected
       </p>
     </div>

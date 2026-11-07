@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { PreviewFrame } from '@/components/docs/preview-frame';
 
 export async function ComponentPreview({
@@ -19,14 +18,12 @@ export async function ComponentPreview({
   ).catch(() => `Missing example file registry/ds/examples/${name}.tsx`);
 
   return (
-    <Tabs items={['Preview', 'Code']} className="not-prose">
-      <Tab value="Preview" className="p-0">
-        <PreviewFrame name={name} align={align} className={className} />
-      </Tab>
-      <Tab value="Code" className="p-0">
-        <DynamicCodeBlock lang="tsx" code={code.trimEnd()} />
-      </Tab>
-    </Tabs>
+    <PreviewFrame
+      name={name}
+      align={align}
+      className={className}
+      code={<DynamicCodeBlock lang="tsx" code={code.trimEnd()} />}
+    />
   );
 }
 

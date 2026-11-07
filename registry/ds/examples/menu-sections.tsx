@@ -19,7 +19,7 @@ import {
 export default function MenuSections() {
   return (
     <MenuTrigger>
-      <IconButton aria-label="More actions" variant="outlined" icon={<MoreHorizontalIcon />} />
+      <IconButton aria-label="More actions" variant="outline" icon={<MoreHorizontalIcon />} />
       <Menu>
         <MenuSection>
           <MenuHeader>Edit</MenuHeader>

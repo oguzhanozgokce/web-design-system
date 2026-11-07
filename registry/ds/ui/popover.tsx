@@ -2,7 +2,6 @@
 
 import type { ReactNode } from 'react';
 import {
-  Button as AriaButton,
   Dialog as AriaDialog,
   DialogTrigger,
   Heading,
@@ -18,8 +17,8 @@ import {
 } from 'react-aria-components';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
 import { ButtonGroupContext } from '@/registry/ds/ui/button';
-import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
+import { IconButton } from '@/registry/ds/ui/icon-button';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
 
 export type PopoverMotion = 'spatial' | 'fade' | 'none';
@@ -49,8 +48,8 @@ export function usePopoverMotion(): PopoverMotion {
 
 export const popoverStyles = tv({
   base: [
-    'max-w-[calc(100vw-1.5rem)] rounded-md bg-surface-container-high text-on-surface shadow-elevation-2 outline-none',
-    'origin-(--trigger-anchor-point) forced-colors:border',
+    'max-w-[calc(100vw-1.5rem)] rounded-overlay bg-surface-overlay text-sm text-on-surface shadow-md outline-none',
+    'origin-(--trigger-anchor-point) [--ds-popover-scale:0.9] forced-colors:border',
   ],
   variants: {
     motion: popoverMotion,
@@ -64,7 +63,7 @@ export type PopoverStyleProps = VariantProps<typeof popoverStyles>;
 
 export const popoverArrowStyles = tv({
   slots: {
-    base: 'group/arrow text-surface-container-high',
+    base: 'group/arrow text-surface-overlay',
     shape: [
       'block fill-current forced-colors:fill-[CanvasText]',
       'group-data-[placement=bottom]/arrow:rotate-180',
@@ -132,34 +131,40 @@ export function Popover({
       className={composeRenderProps(className, (className) => popoverStyles({ motion, className }))}
     >
       {composeRenderProps(children, (children) => (
-        <SurfaceContext value="surface-container-high">
-          <ButtonGroupContext value={null}>
-            {showArrow ? <PopoverArrow /> : null}
-            {children}
-          </ButtonGroupContext>
-        </SurfaceContext>
+        <ButtonGroupContext value={null}>
+          {showArrow ? <PopoverArrow /> : null}
+          {children}
+        </ButtonGroupContext>
       ))}
     </AriaPopover>
   );
 }
 
+export type PopoverDialogPadding = 'sm' | 'md';
+
 export const popoverDialogStyles = tv({
   slots: {
-    base: 'flex max-h-[inherit] max-w-[min(24rem,calc(100vw-1.5rem))] flex-col gap-2 overflow-auto p-4 outline-none',
+    base: 'flex max-h-[inherit] max-w-[min(24rem,calc(100vw-1.5rem))] flex-col overflow-auto outline-none',
     header: 'flex items-start gap-2',
-    title: 'min-w-0 flex-1 text-title-md text-on-surface',
-    close: [
-      'state-layer focus-ring -me-2 -mt-1.5 ms-auto inline-flex size-8 shrink-0 cursor-default items-center justify-center rounded-full text-on-surface-variant',
-      'transition-colors duration-150 ease-standard [&_svg]:size-5',
-      'pointer-coarse:after:absolute pointer-coarse:after:-inset-2',
-    ],
-    body: 'text-body-md text-on-surface-variant',
+    title: 'min-w-0 flex-1 text-sm font-semibold text-on-surface',
+    close: '-my-1 ms-auto',
+    body: 'text-sm text-on-surface-variant',
+  },
+  variants: {
+    padding: {
+      sm: { base: 'gap-1.5 p-3', close: '-me-1.5' },
+      md: { base: 'gap-2 p-4', close: '-me-2' },
+    },
+  },
+  defaultVariants: {
+    padding: 'md',
   },
 });
 
 export interface PopoverDialogProps extends Omit<AriaDialogProps, 'children' | 'className'> {
   title?: ReactNode;
   showCloseButton?: boolean;
+  padding?: PopoverDialogPadding;
   labels?: Partial<PopoverLabels>;
   children?: ReactNode | ((renderProps: DialogRenderProps) => ReactNode);
   className?: string;
@@ -168,6 +173,7 @@ export interface PopoverDialogProps extends Omit<AriaDialogProps, 'children' | '
 export function PopoverDialog({
   title,
   showCloseButton = false,
+  padding = 'md',
   labels,
   children,
   className,
@@ -175,11 +181,16 @@ export function PopoverDialog({
 }: PopoverDialogProps) {
   const t = useLabels('popover', defaultPopoverLabels, labels);
   const icons = useIcons();
-  const styles = popoverDialogStyles();
+  const styles = popoverDialogStyles({ padding });
   const hasHeader = title != null || showCloseButton;
 
   return (
-    <AriaDialog {...props} data-slot="popover-dialog" className={styles.base({ className })}>
+    <AriaDialog
+      {...props}
+      data-slot="popover-dialog"
+      data-padding={padding}
+      className={styles.base({ className })}
+    >
       {(renderProps) => (
         <>
           {hasHeader ? (
@@ -190,14 +201,15 @@ export function PopoverDialog({
                 </Heading>
               ) : null}
               {showCloseButton ? (
-                <AriaButton
+                <IconButton
                   slot="close"
                   aria-label={t.close}
-                  data-slot="close"
+                  icon={<icons.close />}
+                  variant="ghost"
+                  tone="neutral"
+                  size="xs"
                   className={styles.close()}
-                >
-                  <icons.close />
-                </AriaButton>
+                />
               ) : null}
             </div>
           ) : null}

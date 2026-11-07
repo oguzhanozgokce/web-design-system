@@ -5,12 +5,12 @@ import { EmptyState } from '@/registry/ds/ui/empty-state';
 export default function EmptyStateSizes() {
   return (
     <div className="grid w-full items-start gap-4 md:grid-cols-[1fr_1.4fr]">
-      <section className="rounded-lg border border-outline-variant bg-surface">
-        <h3 className="border-b border-outline-variant px-4 py-3 text-title-sm text-on-surface">
+      <section className="rounded-container border border-outline-subtle bg-surface-raised">
+        <h3 className="border-b border-outline-subtle px-4 py-3 text-sm font-semibold text-on-surface">
           Recent activity
         </h3>
         <EmptyState
-          size="compact"
+          size="sm"
           headingLevel={4}
           icon={<HistoryIcon />}
           title="No activity this week"
@@ -18,8 +18,8 @@ export default function EmptyStateSizes() {
           primaryAction={<ButtonLink href="#sizes">View all activity</ButtonLink>}
         />
       </section>
-      <section className="rounded-lg border border-outline-variant bg-surface">
-        <h3 className="border-b border-outline-variant px-4 py-3 text-title-sm text-on-surface">
+      <section className="rounded-container border border-outline-subtle bg-surface-raised">
+        <h3 className="border-b border-outline-subtle px-4 py-3 text-sm font-semibold text-on-surface">
           Team
         </h3>
         <EmptyState

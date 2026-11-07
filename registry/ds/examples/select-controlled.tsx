@@ -21,7 +21,7 @@ export default function SelectControlled() {
       <Select label="Time zone" items={zones} value={zone} onChange={setZone}>
         {(item) => <ListBoxItem>{item.name}</ListBoxItem>}
       </Select>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         Times are shown in {name}.
       </p>
     </div>

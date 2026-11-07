@@ -499,13 +499,16 @@ describe('DynamicTheme', () => {
     ['ar', { locale: 'ar' }],
   ] as const)('has no accessibility violations (%s)', async (_, options) => {
     const screen = await renderWithDS(
-      <DynamicTheme seed={seedCoral} paletteStyle="vibrant" className="bg-surface p-4">
-        <div className="rounded-md bg-primary-container p-3 text-on-primary-container">
-          <p className="text-title-md">Workspace</p>
-          <p className="text-body-sm">Plan renews on 1 December</p>
+      <DynamicTheme seed={seedCoral} paletteStyle="vibrant" className="bg-canvas p-4">
+        <div className="rounded-container bg-surface-raised p-3 text-on-surface">
+          <p className="text-base font-semibold">Workspace</p>
+          <p className="text-xs text-on-surface-variant">Last synced on 1 December</p>
         </div>
-        <button type="button" className="mt-2 rounded-full bg-primary px-4 py-2 text-on-primary">
-          Upgrade
+        <button
+          type="button"
+          className="mt-2 rounded-control bg-primary-solid px-4 py-2 text-on-primary-solid"
+        >
+          Open
         </button>
       </DynamicTheme>,
       options,

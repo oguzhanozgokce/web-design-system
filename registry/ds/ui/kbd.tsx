@@ -27,7 +27,7 @@ export type KbdNamedKey =
 
 export type KbdKey = KbdNamedKey | (string & {});
 
-export type KbdVariant = 'outlined' | 'tonal' | 'text';
+export type KbdVariant = 'soft' | 'ghost';
 
 export type KbdSize = 'sm' | 'md';
 
@@ -184,28 +184,25 @@ function describeKey(key: KbdNamedKey, platform: KbdPlatform | undefined, t: Kbd
 export const kbdStyles = tv({
   slots: {
     key: [
-      'inline-flex shrink-0 items-center justify-center rounded-xs align-middle font-[inherit] whitespace-nowrap select-none',
+      'inline-flex shrink-0 items-center justify-center gap-0.5 align-middle font-sans font-medium whitespace-nowrap select-none',
       '[&_svg]:size-[1.15em] [&_svg]:shrink-0',
     ],
-    combo: 'inline-flex shrink-0 items-center align-middle font-[inherit]',
+    combo: 'inline-flex shrink-0 items-center align-middle font-sans',
     separator: 'text-on-surface-variant',
   },
   variants: {
     variant: {
-      outlined: {
-        key: 'border border-b-2 border-outline-variant bg-surface-container-low text-on-surface-variant',
-      },
-      tonal: { key: 'bg-surface-container-highest text-on-surface-variant' },
-      text: { key: 'bg-transparent text-current', separator: 'text-current' },
+      soft: { key: 'bg-neutral-soft text-on-surface-variant' },
+      ghost: { key: 'bg-transparent text-current', separator: 'text-current' },
     },
     size: {
-      sm: { key: 'h-5 min-w-5 px-1 text-label-sm', combo: 'gap-0.5' },
-      md: { key: 'h-6 min-w-6 px-1.5 text-label-md', combo: 'gap-1' },
+      sm: { key: 'h-5 min-w-5 rounded-md px-1 text-[0.6875rem]', combo: 'gap-0.5' },
+      md: { key: 'h-6 min-w-6 rounded-lg px-1.5 text-xs', combo: 'gap-1' },
     },
   },
-  compoundVariants: [{ variant: 'text', class: { key: 'min-w-0 px-0', combo: 'gap-0.5' } }],
+  compoundVariants: [{ variant: 'ghost', class: { key: 'min-w-0 px-0', combo: 'gap-0.5' } }],
   defaultVariants: {
-    variant: 'outlined',
+    variant: 'soft',
     size: 'md',
   },
 });
@@ -222,7 +219,7 @@ export interface KbdProps extends Omit<HTMLAttributes<HTMLElement>, 'children'>,
 }
 
 export function Kbd({
-  variant = 'outlined',
+  variant = 'soft',
   size = 'md',
   platform,
   labels,
@@ -288,7 +285,7 @@ export interface KbdComboProps
 export function KbdCombo({
   keys,
   separator,
-  variant = 'outlined',
+  variant = 'soft',
   size = 'md',
   platform,
   labels,

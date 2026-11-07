@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: `%s · ${appName}`,
   },
   description:
-    'A Material 3 component library for React, the web twin of the Compose mobile design system.',
+    'React components for marketing sites, admin panels and signed-in user panels, themed from one seed colour.',
 };
 
 export default function Layout({ children }: LayoutProps<'/'>) {

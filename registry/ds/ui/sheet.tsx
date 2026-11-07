@@ -35,7 +35,6 @@ import {
   Modal,
   ModalOverlay,
   OverlayTriggerStateContext,
-  composeRenderProps,
   useLocale,
   type ButtonProps as AriaButtonProps,
   type DialogRenderProps,
@@ -47,8 +46,8 @@ import { useControllableState } from '@/registry/ds/hooks/use-controllable-state
 import { spatialSpring } from '@/registry/ds/lib/motion';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
 import { ButtonGroupContext } from '@/registry/ds/ui/button';
-import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
+import { IconButton } from '@/registry/ds/ui/icon-button';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
 
 export type SheetSide = 'start' | 'end' | 'top' | 'bottom';
@@ -100,53 +99,46 @@ const interactiveSelector = [
 
 export const sheetStyles = tv({
   slots: {
-    overlay: 'fixed inset-x-0 top-0 z-50 h-(--visual-viewport-height) bg-scrim/32',
+    overlay: 'fixed inset-x-0 top-0 z-50 h-(--visual-viewport-height) bg-backdrop',
     root: 'pointer-events-none z-50 flex flex-col outline-none',
     surface: [
-      'pointer-events-auto relative flex min-h-0 flex-1 flex-col overflow-hidden bg-surface-container-low text-on-surface shadow-elevation-1',
+      'pointer-events-auto relative flex min-h-0 flex-1 flex-col overflow-hidden bg-surface-overlay text-on-surface shadow-lg',
       'forced-colors:border',
     ],
     dialog: 'flex min-h-0 flex-1 flex-col outline-none',
     handleZone:
-      'flex h-12 shrink-0 cursor-grab touch-none items-center justify-center active:cursor-grabbing',
+      'flex h-8 shrink-0 cursor-grab touch-none items-center justify-center active:cursor-grabbing',
     handle: [
-      'state-layer focus-ring flex h-6 w-12 cursor-grab items-center justify-center rounded-full text-on-surface-variant active:cursor-grabbing',
+      'group/handle focus-ring relative flex h-6 w-12 cursor-grab items-center justify-center rounded-control active:cursor-grabbing',
       'after:absolute after:inset-x-0 after:-inset-y-3',
     ],
-    handleBar: 'h-1 w-8 rounded-full bg-on-surface-variant/40 forced-colors:bg-[CanvasText]',
+    handleBar:
+      'h-1 w-9 rounded-full bg-outline-variant transition-colors duration-100 ease-out group-data-[hovered]/handle:bg-outline forced-colors:bg-[CanvasText]',
     header: 'flex shrink-0 items-start gap-3 px-6 pt-6 pb-4',
     heading: 'min-w-0 flex-1',
-    title: 'text-title-lg text-on-surface',
-    description: 'mt-1 text-body-md text-on-surface-variant',
-    close: [
-      'state-layer focus-ring inline-flex size-10 shrink-0 cursor-default items-center justify-center rounded-full text-on-surface-variant',
-      'transition-colors duration-150 ease-standard data-[disabled]:text-on-surface/38 [&_svg]:size-6',
-      'pointer-coarse:after:absolute pointer-coarse:after:-inset-1',
-    ],
-    body: 'focus-ring-inset min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-6 text-body-md text-on-surface first:pt-6',
+    title: 'text-base font-semibold text-on-surface',
+    description: 'mt-1 text-sm text-on-surface-variant',
+    close: '-my-1 -me-2 data-[pressed]:scale-[0.93] motion-reduce:data-[pressed]:scale-100',
+    body: 'focus-ring-inset min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-6 text-sm text-on-surface-variant first:pt-6',
     footer:
-      'flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-outline-variant px-6 py-4',
+      'flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-outline-subtle px-6 py-4',
   },
   variants: {
     side: {
       start: {
-        root: 'inset-y-0 inset-s-0 max-w-[calc(100%-3.5rem)]',
-        surface: 'rounded-e-xl',
+        root: 'inset-y-0 inset-s-0 max-w-[85%]',
         dialog: 'pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]',
       },
       end: {
-        root: 'inset-y-0 inset-e-0 max-w-[calc(100%-3.5rem)]',
-        surface: 'rounded-s-xl',
+        root: 'inset-y-0 inset-e-0 max-w-[85%]',
         dialog: 'pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]',
       },
       top: {
-        root: 'inset-x-0 top-0 mx-auto max-h-[calc(100%-3rem)] w-full',
-        surface: 'rounded-b-xl',
+        root: 'inset-x-0 top-0 mx-auto max-h-[85%] w-full',
         dialog: 'pt-[env(safe-area-inset-top)]',
       },
       bottom: {
-        root: 'inset-x-0 bottom-0 mx-auto max-h-[calc(100%-3rem)] w-full',
-        surface: 'rounded-t-xl',
+        root: 'inset-x-0 bottom-0 mx-auto max-h-[85%] w-full',
         dialog: 'pb-[env(safe-area-inset-bottom)]',
       },
     },
@@ -155,7 +147,11 @@ export const sheetStyles = tv({
       md: {},
       lg: {},
       xl: {},
-      full: { root: 'max-w-none', surface: 'rounded-none' },
+      full: { root: 'max-w-none' },
+    },
+    detached: {
+      true: { surface: 'rounded-dialog' },
+      false: {},
     },
     variant: {
       modal: { root: 'absolute' },
@@ -167,7 +163,7 @@ export const sheetStyles = tv({
       none: {},
     },
     hasHandle: {
-      true: { header: 'pt-2' },
+      true: { header: 'pt-1' },
       false: {},
     },
     isDraggable: {
@@ -177,15 +173,48 @@ export const sheetStyles = tv({
   },
   compoundVariants: [
     { side: ['start', 'end'], size: 'sm', class: { root: 'w-80' } },
-    { side: ['start', 'end'], size: 'md', class: { root: 'w-100' } },
-    { side: ['start', 'end'], size: 'lg', class: { root: 'w-140' } },
-    { side: ['start', 'end'], size: 'xl', class: { root: 'w-180' } },
+    { side: ['start', 'end'], size: 'md', class: { root: 'w-96' } },
+    { side: ['start', 'end'], size: 'lg', class: { root: 'w-lg' } },
+    { side: ['start', 'end'], size: 'xl', class: { root: 'w-2xl' } },
     { side: ['start', 'end'], size: 'full', class: { root: 'w-full' } },
-    { side: ['top', 'bottom'], size: 'sm', class: { root: 'max-w-120' } },
-    { side: ['top', 'bottom'], size: 'md', class: { root: 'max-w-160' } },
-    { side: ['top', 'bottom'], size: 'lg', class: { root: 'max-w-224' } },
-    { side: ['top', 'bottom'], size: 'xl', class: { root: 'max-w-300' } },
+    { side: ['top', 'bottom'], size: 'sm', class: { root: 'max-w-md' } },
+    { side: ['top', 'bottom'], size: 'md', class: { root: 'max-w-xl' } },
+    { side: ['top', 'bottom'], size: 'lg', class: { root: 'max-w-3xl' } },
+    { side: ['top', 'bottom'], size: 'xl', class: { root: 'max-w-5xl' } },
     { side: ['top', 'bottom'], size: 'full', class: { root: 'h-full max-h-none' } },
+    { detached: true, side: 'start', class: { root: 'inset-y-2 inset-s-2' } },
+    { detached: true, side: 'end', class: { root: 'inset-y-2 inset-e-2' } },
+    { detached: true, side: 'top', class: { root: 'inset-x-2 top-2 w-auto' } },
+    { detached: true, side: 'bottom', class: { root: 'inset-x-2 bottom-2 w-auto' } },
+    {
+      detached: true,
+      size: 'full',
+      class: { root: 'max-h-[calc(100%-1rem)] max-w-[calc(100%-1rem)]' },
+    },
+    {
+      detached: false,
+      side: 'start',
+      size: ['sm', 'md', 'lg', 'xl'],
+      class: { surface: 'border-e border-outline-subtle' },
+    },
+    {
+      detached: false,
+      side: 'end',
+      size: ['sm', 'md', 'lg', 'xl'],
+      class: { surface: 'border-s border-outline-subtle' },
+    },
+    {
+      detached: false,
+      side: 'top',
+      size: ['sm', 'md', 'lg', 'xl'],
+      class: { surface: 'rounded-b-dialog' },
+    },
+    {
+      detached: false,
+      side: 'bottom',
+      size: ['sm', 'md', 'lg', 'xl'],
+      class: { surface: 'rounded-t-dialog' },
+    },
     {
       motion: 'spatial',
       side: 'start',
@@ -218,6 +247,7 @@ export const sheetStyles = tv({
   defaultVariants: {
     side: 'end',
     size: 'md',
+    detached: false,
     variant: 'modal',
     motion: 'spatial',
   },
@@ -578,6 +608,7 @@ export interface SheetProps {
   side?: SheetSide;
   size?: SheetSize;
   variant?: SheetVariant;
+  detached?: boolean;
   isOpen?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -606,6 +637,7 @@ interface SheetRootProps {
   'data-side': SheetSide;
   'data-size': SheetSize;
   'data-variant': SheetVariant;
+  'data-detached'?: boolean;
   style?: CSSProperties;
 }
 
@@ -618,6 +650,7 @@ export function Sheet({
   side = 'end',
   size = 'md',
   variant = 'modal',
+  detached = false,
   isOpen,
   defaultOpen,
   onOpenChange,
@@ -641,7 +674,7 @@ export function Sheet({
   const { locale, direction } = useLocale();
   const themeScope = useThemeScopeProps();
   const motionMode = useSheetMotion();
-  const styles = sheetStyles({ side, size, variant, motion: motionMode });
+  const styles = sheetStyles({ side, size, variant, detached, motion: motionMode });
   const bottomSnapPoints = side === 'bottom' && snapPoints?.length ? snapPoints : undefined;
   const rootProps: SheetRootProps = {
     dir: direction,
@@ -650,6 +683,7 @@ export function Sheet({
     'data-side': side,
     'data-size': size,
     'data-variant': variant,
+    'data-detached': detached || undefined,
     style: snapStyle(bottomSnapPoints),
   };
 
@@ -866,14 +900,10 @@ function SheetSurface({
       >
         {(renderProps) => (
           <SheetContext value={context}>
-            <SurfaceContext value="surface-container-low">
-              <ButtonGroupContext value={null}>
-                {hasHandle ? (
-                  <SheetHandle styles={styles} drag={drag} label={t.dragHandle} />
-                ) : null}
-                {typeof children === 'function' ? children(renderProps) : children}
-              </ButtonGroupContext>
-            </SurfaceContext>
+            <ButtonGroupContext value={null}>
+              {hasHandle ? <SheetHandle styles={styles} drag={drag} label={t.dragHandle} /> : null}
+              {typeof children === 'function' ? children(renderProps) : children}
+            </ButtonGroupContext>
           </SheetContext>
         )}
       </Dialog>
@@ -962,7 +992,7 @@ export function SheetHeader({
         ) : null}
         {children}
       </div>
-      {showCloseButton ? <SheetClose className="-me-2 -mt-2" /> : null}
+      {showCloseButton ? <SheetClose /> : null}
     </motion.div>
   );
 }
@@ -1039,16 +1069,22 @@ export type SheetCloseProps = Omit<AriaButtonProps, 'slot' | 'children'>;
 export function SheetClose({ className, 'aria-label': ariaLabel, ...props }: SheetCloseProps) {
   const t = useLabels('sheet', defaultSheetLabels, use(SheetContext)?.labels);
   const icons = useIcons();
+  const close = sheetStyles().close();
 
   return (
-    <AriaButton
+    <IconButton
       {...props}
       slot="close"
       aria-label={ariaLabel ?? t.close}
-      data-slot="sheet-close"
-      className={composeRenderProps(className, (className) => sheetStyles().close({ className }))}
-    >
-      <icons.close />
-    </AriaButton>
+      icon={<icons.close />}
+      variant="ghost"
+      tone="neutral"
+      size="sm"
+      className={
+        typeof className === 'function'
+          ? (renderProps) => `${close} ${className(renderProps)}`
+          : `${close} ${className ?? ''}`
+      }
+    />
   );
 }

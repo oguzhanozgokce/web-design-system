@@ -18,7 +18,7 @@ export default function SearchFieldSubmit() {
   return (
     <div className="grid w-full max-w-sm gap-3">
       <SearchField label="Documentation" placeholder="Search topics" onSubmit={search} />
-      <p className="text-body-md text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {result}
       </p>
     </div>

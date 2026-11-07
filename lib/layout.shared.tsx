@@ -5,10 +5,10 @@ export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
       title: (
-        <span className="inline-flex items-center gap-2 font-semibold">
+        <span className="inline-flex items-center gap-2 font-semibold tracking-tight">
           <span
             aria-hidden
-            className="grid size-6 place-items-center rounded-md bg-primary text-label-md text-on-primary"
+            className="grid size-6 place-items-center rounded-[0.4375rem] bg-primary-solid text-[0.6875rem] leading-none font-semibold text-on-primary-solid"
           >
             ds
           </span>

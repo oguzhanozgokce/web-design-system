@@ -12,23 +12,31 @@ import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-pr
 
 export const linkStyles = tv({
   base: [
-    'focus-ring group/link cursor-pointer rounded-xs text-primary',
-    'transition-[color,text-decoration-color,text-decoration-thickness] duration-150 ease-standard motion-reduce:transition-none',
-    'data-[disabled]:cursor-default data-[disabled]:text-on-surface/38',
+    'focus-ring group/link no-tap-highlight cursor-pointer rounded-sm decoration-[1.5px] underline-offset-4',
+    'transition-[color,text-decoration-color] duration-100 ease-out motion-reduce:transition-none',
+    'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
   ],
   variants: {
     variant: {
-      inline: 'underline decoration-1 underline-offset-[0.2em] data-[hovered]:decoration-2',
+      inline: 'underline decoration-outline-variant data-[hovered]:decoration-current',
       standalone:
-        'inline-flex items-center gap-1 text-label-lg underline decoration-transparent decoration-1 underline-offset-[0.25em] data-[hovered]:decoration-current',
+        'inline-flex items-center gap-1 text-sm font-medium underline decoration-transparent data-[hovered]:decoration-current',
+    },
+    tone: {
+      neutral: 'text-on-surface',
+      primary: 'text-primary',
+      inherit: '',
     },
   },
   defaultVariants: {
     variant: 'inline',
+    tone: 'neutral',
   },
 });
 
 export type LinkStyleProps = VariantProps<typeof linkStyles>;
+export type LinkVariant = 'inline' | 'standalone';
+export type LinkTone = 'neutral' | 'primary' | 'inherit';
 
 export interface LinkLabels {
   opensInNewTab: string;
@@ -42,17 +50,20 @@ const glyphStyles = tv({
   slots: {
     wrapper: '',
     spacer: 'inline-block w-[0.1875em]',
-    icon: 'shrink-0 transition-[translate] duration-(--ds-duration-spatial-fast) ease-spatial-fast rtl:-scale-x-100 motion-reduce:transition-none',
+    icon: [
+      'shrink-0 opacity-60 transition-[translate,opacity] duration-200 ease-fluid rtl:-scale-x-100 motion-reduce:transition-none',
+      'group-data-[focus-visible]/link:opacity-100 group-data-[hovered]/link:opacity-100',
+    ],
   },
   variants: {
     variant: {
       inline: {
         wrapper: 'whitespace-nowrap',
-        icon: 'inline-block size-[1em] align-[-0.125em]',
+        icon: 'inline-block size-[0.875em] align-[-0.0625em]',
       },
       standalone: {
         wrapper: 'inline-flex items-center',
-        icon: 'size-[1.25em]',
+        icon: 'size-[1.125em]',
       },
     },
     nudge: {
@@ -71,7 +82,7 @@ const glyphStyles = tv({
   },
 });
 
-const wordJoiner = '\u2060';
+const wordJoiner = '⁠';
 
 function externalRel(rel: string | undefined) {
   const tokens = new Set(rel?.split(/\s+/).filter(Boolean));
@@ -91,6 +102,7 @@ export interface LinkProps extends Omit<AriaLinkProps, 'children' | 'className'>
 
 export function Link({
   variant,
+  tone,
   isExternal = false,
   showArrow = false,
   labels,
@@ -108,6 +120,7 @@ export function Link({
   const t = useLabels('link', defaultLinkLabels, labels);
   const { decorativeEnabled } = useMotionPreference();
   const resolvedVariant = variant ?? 'inline';
+  const resolvedTone = tone ?? 'neutral';
   const anchorProps = props.isDisabled
     ? {}
     : {
@@ -131,9 +144,10 @@ export function Link({
       {...anchorProps}
       data-slot="link"
       data-variant={resolvedVariant}
+      data-tone={resolvedTone}
       data-external={isExternal || undefined}
       className={composeRenderProps(className, (className) =>
-        linkStyles({ variant: resolvedVariant, className }),
+        linkStyles({ variant: resolvedVariant, tone: resolvedTone, className }),
       )}
     >
       <span data-slot="label">{children}</span>

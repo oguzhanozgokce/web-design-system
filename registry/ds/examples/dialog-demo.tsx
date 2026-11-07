@@ -31,7 +31,7 @@ export default function DialogDemo() {
               <TextField label="Name" value={name} onChange={setName} autoFocus />
             </DialogBody>
             <DialogFooter>
-              <Button slot="close" variant="text">
+              <Button slot="close" variant="soft">
                 Cancel
               </Button>
               <Button

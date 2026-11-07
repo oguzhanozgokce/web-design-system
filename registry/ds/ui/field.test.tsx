@@ -37,12 +37,12 @@ describe('Field', () => {
   it('marks optional fields with (optional) when necessityIndicator is label', async () => {
     const screen = await renderWithDS(
       <div>
-        <TextField label="Company" necessityIndicator="label" />
+        <TextField label="Team" necessityIndicator="label" />
         <TextField label="Work email" necessityIndicator="label" isRequired />
       </div>,
     );
     await expect
-      .element(screen.getByRole('textbox', { name: 'Company (optional)' }))
+      .element(screen.getByRole('textbox', { name: 'Team (optional)' }))
       .toBeInTheDocument();
     await expect.element(screen.getByRole('textbox', { name: 'Work email' })).toBeRequired();
   });
@@ -52,16 +52,16 @@ describe('Field', () => {
       <div>
         <AriaTextField
           className={fieldStyles().root()}
-          defaultValue="DE1234"
-          aria-describedby="tax-count"
+          defaultValue="AB1234"
+          aria-describedby="code-count"
         >
           <Field
-            label="TAX number"
+            label="Invite code"
             necessityIndicator="label"
-            labels={{ optional: '(if registered)' }}
+            labels={{ optional: '(if you have one)' }}
             counter={
               <FieldCounter
-                id="tax-count"
+                id="code-count"
                 count={6}
                 max={14}
                 labels={{
@@ -76,7 +76,7 @@ describe('Field', () => {
             </FieldGroup>
           </Field>
         </AriaTextField>
-        <TextField label="Company" necessityIndicator="label" maxLength={40} defaultValue="Nova" />
+        <TextField label="Team" necessityIndicator="label" maxLength={40} defaultValue="Design" />
       </div>,
       {
         provider: {
@@ -90,13 +90,13 @@ describe('Field', () => {
       },
     );
     await expect
-      .element(screen.getByRole('textbox', { name: 'TAX number (if registered)' }))
+      .element(screen.getByRole('textbox', { name: 'Invite code (if you have one)' }))
       .toHaveAccessibleDescription('6 of 14 characters used');
     await expect.element(screen.getByText('6 / 14', { exact: true })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('textbox', { name: 'Company (not required)' }))
-      .toHaveAccessibleDescription('4 typed, 40 at most');
-    await expect.element(screen.getByText('4/40', { exact: true })).toBeInTheDocument();
+      .element(screen.getByRole('textbox', { name: 'Team (not required)' }))
+      .toHaveAccessibleDescription('6 typed, 40 at most');
+    await expect.element(screen.getByText('6/40', { exact: true })).toBeInTheDocument();
   });
 
   it('hides the label visually but keeps it as the accessible name', async () => {
@@ -110,12 +110,12 @@ describe('Field', () => {
 
   it('describes the input and swaps the description for the error when invalid', async () => {
     function Example() {
-      const [value, setValue] = useState('finance');
+      const [value, setValue] = useState('team');
       return (
         <TextField
           label="Sharing email"
           description="Projects are sent here."
-          errorMessage="Enter an address like name@company.com."
+          errorMessage="Enter an address like name@example.com."
           isInvalid={!value.includes('@')}
           value={value}
           onChange={setValue}
@@ -127,10 +127,10 @@ describe('Field', () => {
     await expect.element(input).toHaveAttribute('aria-invalid', 'true');
     await expect
       .element(input)
-      .toHaveAccessibleDescription('Enter an address like name@company.com.');
+      .toHaveAccessibleDescription('Enter an address like name@example.com.');
     await expect.element(screen.getByText('Projects are sent here.')).not.toBeInTheDocument();
 
-    await input.fill('finance@nova.com');
+    await input.fill('team@example.com');
     await expect.element(input).not.toHaveAttribute('aria-invalid');
     await expect.element(input).toHaveAccessibleDescription('Projects are sent here.');
   });
@@ -155,19 +155,19 @@ describe('Field', () => {
   it('shows native validation messages after a form submit', async () => {
     const screen = await renderWithDS(
       <form onSubmit={(event) => event.preventDefault()}>
-        <TextField label="Company" name="company" isRequired />
+        <TextField label="Team" name="team" isRequired />
         <button type="submit">Save</button>
       </form>,
     );
     await screen.getByRole('button', { name: 'Save' }).click();
-    const input = screen.getByRole('textbox', { name: 'Company' });
+    const input = screen.getByRole('textbox', { name: 'Team' });
     await expect.element(input).toHaveAttribute('aria-invalid', 'true');
     await expect.element(input).toHaveFocus();
     const error = screen.container.querySelector('[data-slot="error"]');
     expect(error?.textContent?.length).toBeGreaterThan(0);
   });
 
-  it('sizes the control at 36, 40 and 48 pixels', async () => {
+  it('sizes the control at 32, 40 and 48 pixels', async () => {
     const screen = await renderWithDS(
       <div className="w-80">
         <TextField label="Small" size="sm" />
@@ -178,56 +178,57 @@ describe('Field', () => {
     const heights = [...screen.container.querySelectorAll('[data-slot="container"]')].map(
       (element) => element.getBoundingClientRect().height,
     );
-    expect(heights).toEqual([36, 40, 48]);
+    expect(heights).toEqual([32, 40, 48]);
     const root = screen.container.querySelector('[data-slot="text-field"]');
     expect(root?.getAttribute('data-size')).toBe('sm');
-    expect(root?.getAttribute('data-variant')).toBe('outlined');
+    expect(root?.getAttribute('data-variant')).toBe('outline');
   });
 
-  it('draws hover, focus and error borders and the caret from the control state', async () => {
+  it('draws hover, focus and error states and the caret from the control state', async () => {
     const screen = await renderWithDS(
       <div className="w-80">
         <span data-testid="primary" className="border border-primary" />
         <span data-testid="error" className="border border-error" />
-        <span data-testid="on-surface" className="border border-on-surface" />
-        <TextField label="Company" />
-        <TextField label="IBAN" isInvalid errorMessage="This IBAN has 2 digits too few." />
-        <TextField label="Notes" variant="filled" />
+        <span data-testid="raised" className="bg-surface-raised" />
+        <TextField label="Team" />
+        <TextField label="Account number" isInvalid errorMessage="Use 10 digits." />
+        <TextField label="Notes" variant="soft" />
       </div>,
     );
     const colorOf = (testId: string) =>
       getComputedStyle(screen.getByTestId(testId).element()).borderTopColor;
-    const [company, iban, notes] = [
+    const [company, account, notes] = [
       ...screen.container.querySelectorAll('[data-slot="container"]'),
     ] as HTMLElement[];
+    const resting = getComputedStyle(company).boxShadow;
 
     await userEvent.hover(company);
     await expect.element(company).toHaveAttribute('data-hovered', 'true');
-    await expect.poll(() => getComputedStyle(company).borderTopColor).toBe(colorOf('on-surface'));
+    await expect.poll(() => getComputedStyle(company).boxShadow).not.toBe(resting);
 
-    const companyInput = screen.getByRole('textbox', { name: 'Company' });
-    await companyInput.click();
+    const teamInput = screen.getByRole('textbox', { name: 'Team' });
+    await teamInput.click();
     await expect.poll(() => getComputedStyle(company).borderTopColor).toBe(colorOf('primary'));
     await expect.element(company).toHaveAttribute('data-focus-within', 'true');
-    expect(getComputedStyle(companyInput.element()).caretColor).toBe(colorOf('primary'));
+    expect(getComputedStyle(teamInput.element()).caretColor).toBe(colorOf('primary'));
 
-    const ibanInput = screen.getByRole('textbox', { name: 'IBAN' });
-    await ibanInput.click();
-    await expect.poll(() => getComputedStyle(iban).borderTopColor).toBe(colorOf('error'));
-    expect(getComputedStyle(ibanInput.element()).caretColor).toBe(colorOf('error'));
+    const accountInput = screen.getByRole('textbox', { name: 'Account number' });
+    await accountInput.click();
+    await expect.poll(() => getComputedStyle(account).borderTopColor).toBe(colorOf('error'));
+    expect(getComputedStyle(accountInput.element()).caretColor).toBe(colorOf('error'));
 
     await screen.getByRole('textbox', { name: 'Notes' }).click();
+    await expect.poll(() => getComputedStyle(notes).borderTopColor).toBe(colorOf('primary'));
     await expect
-      .poll(() => getComputedStyle(notes, '::after').backgroundColor)
-      .toBe(colorOf('primary'));
-    await expect.poll(() => getComputedStyle(notes, '::after').height).toBe('2px');
+      .poll(() => getComputedStyle(notes).backgroundColor)
+      .toBe(getComputedStyle(screen.getByTestId('raised').element()).backgroundColor);
   });
 
   it('lets other React Aria fields reuse the parts', async () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
       <AriaSearchField className={fieldStyles().root()} defaultValue="Q3 projects">
-        <Field label="Search folders" description="Searches names and references." variant="filled">
+        <Field label="Search folders" description="Searches names and references." variant="soft">
           <FieldGroup>
             <FieldAdornment>
               <SearchIcon />
@@ -247,7 +248,7 @@ describe('Field', () => {
     await action.click();
     expect(onPress).toHaveBeenCalledOnce();
     const container = screen.container.querySelector('[data-slot="container"]');
-    expect(container?.className).toContain('bg-surface-container-highest');
+    expect(container?.className).toContain('bg-neutral-soft');
   });
 
   it('focuses the input when an adornment is pressed', async () => {
@@ -292,7 +293,7 @@ describe('Field', () => {
     const input = screen.getByRole('textbox', { name: 'Note' });
     await expect.element(input).toHaveAccessibleDescription('Character count: 0 of 40');
     await input.click();
-    await userEvent.keyboard('Paid');
+    await userEvent.keyboard('Done');
     await expect.element(screen.getByText('4/40')).toBeInTheDocument();
     const live = screen.container.querySelector('[aria-live="polite"]');
     expect(live?.textContent).toBe('');
@@ -305,7 +306,7 @@ describe('Field', () => {
       return (
         <>
           <TextField label="Note" maxLength={40} value={value} onChange={setValue} />
-          <button type="button" onClick={() => setValue('Paid in full')}>
+          <button type="button" onClick={() => setValue('Draft review')}>
             Use template
           </button>
         </>
@@ -339,18 +340,17 @@ describe('Field', () => {
   it('keeps every control visible in forced colours mode', async () => {
     const screen = await renderWithDS(
       <div className="grid w-80 gap-4">
-        <TextField label="Company" />
-        <TextField label="Tax ID" variant="filled" />
+        <TextField label="Team" />
+        <TextField label="Username" variant="soft" />
       </div>,
     );
-    const [outlined, filled] = screen.container.querySelectorAll('[data-slot="container"]');
-    expect(getComputedStyle(filled).borderBottomWidth).toBe('0px');
+    const [outline, soft] = screen.container.querySelectorAll('[data-slot="container"]');
     await cdp().send('Emulation.setEmulatedMedia', {
       features: [{ name: 'forced-colors', value: 'active' }],
     });
     try {
       const canvas = getComputedStyle(document.body).backgroundColor;
-      for (const control of [outlined, filled]) {
+      for (const control of [outline, soft]) {
         const style = getComputedStyle(control);
         expect(style.borderBottomStyle).toBe('solid');
         expect(style.borderBottomWidth).toBe('1px');
@@ -371,18 +371,18 @@ describe('Field', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="grid w-96 gap-4 p-4">
-          <TextField label="Company" description="Shown on projects." isRequired />
-          <TextField label="Tax ID" necessityIndicator="label" variant="filled" />
+          <TextField label="Team" description="Shown on projects." isRequired />
+          <TextField label="Username" necessityIndicator="label" variant="soft" />
           <TextField label="Sharing email" isInvalid errorMessage="Enter a valid email." />
           <TextField
             label="Sharing email"
-            variant="filled"
+            variant="soft"
             isInvalid
             errorMessage="Enter a valid email."
           />
           <TextField label="Workspace ID" isReadOnly defaultValue="ws_48213" />
           <TextField label="Region" isDisabled defaultValue="eu-west-1" />
-          <TextField label="Display name" maxLength={32} defaultValue="Nova Finance" />
+          <TextField label="Display name" maxLength={32} defaultValue="Design team" />
         </div>,
         options,
       );

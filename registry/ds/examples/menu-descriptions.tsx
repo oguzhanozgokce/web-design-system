@@ -11,7 +11,7 @@ import { Menu, MenuItem, MenuTrigger } from '@/registry/ds/ui/menu';
 export default function MenuDescriptions() {
   return (
     <MenuTrigger>
-      <Button variant="tonal" startIcon={<DownloadIcon />} endIcon={<ArrowDropDownIcon />}>
+      <Button variant="soft" startIcon={<DownloadIcon />} endIcon={<ArrowDropDownIcon />}>
         Export
       </Button>
       <Menu>

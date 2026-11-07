@@ -25,7 +25,7 @@ export default function MenuDynamic() {
 
   return (
     <MenuTrigger>
-      <Button variant="outlined" startIcon={<PersonIcon />} endIcon={<ArrowDropDownIcon />}>
+      <Button variant="outline" startIcon={<PersonIcon />} endIcon={<ArrowDropDownIcon />}>
         Assigned to {current?.name}
       </Button>
       <Menu

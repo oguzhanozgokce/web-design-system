@@ -3,7 +3,6 @@ import { Button as AriaButton, Input, Label, TextField } from 'react-aria-compon
 import { page, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { Button } from '@/registry/ds/ui/button';
-import { Card } from '@/registry/ds/ui/card';
 import {
   Popover,
   PopoverDialog,
@@ -24,40 +23,53 @@ function FolderPopover({
 }) {
   return (
     <PopoverTrigger>
-      <Button>Sharing cycle</Button>
+      <Button>Storage</Button>
       <Popover {...popover}>
-        <PopoverDialog title="Next project" showCloseButton={showCloseButton} labels={labels}>
-          <p>Your Team plan renews on 1 December.</p>
+        <PopoverDialog title="Storage details" showCloseButton={showCloseButton} labels={labels}>
+          <p>Photos and videos use 36 GB of 50 GB.</p>
         </PopoverDialog>
       </Popover>
     </PopoverTrigger>
   );
 }
 
+function roleBackground(className: string) {
+  const probe = document.createElement('div');
+  probe.className = className;
+  document.body.append(probe);
+  const color = getComputedStyle(probe).backgroundColor;
+  probe.remove();
+  return color;
+}
+
 describe('Popover', () => {
   it('opens a dialog named by its title and closes from the close button', async () => {
     const screen = await renderWithDS(<FolderPopover />);
-    const trigger = screen.getByRole('button', { name: 'Sharing cycle' });
+    const trigger = screen.getByRole('button', { name: 'Storage' });
 
     await trigger.click();
-    const dialog = page.getByRole('dialog', { name: 'Next project' });
+    const dialog = page.getByRole('dialog', { name: 'Storage details' });
     await expect.element(dialog).toBeVisible();
     await expect.element(trigger).toHaveAttribute('aria-expanded', 'true');
     await expect
-      .element(page.getByText('Your Team plan renews on 1 December.'))
+      .element(page.getByText('Photos and videos use 36 GB of 50 GB.'))
       .toBeInTheDocument();
 
-    await dialog.getByRole('button', { name: 'Close' }).click();
+    const close = dialog.getByRole('button', { name: 'Close' });
+    await expect.element(close).toHaveAttribute('data-variant', 'ghost');
+    await expect.element(close).toHaveAttribute('data-tone', 'neutral');
+    await expect.element(close).toHaveAttribute('data-size', 'xs');
+    await close.click();
     await expect.element(dialog).not.toBeInTheDocument();
     await expect.element(trigger).toHaveFocus();
   });
 
   it('closes on Escape and returns focus to the trigger', async () => {
     const screen = await renderWithDS(<FolderPopover />);
-    const trigger = screen.getByRole('button', { name: 'Sharing cycle' });
+    const trigger = screen.getByRole('button', { name: 'Storage' });
 
     await trigger.click();
-    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toHaveFocus();
+    await expect.element(page.getByRole('dialog', { name: 'Storage details' })).toHaveFocus();
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await expect.element(trigger).toHaveFocus();
@@ -68,7 +80,7 @@ describe('Popover', () => {
 
     await userEvent.keyboard('{Tab}');
     await userEvent.keyboard('{Enter}');
-    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toHaveFocus();
+    await expect.element(page.getByRole('dialog', { name: 'Storage details' })).toHaveFocus();
     await userEvent.keyboard('{Tab}');
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Close' }))
@@ -82,17 +94,54 @@ describe('Popover', () => {
       </div>,
     );
 
-    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
+    await screen.getByRole('button', { name: 'Storage' }).click();
     const popover = document.querySelector('[data-slot="popover"]');
     expect(popover).not.toBeNull();
     await expect.poll(() => popover?.getAttribute('data-placement')).toBe('top');
     expect(popover).toHaveAttribute('data-arrow', 'true');
     expect(popover?.querySelector('[data-slot="arrow"]')).not.toBeNull();
-    expect(popover).toHaveClass('bg-surface-container-high', 'rounded-md', 'shadow-elevation-2');
+    const style = getComputedStyle(popover!);
+    expect(style.backgroundColor).toBe(roleBackground('bg-surface-overlay'));
+    expect(style.borderTopLeftRadius).toBe('16px');
+    expect(style.boxShadow).not.toBe('none');
+    expect(getComputedStyle(popover!.querySelector('[data-slot="arrow"] svg')!).fill).toBe(
+      style.backgroundColor,
+    );
+    const title = page.getByRole('heading', { name: 'Storage details' }).element();
+    expect(getComputedStyle(title).fontSize).toBe('14px');
+    expect(getComputedStyle(title).fontWeight).toBe('600');
+  });
+
+  it('pads its dialog 16px by default and 12px with padding sm', async () => {
+    for (const [padding, pixels] of [
+      [undefined, '16px'],
+      ['sm', '12px'],
+    ] as const) {
+      const screen = await renderWithDS(
+        <PopoverTrigger>
+          <Button>Storage</Button>
+          <Popover>
+            <PopoverDialog title="Storage details" padding={padding}>
+              36 GB of 50 GB used.
+            </PopoverDialog>
+          </Popover>
+        </PopoverTrigger>,
+      );
+      await screen.getByRole('button', { name: 'Storage' }).click();
+      const dialog = page.getByRole('dialog', { name: 'Storage details' });
+      await expect.element(dialog).toBeVisible();
+      await expect.element(dialog).toHaveAttribute('data-padding', padding ?? 'md');
+      expect(getComputedStyle(dialog.element()).paddingInlineStart).toBe(pixels);
+      expect(getComputedStyle(dialog.element()).paddingTop).toBe(pixels);
+      await userEvent.keyboard('{Escape}');
+      await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+      await screen.unmount();
+    }
   });
 
   it('exports popoverStyles for other overlays', () => {
-    expect(popoverStyles()).toContain('bg-surface-container-high');
+    expect(popoverStyles()).toContain('bg-surface-overlay');
+    expect(popoverStyles()).toContain('rounded-overlay');
     expect(popoverStyles({ motion: 'none' })).not.toContain('animate-ds-popover-in');
     expect(popoverStyles({ className: 'min-w-(--trigger-width)' })).toContain(
       'min-w-(--trigger-width)',
@@ -114,10 +163,10 @@ describe('Popover', () => {
               setOpen(open);
             }}
           >
-            <Button>Sharing cycle</Button>
+            <Button>Storage</Button>
             <Popover>
-              <PopoverDialog title="Next project" showCloseButton>
-                Renews on 1 December.
+              <PopoverDialog title="Storage details" showCloseButton>
+                36 GB of 50 GB used.
               </PopoverDialog>
             </Popover>
           </PopoverTrigger>
@@ -126,7 +175,7 @@ describe('Popover', () => {
     }
 
     const screen = await renderWithDS(<Controlled />);
-    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
+    await screen.getByRole('button', { name: 'Storage' }).click();
     await expect.element(screen.getByText('Open')).toBeInTheDocument();
     expect(onOpenChange).toHaveBeenLastCalledWith(true);
 
@@ -150,7 +199,7 @@ describe('Popover', () => {
                   close();
                 }}
               >
-                <TextField name="name" defaultValue="Operating account" autoFocus>
+                <TextField name="name" defaultValue="Design assets" autoFocus>
                   <Label>Folder name</Label>
                   <Input />
                 </TextField>
@@ -179,11 +228,11 @@ describe('Popover', () => {
       const [isOpen, setOpen] = useState(false);
       return (
         <div className="flex flex-col items-center gap-4">
-          <span ref={anchor}>Monthly budget</span>
+          <span ref={anchor}>Storage meter</span>
           <AriaButton onPress={() => setOpen(true)}>Explain</AriaButton>
           <Popover triggerRef={anchor} isOpen={isOpen} onOpenChange={setOpen}>
-            <PopoverDialog aria-label="Budget">
-              Resets on the first day of each month.
+            <PopoverDialog aria-label="Storage">
+              Photos and videos take most of the space.
             </PopoverDialog>
           </Popover>
         </div>
@@ -192,14 +241,14 @@ describe('Popover', () => {
 
     const screen = await renderWithDS(<Anchored />);
     await screen.getByRole('button', { name: 'Explain' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Budget' })).toBeVisible();
+    await expect.element(page.getByRole('dialog', { name: 'Storage' })).toBeVisible();
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('names the close button Close by default, whatever the locale', async () => {
     const screen = await renderWithDS(<FolderPopover />, { locale: 'tr' });
-    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
+    await screen.getByRole('button', { name: 'Storage' }).click();
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Close' }))
       .toBeVisible();
@@ -208,7 +257,7 @@ describe('Popover', () => {
   it('takes the close label from DSProvider, and from its labels prop first', async () => {
     const provider = { labels: { popover: { close: 'Kapat' } } };
     const screen = await renderWithDS(<FolderPopover />, { provider });
-    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
+    await screen.getByRole('button', { name: 'Storage' }).click();
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Kapat' }))
       .toBeVisible();
@@ -219,35 +268,16 @@ describe('Popover', () => {
     const own = await renderWithDS(<FolderPopover labels={{ close: 'Pencereyi kapat' }} />, {
       provider,
     });
-    await own.getByRole('button', { name: 'Sharing cycle' }).click();
+    await own.getByRole('button', { name: 'Storage' }).click();
     await expect
       .element(page.getByRole('dialog').getByRole('button', { name: 'Pencereyi kapat' }))
       .toBeVisible();
   });
 
-  it('raises cards inside it above its own surface', async () => {
-    const screen = await renderWithDS(
-      <PopoverTrigger>
-        <Button>Sharing cycle</Button>
-        <Popover>
-          <PopoverDialog title="Next project">
-            <Card variant="outlined">Team plan, 12 seats</Card>
-          </PopoverDialog>
-        </Popover>
-      </PopoverTrigger>,
-    );
-    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(document.querySelector('[data-slot="popover"] [data-slot="card"]')).toHaveAttribute(
-      'data-surface',
-      'surface-container-highest',
-    );
-  });
-
   it('sets the popover direction and language from the locale', async () => {
     const screen = await renderWithDS(<FolderPopover />, { locale: 'ar' });
-    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Storage' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Storage details' })).toBeVisible();
     const popover = document.querySelector('[data-slot="popover"]');
     expect(popover).toHaveAttribute('dir', 'rtl');
     expect(popover).toHaveAttribute('lang', 'ar');
@@ -283,15 +313,15 @@ describe('Popover', () => {
     const onOpenChange = vi.fn();
     const screen = await renderWithDS(
       <PopoverTrigger onOpenChange={onOpenChange}>
-        <Button>Sharing cycle</Button>
+        <Button>Storage</Button>
         <Popover>
-          <PopoverDialog title="Next project">Renews on 1 December.</PopoverDialog>
+          <PopoverDialog title="Storage details">36 GB of 50 GB used.</PopoverDialog>
         </Popover>
       </PopoverTrigger>,
     );
 
-    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Storage' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Storage details' })).toBeVisible();
     await page.getByTestId('underlay').click({ force: true, position: { x: 400, y: 800 } });
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     expect(onOpenChange).toHaveBeenLastCalledWith(false);
@@ -299,8 +329,8 @@ describe('Popover', () => {
 
   it('skips the scale animation when motion is disabled', async () => {
     const screen = await renderWithDS(<FolderPopover />, { provider: { motion: 'disabled' } });
-    await screen.getByRole('button', { name: 'Sharing cycle' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Next project' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Storage' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Storage details' })).toBeVisible();
     expect(document.querySelector('[data-slot="popover"]')?.className).not.toContain(
       'animate-ds-popover-in',
     );
@@ -310,7 +340,7 @@ describe('Popover', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       document.documentElement.classList.toggle('dark', 'dark' in options);
       const screen = await renderWithDS(<FolderPopover popover={{ showArrow: true }} />, options);
-      await screen.getByRole('button', { name: 'Sharing cycle' }).click();
+      await screen.getByRole('button', { name: 'Storage' }).click();
       await expect.element(page.getByRole('dialog')).toBeVisible();
       await new Promise((resolve) => setTimeout(resolve, 250));
       await expectNoA11yViolations(document.body);

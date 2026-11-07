@@ -17,14 +17,14 @@ export default function SheetStandard() {
   return (
     <div className="flex flex-col items-center gap-3 text-center">
       <Button
-        variant="tonal"
+        variant="soft"
         aria-expanded={isOpen}
         aria-controls={isOpen ? 'upload-progress' : undefined}
         onPress={() => setOpen(!isOpen)}
       >
         {isOpen ? 'Hide uploads' : 'Show uploads'}
       </Button>
-      <p className="max-w-xs text-body-sm text-on-surface-variant">
+      <p className="max-w-xs text-xs text-on-surface-variant">
         The panel stays open while you keep using the page.
       </p>
       <Sheet

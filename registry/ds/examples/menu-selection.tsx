@@ -28,7 +28,7 @@ export default function MenuSelection() {
   return (
     <div className="flex flex-col items-center gap-3">
       <MenuTrigger>
-        <Button variant="outlined" startIcon={<TuneIcon />}>
+        <Button variant="outline" startIcon={<TuneIcon />}>
           View
         </Button>
         <Menu>
@@ -59,7 +59,7 @@ export default function MenuSelection() {
           </MenuSection>
         </Menu>
       </MenuTrigger>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         Sorted by {sortLabels[String(sortKey)]?.toLowerCase()}, {columnCount} columns shown
       </p>
     </div>

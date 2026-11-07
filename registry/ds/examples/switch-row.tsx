@@ -3,7 +3,7 @@ import { Switch } from '@/registry/ds/ui/switch';
 
 export default function SwitchRow() {
   return (
-    <div className="w-full max-w-xl rounded-lg bg-surface-container-low p-2">
+    <div className="w-full max-w-xl rounded-container border border-outline-subtle bg-surface-raised p-1">
       <Switch
         variant="row"
         icon={<NotificationsIcon />}

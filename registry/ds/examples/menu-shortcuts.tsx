@@ -11,7 +11,7 @@ import { Menu, MenuItem, MenuSeparator, MenuTrigger } from '@/registry/ds/ui/men
 export default function MenuShortcuts() {
   return (
     <MenuTrigger>
-      <Button variant="outlined">Edit</Button>
+      <Button variant="outline">Edit</Button>
       <Menu>
         <MenuItem startIcon={<UndoIcon className="rtl:-scale-x-100" />} shortcut={['mod', 'Z']}>
           Undo

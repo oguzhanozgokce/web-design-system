@@ -5,7 +5,13 @@ import { ToggleButton } from '@/registry/ds/ui/toggle-button';
 
 export default function ToggleButtonInGroup() {
   return (
-    <ButtonGroup aria-label="Actions" buttonVariant="tonal" size="sm" className="justify-center">
+    <ButtonGroup
+      aria-label="Actions"
+      variant="detached"
+      buttonVariant="soft"
+      size="sm"
+      className="justify-center"
+    >
       <ToggleButton startIcon={<StarIcon />} selectedIcon={<StarFilledIcon />}>
         Star
       </ToggleButton>

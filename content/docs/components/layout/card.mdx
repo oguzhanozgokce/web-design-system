@@ -1,6 +1,6 @@
 ---
 title: Card
-description: Material 3 elevated, filled and outlined cards with header, media, content and footer parts, link and button cards, selectable checkbox and radio cards, and automatic surface steps when cards nest.
+description: Container in four variants with header, media, content and footer parts, link and button cards, and selectable checkbox and radio cards.
 ---
 
 <ComponentPreview name="card-demo" />
@@ -32,10 +32,12 @@ card one link or one button. `SelectableCard` makes it a checkbox, or a radio in
 
 ### Variants
 
-`filled` (`surface-container-highest`) is the default, as in the Compose `DSCard`. `elevated`
-(`surface-container-low` with a level 1 shadow) separates a card from a busy background.
-`outlined` (`surface` with an `outline-variant` border) is the calmest and suits dense admin
-screens.
+`outline` is the default: a raised surface (`surface-raised`, white on the grey page in light mode
+and a step lighter than the page in dark mode) with a hairline `outline-subtle` border. It is calm
+enough for dense pages. `elevated` swaps the border for a soft shadow and lifts the card off busy
+or patterned backgrounds. `soft` is a translucent `neutral-soft` fill that groups content inside
+another card or a panel. `transparent` has no fill and no border, for content that only needs the
+card's padding and parts. Every card has 20px corners.
 
 <ComponentPreview name="card-variants" align="stretch" />
 
@@ -49,36 +51,39 @@ and an `action` slot at the end. Anything passed as children goes under the desc
 ### Padding
 
 `padding` sets the inner spacing and the gap between parts: `sm` 12px and 8px, `md` 16px and 12px
-(the default), `lg` 24px and 16px. The title steps from `title-sm` to `title-lg` with it. `none`
-removes both, for cards that hold their own rows, such as a list with dividers.
+(the default), `lg` 24px and 16px. The title is 14px semibold up to `md` and 16px at `lg`; the
+description is 14px in `on-surface-variant`. `none` removes the spacing, for cards that hold their
+own rows, such as a list with dividers.
 
 <ComponentPreview name="card-padding" align="stretch" />
 
 ### Media
 
-`CardMedia` with `src` and `alt` renders a lazy-loaded image. It bleeds to the card edges and
-takes the card's corner radius when it is the first or last part. `inset` keeps it inside the
-padding with its own rounded corners. Pass children instead of `src` for a video, a chart or a
+`CardMedia` with `src` and `alt` renders a lazy-loaded image on a neutral placeholder. It bleeds to
+the card edges and takes the card's corner radius when it is the first or last part. `inset` keeps
+it inside the padding with concentric corners: the card radius minus the padding, never less than
+8px. Pass children instead of `src` for a video, a chart or a
 framework image component such as `next/image`. Give `alt` text that describes the image, or an
 empty `alt` when the image is decorative, as in the first card here.
 
 <ComponentPreview name="card-media" align="stretch" />
 
-### Nested surfaces
+### Nesting
 
-Every card announces its surface level through `SurfaceContext`. A card inside another card takes
-the next `surface-container` level, or its own resting level if that is higher, and stops at
-`surface-container-highest`. Nesting therefore always reads as a raised layer without picking
-colours by hand. A filled card already sits at the top level, so nest inside elevated or outlined
-cards when you want visible steps. Set `surface` on a card to pin a level, or wrap a region in
-`<SurfaceContext value="surface-container-low">` when the page background is not `surface`.
+To group content inside a card, nest a `soft` card in an `outline` or `elevated` one. The soft
+fill is translucent, so it reads as one step down on any raised surface, in both themes, without
+picking a colour by hand. An `outline` card inside the soft one brings back the raised surface for a
+single highlighted item. Cards do not track how deep they are nested; the variant alone decides the
+look.
 
 <ComponentPreview name="card-nested" />
 
 ### Link cards
 
-`ClickableCard` with `href` renders the whole card as one React Aria `Link`, with the state layer,
-a hover elevation step and a focus ring. It navigates through `DSProvider`'s router. Keep the most
+`ClickableCard` with `href` renders the whole card as one React Aria `Link`. On hover, `outline` and
+`elevated` cards lift with a larger shadow, while `soft` and `transparent` cards take a slightly
+darker neutral fill. Pressing scales the card to 99%, and keyboard focus draws the 2px focus ring
+outside it. It navigates through `DSProvider`'s router. Keep the most
 important words at the start of the title, because the card's accessible name is all of its text.
 
 <ComponentPreview name="card-clickable" align="stretch" />
@@ -94,8 +99,10 @@ spinner appears after 300 ms, so fast actions never flash.
 ### Selectable cards
 
 Inside a `SelectableCardGroup`, each `SelectableCard` is a radio. The group is one tab stop and
-the arrow keys move the selection. The selected card fills with `secondary-container` and shows a
-check at the top end, so the state never relies on colour alone.
+the arrow keys move the selection. The selected card gets a 2px `primary` ring and its indicator at
+the top end fills with the solid primary and shows a check, so the state never relies on colour
+alone. The indicator is round for radios and has 6px corners for checkboxes, and it lines up with
+the first line of the title.
 
 <ComponentPreview name="card-selectable" align="stretch" />
 
@@ -115,9 +122,10 @@ Outside a group, `SelectableCard` is a single checkbox with `isSelected`, `defau
 
 ### Validation and disabled
 
-`isInvalid` and `errorMessage` on the group show the error under the cards and turn their borders
-to the error colour. `isRequired` adds an asterisk to the label. `isDisabled` works on a single
-card or the whole group.
+`isInvalid` and `errorMessage` on the group show the error under the cards and turn their borders,
+their indicators and their focus ring to the error colour. `isRequired` adds an asterisk to the
+label. `isDisabled` works on a single card or the whole group and shows the card at half opacity
+with a not-allowed cursor.
 
 <ComponentPreview name="card-states" align="stretch" />
 
@@ -125,12 +133,11 @@ card or the whole group.
 
 ### Card
 
-| Prop       | Type                                   | Default                     |
-| ---------- | -------------------------------------- | --------------------------- |
-| `variant`  | `'elevated' \| 'filled' \| 'outlined'` | `'filled'`                  |
-| `padding`  | `'none' \| 'sm' \| 'md' \| 'lg'`       | `'md'`                      |
-| `surface`  | `SurfaceLevel`                         | from the variant and parent |
-| `children` | `ReactNode`                            |                             |
+| Prop       | Type                                                 | Default     |
+| ---------- | ---------------------------------------------------- | ----------- |
+| `variant`  | `'outline' \| 'elevated' \| 'soft' \| 'transparent'` | `'outline'` |
+| `padding`  | `'none' \| 'sm' \| 'md' \| 'lg'`                     | `'md'`      |
+| `children` | `ReactNode`                                          |             |
 
 Every other `div` prop is passed through.
 
@@ -172,16 +179,15 @@ are passed through; `loading` defaults to `'lazy'`.
 
 ### ClickableCard
 
-| Prop         | Type                                              | Default    |
-| ------------ | ------------------------------------------------- | ---------- |
-| `href`       | `string`                                          |            |
-| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>` |            |
-| `isPending`  | `boolean`                                         | automatic  |
-| `isDisabled` | `boolean`                                         | `false`    |
-| `variant`    | `'elevated' \| 'filled' \| 'outlined'`            | `'filled'` |
-| `padding`    | `'none' \| 'sm' \| 'md' \| 'lg'`                  | `'md'`     |
-| `surface`    | `SurfaceLevel`                                    |            |
-| `labels`     | `Partial<CardLabels>`                             |            |
+| Prop         | Type                                                 | Default     |
+| ------------ | ---------------------------------------------------- | ----------- |
+| `href`       | `string`                                             |             |
+| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>`    |             |
+| `isPending`  | `boolean`                                            | automatic   |
+| `isDisabled` | `boolean`                                            | `false`     |
+| `variant`    | `'outline' \| 'elevated' \| 'soft' \| 'transparent'` | `'outline'` |
+| `padding`    | `'none' \| 'sm' \| 'md' \| 'lg'`                     | `'md'`      |
+| `labels`     | `Partial<CardLabels>`                                |             |
 
 With `href`, every other [React Aria Link](https://react-aria.adobe.com/Link) prop is passed
 through, such as `target` and `routerOptions`. Without it, every other
@@ -191,17 +197,16 @@ width.
 
 ### SelectableCard
 
-| Prop              | Type                                                       | Default                  |
-| ----------------- | ---------------------------------------------------------- | ------------------------ |
-| `value`           | `string`                                                   | required in a group      |
-| `isSelected`      | `boolean`                                                  |                          |
-| `defaultSelected` | `boolean`                                                  | `false`                  |
-| `onChange`        | `(isSelected: boolean) => void`                            |                          |
-| `isDisabled`      | `boolean`                                                  | `false`                  |
-| `errorMessage`    | `ReactNode \| (validation: ValidationResult) => ReactNode` |                          |
-| `variant`         | `'elevated' \| 'filled' \| 'outlined'`                     | group's, or `'outlined'` |
-| `padding`         | `'none' \| 'sm' \| 'md' \| 'lg'`                           | group's, or `'md'`       |
-| `surface`         | `SurfaceLevel`                                             |                          |
+| Prop              | Type                                                       | Default                 |
+| ----------------- | ---------------------------------------------------------- | ----------------------- |
+| `value`           | `string`                                                   | required in a group     |
+| `isSelected`      | `boolean`                                                  |                         |
+| `defaultSelected` | `boolean`                                                  | `false`                 |
+| `onChange`        | `(isSelected: boolean) => void`                            |                         |
+| `isDisabled`      | `boolean`                                                  | `false`                 |
+| `errorMessage`    | `ReactNode \| (validation: ValidationResult) => ReactNode` |                         |
+| `variant`         | `'outline' \| 'elevated' \| 'soft' \| 'transparent'`       | group's, or `'outline'` |
+| `padding`         | `'none' \| 'sm' \| 'md' \| 'lg'`                           | group's, or `'md'`      |
 
 `isSelected`, `defaultSelected`, `onChange` and `errorMessage` apply to a standalone card. In a
 group, the group owns the value, and a card without a `value` throws in either selection mode.
@@ -219,7 +224,7 @@ Every other React Aria `CheckboxField` prop is passed through.
 | `value`         | `string \| null`, or `string[]` when multiple              |              |
 | `defaultValue`  | `string \| null`, or `string[]` when multiple              |              |
 | `onChange`      | `(value: string) => void`, or `(value: string[]) => void`  |              |
-| `variant`       | `'elevated' \| 'filled' \| 'outlined'`                     |              |
+| `variant`       | `'outline' \| 'elevated' \| 'soft' \| 'transparent'`       |              |
 | `padding`       | `'none' \| 'sm' \| 'md' \| 'lg'`                           |              |
 | `isDisabled`    | `boolean`                                                  | `false`      |
 | `isInvalid`     | `boolean`                                                  | `false`      |
@@ -229,38 +234,26 @@ Every other React Aria `CheckboxField` prop is passed through.
 a phone. Every other [React Aria RadioGroup](https://react-aria.adobe.com/RadioGroup) or
 [CheckboxGroup](https://react-aria.adobe.com/CheckboxGroup) prop is passed through, such as `name`.
 
-### Surface levels
-
-`SurfaceLevel` is `'surface'`, `'surface-container-lowest'`, `'surface-container-low'`,
-`'surface-container'`, `'surface-container-high'` or `'surface-container-highest'`.
-`SurfaceContext` provides the level to everything inside a card, and `useSurfaceLevel()` reads it
-(`'surface'` outside any card). Use it in your own components to pick a contrasting fill, as a
-text field on a card would.
-
-| Variant    | On the page                 | Inside a card on level _n_  |
-| ---------- | --------------------------- | --------------------------- |
-| `elevated` | `surface-container-low`     | _n_ + 1, at least `-low`    |
-| `filled`   | `surface-container-highest` | `surface-container-highest` |
-| `outlined` | `surface`                   | _n_ + 1                     |
-
 ### CSS variables
 
-Set on the card root: `--card-padding`, `--card-gap` and `--card-radius` (16px). Use them to line
+Set on the card root: `--card-padding`, `--card-gap` and `--card-radius` (20px). Use them to line
 your own content up with the card, for example a full-bleed divider:
-`<Divider className="-mx-(--card-padding)" />`.
+`<Divider className="-mx-(--card-padding)" />`. `outline` and `elevated` cards also set
+`--ds-avatar-ring` to their surface, so avatar groups and status dots inside them are cut out in the
+card's colour.
 
 ### Data attributes
 
-Card root (`data-slot="card"`): `data-variant`, `data-padding`, `data-surface`. Parts:
+Card root (`data-slot="card"`): `data-variant`, `data-padding`. Parts:
 `"card-header"`, `"card-leading"`, `"card-heading"`, `"card-title"`, `"card-description"`,
 `"card-action"`, `"card-content"`, `"card-footer"`, `"card-media"` (with `data-inset`).
 
-ClickableCard root (`data-slot="clickable-card"`): the same three plus `data-hovered`,
+ClickableCard root (`data-slot="clickable-card"`): the same two plus `data-hovered`,
 `data-pressed`, `data-focus-visible`, `data-disabled` and, for buttons, `data-pending`. Parts:
 `"card-body"`, `"card-pending"`.
 
 SelectableCard root (`data-slot="selectable-card"`): `data-variant`, `data-padding`,
-`data-surface`, `data-selected`, `data-disabled`, `data-invalid`. The clickable card
+`data-selected`, `data-disabled`, `data-invalid`. The clickable card
 (`data-slot="selectable-card-target"`) also has `data-hovered`, `data-pressed` and
 `data-focus-visible`. Parts: `"card-body"`, `"selectable-card-indicator"`, `"error"`.
 
@@ -298,8 +291,10 @@ Text `ClickableCard` writes on its own. Pass `labels`, or set it app-wide with
   followed by its details. Without a `CardTitle` or an `aria-label`, the card is named by all of
   its text and the description is not repeated. The check indicator is decorative and hidden from
   assistive technology.
-- The selection check scales in with the spatial spring and appears instantly with reduced motion
-  or when `DSProvider` disables motion. Hover elevation and colour changes have no transition with
-  `prefers-reduced-motion`.
-- Contrast is checked with axe in light, dark and RTL by `card.test.tsx`, including selected,
-  disabled and nested cards.
+- The selection check fades and scales in over 200 ms and appears instantly when `DSProvider` sets
+  `motion` to `reduced` or `disabled`. With `prefers-reduced-motion`, hover and colour changes have
+  no transition and the press scale is off.
+- The selected ring and the indicator's edge are not the only signal: the check mark carries the
+  state, and the focus ring stays outside the card so it never merges with the selected ring.
+- Contrast is checked with axe in light, dark and RTL by `card.test.tsx`, including every variant,
+  selected, invalid, disabled and nested cards.

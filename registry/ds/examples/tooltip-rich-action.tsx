@@ -13,7 +13,7 @@ export default function TooltipRichAction() {
 
   return (
     <TooltipTrigger>
-      <ButtonLink href="#rich-tooltip-with-an-action" variant="outlined" startIcon={<SyncIcon />}>
+      <ButtonLink href="#rich-tooltip-with-an-action" variant="outline" startIcon={<SyncIcon />}>
         Sync
       </ButtonLink>
       <RichTooltip
@@ -21,7 +21,8 @@ export default function TooltipRichAction() {
         placement="bottom"
         action={
           <Button
-            variant="text"
+            variant="ghost"
+            tone="primary"
             size="sm"
             onPress={async () => {
               await new Promise((resolve) => setTimeout(resolve, 1200));

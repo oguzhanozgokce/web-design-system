@@ -1,6 +1,6 @@
 ---
 title: Button
-description: Material 3 button in five variants and five sizes, with icons, a destructive tone, a link twin and automatic pending state for async actions.
+description: Pill button in four variants, three tones and three sizes, with icons, a link twin and automatic pending state for async actions.
 ---
 
 <ComponentPreview name="button-demo" />
@@ -21,31 +21,37 @@ import { Button } from '@/components/ds/button';
 
 ### Variants
 
-`filled` is the main action on a screen. `tonal` is a strong secondary action. `outlined` and `text`
-are for lower emphasis. `elevated` separates a button from a patterned or image background.
+`variant` says how much ink a button uses. `solid` is the main action on a screen and the default.
+`soft` is a translucent fill for secondary actions. `outline` adds a hairline border and suits
+actions next to a solid one. `ghost` has no fill until it is hovered and suits toolbars, table rows
+and quiet links to another step.
 
 <ComponentPreview name="button-variants" />
 
+### Tones
+
+`tone` picks the colour role that paints the variant: `primary`, `neutral` or `error`. It defaults
+to `primary` for `solid` and to `neutral` for the other variants, so only the main action carries
+the accent and every quieter action stays grey. `error` is for actions that delete or revoke
+something; its focus ring turns the error colour too. Pair a solid error button with a confirmation
+step.
+
+<ComponentPreview name="button-tones" />
+
 ### Sizes
 
-`md` (40px) is the default. `xs` and `sm` suit dense admin tables and toolbars. `lg` and `xl` suit
-marketing pages and single-action screens.
+`md` (40px) is the default. `sm` (32px) suits dense tables, toolbars and filter bars. `lg` (48px)
+suits marketing pages and single-action screens. Every size is a pill and scales down slightly
+while pressed: 0.98 at `sm`, 0.97 at `md`, 0.96 at `lg`.
 
 <ComponentPreview name="button-sizes" />
 
 ### Icons
 
-`startIcon` and `endIcon` take any icon and size it to the button. Flip directional icons in RTL
-with `rtl:-scale-x-100`.
+`startIcon` and `endIcon` take any icon and size it to the button: 16px at `sm` and `md`, 20px at
+`lg`. Flip directional icons in RTL with `rtl:-scale-x-100`.
 
 <ComponentPreview name="button-icons" />
-
-### Destructive
-
-`tone="destructive"` works with every variant. Pair a filled destructive button with a
-confirmation step.
-
-<ComponentPreview name="button-destructive" />
 
 ### Async actions
 
@@ -58,8 +64,8 @@ only after 300 ms, so fast actions never flash.
 ### As a link
 
 `ButtonLink` renders an anchor with the same styles. It navigates through `DSProvider`'s router, so
-next-intl locale prefixes keep working. When it opens a new tab, say so in its name, for example
-with a visually hidden "(opens in a new tab)".
+locale prefixes keep working. When it opens a new tab, say so in its name, for example with a
+visually hidden "(opens in a new tab)".
 
 <ComponentPreview name="button-link" />
 
@@ -67,20 +73,34 @@ with a visually hidden "(opens in a new tab)".
 
 ### Button
 
-| Prop         | Type                                                        | Default     |
-| ------------ | ----------------------------------------------------------- | ----------- |
-| `variant`    | `'filled' \| 'tonal' \| 'outlined' \| 'text' \| 'elevated'` | `'filled'`  |
-| `tone`       | `'default' \| 'destructive'`                                | `'default'` |
-| `size`       | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                      | `'md'`      |
-| `fullWidth`  | `boolean`                                                   | `false`     |
-| `startIcon`  | `ReactNode`                                                 |             |
-| `endIcon`    | `ReactNode`                                                 |             |
-| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>`           |             |
-| `isPending`  | `boolean`                                                   | automatic   |
-| `isDisabled` | `boolean`                                                   | `false`     |
-| `labels`     | `Partial<ButtonLabels>`                                     |             |
+| Prop         | Type                                              | Default                                   |
+| ------------ | ------------------------------------------------- | ----------------------------------------- |
+| `variant`    | `'solid' \| 'soft' \| 'outline' \| 'ghost'`       | `'solid'`                                 |
+| `tone`       | `'primary' \| 'neutral' \| 'error'`               | `'primary'` for `solid`, else `'neutral'` |
+| `size`       | `'sm' \| 'md' \| 'lg'`                            | `'md'`                                    |
+| `fullWidth`  | `boolean`                                         | `false`                                   |
+| `startIcon`  | `ReactNode`                                       |                                           |
+| `endIcon`    | `ReactNode`                                       |                                           |
+| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>` |                                           |
+| `isPending`  | `boolean`                                         | automatic                                 |
+| `isDisabled` | `boolean`                                         | `false`                                   |
+| `labels`     | `Partial<ButtonLabels>`                           |                                           |
 
 Every other [React Aria Button](https://react-aria.adobe.com/Button) prop is passed through.
+
+| Variant × tone    | Rest                                     | Hover                   |
+| ----------------- | ---------------------------------------- | ----------------------- |
+| `solid` `primary` | `primary-solid` fill, `on-primary-solid` | `primary-solid-hover`   |
+| `solid` `neutral` | `inverse-surface` fill                   | `inverse-surface-hover` |
+| `solid` `error`   | `error-solid` fill, `on-error-solid`     | `error-solid-hover`     |
+| `soft` `primary`  | `primary-soft` fill, `on-primary-soft`   | `primary-soft-hover`    |
+| `soft` `neutral`  | `neutral-soft` fill, `on-surface`        | `neutral-soft-hover`    |
+| `soft` `error`    | `error-soft` fill, `on-error-soft`       | `error-soft-hover`      |
+| `outline` `*`     | 1px border, text in the tone             | the tone's soft fill    |
+| `ghost` `*`       | no fill, text in the tone                | the tone's soft fill    |
+
+Solid fills keep their saturated colour in dark mode. A disabled button keeps its colours at half
+opacity with a `not-allowed` cursor.
 
 ### ButtonLink
 
@@ -106,5 +126,7 @@ Text the button writes on its own. Pass `labels` to one button, or set them for 
 
 - Built on React Aria `Button`: Enter and Space activate it, and press events normalise mouse,
   touch and keyboard.
+- The focus ring is a 2px outline with a 2px offset, drawn only for keyboard focus.
 - While pending, the button stays focusable and announces a progress bar, so focus never jumps.
+- The press scale follows `prefers-reduced-motion`.
 - Contrast is checked with axe in light, dark and RTL by `button.test.tsx`.

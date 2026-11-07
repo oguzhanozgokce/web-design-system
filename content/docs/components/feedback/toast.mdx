@@ -1,6 +1,6 @@
 ---
 title: Toast
-description: Material 3 snackbar toasts with a global toast() API, status tones, actions, promise and in-place updates, six logical placements and a stack that fans out on hover or keyboard focus.
+description: Toasts with a global toast() API, five tones, an action, promise and in-place updates, six logical placements and a stack that fans out on hover or focus.
 ---
 
 <ComponentPreview name="toast-demo" />
@@ -31,8 +31,10 @@ toast('Message sent');
 toast.success('Changes saved');
 ```
 
-New toasts land in front. Older ones tuck behind with a small peek and scale, and the stack fans
-out while the pointer is over it or keyboard focus is inside it. Every countdown pauses at the same
+Each toast is a 400px card on the overlay surface with the 20px container radius and a soft
+shadow. New toasts slide in from the edge in front. Older ones tuck behind with a 12px peek and
+shrink by 5% per step, and the stack fans out while the pointer is over it or keyboard focus is
+inside it. Every countdown pauses at the same
 time, so nothing disappears while someone is reading it. Three toasts show at once; the rest wait
 in line and appear as earlier ones close.
 
@@ -44,15 +46,15 @@ follows its own direction switch. In an app, mount one `Toaster` and leave
 
 ### Tones
 
-The default tone is the Material 3 snackbar on `inverse-surface`. `info`, `success`, `warning`
-and `error` use the status containers and add their icon. Use the helpers (`toast.success`) or
-pass `tone`.
+Every tone shares the same neutral surface; the tone only colours the icon, so a stack of mixed
+toasts stays calm. `neutral` (the default) has no icon. `info`, `success`, `warning` and `error`
+add their glyph in the status colour. Use the helpers (`toast.success`) or pass `tone`.
 
 <ComponentPreview name="toast-tones" />
 
 ### Undo action
 
-An `action` adds one text button. Pressing it runs `onAction` and closes the toast. Prefer an undo
+An `action` adds one small soft button. Pressing it runs `onAction` and closes the toast. Prefer an undo
 over a confirmation dialog for reversible changes such as archiving.
 
 <ComponentPreview name="toast-undo" align="stretch" className="justify-center" />
@@ -75,8 +77,9 @@ good signal to stop the work that feeds it.
 
 ### Title and description
 
-`title` becomes the toast's accessible name and the message moves under it. `description` adds a
-line of supporting text in a smaller size.
+`title` becomes the toast's accessible name, in medium weight, and the message moves under it in
+the muted text colour. `description` adds another line of muted supporting text. With supporting
+text the action moves under it.
 
 <ComponentPreview name="toast-title" />
 
@@ -84,7 +87,8 @@ line of supporting text in a smaller size.
 
 `placement` takes `top-start`, `top-center`, `top-end`, `bottom-start`, `bottom-center` or
 `bottom-end`. Start and end follow the reading direction, so `bottom-end` sits on the left in
-Arabic. Below 640px every placement spans the width of the screen with a 16px margin. The
+Arabic. The stack is 16px from the edges; below 640px every placement spans the width of the
+screen with a 16px margin. The
 vertical offset adds the device's safe-area inset, so toasts clear a notch or home indicator.
 
 <ComponentPreview name="toast-placement" />
@@ -92,7 +96,9 @@ vertical offset adds the device's safe-area inset, so toasts clear a notch or ho
 ### Duration and dismissal
 
 Toasts close after 5 seconds. Change it per toast with `duration`, or for every toast with the
-`Toaster`'s `duration`. `Infinity` keeps a toast open; it always gets a close button.
+`Toaster`'s `duration`. `Infinity` keeps a toast open; it always shows its close button. On other
+toasts the close button appears while the pointer is over the toast or focus is inside it, and is
+always shown on touch screens.
 `toast.dismiss(id)` closes one toast and `toast.dismiss()` closes all of them.
 
 <ComponentPreview name="toast-duration" />
@@ -116,7 +122,7 @@ Toasts close after 5 seconds. Change it per toast with `duration`, or for every 
 | ------------- | ---------------------------------------------------------------- | -------------------------------- |
 | `title`       | `ReactNode`                                                      |                                  |
 | `description` | `ReactNode`                                                      |                                  |
-| `tone`        | `'default' \| 'info' \| 'success' \| 'warning' \| 'error'`       | `'default'`                      |
+| `tone`        | `'neutral' \| 'info' \| 'success' \| 'warning' \| 'error'`       | `'neutral'`                      |
 | `icon`        | `ReactNode`                                                      | the tone's icon; `null` hides it |
 | `action`      | `{ label: ReactNode; onAction: () => void \| Promise<unknown> }` |                                  |
 | `duration`    | `number` (ms)                                                    | the `Toaster`'s `duration`       |
@@ -194,7 +200,8 @@ belong to the `Toaster` that shows them: pass `labels` to it, or set them for ev
   does not hold the pause once the pointer leaves, so toasts never get stuck on screen.
 - Escape closes the focused toast. When a focused toast closes, focus moves to the next toast, or
   back to where it was before it entered the region.
-- Errors with an action never time out, and every toast has a close button by default.
-- With reduced motion, toasts fade instead of sliding. `motion="disabled"` on `DSProvider` removes
-  the animation.
+- Errors with an action never time out, and every toast has a close button by default. A close
+  button that waits for hover is still in the tab order and appears as soon as it takes focus.
+- Toasts slide in over 350 ms and leave in 250 ms. With reduced motion they fade instead.
+  `motion="disabled"` on `DSProvider` removes the animation.
 - Contrast is checked with axe in light, dark and RTL by `toast.test.tsx`.

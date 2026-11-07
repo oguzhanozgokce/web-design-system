@@ -16,13 +16,13 @@ export default function EmptyStateTable() {
   const rows = isFiltered ? [] : tasks;
 
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-outline-variant bg-surface">
-      <table className="w-full text-start text-body-md text-on-surface">
-        <caption className="px-4 pt-3 text-start text-title-sm">
+    <div className="w-full overflow-x-auto rounded-container border border-outline-subtle bg-surface-raised">
+      <table className="w-full text-start text-sm text-on-surface">
+        <caption className="px-4 pt-3 text-start text-sm font-semibold">
           Tasks {isFiltered ? '· Status: Blocked' : ''}
         </caption>
-        <thead className="text-label-lg text-on-surface-variant">
-          <tr className="border-b border-outline-variant">
+        <thead className="text-xs text-on-surface-variant">
+          <tr className="border-b border-outline-subtle">
             <th scope="col" className="px-4 py-3 text-start font-medium">
               Task
             </th>
@@ -37,7 +37,7 @@ export default function EmptyStateTable() {
         <tbody>
           {rows.length ? (
             rows.map((task) => (
-              <tr key={task.id} className="border-b border-outline-variant last:border-0">
+              <tr key={task.id} className="border-b border-outline-subtle last:border-0">
                 <td className="px-4 py-3">{task.name}</td>
                 <td className="px-4 py-3">{task.owner}</td>
                 <td className="px-4 py-3">{task.status}</td>
@@ -47,7 +47,7 @@ export default function EmptyStateTable() {
             <tr>
               <td colSpan={3}>
                 <EmptyState
-                  size="compact"
+                  size="sm"
                   headingLevel={3}
                   icon={<FilterIcon />}
                   title="No blocked tasks"
@@ -61,7 +61,7 @@ export default function EmptyStateTable() {
       </table>
       {isFiltered ? null : (
         <div className="flex justify-end p-2">
-          <Button variant="text" size="sm" onPress={() => setFiltered(true)}>
+          <Button variant="ghost" size="sm" onPress={() => setFiltered(true)}>
             Show blocked only
           </Button>
         </div>

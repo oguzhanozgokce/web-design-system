@@ -14,182 +14,204 @@ function radii(element: Element) {
   };
 }
 
-const still = { provider: { motion: 'disabled' as const } };
+function separator(element: Element) {
+  const style = getComputedStyle(element, '::before');
+  const shown = style.display !== 'none' && style.content !== 'none' && style.content !== 'normal';
+  return { shown, width: style.width, height: style.height };
+}
+
+const pill = 9999;
 
 describe('ButtonGroup', () => {
-  it('renders a labelled group with its variant on the root', async () => {
+  it('renders a labelled, attached group by default', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Project actions" variant="connected">
-        <Button>Approve</Button>
-        <Button>Reject</Button>
+      <ButtonGroup aria-label="Project actions">
+        <Button>Open</Button>
+        <Button>Share</Button>
       </ButtonGroup>,
     );
     const group = screen.getByRole('group', { name: 'Project actions' });
     await expect.element(group).toBeVisible();
     await expect.element(group).toHaveAttribute('data-slot', 'button-group');
-    await expect.element(group).toHaveAttribute('data-variant', 'connected');
+    await expect.element(group).toHaveAttribute('data-variant', 'attached');
     await expect.element(group).toHaveAttribute('data-orientation', 'horizontal');
+    await expect.element(group).toHaveAttribute('data-size', 'md');
+    expect(getComputedStyle(group.element()).columnGap).toBe('0px');
   });
 
   it('gives its buttons a default size, variant and tone that explicit props override', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Member" size="sm" buttonVariant="tonal" tone="destructive">
-        <Button>Suspend</Button>
-        <Button variant="outlined" size="lg" tone="default">
+      <ButtonGroup aria-label="Member" size="sm" buttonVariant="soft" tone="error">
+        <Button>Remove</Button>
+        <Button variant="outline" size="lg" tone="neutral">
           Keep
         </Button>
-        <ButtonLink href="#audit">Audit log</ButtonLink>
+        <ButtonLink href="#activity">Activity</ButtonLink>
       </ButtonGroup>,
     );
-    const inherited = screen.getByRole('button', { name: 'Suspend' });
-    await expect.element(inherited).toHaveAttribute('data-variant', 'tonal');
+    const inherited = screen.getByRole('button', { name: 'Remove' });
+    await expect.element(inherited).toHaveAttribute('data-variant', 'soft');
     await expect.element(inherited).toHaveAttribute('data-size', 'sm');
-    await expect.element(inherited).toHaveAttribute('data-tone', 'destructive');
-    await expect.element(inherited).toHaveClass('bg-error-container');
+    await expect.element(inherited).toHaveAttribute('data-tone', 'error');
 
     const explicit = screen.getByRole('button', { name: 'Keep' });
-    await expect.element(explicit).toHaveAttribute('data-variant', 'outlined');
+    await expect.element(explicit).toHaveAttribute('data-variant', 'outline');
     await expect.element(explicit).toHaveAttribute('data-size', 'lg');
-    await expect.element(explicit).toHaveAttribute('data-tone', 'default');
+    await expect.element(explicit).toHaveAttribute('data-tone', 'neutral');
 
     await expect
-      .element(screen.getByRole('link', { name: 'Audit log' }))
-      .toHaveAttribute('data-variant', 'tonal');
+      .element(screen.getByRole('link', { name: 'Activity' }))
+      .toHaveAttribute('data-variant', 'soft');
   });
 
   it('lets nested content opt out of the group defaults with a null context', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Member" size="sm" buttonVariant="text" tone="destructive" isDisabled>
-        <Button>Suspend</Button>
+      <ButtonGroup aria-label="Member" size="sm" buttonVariant="ghost" tone="error" isDisabled>
+        <Button>Remove</Button>
         <ButtonGroupContext value={null}>
           <Button>Confirm</Button>
         </ButtonGroupContext>
       </ButtonGroup>,
     );
-    await expect.element(screen.getByRole('button', { name: 'Suspend' })).toBeDisabled();
+    await expect.element(screen.getByRole('button', { name: 'Remove' })).toBeDisabled();
     const confirm = screen.getByRole('button', { name: 'Confirm' });
     await expect.element(confirm).toBeEnabled();
-    await expect.element(confirm).toHaveAttribute('data-variant', 'filled');
+    await expect.element(confirm).toHaveAttribute('data-variant', 'solid');
     await expect.element(confirm).toHaveAttribute('data-size', 'md');
-    await expect.element(confirm).toHaveAttribute('data-tone', 'default');
+    await expect.element(confirm).toHaveAttribute('data-tone', 'primary');
   });
 
   it('lets a nested group inherit the outer defaults and override them', async () => {
     const screen = await renderWithDS(
       <ButtonGroup
         aria-label="Folder toolbar"
+        variant="detached"
         size="sm"
-        buttonVariant="tonal"
-        tone="destructive"
+        buttonVariant="soft"
+        tone="error"
         isDisabled
       >
-        <ButtonGroup aria-label="History" variant="connected">
+        <ButtonGroup aria-label="History">
           <Button>Undo</Button>
         </ButtonGroup>
-        <ButtonGroup aria-label="Export" size="lg" buttonVariant="outlined" isDisabled={false}>
-          <Button>CSV</Button>
+        <ButtonGroup aria-label="Export" size="lg" buttonVariant="outline" isDisabled={false}>
+          <Button>Photos</Button>
         </ButtonGroup>
       </ButtonGroup>,
-      still,
     );
     await expect
       .element(screen.getByRole('group', { name: 'History' }))
       .toHaveAttribute('data-size', 'sm');
     const undo = screen.getByRole('button', { name: 'Undo' });
     await expect.element(undo).toHaveAttribute('data-size', 'sm');
-    await expect.element(undo).toHaveAttribute('data-variant', 'tonal');
-    await expect.element(undo).toHaveAttribute('data-tone', 'destructive');
+    await expect.element(undo).toHaveAttribute('data-variant', 'soft');
+    await expect.element(undo).toHaveAttribute('data-tone', 'error');
     await expect.element(undo).toBeDisabled();
-    expect(radii(undo.element()).topLeft).toBe(16);
 
-    const csv = screen.getByRole('button', { name: 'CSV' });
-    await expect.element(csv).toHaveAttribute('data-size', 'lg');
-    await expect.element(csv).toHaveAttribute('data-variant', 'outlined');
-    await expect.element(csv).toHaveAttribute('data-tone', 'destructive');
-    await expect.element(csv).toBeEnabled();
+    const photos = screen.getByRole('button', { name: 'Photos' });
+    await expect.element(photos).toHaveAttribute('data-size', 'lg');
+    await expect.element(photos).toHaveAttribute('data-variant', 'outline');
+    await expect.element(photos).toHaveAttribute('data-tone', 'error');
+    await expect.element(photos).toBeEnabled();
   });
 
   it('keeps Button defaults outside a group', async () => {
     const screen = await renderWithDS(<Button>Save</Button>);
     const button = screen.getByRole('button', { name: 'Save' });
-    await expect.element(button).toHaveAttribute('data-variant', 'filled');
+    await expect.element(button).toHaveAttribute('data-variant', 'solid');
     await expect.element(button).toHaveAttribute('data-size', 'md');
-    await expect.element(button).toHaveAttribute('data-tone', 'default');
+    await expect.element(button).toHaveAttribute('data-tone', 'primary');
   });
 
   it('disables every button when the group is disabled, unless a button opts back in', async () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
       <ButtonGroup aria-label="Export" isDisabled>
-        <Button onPress={onPress}>CSV</Button>
+        <Button onPress={onPress}>Photos</Button>
         <Button onPress={onPress} isDisabled={false}>
-          PDF
+          Videos
         </Button>
       </ButtonGroup>,
     );
     await expect.element(screen.getByRole('group')).toHaveAttribute('data-disabled', 'true');
-    await screen.getByRole('button', { name: 'CSV' }).click({ force: true });
+    await screen.getByRole('button', { name: 'Photos' }).click({ force: true });
     expect(onPress).not.toHaveBeenCalled();
-    await screen.getByRole('button', { name: 'PDF' }).click();
+    await screen.getByRole('button', { name: 'Videos' }).click();
     expect(onPress).toHaveBeenCalledOnce();
   });
 
-  it('rounds only the outer corners of a connected group', async () => {
+  it('rounds only the outer ends of an attached group into a pill', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Period" variant="connected">
+      <ButtonGroup aria-label="Period">
         <Button>Previous</Button>
         <Button>Today</Button>
         <Button>Next</Button>
       </ButtonGroup>,
-      still,
     );
     const today = screen.getByRole('button', { name: 'Today' });
     await expect.element(today).toBeVisible();
     const first = radii(screen.getByRole('button', { name: 'Previous' }).element());
     const last = radii(screen.getByRole('button', { name: 'Next' }).element());
 
-    expect(first.topLeft).toBe(20);
-    expect(first.bottomLeft).toBe(20);
-    expect(first.topRight).toBe(4);
+    expect(first.topLeft).toBe(pill);
+    expect(first.bottomLeft).toBe(pill);
+    expect(first.topRight).toBe(0);
     expect(radii(today.element())).toEqual({
-      topLeft: 4,
-      topRight: 4,
-      bottomLeft: 4,
-      bottomRight: 4,
+      topLeft: 0,
+      topRight: 0,
+      bottomLeft: 0,
+      bottomRight: 0,
     });
-    expect(last.topRight).toBe(20);
-    expect(last.topLeft).toBe(4);
+    expect(last.topRight).toBe(pill);
+    expect(last.topLeft).toBe(0);
   });
 
-  it('rounds out a pressed button in a connected group without shrinking it', async () => {
+  it('draws a faint separator between attached items, but not around outline items', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Period" variant="connected">
+      <>
+        <ButtonGroup aria-label="Period" buttonVariant="soft">
+          <Button>Day</Button>
+          <Button>Week</Button>
+        </ButtonGroup>
+        <ButtonGroup aria-label="Outline" buttonVariant="outline">
+          <Button>Month</Button>
+          <Button>Year</Button>
+        </ButtonGroup>
+      </>,
+    );
+    await expect.element(screen.getByRole('button', { name: 'Week' })).toBeVisible();
+    expect(separator(screen.getByRole('button', { name: 'Day' }).element()).shown).toBe(false);
+    const week = separator(screen.getByRole('button', { name: 'Week' }).element());
+    expect(week.shown).toBe(true);
+    expect(week.width).toBe('1px');
+    expect(week.height).toBe('20px');
+
+    const year = screen.getByRole('button', { name: 'Year' }).element();
+    expect(separator(year).shown).toBe(false);
+    expect(getComputedStyle(year).marginInlineStart).toBe('-1px');
+  });
+
+  it('cancels the press scale inside an attached group', async () => {
+    const screen = await renderWithDS(
+      <ButtonGroup aria-label="Period">
         <Button>Previous</Button>
         <Button>Today</Button>
-        <Button>Next</Button>
       </ButtonGroup>,
-      still,
     );
     const today = screen.getByRole('button', { name: 'Today' });
     await expect.element(today).toBeVisible();
     today.element().focus();
     await userEvent.keyboard('[Space>]');
     await expect.element(today).toHaveAttribute('data-pressed', 'true');
-    expect(radii(today.element())).toEqual({
-      topLeft: 20,
-      topRight: 20,
-      bottomLeft: 20,
-      bottomRight: 20,
-    });
+    await new Promise((resolve) => setTimeout(resolve, 300));
     expect(getComputedStyle(today.element()).scale).toBe('1');
     await userEvent.keyboard('[/Space]');
     await expect.element(today).not.toHaveAttribute('data-pressed');
-    expect(radii(today.element()).topLeft).toBe(4);
   });
 
   it('raises the keyboard-focused button so its neighbour cannot cover the focus ring', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Period" variant="connected">
+      <ButtonGroup aria-label="Period">
         <Button>Previous</Button>
         <Button>Next</Button>
       </ButtonGroup>,
@@ -206,65 +228,64 @@ describe('ButtonGroup', () => {
     expect(getComputedStyle(next.element()).zIndex).toBe('auto');
   });
 
-  it('mirrors connected corners in RTL', async () => {
+  it('mirrors attached ends in RTL', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="الفترة" variant="connected">
+      <ButtonGroup aria-label="الفترة">
         <Button startIcon={<ChevronLeftIcon className="rtl:-scale-x-100" />}>السابق</Button>
         <Button endIcon={<ChevronRightIcon className="rtl:-scale-x-100" />}>التالي</Button>
       </ButtonGroup>,
-      { locale: 'ar', ...still },
+      { locale: 'ar' },
     );
     await expect.element(screen.getByRole('button', { name: 'التالي' })).toBeVisible();
     const first = radii(screen.getByRole('button', { name: 'السابق' }).element());
     const last = radii(screen.getByRole('button', { name: 'التالي' }).element());
-    expect(first.topRight).toBe(20);
-    expect(first.topLeft).toBe(4);
-    expect(last.topLeft).toBe(20);
-    expect(last.topRight).toBe(4);
+    expect(first.topRight).toBe(pill);
+    expect(first.topLeft).toBe(0);
+    expect(last.topLeft).toBe(pill);
+    expect(last.topRight).toBe(0);
   });
 
-  it('rounds the top and bottom ends of a vertical connected group', async () => {
+  it('rounds the top and bottom ends of a vertical attached group by half the height', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Move" variant="connected" orientation="vertical" size="sm">
+      <ButtonGroup aria-label="Move" orientation="vertical" size="sm">
         <Button>Move up</Button>
         <Button>Move down</Button>
       </ButtonGroup>,
-      still,
     );
     await expect.element(screen.getByRole('group')).toHaveAttribute('data-orientation', 'vertical');
+    const down = screen.getByRole('button', { name: 'Move down' }).element();
     const first = radii(screen.getByRole('button', { name: 'Move up' }).element());
-    const last = radii(screen.getByRole('button', { name: 'Move down' }).element());
+    const last = radii(down);
     expect(first.topLeft).toBe(16);
     expect(first.topRight).toBe(16);
-    expect(first.bottomLeft).toBe(4);
+    expect(first.bottomLeft).toBe(0);
     expect(last.bottomRight).toBe(16);
-    expect(last.topRight).toBe(4);
+    expect(last.topRight).toBe(0);
+    const line = separator(down);
+    expect(line.shown).toBe(true);
+    expect(line.height).toBe('1px');
   });
 
-  it('animates corner changes with the spatial spring and skips it when motion is reduced', async () => {
-    const markup = (
-      <ButtonGroup aria-label="Period" variant="connected">
-        <Button>Week</Button>
-        <Button>Month</Button>
-      </ButtonGroup>
+  it('spaces a detached group and keeps every button a pill', async () => {
+    const screen = await renderWithDS(
+      <ButtonGroup aria-label="Actions" variant="detached" buttonVariant="outline">
+        <Button>Edit</Button>
+        <Button>Share</Button>
+      </ButtonGroup>,
     );
-    const animated = await renderWithDS(markup);
-    const animatedStyle = getComputedStyle(
-      animated.getByRole('button', { name: 'Week' }).element(),
-    );
-    expect(animatedStyle.transitionProperty).toContain('border-radius');
-    expect(animatedStyle.transitionDuration.split(', ').at(-1)).not.toBe('0s');
-    await animated.unmount();
-
-    const reduced = await renderWithDS(markup, { provider: { motion: 'reduced' } });
-    const reducedStyle = getComputedStyle(reduced.getByRole('button', { name: 'Week' }).element());
-    expect(reducedStyle.transitionDuration.split(', ').at(-1)).toBe('0s');
+    const group = screen.getByRole('group', { name: 'Actions' });
+    await expect.element(group).toHaveAttribute('data-variant', 'detached');
+    expect(getComputedStyle(group.element()).columnGap).toBe('8px');
+    expect(getComputedStyle(group.element()).flexWrap).toBe('wrap');
+    const share = screen.getByRole('button', { name: 'Share' }).element();
+    expect(radii(share).topLeft).toBe(pill);
+    expect(separator(share).shown).toBe(false);
   });
 
   it('stretches its buttons when fullWidth is set', async () => {
     const screen = await renderWithDS(
       <div className="w-96">
-        <ButtonGroup aria-label="Plan" variant="connected" fullWidth>
+        <ButtonGroup aria-label="Plan" fullWidth>
           <Button>Monthly</Button>
           <Button>Yearly</Button>
         </ButtonGroup>
@@ -284,18 +305,17 @@ describe('ButtonGroup', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          <ButtonGroup aria-label="Project">
-            <Button>Approve</Button>
-            <Button variant="outlined">Request changes</Button>
-            <Button variant="text" tone="destructive">
-              Reject
+          <ButtonGroup aria-label="Project" variant="detached">
+            <Button>Open</Button>
+            <Button variant="outline">Rename</Button>
+            <Button variant="ghost" tone="error">
+              Delete
             </Button>
           </ButtonGroup>
-          {(['filled', 'tonal', 'outlined', 'elevated'] as const).map((buttonVariant) => (
+          {(['solid', 'soft', 'outline', 'ghost'] as const).map((buttonVariant) => (
             <ButtonGroup
               key={buttonVariant}
               aria-label={buttonVariant}
-              variant="connected"
               buttonVariant={buttonVariant}
             >
               <Button>Day</Button>
@@ -303,9 +323,9 @@ describe('ButtonGroup', () => {
               <Button>Month</Button>
             </ButtonGroup>
           ))}
-          <ButtonGroup aria-label="Disabled" isDisabled variant="connected">
+          <ButtonGroup aria-label="Disabled" isDisabled>
             <Button>Archive</Button>
-            <Button>Delete</Button>
+            <Button>Remove</Button>
           </ButtonGroup>
         </div>,
         options,

@@ -1,6 +1,6 @@
 ---
 title: Slider
-description: Material 3 Expressive slider with one value or a range, three track sizes, stop indicators, labelled marks, a centred fill, a value bubble while dragging, vertical orientation and locale-aware formatting.
+description: Thin-rail slider with one value or a range, stops, labelled marks, a centred fill, a value bubble and vertical orientation.
 ---
 
 <ComponentPreview name="slider-demo" />
@@ -20,6 +20,9 @@ import { Slider } from '@/components/ds/slider';
 Use a slider when the rough position matters more than the exact number: volume, brightness,
 limits and ranges. When people know the exact number they want, a number field is faster.
 
+The slider is a 4px rail with a round thumb. The filled part uses the solid primary, the rest an
+opaque grey, and the thumb sits on the light thumb surface with a small shadow.
+
 ## Examples
 
 ### Range
@@ -32,18 +35,18 @@ slider with `thumbLabels`, or change the defaults with `labels`.
 
 ### Sizes
 
-`sm` (16px track) is the standard Material 3 slider and the default. `md` (24px) and `lg` (40px)
-are the expressive sizes for settings screens and marketing pages where the slider is the main
-control. The handle is 44px tall for `sm` and `md`, and 52px for `lg`.
+`md` is the default: a 20px thumb on a 4px rail. `sm` has a 16px thumb for dense forms and
+toolbars, and `lg` a 24px thumb on a 6px rail for settings screens where the slider is the main
+control.
 
 <ComponentPreview name="slider-sizes" />
 
 ### Stops
 
-When `step` divides the range into 20 or fewer intervals and there are no `marks`, the track shows
-a stop at each position so people can see where the thumb will land. With `marks`, the stops sit at
-the marks instead. `showStops` turns the step stops on or off explicitly. A continuous slider still
-gets a stop at the end of its track.
+When `step` divides the range into 20 or fewer intervals and there are no `marks`, the rail shows a
+small dot at each position so people can see where the thumb will land. With `marks`, the dots sit
+at the marks instead. `showStops` turns the step stops on or off explicitly. A continuous slider
+shows no dots.
 
 <ComponentPreview name="slider-stops" />
 
@@ -57,8 +60,9 @@ Pass `{ value, label }` for words instead of numbers.
 
 ### Centred
 
-`fillOffset` sets the value the active track grows from. Set it to `0` on a range that crosses zero
-for adjustments that can go either way, such as exposure or audio balance.
+`fillOffset` sets the value the fill grows from. Set it to `0` on a range that crosses zero for
+adjustments that can go either way, such as exposure or audio balance. A dot on the rail marks the
+offset.
 
 <ComponentPreview name="slider-centered" />
 
@@ -90,7 +94,7 @@ Disabled sliders keep showing their value, so people can still read the setting.
 | -------------------- | ------------------------------------- | ---------------- |
 | `label`              | `ReactNode`                           |                  |
 | `description`        | `ReactNode`                           |                  |
-| `size`               | `'sm' \| 'md' \| 'lg'`                | `'sm'`           |
+| `size`               | `'sm' \| 'md' \| 'lg'`                | `'md'`           |
 | `orientation`        | `'horizontal' \| 'vertical'`          | `'horizontal'`   |
 | `value`              | `number \| number[]`                  |                  |
 | `defaultValue`       | `number \| number[]`                  | `minValue`       |
@@ -121,9 +125,10 @@ prop except `render` is passed through.
 
 Root (`data-slot="slider"`): `data-size`, `data-orientation`, `data-disabled`. Thumbs
 (`data-slot="thumb"`): `data-dragging`, `data-focused`, `data-focus-visible`, `data-hovered`,
-`data-disabled`. Track segments and stops (`data-slot="segment"`, `"stop"`): `data-tone` is
-`active` or `inactive`. Other parts: `"header"`, `"label"`, `"output"`, `"control"`, `"track"`,
-`"rail"`, `"stops"`, `"value-indicator"`, `"bubble"`, `"marks"`, `"mark"`, `"description"`.
+`data-disabled`. Rail segments and stops (`data-slot="segment"`, `"stop"`): `data-tone` is
+`active` or `inactive`. Other parts: `"header"`, `"label"`, `"output"`, `"control"`, `"track"`
+(the pointer area around the rail), `"rail"`, `"stops"`, `"value-indicator"`, `"bubble"`,
+`"marks"`, `"mark"`, `"description"`.
 
 ### Labels
 
@@ -145,12 +150,16 @@ Text the slider writes on its own. Pass `labels` to one slider, or set them for 
   arrow keys, and sets `dir` on its root, so in Arabic the track fills from the right and Right
   Arrow lowers the value.
 - The value bubble appears while dragging and on keyboard focus, never on hover, and is hidden from
-  screen readers because the value is already announced. With the system's reduced motion setting
-  or `DSProvider motion="reduced"` it fades without scaling and the handle stops animating its
-  width. With `motion="disabled"` it appears instantly.
+  screen readers because the value is already announced. Near either end it shifts along the rail
+  so it never reaches past the slider's own edges, which keeps it inside the viewport on a phone.
+  With the system's reduced motion setting or `DSProvider motion="reduced"` it fades without
+  scaling and the thumb no longer shrinks while dragged. With `motion="disabled"` it appears
+  instantly.
+- The focus ring is a 2px outline around the thumb. A disabled slider is drawn at half opacity
+  with a not-allowed cursor.
 - A disabled slider marks its group `aria-disabled`, so assistive technology reports the whole
   control as unavailable.
-- In forced colours mode (Windows High Contrast) the active track uses `Highlight`, the inactive
-  track gets an outline, and the handle and stops switch to system colours, so the slider stays
-  visible. A disabled slider uses `GrayText`.
+- In forced colours mode (Windows High Contrast) the fill uses `Highlight`, the rest of the rail
+  gets an outline, and the thumb and stops switch to system colours, so the slider stays visible.
+  A disabled slider uses `GrayText`.
 - Contrast is checked with axe in light, dark and RTL by `slider.test.tsx`.

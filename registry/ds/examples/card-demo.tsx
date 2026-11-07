@@ -18,17 +18,17 @@ export default function CardDemo() {
         title="Website redesign"
         description={`Due ${due}`}
         action={
-          <Button variant="text" size="sm">
+          <Button variant="ghost" size="sm">
             Edit
           </Button>
         }
       />
       <CardContent className="flex flex-col gap-1">
-        <span className="text-headline-sm tabular-digits">{progress}</span>
+        <span className="text-2xl font-semibold tracking-tight tabular-digits">{progress}</span>
         <span className="text-on-surface-variant">12 of 18 tasks done</span>
       </CardContent>
       <CardFooter>
-        <Button variant="outlined" startIcon={<ShareIcon />}>
+        <Button variant="outline" startIcon={<ShareIcon />}>
           Share
         </Button>
         <Button>Open</Button>

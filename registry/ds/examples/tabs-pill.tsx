@@ -15,10 +15,10 @@ const filters = [
 
 export default function TabsPill() {
   return (
-    <div className="w-full max-w-sm rounded-lg bg-surface-container-low p-4 text-on-surface">
-      <Tabs variant="pill" className="gap-3">
+    <div className="w-full max-w-sm rounded-container border border-outline-subtle bg-surface-raised p-4 text-on-surface">
+      <Tabs variant="pill" size="sm" className="gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-title-md">Recent files</h3>
+          <h3 className="text-sm font-semibold">Recent files</h3>
           <TabList aria-label="Filter files" items={filters}>
             {(filter) => <Tab id={filter.id}>{filter.label}</Tab>}
           </TabList>
@@ -31,7 +31,7 @@ export default function TabsPill() {
                 .map((file) => (
                   <li
                     key={file.id}
-                    className="flex items-center justify-between gap-4 py-2 text-body-md"
+                    className="flex items-center justify-between gap-4 py-2 text-sm"
                   >
                     <span>{file.name}</span>
                     <span className="text-on-surface-variant tabular-digits">{file.size}</span>

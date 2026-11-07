@@ -11,14 +11,14 @@ export default function CardClickable() {
   return (
     <div className="grid w-full gap-4 sm:grid-cols-3">
       {folders.map((folder) => (
-        <ClickableCard key={folder.slug} href={`#${folder.slug}`} variant="outlined">
+        <ClickableCard key={folder.slug} href={`#${folder.slug}`} variant="outline">
           <CardHeader
             leading={<FolderIcon className="size-6 text-primary" />}
             title={folder.title}
             description={folder.updated}
           />
           <CardContent className="mt-auto flex items-center justify-between gap-2">
-            <span className="text-title-md tabular-digits">{folder.count}</span>
+            <span className="text-sm font-medium tabular-digits">{folder.count}</span>
             <ArrowForwardIcon className="size-5 text-on-surface-variant rtl:-scale-x-100" />
           </CardContent>
         </ClickableCard>

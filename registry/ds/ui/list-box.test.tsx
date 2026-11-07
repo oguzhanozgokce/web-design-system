@@ -3,23 +3,17 @@ import type { Selection } from 'react-aria-components';
 import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { FolderIcon, InboxIcon, PersonIcon } from '@/registry/ds/lib/icons';
-import {
-  ListBox,
-  ListBoxItem,
-  ListBoxSection,
-  ListBoxStatus,
-  listBoxStyles,
-} from '@/registry/ds/ui/list-box';
+import { ListBox, ListBoxItem, ListBoxSection, ListBoxStatus } from '@/registry/ds/ui/list-box';
 
 const folders = [
-  { id: 'household', name: 'Household', description: '4 members · TRY' },
-  { id: 'trip', name: 'Trip to Lisbon', description: '6 members · EUR' },
-  { id: 'office', name: 'Office lunches', description: '12 members · TRY' },
+  { id: 'photos', name: 'Photos', description: '248 items' },
+  { id: 'projects', name: 'Projects', description: '12 items' },
+  { id: 'team', name: 'Team space', description: '6 members' },
 ];
 
 function Initials({ children }: { children: string }) {
   return (
-    <span className="flex items-center justify-center rounded-full bg-tertiary-container text-label-md text-on-tertiary-container">
+    <span className="flex items-center justify-center rounded-full bg-neutral-soft text-xs font-medium text-on-surface">
       {children}
     </span>
   );
@@ -27,8 +21,8 @@ function Initials({ children }: { children: string }) {
 
 function Members(props: { density?: 'sm' | 'md' }) {
   return (
-    <ListBox aria-label="Assign to" selectionMode="single" variant="outlined" {...props}>
-      <ListBoxSection title="Finance">
+    <ListBox aria-label="Assign to" selectionMode="single" variant="outline" {...props}>
+      <ListBoxSection title="Team">
         <ListBoxItem
           id="ayse"
           textValue="Ayşe Demir"
@@ -37,7 +31,7 @@ function Members(props: { density?: 'sm' | 'md' }) {
         >
           Ayşe Demir
         </ListBoxItem>
-        <ListBoxItem id="mehmet" avatar={<Initials>MK</Initials>} description="Translator">
+        <ListBoxItem id="mehmet" avatar={<Initials>MK</Initials>} description="Editor">
           Mehmet Kaya
         </ListBoxItem>
       </ListBoxSection>
@@ -57,7 +51,7 @@ describe('ListBox', () => {
     await expect.element(listbox).toHaveAttribute('data-density', 'md');
     const option = screen.getByRole('option', { name: /^Ayşe Demir/ });
     await expect.element(option).toHaveAccessibleName('Ayşe Demir Owner');
-    await expect.element(screen.getByRole('group', { name: 'Finance' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('group', { name: 'Team' })).toBeInTheDocument();
     await expect.element(screen.getByRole('group', { name: 'Guests' })).toBeInTheDocument();
     expect(option.element().querySelector('[data-slot="avatar"]')).not.toBeNull();
     expect(
@@ -68,29 +62,36 @@ describe('ListBox', () => {
     ).not.toBeNull();
   });
 
-  it('selects with the pointer and keyboard and shows a check mark', async () => {
+  it('selects with the pointer and keyboard and shows a primary check mark', async () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
-      <ListBox aria-label="Folder" selectionMode="single" onSelectionChange={onSelectionChange}>
-        {folders.map((folder) => (
-          <ListBoxItem key={folder.id} id={folder.id} description={folder.description}>
-            {folder.name}
-          </ListBoxItem>
-        ))}
-      </ListBox>,
+      <>
+        <span data-testid="primary" className="text-primary" />
+        <ListBox aria-label="Folder" selectionMode="single" onSelectionChange={onSelectionChange}>
+          {folders.map((folder) => (
+            <ListBoxItem key={folder.id} id={folder.id} description={folder.description}>
+              {folder.name}
+            </ListBoxItem>
+          ))}
+        </ListBox>
+      </>,
     );
-    const household = screen.getByRole('option', { name: /^Household/ });
-    await household.click();
-    await expect.element(household).toHaveAttribute('aria-selected', 'true');
-    expect(household.element().querySelector('[data-slot="check"] svg')).not.toBeNull();
-    expect([...(onSelectionChange.mock.lastCall?.[0] as Set<string>)]).toEqual(['household']);
+    const photos = screen.getByRole('option', { name: /^Photos/ });
+    await photos.click();
+    await expect.element(photos).toHaveAttribute('aria-selected', 'true');
+    const check = photos.element().querySelector('[data-slot="check"]')!;
+    expect(check.querySelector('svg')).not.toBeNull();
+    expect(getComputedStyle(check).color).toBe(
+      getComputedStyle(screen.getByTestId('primary').element()).color,
+    );
+    expect([...(onSelectionChange.mock.lastCall?.[0] as Set<string>)]).toEqual(['photos']);
 
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{Enter}');
-    const trip = screen.getByRole('option', { name: /^Trip to Lisbon/ });
-    await expect.element(trip).toHaveAttribute('aria-selected', 'true');
-    await expect.element(household).toHaveAttribute('aria-selected', 'false');
-    expect(household.element().querySelector('[data-slot="check"] svg')).toBeNull();
+    const projects = screen.getByRole('option', { name: /^Projects/ });
+    await expect.element(projects).toHaveAttribute('aria-selected', 'true');
+    await expect.element(photos).toHaveAttribute('aria-selected', 'false');
+    expect(photos.element().querySelector('[data-slot="check"] svg')).toBeNull();
   });
 
   it('rings the focused row for keyboard focus but not after a click', async () => {
@@ -103,24 +104,83 @@ describe('ListBox', () => {
         ))}
       </ListBox>,
     );
-    const household = screen.getByRole('option', { name: 'Household' });
-    await household.click();
-    await expect.element(household).toHaveFocus();
-    expect(getComputedStyle(household.element()).outlineStyle).toBe('none');
+    const photos = screen.getByRole('option', { name: 'Photos' });
+    await photos.click();
+    await expect.element(photos).toHaveFocus();
+    expect(getComputedStyle(photos.element()).outlineStyle).toBe('none');
 
     await userEvent.keyboard('{ArrowDown}');
-    const trip = screen.getByRole('option', { name: 'Trip to Lisbon' });
-    await expect.element(trip).toHaveFocus();
-    await expect.element(trip).toHaveAttribute('data-focus-visible', 'true');
-    const ring = getComputedStyle(trip.element());
+    const projects = screen.getByRole('option', { name: 'Projects' });
+    await expect.element(projects).toHaveFocus();
+    await expect.element(projects).toHaveAttribute('data-focus-visible', 'true');
+    const ring = getComputedStyle(projects.element());
     expect(ring.outlineStyle).toBe('solid');
-    expect(ring.outlineWidth).toBe('3px');
-    expect(ring.outlineOffset).toBe('-3px');
+    expect(ring.outlineWidth).toBe('2px');
+    expect(ring.outlineOffset).toBe('-2px');
+  });
+
+  it('fills the hovered row and rounds every row', async () => {
+    const screen = await renderWithDS(
+      <>
+        <span data-testid="neutral" className="bg-neutral-soft" />
+        <ListBox aria-label="Folder" selectionMode="single">
+          {folders.map((folder) => (
+            <ListBoxItem key={folder.id} id={folder.id}>
+              {folder.name}
+            </ListBoxItem>
+          ))}
+        </ListBox>
+      </>,
+    );
+    const photos = screen.getByRole('option', { name: 'Photos' });
+    const style = getComputedStyle(photos.element());
+    expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(style.borderTopLeftRadius).toBe('12px');
+    expect(photos.element().getBoundingClientRect().height).toBe(36);
+
+    await userEvent.hover(photos);
+    await expect.element(photos).toHaveAttribute('data-hovered', 'true');
+    await expect
+      .poll(() => getComputedStyle(photos.element()).backgroundColor)
+      .toBe(getComputedStyle(screen.getByTestId('neutral').element()).backgroundColor);
+  });
+
+  it('tints the selected row only in the outline variant', async () => {
+    const screen = await renderWithDS(
+      <div className="flex flex-col gap-4">
+        <span data-testid="soft" className="bg-primary-soft" />
+        <ListBox aria-label="Plain" selectionMode="single" defaultSelectedKeys={['photos']}>
+          <ListBoxItem id="photos">Photos</ListBoxItem>
+        </ListBox>
+        <ListBox
+          aria-label="Outline"
+          selectionMode="single"
+          defaultSelectedKeys={['projects']}
+          variant="outline"
+        >
+          <ListBoxItem id="projects">Projects</ListBoxItem>
+        </ListBox>
+      </div>,
+    );
+    const outline = screen.getByRole('listbox', { name: 'Outline' });
+    await expect.element(outline).toHaveAttribute('data-variant', 'outline');
+    await expect
+      .element(screen.getByRole('listbox', { name: 'Plain' }))
+      .toHaveAttribute('data-variant', 'plain');
+    const frame = getComputedStyle(outline.element());
+    expect(frame.borderTopWidth).toBe('1px');
+    expect(frame.borderTopLeftRadius).toBe('20px');
+
+    const soft = getComputedStyle(screen.getByTestId('soft').element()).backgroundColor;
+    const plainRow = screen.getByRole('option', { name: 'Photos' }).element();
+    const outlineRow = screen.getByRole('option', { name: 'Projects' }).element();
+    expect(getComputedStyle(plainRow).backgroundColor).not.toBe(soft);
+    expect(getComputedStyle(outlineRow).backgroundColor).toBe(soft);
   });
 
   it('supports controlled multiple selection from dynamic items', async () => {
     function Example() {
-      const [selected, setSelected] = useState<Selection>(new Set(['trip']));
+      const [selected, setSelected] = useState<Selection>(new Set(['projects']));
       return (
         <>
           <ListBox
@@ -140,21 +200,21 @@ describe('ListBox', () => {
     await expect
       .element(screen.getByRole('listbox'))
       .toHaveAttribute('aria-multiselectable', 'true');
-    await screen.getByRole('option', { name: /^Office lunches/ }).click();
-    await expect.element(screen.getByText('trip,office')).toBeInTheDocument();
-    await screen.getByRole('option', { name: /^Trip to Lisbon/ }).click();
-    await expect.element(screen.getByText(/^office$/)).toBeInTheDocument();
+    await screen.getByRole('option', { name: /^Team space/ }).click();
+    await expect.element(screen.getByText('projects,team')).toBeInTheDocument();
+    await screen.getByRole('option', { name: /^Projects/ }).click();
+    await expect.element(screen.getByText(/^team$/)).toBeInTheDocument();
   });
 
   it('skips disabled items', async () => {
     const onAction = vi.fn();
     const screen = await renderWithDS(
       <ListBox aria-label="Folder" onAction={onAction}>
-        <ListBoxItem id="household">Household</ListBoxItem>
+        <ListBoxItem id="photos">Photos</ListBoxItem>
         <ListBoxItem id="archived" isDisabled>
           Archived 2023
         </ListBoxItem>
-        <ListBoxItem id="trip">Trip to Lisbon</ListBoxItem>
+        <ListBoxItem id="projects">Projects</ListBoxItem>
       </ListBox>,
     );
     const archived = screen.getByRole('option', { name: 'Archived 2023' });
@@ -162,10 +222,10 @@ describe('ListBox', () => {
     await archived.click({ force: true });
     expect(onAction).not.toHaveBeenCalled();
 
-    await screen.getByRole('option', { name: /^Household/ }).click();
-    expect(onAction).toHaveBeenLastCalledWith('household');
+    await screen.getByRole('option', { name: /^Photos/ }).click();
+    expect(onAction).toHaveBeenLastCalledWith('photos');
     await userEvent.keyboard('{ArrowDown}');
-    await expect.element(screen.getByRole('option', { name: /^Trip to Lisbon/ })).toHaveFocus();
+    await expect.element(screen.getByRole('option', { name: /^Projects/ })).toHaveFocus();
   });
 
   it('renders a default empty state, a custom one and a loading state', async () => {
@@ -204,7 +264,7 @@ describe('ListBox', () => {
         {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
       </ListBox>,
     );
-    await expect.element(screen.getByRole('option', { name: /^Household/ })).toBeVisible();
+    await expect.element(screen.getByRole('option', { name: /^Photos/ })).toBeVisible();
     const loader = screen.container.querySelector('[data-slot="list-box-loader"]');
     expect(loader).not.toBeNull();
     expect(loader?.textContent).toContain('Loading…');
@@ -217,7 +277,7 @@ describe('ListBox', () => {
         {(folder) => <ListBoxItem>{folder.name}</ListBoxItem>}
       </ListBox>,
     );
-    await expect.element(screen.getByRole('option', { name: /^Household/ })).toBeVisible();
+    await expect.element(screen.getByRole('option', { name: /^Photos/ })).toBeVisible();
     await expect.poll(() => onLoadMore.mock.calls.length).toBeGreaterThan(0);
     expect(screen.container.textContent).not.toContain('Loading…');
   });
@@ -235,23 +295,28 @@ describe('ListBox', () => {
     await expect.element(screen.getByRole('option', { name: 'Page 2' })).toHaveFocus();
   });
 
-  it('greys out a row that is both selected and disabled', async () => {
+  it('dims a row that is both selected and disabled', async () => {
     const screen = await renderWithDS(
-      <ListBox aria-label="Plan" selectionMode="multiple" defaultSelectedKeys={['team', 'legacy']}>
+      <ListBox
+        aria-label="Plan"
+        selectionMode="multiple"
+        variant="outline"
+        defaultSelectedKeys={['team', 'archive']}
+      >
         <ListBoxItem id="team">Team</ListBoxItem>
-        <ListBoxItem id="legacy" isDisabled>
-          Legacy
+        <ListBoxItem id="archive" isDisabled>
+          Archive
         </ListBoxItem>
       </ListBox>,
     );
-    const legacy = screen.getByRole('option', { name: 'Legacy' }).element();
+    const archive = screen.getByRole('option', { name: 'Archive' }).element();
     const team = screen.getByRole('option', { name: 'Team' }).element();
-    expect(legacy).toHaveAttribute('data-selected', 'true');
+    expect(archive).toHaveAttribute('data-selected', 'true');
     expect(team).toHaveAttribute('data-selected', 'true');
-    expect(getComputedStyle(legacy).backgroundColor).not.toBe(
-      getComputedStyle(team).backgroundColor,
-    );
-    expect(getComputedStyle(legacy).color).not.toBe(getComputedStyle(team).color);
+    expect(getComputedStyle(archive).opacity).toBe('0.5');
+    expect(getComputedStyle(archive).cursor).toBe('not-allowed');
+    expect(getComputedStyle(team).opacity).toBe('1');
+    expect(getComputedStyle(team).cursor).toBe('pointer');
   });
 
   it('keeps two-line rows at full height in a list that scrolls', async () => {
@@ -277,12 +342,23 @@ describe('ListBox', () => {
     }
   });
 
-  it('applies density', async () => {
-    const screen = await renderWithDS(<Members density="sm" />);
+  it('sets rows at 32 or 36 pixels with density', async () => {
+    const screen = await renderWithDS(
+      <div className="flex flex-col gap-4">
+        {(['sm', 'md'] as const).map((density) => (
+          <ListBox key={density} aria-label={`Status ${density}`} density={density}>
+            <ListBoxItem id="draft">Draft</ListBoxItem>
+          </ListBox>
+        ))}
+      </div>,
+    );
     await expect
-      .element(screen.getByRole('listbox', { name: 'Assign to' }))
+      .element(screen.getByRole('listbox', { name: 'Status sm' }))
       .toHaveAttribute('data-density', 'sm');
-    expect(listBoxStyles({ density: 'sm' }).root()).toContain('[--list-box-item-height:2rem]');
+    const heights = [...screen.container.querySelectorAll('[role="option"]')].map(
+      (option) => option.getBoundingClientRect().height,
+    );
+    expect(heights).toEqual([32, 36]);
   });
 
   it('takes the empty and loading text from labels, then DSProvider', async () => {
@@ -332,6 +408,9 @@ describe('ListBox', () => {
             </ListBoxItem>
             <ListBoxItem id="comments" startIcon={<FolderIcon />} description="128 files">
               Comments
+            </ListBoxItem>
+            <ListBoxItem id="archive" startIcon={<FolderIcon />} isDisabled>
+              Archive
             </ListBoxItem>
           </ListBox>
         </div>,

@@ -16,7 +16,7 @@ export default function ContentStateRefreshError() {
   return (
     <div className="flex w-full max-w-lg flex-col items-start gap-3">
       <Button
-        variant="outlined"
+        variant="outline"
         size="sm"
         isDisabled={error !== undefined}
         onPress={() => setError(new Error('Network unreachable'))}
@@ -32,14 +32,14 @@ export default function ContentStateRefreshError() {
         }}
         errorTitle="Couldn’t refresh activity"
         errorDescription="Showing the list from 09:12. Check your connection and try again."
-        className="rounded-lg border border-outline-variant bg-surface p-2"
+        className="rounded-container border border-outline-subtle bg-surface-raised p-2"
       >
         {(items) => (
           <ul className="flex flex-col">
             {items.map((item) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between gap-4 px-2 py-3 text-body-md text-on-surface"
+                className="flex items-center justify-between gap-4 px-2 py-3 text-sm text-on-surface"
               >
                 <span>{item.title}</span>
                 <span className="text-on-surface-variant">{item.date}</span>

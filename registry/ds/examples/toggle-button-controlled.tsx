@@ -9,15 +9,10 @@ export default function ToggleButtonControlled() {
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <ToggleButton
-        variant="tonal"
-        startIcon={<NotificationsIcon />}
-        isSelected={notify}
-        onChange={setNotify}
-      >
+      <ToggleButton startIcon={<NotificationsIcon />} isSelected={notify} onChange={setNotify}>
         Notify me
       </ToggleButton>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {notify
           ? 'You will get a notification for new replies.'
           : 'Notifications for replies are off.'}

@@ -6,7 +6,7 @@ export default function TextAreaVariants() {
       <TextArea label="Feedback" isRequired placeholder="What could we do better?" minRows={2} />
       <TextArea
         label="Feedback"
-        variant="filled"
+        variant="soft"
         isRequired
         placeholder="What could we do better?"
         minRows={2}

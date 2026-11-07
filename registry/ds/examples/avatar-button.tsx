@@ -20,7 +20,7 @@ export default function AvatarButtonExample() {
           />
         ))}
       </AvatarGroup>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {assignee ? `Assigned to ${assignee}` : 'Pick someone to assign'}
       </p>
     </div>

@@ -11,11 +11,11 @@ export default function AlertDialogError() {
 
   return (
     <DialogTrigger onOpenChange={(isOpen) => isOpen && (attempts.current = 0)}>
-      <Button variant="tonal" startIcon={<ArchiveIcon />}>
+      <Button variant="soft" startIcon={<ArchiveIcon />}>
         Archive project
       </Button>
       <AlertDialog
-        tone="destructive"
+        tone="error"
         title="Archive this project?"
         description="Members lose access until it is restored. You can restore it within 30 days."
         confirmLabel="Archive"

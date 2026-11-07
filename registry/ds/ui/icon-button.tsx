@@ -12,130 +12,91 @@ import {
   type PressEvent,
   type ToggleButtonProps as AriaToggleButtonProps,
 } from 'react-aria-components';
-import { tv, type VariantProps } from '@/registry/ds/lib/utils';
-import { ButtonGroupContext } from '@/registry/ds/ui/button';
+import { tv } from '@/registry/ds/lib/utils';
+import {
+  ButtonGroupContext,
+  buttonStyles,
+  resolveButtonStyle,
+  type ButtonTone,
+  type ButtonVariant,
+} from '@/registry/ds/ui/button';
 import { useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
 import { Spinner } from '@/registry/ds/ui/spinner';
 
 export const iconButtonStyles = tv({
+  extend: buttonStyles,
   base: [
-    'state-layer focus-ring group/icon-button relative inline-flex shrink-0 cursor-default items-center justify-center no-underline select-none',
-    'rounded-(--icon-button-radius) data-[pressed]:rounded-[25%]',
-    '[--icon-button-morph:var(--ds-duration-spatial-fast)] motion-reduce:[--icon-button-morph:0ms] data-[reduced-motion]:[--icon-button-morph:0ms]',
-    '[transition:background-color_150ms_var(--ease-standard),color_150ms_var(--ease-standard),border-color_150ms_var(--ease-standard),border-radius_var(--icon-button-morph)_var(--ds-ease-spatial-fast)]',
-    'pointer-coarse:after:absolute',
-    'data-[disabled]:text-on-surface/38',
+    'group/icon-button pointer-coarse:after:absolute',
+    'data-[reduced-motion]:data-[pressed]:scale-100',
   ],
   variants: {
-    variant: {
-      standard: 'bg-transparent',
-      filled: 'data-[disabled]:bg-on-surface/12',
-      tonal: 'data-[disabled]:bg-on-surface/12',
-      outlined: 'border bg-transparent data-[disabled]:border-on-surface/12',
-    },
-    tone: {
-      default: '',
-      destructive: '',
-    },
     size: {
-      xs: 'size-7 [--icon-button-square:var(--radius-sm)] [--icon-size:1.125rem] pointer-coarse:after:-inset-2.5',
-      sm: 'size-8 [--icon-button-square:var(--radius-sm)] [--icon-size:1.25rem] pointer-coarse:after:-inset-2',
-      md: 'size-10 [--icon-button-square:var(--radius-md)] [--icon-size:1.5rem] pointer-coarse:after:-inset-1',
-      lg: 'size-12 [--icon-button-square:var(--radius-md)] [--icon-size:1.5rem]',
-      xl: 'size-14 [--icon-button-square:var(--radius-lg)] [--icon-size:1.75rem]',
-    },
-    shape: {
-      round: '[--icon-button-radius:50%] [--icon-button-selected-radius:var(--icon-button-square)]',
-      square:
-        '[--icon-button-radius:var(--icon-button-square)] [--icon-button-selected-radius:50%]',
-    },
-    toggle: {
-      true: 'data-[selected]:not-data-[pressed]:rounded-(--icon-button-selected-radius) data-[selected]:data-[disabled]:text-on-surface/38',
-      false: '',
+      xs: 'size-7 p-0 data-[pressed]:scale-[0.93] [--icon-size:1rem] pointer-coarse:after:-inset-2.5',
+      sm: 'size-8 p-0 [--icon-size:1rem] pointer-coarse:after:-inset-2',
+      md: 'size-10 p-0 [--icon-size:1.25rem] pointer-coarse:after:-inset-1',
+      lg: 'size-12 p-0 [--icon-size:1.5rem]',
     },
   },
-  compoundVariants: [
-    { toggle: false, variant: 'standard', tone: 'default', class: 'text-on-surface-variant' },
-    { toggle: false, variant: 'standard', tone: 'destructive', class: 'text-error' },
-    { toggle: false, variant: 'filled', tone: 'default', class: 'bg-primary text-on-primary' },
-    { toggle: false, variant: 'filled', tone: 'destructive', class: 'bg-error text-on-error' },
-    {
-      toggle: false,
-      variant: 'tonal',
-      tone: 'default',
-      class: 'bg-secondary-container text-on-secondary-container',
-    },
-    {
-      toggle: false,
-      variant: 'tonal',
-      tone: 'destructive',
-      class: 'bg-error-container text-on-error-container',
-    },
-    {
-      toggle: false,
-      variant: 'outlined',
-      tone: 'default',
-      class: 'border-outline-variant text-on-surface-variant',
-    },
-    {
-      toggle: false,
-      variant: 'outlined',
-      tone: 'destructive',
-      class: 'border-error/40 text-error',
-    },
-    {
-      toggle: true,
-      variant: 'standard',
-      class: 'text-on-surface-variant data-[selected]:text-primary',
-    },
-    {
-      toggle: true,
-      variant: 'filled',
-      class:
-        'bg-surface-container-highest text-primary data-[selected]:bg-primary data-[selected]:text-on-primary data-[selected]:data-[disabled]:bg-on-surface/12',
-    },
-    {
-      toggle: true,
-      variant: 'tonal',
-      class:
-        'bg-surface-container-highest text-on-surface-variant data-[selected]:bg-secondary-container data-[selected]:text-on-secondary-container data-[selected]:data-[disabled]:bg-on-surface/12',
-    },
-    {
-      toggle: true,
-      variant: 'outlined',
-      class:
-        'border-outline-variant text-on-surface-variant data-[selected]:border-transparent data-[selected]:bg-inverse-surface data-[selected]:text-inverse-on-surface data-[selected]:data-[disabled]:border-transparent data-[selected]:data-[disabled]:bg-on-surface/12',
-    },
-  ],
   defaultVariants: {
-    variant: 'standard',
-    tone: 'default',
+    variant: 'ghost',
+    tone: 'neutral',
     size: 'md',
-    shape: 'round',
-    toggle: false,
   },
 });
 
-export type IconButtonStyleProps = Omit<VariantProps<typeof iconButtonStyles>, 'toggle'>;
+const selectedToggle =
+  'data-[selected]:bg-primary-soft data-[selected]:text-on-primary-soft data-[selected]:data-[hovered]:bg-primary-soft-hover data-[selected]:data-[pressed]:bg-primary-soft-hover';
 
-type IconButtonVariant = NonNullable<IconButtonStyleProps['variant']>;
+export const iconToggleButtonStyles = tv({
+  extend: iconButtonStyles,
+  base: selectedToggle,
+  defaultVariants: {
+    variant: 'ghost',
+    tone: 'neutral',
+    size: 'md',
+  },
+});
 
-const groupVariants: Partial<Record<string, IconButtonVariant>> = {
-  filled: 'filled',
-  tonal: 'tonal',
-  outlined: 'outlined',
-  text: 'standard',
-};
+export type IconButtonVariant = ButtonVariant;
+export type IconButtonTone = ButtonTone;
+export type IconButtonSize = 'xs' | 'sm' | 'md' | 'lg';
+export type IconToggleButtonVariant = 'soft' | 'ghost';
 
-function useGroupedStyle({ variant, tone, size, shape }: IconButtonStyleProps) {
+export interface IconButtonStyleProps {
+  variant?: IconButtonVariant;
+  tone?: IconButtonTone;
+  size?: IconButtonSize;
+}
+
+export function resolveIconButtonStyle({
+  variant = 'ghost',
+  tone,
+  size = 'md',
+}: Pick<IconButtonStyleProps, 'variant' | 'tone' | 'size'>) {
+  const { tone: resolvedTone } = resolveButtonStyle({ variant, tone });
+  return { variant, tone: resolvedTone, size };
+}
+
+function toggleVariantFor(variant: ButtonVariant | undefined): IconToggleButtonVariant | undefined {
+  if (!variant) return undefined;
+  return variant === 'solid' || variant === 'soft' ? 'soft' : 'ghost';
+}
+
+function useGroupedStyle({ variant, tone, size }: IconButtonStyleProps) {
   const group = use(ButtonGroupContext);
   return {
-    variant: variant ?? (group?.variant ? groupVariants[group.variant] : undefined) ?? 'standard',
-    tone: tone ?? group?.tone ?? 'default',
-    size: size ?? group?.size ?? 'md',
-    shape: shape ?? 'round',
+    ...resolveIconButtonStyle({
+      variant: variant ?? group?.variant,
+      tone: tone ?? group?.tone,
+      size: size ?? group?.size,
+    }),
     isGroupDisabled: group?.isDisabled,
   };
+}
+
+function useReducedMotionAttribute() {
+  const { preference } = useMotionPreference();
+  return preference === 'system' ? undefined : true;
 }
 
 export interface IconButtonLabels {
@@ -180,11 +141,6 @@ function IconButtonContent({ icon, isPending, labels }: IconButtonContentProps) 
   );
 }
 
-function useReducedMotionAttribute() {
-  const { preference } = useMotionPreference();
-  return preference === 'system' ? undefined : true;
-}
-
 export interface IconButtonProps
   extends
     Omit<AriaButtonProps, 'onPress' | 'children' | 'className' | 'aria-label'>,
@@ -201,7 +157,6 @@ export function IconButton({
   variant,
   tone,
   size,
-  shape,
   icon,
   labels,
   className,
@@ -210,7 +165,7 @@ export function IconButton({
   isDisabled,
   ...props
 }: IconButtonProps) {
-  const { isGroupDisabled, ...style } = useGroupedStyle({ variant, tone, size, shape });
+  const { isGroupDisabled, ...style } = useGroupedStyle({ variant, tone, size });
   const [isRunning, setRunning] = useState(false);
   const isPending = isPendingProp ?? isRunning;
   const reducedMotion = useReducedMotionAttribute();
@@ -236,10 +191,9 @@ export function IconButton({
       data-variant={style.variant}
       data-tone={style.tone}
       data-size={style.size}
-      data-shape={style.shape}
       data-reduced-motion={reducedMotion}
       className={composeRenderProps(className, (className) =>
-        iconButtonStyles({ ...style, toggle: false, className }),
+        iconButtonStyles({ ...style, className }),
       )}
     >
       <IconButtonContent icon={icon} isPending={isPending} labels={labels} />
@@ -259,13 +213,12 @@ export function IconButtonLink({
   variant,
   tone,
   size,
-  shape,
   icon,
   className,
   isDisabled,
   ...props
 }: IconButtonLinkProps) {
-  const { isGroupDisabled, ...style } = useGroupedStyle({ variant, tone, size, shape });
+  const { isGroupDisabled, ...style } = useGroupedStyle({ variant, tone, size });
   const reducedMotion = useReducedMotionAttribute();
 
   return (
@@ -276,10 +229,9 @@ export function IconButtonLink({
       data-variant={style.variant}
       data-tone={style.tone}
       data-size={style.size}
-      data-shape={style.shape}
       data-reduced-motion={reducedMotion}
       className={composeRenderProps(className, (className) =>
-        iconButtonStyles({ ...style, toggle: false, className }),
+        iconButtonStyles({ ...style, className }),
       )}
     >
       <IconButtonContent icon={icon} />
@@ -290,10 +242,11 @@ export function IconButtonLink({
 export interface IconToggleButtonProps
   extends
     Omit<AriaToggleButtonProps, 'children' | 'className' | 'aria-label'>,
-    Omit<IconButtonStyleProps, 'tone'> {
+    Omit<IconButtonStyleProps, 'tone' | 'variant'> {
   'aria-label': string;
   icon: ReactNode;
   selectedIcon?: ReactNode;
+  variant?: IconToggleButtonVariant;
   className?: AriaToggleButtonProps['className'];
   ref?: Ref<HTMLButtonElement>;
 }
@@ -301,32 +254,30 @@ export interface IconToggleButtonProps
 export function IconToggleButton({
   variant,
   size,
-  shape,
   icon,
   selectedIcon,
   className,
   isDisabled,
   ...props
 }: IconToggleButtonProps) {
-  const { isGroupDisabled, ...style } = useGroupedStyle({
-    variant,
-    size,
-    shape,
-    tone: 'default',
-  });
+  const group = use(ButtonGroupContext);
   const reducedMotion = useReducedMotionAttribute();
+  const style = {
+    variant: variant ?? toggleVariantFor(group?.variant) ?? 'ghost',
+    tone: 'neutral' as const,
+    size: size ?? group?.size ?? 'md',
+  };
 
   return (
     <AriaToggleButton
       {...props}
-      isDisabled={isDisabled ?? isGroupDisabled}
+      isDisabled={isDisabled ?? group?.isDisabled}
       data-slot="icon-toggle-button"
       data-variant={style.variant}
       data-size={style.size}
-      data-shape={style.shape}
       data-reduced-motion={reducedMotion}
       className={composeRenderProps(className, (className) =>
-        iconButtonStyles({ ...style, toggle: true, className }),
+        iconToggleButtonStyles({ ...style, className }),
       )}
     >
       {({ isSelected }) => (

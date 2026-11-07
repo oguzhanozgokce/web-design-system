@@ -7,16 +7,16 @@ export default function DividerVertical() {
   return (
     <Toolbar
       aria-label="Photo actions"
-      className="flex flex-wrap items-center gap-1 rounded-xl bg-surface-container p-1"
+      className="flex flex-wrap items-center gap-1 rounded-control bg-neutral-soft p-1"
     >
-      <Button variant="text" size="sm" startIcon={<EditIcon />}>
+      <Button variant="ghost" size="sm" startIcon={<EditIcon />}>
         Edit
       </Button>
-      <Button variant="text" size="sm" startIcon={<ShareIcon />}>
+      <Button variant="ghost" size="sm" startIcon={<ShareIcon />}>
         Share
       </Button>
       <Divider orientation="vertical" inset="middle" />
-      <Button variant="text" size="sm" tone="destructive" startIcon={<DeleteIcon />}>
+      <Button variant="ghost" size="sm" tone="error" startIcon={<DeleteIcon />}>
         Delete
       </Button>
     </Toolbar>

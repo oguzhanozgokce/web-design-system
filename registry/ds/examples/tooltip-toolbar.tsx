@@ -23,7 +23,7 @@ export default function TooltipToolbar() {
     <TooltipGroup placement="bottom" delay={400}>
       <Toolbar
         aria-label="Actions"
-        className="flex items-center gap-1 rounded-full bg-surface-container px-2 py-1"
+        className="flex items-center gap-1 rounded-control border border-outline-subtle bg-surface-raised p-1 shadow-xs"
       >
         {actions.map((action) => (
           <TooltipTrigger key={action.label}>

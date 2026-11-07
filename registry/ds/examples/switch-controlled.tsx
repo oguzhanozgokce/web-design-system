@@ -11,7 +11,7 @@ export default function SwitchControlled() {
       <Switch isSelected={quiet} onChange={setQuiet}>
         Do not disturb
       </Switch>
-      <p className="text-body-md text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {quiet ? 'Notifications are paused.' : 'Notifications are on.'}
       </p>
     </div>

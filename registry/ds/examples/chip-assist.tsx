@@ -6,7 +6,7 @@ export default function ChipAssist() {
     <div className="flex flex-wrap items-center justify-center gap-2">
       <AssistChip startIcon={<CalendarIcon />}>Add to calendar</AssistChip>
       <AssistChip startIcon={<ShareIcon />}>Share</AssistChip>
-      <AssistChip variant="elevated" startIcon={<DownloadIcon />}>
+      <AssistChip variant="outline" startIcon={<DownloadIcon />}>
         Download
       </AssistChip>
     </div>

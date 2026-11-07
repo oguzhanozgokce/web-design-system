@@ -59,11 +59,11 @@ export default function ContentStateDemo() {
   }
 
   return (
-    <section className="w-full max-w-lg rounded-lg border border-outline-variant bg-surface">
-      <div className="flex items-center justify-between gap-2 border-b border-outline-variant py-2 ps-4 pe-2">
-        <h3 className="text-title-sm text-on-surface">Recent files</h3>
+    <section className="w-full max-w-lg rounded-container border border-outline-subtle bg-surface-raised">
+      <div className="flex items-center justify-between gap-2 border-b border-outline-subtle py-2 ps-4 pe-2">
+        <h3 className="text-sm font-semibold text-on-surface">Recent files</h3>
         <Button
-          variant="text"
+          variant="ghost"
           size="sm"
           startIcon={<RefreshIcon />}
           isDisabled={data === undefined}
@@ -86,10 +86,10 @@ export default function ContentStateDemo() {
             {items.map((file) => (
               <li key={file.id} className="flex items-center justify-between gap-4 px-2 py-3">
                 <div>
-                  <p className="text-title-sm text-on-surface">{file.name}</p>
-                  <p className="text-body-sm text-on-surface-variant">{file.kind}</p>
+                  <p className="text-sm font-medium text-on-surface">{file.name}</p>
+                  <p className="text-xs text-on-surface-variant">{file.kind}</p>
                 </div>
-                <span className="text-body-md text-on-surface tabular-digits">
+                <span className="text-sm text-on-surface tabular-digits">
                   {megabytes.format(file.size)}
                 </span>
               </li>

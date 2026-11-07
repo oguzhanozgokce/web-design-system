@@ -1,15 +1,13 @@
-import { CheckIcon } from '@/registry/ds/lib/icons';
+import { ContentPasteIcon, CopyIcon, UndoIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { ButtonGroup } from '@/registry/ds/ui/button-group';
 
 export default function ButtonGroupDemo() {
   return (
-    <ButtonGroup aria-label="Review" className="justify-center">
-      <Button startIcon={<CheckIcon />}>Approve</Button>
-      <Button variant="tonal">Request changes</Button>
-      <Button variant="outlined" tone="destructive">
-        Reject
-      </Button>
+    <ButtonGroup aria-label="Edit" buttonVariant="soft">
+      <Button startIcon={<UndoIcon />}>Undo</Button>
+      <Button startIcon={<CopyIcon />}>Copy</Button>
+      <Button startIcon={<ContentPasteIcon />}>Paste</Button>
     </ButtonGroup>
   );
 }

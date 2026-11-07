@@ -2,7 +2,7 @@
   "name": "disclosure",
   "type": "registry:ui",
   "title": "Disclosure",
-  "description": "Expandable section with a heading trigger, optional icon and description, and an animated panel, plus an Accordion that groups disclosures as plain, outlined or separated lists.",
+  "description": "An expandable section with a heading trigger and an animated panel, plus an Accordion that groups several as plain, surface or separated lists.",
   "category": "layout",
   "files": ["ui/disclosure.tsx"]
 }

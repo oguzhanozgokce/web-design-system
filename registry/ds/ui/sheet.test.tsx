@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { page, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { Button } from '@/registry/ds/ui/button';
-import { Card } from '@/registry/ds/ui/card';
 import { Chip, ChipGroup } from '@/registry/ds/ui/chip';
 import {
   Sheet,
@@ -19,47 +18,63 @@ function ProjectSheet(props: Omit<SheetProps, 'children'>) {
     <SheetTrigger>
       <Button>Open project</Button>
       <Sheet {...props}>
-        <SheetHeader title="Project DOC-2048" description="Riverside Studios, due 14 November" />
+        <SheetHeader
+          title="Project Atlas"
+          description="Updated by the design team on 14 November"
+        />
         <SheetBody>
-          <p>Three line items, paid by team transfer.</p>
+          <p>Three tasks are still open.</p>
         </SheetBody>
         <SheetFooter>
-          <Button variant="text" slot="close">
+          <Button variant="soft" tone="neutral" slot="close">
             Cancel
           </Button>
-          <Button>Mark as paid</Button>
+          <Button>Save changes</Button>
         </SheetFooter>
       </Sheet>
     </SheetTrigger>
   );
 }
 
-function OrderTracker({ onConfirm }: { onConfirm?: () => void }) {
+function UploadTracker({ onConfirm }: { onConfirm?: () => void }) {
   const [isOpen, setOpen] = useState(false);
   return (
     <>
       <Button
         aria-expanded={isOpen}
-        aria-controls={isOpen ? 'order-tracker' : undefined}
+        aria-controls={isOpen ? 'upload-tracker' : undefined}
         onPress={() => setOpen(!isOpen)}
       >
-        Track order
+        Show uploads
       </Button>
       <Sheet
-        id="order-tracker"
+        id="upload-tracker"
         side="bottom"
         variant="standard"
         isOpen={isOpen}
         onOpenChange={setOpen}
       >
-        <SheetHeader title="Order 4821" description="Arriving this afternoon" />
-        <SheetBody>Handed to DHL Express.</SheetBody>
+        <SheetHeader title="Uploads" description="3 photos left" />
+        <SheetBody>Uploading to the Team folder.</SheetBody>
         <SheetFooter>
-          <Button onPress={onConfirm}>Confirm delivery</Button>
+          <Button onPress={onConfirm}>Pause uploads</Button>
         </SheetFooter>
       </Sheet>
     </>
   );
+}
+
+function roleBackground(className: string) {
+  const probe = document.createElement('div');
+  probe.className = className;
+  document.body.append(probe);
+  const color = getComputedStyle(probe).backgroundColor;
+  probe.remove();
+  return color;
+}
+
+function closeButton() {
+  return page.getByRole('dialog').getByRole('button', { name: 'Close' });
 }
 
 function wait(ms: number) {
@@ -113,22 +128,33 @@ describe('Sheet', () => {
     const trigger = screen.getByRole('button', { name: 'Open project' });
 
     await trigger.click();
-    const dialog = page.getByRole('dialog', { name: 'Project DOC-2048' });
+    const dialog = page.getByRole('dialog', { name: 'Project Atlas' });
     await expect.element(dialog).toBeVisible();
-    await expect.element(dialog).toHaveAccessibleDescription('Riverside Studios, due 14 November');
+    await expect
+      .element(dialog)
+      .toHaveAccessibleDescription('Updated by the design team on 14 November');
     await expect.element(trigger).toHaveAttribute('aria-expanded', 'true');
 
     const root = part('sheet');
     expect(root).toHaveAttribute('data-side', 'end');
     expect(root).toHaveAttribute('data-size', 'md');
     expect(root).toHaveAttribute('data-variant', 'modal');
-    expect(part('sheet-surface')).toHaveClass(
-      'bg-surface-container-low',
-      'rounded-s-xl',
-      'shadow-elevation-1',
+    expect(root).not.toHaveAttribute('data-detached');
+    const surface = getComputedStyle(part('sheet-surface'));
+    expect(surface.backgroundColor).toBe(roleBackground('bg-surface-overlay'));
+    expect(surface.boxShadow).not.toBe('none');
+    expect(surface.borderTopLeftRadius).toBe('0px');
+    expect(surface.borderLeftWidth).toBe('1px');
+    expect(surface.borderRightWidth).toBe('0px');
+    expect(getComputedStyle(part('sheet-overlay')).backgroundColor).toBe(
+      roleBackground('bg-backdrop'),
     );
 
-    await dialog.getByRole('button', { name: 'Close' }).click();
+    const close = dialog.getByRole('button', { name: 'Close' });
+    await expect.element(close).toHaveAttribute('data-variant', 'ghost');
+    await expect.element(close).toHaveAttribute('data-tone', 'neutral');
+    await expect.element(close).toHaveAttribute('data-size', 'sm');
+    await close.click();
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await expect.element(trigger).toHaveFocus();
   });
@@ -158,7 +184,7 @@ describe('Sheet', () => {
     await expect.element(dialog.getByRole('button', { name: 'Close' })).toHaveFocus();
     await userEvent.keyboard('{Tab}');
     await userEvent.keyboard('{Tab}');
-    await expect.element(dialog.getByRole('button', { name: 'Mark as paid' })).toHaveFocus();
+    await expect.element(dialog.getByRole('button', { name: 'Save changes' })).toHaveFocus();
     await userEvent.keyboard('{Tab}');
     await expect.element(dialog.getByRole('button', { name: 'Close' })).toHaveFocus();
   });
@@ -213,28 +239,79 @@ describe('Sheet', () => {
     await screen.getByRole('button', { name: 'Edit member' }).click();
     await expect.element(page.getByRole('dialog', { name: 'Edit Ayşe Demir' })).toBeVisible();
     await expect.element(screen.getByText('Open')).toBeInTheDocument();
-    expect(part('sheet-surface')).toHaveClass('rounded-e-xl');
+    expect(getComputedStyle(part('sheet-surface')).borderRightWidth).toBe('1px');
 
     await page.getByRole('button', { name: 'Save role' }).click();
     await expect.element(screen.getByText('Closed')).toBeInTheDocument();
     expect(onOpenChange).toHaveBeenLastCalledWith(false);
   });
 
-  it('sizes side sheets by width and rounds only the exposed corners', async () => {
-    const screen = await renderWithDS(<ProjectSheet side="end" size="sm" />);
-    await screen.getByRole('button', { name: 'Open project' }).click();
+  it('sizes side sheets by width and rounds only the corners that face the page', async () => {
+    await page.viewport(1280, 800);
+    for (const [size, width] of [
+      ['sm', 320],
+      ['md', 384],
+      ['lg', 512],
+      ['xl', 672],
+    ] as const) {
+      const screen = await renderWithDS(<ProjectSheet side="end" size={size} />);
+      await screen.getByRole('button', { name: 'Open project' }).click();
+      await expect.element(page.getByRole('dialog')).toBeVisible();
+      expect(part('sheet').offsetWidth).toBe(width);
+      await userEvent.keyboard('{Escape}');
+      await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+      await screen.unmount();
+    }
+    await page.viewport(414, 896);
+
+    const narrow = await renderWithDS(<ProjectSheet side="end" />);
+    await narrow.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
-    await expect.poll(() => part('sheet').getBoundingClientRect().width).toBe(320);
+    expect(part('sheet').offsetWidth).toBe(Math.round(414 * 0.85));
     await userEvent.keyboard('{Escape}');
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    await screen.unmount();
+    await narrow.unmount();
 
-    const top = await renderWithDS(<ProjectSheet side="top" size="full" />);
+    const top = await renderWithDS(<ProjectSheet side="top" />);
     await top.getByRole('button', { name: 'Open project' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(part('sheet-surface')).toHaveClass('rounded-none');
-    expect(part('sheet-surface')).not.toHaveClass('rounded-b-xl');
+    const rounded = getComputedStyle(part('sheet-surface'));
+    expect(rounded.borderTopLeftRadius).toBe('0px');
+    expect(rounded.borderBottomLeftRadius).toBe('24px');
+    await userEvent.keyboard('{Escape}');
+    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+    await top.unmount();
+
+    const full = await renderWithDS(<ProjectSheet side="top" size="full" />);
+    await full.getByRole('button', { name: 'Open project' }).click();
+    await expect.element(page.getByRole('dialog')).toBeVisible();
+    expect(getComputedStyle(part('sheet-surface')).borderBottomLeftRadius).toBe('0px');
     expect(part('sheet').getBoundingClientRect().height).toBe(window.innerHeight);
+  });
+
+  it('floats a detached sheet 8px from the edges with every corner rounded', async () => {
+    for (const side of ['end', 'bottom'] as const) {
+      const screen = await renderWithDS(<ProjectSheet side={side} detached />, {
+        provider: { motion: 'disabled' },
+      });
+      await screen.getByRole('button', { name: 'Open project' }).click();
+      await expect.element(page.getByRole('dialog')).toBeVisible();
+      const root = part('sheet');
+      expect(root).toHaveAttribute('data-detached', 'true');
+      const box = root.getBoundingClientRect();
+      expect(Math.round(window.innerHeight - box.bottom)).toBe(8);
+      if (side === 'end') {
+        expect(Math.round(box.top)).toBe(8);
+        expect(Math.round(document.documentElement.clientWidth - box.right)).toBe(8);
+      }
+      const surface = getComputedStyle(part('sheet-surface'));
+      expect(surface.borderTopLeftRadius).toBe('24px');
+      expect(surface.borderBottomRightRadius).toBe('24px');
+      expect(surface.borderLeftWidth).toBe('0px');
+      await userEvent.keyboard('{Escape}');
+      await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+      await screen.unmount();
+    }
   });
 
   it('gives bottom sheets a drag handle that dismisses past 96px and springs back otherwise', async () => {
@@ -244,7 +321,7 @@ describe('Sheet', () => {
         <Button>Share project</Button>
         <Sheet side="bottom">
           <SheetHeader title="Share project" showCloseButton={false} />
-          <SheetBody>Send DOC-2048 to the follower.</SheetBody>
+          <SheetBody>Send Project Atlas to a teammate.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
@@ -254,7 +331,8 @@ describe('Sheet', () => {
     await expect.element(page.getByRole('dialog', { name: 'Share project' })).toBeVisible();
     const zone = part('sheet-handle-zone');
     expect(part('sheet-handle')).toHaveAttribute('aria-hidden', 'true');
-    expect(part('sheet-surface')).toHaveClass('rounded-t-xl');
+    expect(getComputedStyle(part('sheet-surface')).borderTopLeftRadius).toBe('24px');
+    expect(getComputedStyle(part('sheet-surface')).borderBottomLeftRadius).toBe('0px');
 
     await drag(zone, 40, 8, 40);
     await expect.element(page.getByRole('dialog')).toBeVisible();
@@ -271,7 +349,7 @@ describe('Sheet', () => {
         <Button>Filters</Button>
         <Sheet side="bottom">
           <SheetHeader title="Filters" />
-          <SheetBody>Paid, overdue and draft projects.</SheetBody>
+          <SheetBody>Open, archived and draft projects.</SheetBody>
         </Sheet>
       </SheetTrigger>,
     );
@@ -289,7 +367,7 @@ describe('Sheet', () => {
         <Button>Review upload</Button>
         <Sheet side="bottom" isDismissable={false}>
           <SheetHeader title="Review upload" />
-          <SheetBody>Confirm the team account before you continue.</SheetBody>
+          <SheetBody>Check the photos before you continue.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
@@ -306,17 +384,17 @@ describe('Sheet', () => {
     const onSnapPointChange = vi.fn();
     const screen = await renderWithDS(
       <SheetTrigger>
-        <Button>Transactions</Button>
+        <Button>Photos</Button>
         <Sheet side="bottom" snapPoints={['50%', '90%']} onSnapPointChange={onSnapPointChange}>
-          <SheetHeader title="Transactions" />
-          <SheetBody>42 transactions this month.</SheetBody>
+          <SheetHeader title="Photos" />
+          <SheetBody>42 photos this month.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
     );
 
-    await screen.getByRole('button', { name: 'Transactions' }).click();
-    await expect.element(page.getByRole('dialog', { name: 'Transactions' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Photos' }).click();
+    await expect.element(page.getByRole('dialog', { name: 'Photos' })).toBeVisible();
     const surface = part('sheet-surface');
     const handle = page.getByRole('button', { name: 'Resize sheet' });
 
@@ -339,16 +417,16 @@ describe('Sheet', () => {
   it('drags between snap points before it dismisses', async () => {
     const screen = await renderWithDS(
       <SheetTrigger>
-        <Button>Transactions</Button>
+        <Button>Photos</Button>
         <Sheet side="bottom" snapPoints={['50%', '90%']} defaultSnapPoint="90%">
-          <SheetHeader title="Transactions" />
-          <SheetBody>42 transactions this month.</SheetBody>
+          <SheetHeader title="Photos" />
+          <SheetBody>42 photos this month.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
     );
 
-    await screen.getByRole('button', { name: 'Transactions' }).click();
+    await screen.getByRole('button', { name: 'Photos' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     const surface = part('sheet-surface');
     expect(surface).toHaveAttribute('data-snap-point', '90%');
@@ -368,11 +446,11 @@ describe('Sheet', () => {
         <Sheet side="bottom">
           <SheetHeader title="Filters">
             <ChipGroup label="Status" selectionMode="multiple" className="mt-3">
-              <Chip id="paid">Paid</Chip>
-              <Chip id="overdue">Overdue</Chip>
+              <Chip id="open">Open</Chip>
+              <Chip id="archived">Archived</Chip>
             </ChipGroup>
           </SheetHeader>
-          <SheetBody>Paid, overdue and draft projects.</SheetBody>
+          <SheetBody>Open, archived and draft projects.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
@@ -380,11 +458,11 @@ describe('Sheet', () => {
 
     await screen.getByRole('button', { name: 'Filters' }).click();
     await expect.element(page.getByRole('dialog', { name: 'Filters' })).toBeVisible();
-    await drag(page.getByRole('row', { name: 'Overdue' }).element(), 200, 10, 40);
+    await drag(page.getByRole('row', { name: 'Archived' }).element(), 200, 10, 40);
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(translateY(part('sheet-surface'))).toBe(0);
 
-    await drag(part('sheet-close'), 200, 10, 40);
+    await drag(closeButton().element(), 200, 10, 40);
     await expect.element(page.getByRole('dialog')).toBeVisible();
     expect(translateY(part('sheet-surface'))).toBe(0);
     expect(part('sheet-surface')).not.toHaveAttribute('data-dragging');
@@ -393,16 +471,16 @@ describe('Sheet', () => {
   it('still steps through snap points from the handle after a drag', async () => {
     const screen = await renderWithDS(
       <SheetTrigger>
-        <Button>Transactions</Button>
+        <Button>Photos</Button>
         <Sheet side="bottom" snapPoints={['50%', '90%']}>
-          <SheetHeader title="Transactions" />
-          <SheetBody>42 transactions this month.</SheetBody>
+          <SheetHeader title="Photos" />
+          <SheetBody>42 photos this month.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
     );
 
-    await screen.getByRole('button', { name: 'Transactions' }).click();
+    await screen.getByRole('button', { name: 'Photos' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     const surface = part('sheet-surface');
     await drag(part('sheet-header'), 30, 6, 40);
@@ -419,18 +497,18 @@ describe('Sheet', () => {
   it('follows a controlled snap point', async () => {
     const onSnapPointChange = vi.fn();
 
-    function Transactions() {
+    function PhotoSheet() {
       const [snapPoint, setSnapPoint] = useState<SheetSnapPoint>('50%');
       return (
         <SheetTrigger>
-          <Button>Transactions</Button>
+          <Button>Photos</Button>
           <Sheet
             side="bottom"
             snapPoints={['50%', '90%']}
             snapPoint={snapPoint}
             onSnapPointChange={setSnapPoint}
           >
-            <SheetHeader title="Transactions" />
+            <SheetHeader title="Photos" />
             <SheetBody>
               <Button onPress={() => setSnapPoint('90%')}>Show all</Button>
             </SheetBody>
@@ -439,8 +517,8 @@ describe('Sheet', () => {
       );
     }
 
-    const screen = await renderWithDS(<Transactions />, { provider: { motion: 'reduced' } });
-    await screen.getByRole('button', { name: 'Transactions' }).click();
+    const screen = await renderWithDS(<PhotoSheet />, { provider: { motion: 'reduced' } });
+    await screen.getByRole('button', { name: 'Photos' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     const surface = part('sheet-surface');
     expect(surface).toHaveAttribute('data-snap-point', '50%');
@@ -454,20 +532,20 @@ describe('Sheet', () => {
 
     const fixed = await renderWithDS(
       <SheetTrigger>
-        <Button>Transactions</Button>
+        <Button>Photos</Button>
         <Sheet
           side="bottom"
           snapPoints={['50%', '90%']}
           snapPoint="50%"
           onSnapPointChange={onSnapPointChange}
         >
-          <SheetHeader title="Transactions" />
-          <SheetBody>42 transactions this month.</SheetBody>
+          <SheetHeader title="Photos" />
+          <SheetBody>42 photos this month.</SheetBody>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
     );
-    await fixed.getByRole('button', { name: 'Transactions' }).click();
+    await fixed.getByRole('button', { name: 'Photos' }).click();
     await page.getByRole('button', { name: 'Resize sheet' }).click();
     expect(onSnapPointChange).toHaveBeenLastCalledWith('90%');
     expect(part('sheet-surface')).toHaveAttribute('data-snap-point', '50%');
@@ -487,7 +565,7 @@ describe('Sheet', () => {
           <SheetHeader title="Audit log" />
           <SheetBody>
             {Array.from({ length: 60 }, (_, index) => (
-              <p key={index}>Project INV-{2000 + index} exported by Ayşe Demir.</p>
+              <p key={index}>Photo IMG-{2000 + index} added by Ayşe Demir.</p>
             ))}
           </SheetBody>
         </Sheet>
@@ -507,23 +585,23 @@ describe('Sheet', () => {
   it('expands to the largest snap point when the keyboard reaches content below the fold', async () => {
     const screen = await renderWithDS(
       <SheetTrigger>
-        <Button>Transactions</Button>
+        <Button>Photos</Button>
         <Sheet side="bottom" snapPoints={['50%', '90%']}>
-          <SheetHeader title="Transactions" />
+          <SheetHeader title="Photos" />
           <SheetBody>
             {Array.from({ length: 60 }, (_, index) => (
-              <p key={index}>Card message {index + 1}, Operating account.</p>
+              <p key={index}>Photo {index + 1}, Team folder.</p>
             ))}
           </SheetBody>
           <SheetFooter>
-            <Button>Export CSV</Button>
+            <Button>Download all</Button>
           </SheetFooter>
         </Sheet>
       </SheetTrigger>,
       { provider: { motion: 'reduced' } },
     );
 
-    await screen.getByRole('button', { name: 'Transactions' }).click();
+    await screen.getByRole('button', { name: 'Photos' }).click();
     await expect.element(page.getByRole('dialog')).toBeVisible();
     const surface = part('sheet-surface');
     expect(surface).toHaveAttribute('data-snap-point', '50%');
@@ -578,13 +656,13 @@ describe('Sheet', () => {
         aria-label="Upload progress"
       >
         <SheetBody>
-          <Button>Cancel upload</Button>
+          <Button>Pause upload</Button>
         </SheetBody>
       </Sheet>,
     );
     const dialog = page.getByRole('dialog', { name: 'Upload progress' });
     await expect.element(dialog).toBeVisible();
-    await dialog.getByRole('button', { name: 'Cancel upload' }).click();
+    await dialog.getByRole('button', { name: 'Pause upload' }).click();
     await userEvent.keyboard('{Escape}');
     await wait(100);
     await expect.element(dialog).toBeVisible();
@@ -595,24 +673,24 @@ describe('Sheet', () => {
     const onConfirm = vi.fn();
     const screen = await renderWithDS(
       <div>
-        <Button onPress={onArchive}>Archive order</Button>
-        <OrderTracker onConfirm={onConfirm} />
+        <Button onPress={onArchive}>Archive album</Button>
+        <UploadTracker onConfirm={onConfirm} />
       </div>,
     );
-    const toggle = screen.getByRole('button', { name: 'Track order' });
+    const toggle = screen.getByRole('button', { name: 'Show uploads' });
 
     await toggle.click();
-    const dialog = page.getByRole('dialog', { name: 'Order 4821' });
+    const dialog = page.getByRole('dialog', { name: 'Uploads' });
     await expect.element(dialog).toBeVisible();
     await expect.element(dialog).not.toHaveAttribute('aria-modal');
     await expect.element(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(part('sheet')).toHaveAttribute('data-variant', 'standard');
     expect(document.querySelector('[data-slot="sheet-overlay"]')).toBeNull();
-    expect(part('sheet-close')).not.toHaveAttribute('aria-expanded');
+    await expect.element(closeButton()).not.toHaveAttribute('aria-expanded');
 
-    await screen.getByRole('button', { name: 'Archive order' }).click();
+    await screen.getByRole('button', { name: 'Archive album' }).click();
     expect(onArchive).toHaveBeenCalledOnce();
-    await dialog.getByRole('button', { name: 'Confirm delivery' }).click();
+    await dialog.getByRole('button', { name: 'Pause uploads' }).click();
     expect(onConfirm).toHaveBeenCalledOnce();
     await expect.element(dialog).toBeVisible();
 
@@ -632,9 +710,9 @@ describe('Sheet', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     await renderWithDS(
       <SheetTrigger>
-        <Button>Order summary</Button>
-        <Sheet variant="standard" aria-label="Order summary">
-          <SheetBody>3 orders selected.</SheetBody>
+        <Button>Selection</Button>
+        <Sheet variant="standard" aria-label="Selection">
+          <SheetBody>3 photos selected.</SheetBody>
         </Sheet>
       </SheetTrigger>,
     );
@@ -647,7 +725,7 @@ describe('Sheet', () => {
       locale: 'tr',
     });
     await screen.getByRole('button', { name: 'Open project' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Project DOC-2048' });
+    const dialog = page.getByRole('dialog', { name: 'Project Atlas' });
     await expect.element(dialog.getByRole('button', { name: 'Close' })).toBeVisible();
     await expect.element(dialog.getByRole('button', { name: 'Resize sheet' })).toBeVisible();
   });
@@ -658,7 +736,7 @@ describe('Sheet', () => {
       provider,
     });
     await screen.getByRole('button', { name: 'Open project' }).click();
-    let dialog = page.getByRole('dialog', { name: 'Project DOC-2048' });
+    let dialog = page.getByRole('dialog', { name: 'Project Atlas' });
     await expect.element(dialog.getByRole('button', { name: 'Kapat' })).toBeVisible();
     await expect.element(dialog.getByRole('button', { name: 'Boyutlandır' })).toBeVisible();
     await userEvent.keyboard('{Escape}');
@@ -674,30 +752,11 @@ describe('Sheet', () => {
       { provider },
     );
     await own.getByRole('button', { name: 'Open project' }).click();
-    dialog = page.getByRole('dialog', { name: 'Project DOC-2048' });
+    dialog = page.getByRole('dialog', { name: 'Project Atlas' });
     await expect.element(dialog.getByRole('button', { name: 'Paneli kapat' })).toBeVisible();
     await expect
       .element(dialog.getByRole('button', { name: 'Paneli yeniden boyutlandır' }))
       .toBeVisible();
-  });
-
-  it('raises cards inside it above its own surface', async () => {
-    const screen = await renderWithDS(
-      <SheetTrigger>
-        <Button>Open project</Button>
-        <Sheet aria-label="Project DOC-2048">
-          <SheetBody>
-            <Card variant="outlined">Paid by team transfer</Card>
-          </SheetBody>
-        </Sheet>
-      </SheetTrigger>,
-    );
-    await screen.getByRole('button', { name: 'Open project' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(part('sheet-body').querySelector('[data-slot="card"]')).toHaveAttribute(
-      'data-surface',
-      'surface-container',
-    );
   });
 
   it('takes its direction from the locale so end sheets open on the left in Arabic', async () => {
@@ -732,7 +791,7 @@ describe('Sheet', () => {
       for (const [sheet, trigger] of [
         [<ProjectSheet key="end" />, 'Open project'],
         [<ProjectSheet key="bottom" side="bottom" snapPoints={['50%', '90%']} />, 'Open project'],
-        [<OrderTracker key="standard" />, 'Track order'],
+        [<UploadTracker key="standard" />, 'Show uploads'],
       ] as const) {
         const screen = await renderWithDS(sheet, options);
         await screen.getByRole('button', { name: trigger }).click();

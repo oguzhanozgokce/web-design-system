@@ -1,6 +1,6 @@
 ---
 title: Spinner
-description: A small decorative spinner that inherits the current text colour and size, for pending buttons, chips and inline status text.
+description: A small decorative spinner in four sizes that follows the current text colour, for pending buttons, chips and inline status text.
 ---
 
 <ComponentPreview name="spinner-demo" />
@@ -15,28 +15,30 @@ description: A small decorative spinner that inherits the current text colour an
 import { Spinner } from '@/components/ds/spinner';
 
 <p role="status">
-  <Spinner /> Syncing 3 folders
+  <Spinner size="sm" tone="primary" /> Syncing 3 folders
 </p>;
 ```
 
 `Spinner` is the glyph that `Button`, `IconButton`, `Fab`, `Chip` and `Toast` show while they are
 pending. Reach for it when you build something similar. For a loading state that stands on its own,
 use [`CircularProgress`](/docs/components/feedback/progress) with `isIndeterminate` instead: it has
-a name, a track and the Material 3 motion.
+a name and a track.
 
 ## Examples
 
 ### Sizes
 
-The spinner is `1em` square, so it follows the font size of its parent like an icon. Set a text
-size on it or on a parent, or pass `size` in pixels or any CSS length.
+`sm`, `md`, `lg` and `xl` are 16, 24, 32 and 40px, with a stroke that grows from 2 to 3.5px so
+the ring keeps its weight. Without `size` the spinner is `1em` square and follows the font size of
+its parent like an icon, which is how buttons use it. A number or any CSS length also works.
 
 <ComponentPreview name="spinner-sizes" />
 
 ### Colour
 
-It draws with `currentColor`: the arc at full strength and the ring at 24%. Put it in a surface with
-an `on-` text role and it matches the label next to it.
+`tone="current"`, the default, draws with `currentColor`: the arc at full strength and the track
+at 20%. On a filled surface it matches the label next to it. `tone="primary"` paints it in the
+accent for a spinner that stands next to plain text.
 
 <ComponentPreview name="spinner-colors" />
 
@@ -51,28 +53,30 @@ The spinner is `aria-hidden`. When nothing nearby says what is loading, wrap it 
 
 ### Spinner
 
-| Prop        | Type               | Default |
-| ----------- | ------------------ | ------- |
-| `size`      | `number \| string` | `'1em'` |
-| `className` | `string`           |         |
+| Prop        | Type                                               | Default     |
+| ----------- | -------------------------------------------------- | ----------- |
+| `size`      | `'sm' \| 'md' \| 'lg' \| 'xl' \| number \| string` | `'1em'`     |
+| `tone`      | `'current' \| 'primary'`                           | `'current'` |
+| `className` | `string`                                           |             |
 
 Every other SVG attribute is passed through.
 
 ### Styles
 
-`spinnerStyles` takes a `motion` variant: `full` (one turn a second), `reduced` (one turn every 2.4
-seconds) or `none`. A class you pass, such as `animate-none`, replaces the built-in animation.
+`spinnerStyles` takes `tone` and a `motion` variant: `full` (one turn every 0.75 seconds),
+`reduced` (one turn every 1.5 seconds) or `none`. A class you pass, such as `animate-none`,
+replaces the built-in animation.
 
 ### Data attributes
 
-`data-slot="spinner"`.
+`data-slot="spinner"`, `data-size` (only for the named sizes), `data-tone`. Parts:
+`data-slot="track"`, `"arc"`.
 
 ## Accessibility
 
 - The spinner is decorative: `aria-hidden="true"` and `focusable="false"`. It never becomes the
   only sign that something is loading for a screen reader user. Pair it with visible text in a
   `role="status"` element, or with a named `ProgressBar`.
-- With reduced motion from the operating system or `DSProvider motion="reduced"` it turns slowly,
-  once every 2.4 seconds, instead of stopping, so it still reads as busy. `motion="disabled"` stops
-  it.
+- With reduced motion from the operating system or `DSProvider motion="reduced"` it turns at half
+  speed instead of stopping, so it still reads as busy. `motion="disabled"` stops it.
 - Contrast and structure are checked with axe in light, dark and RTL by `spinner.test.tsx`.

@@ -2,25 +2,31 @@ import { Card, CardHeader } from '@/registry/ds/ui/card';
 
 const variants = [
   {
+    variant: 'outline',
+    title: 'Outline',
+    description:
+      'A raised surface with a hairline border. The default, calm enough for dense pages.',
+  },
+  {
     variant: 'elevated',
     title: 'Elevated',
-    description: 'surface-container-low with a shadow. Lifts off busy or patterned backgrounds.',
+    description: 'A raised surface with a soft shadow. Lifts off busy or patterned backgrounds.',
   },
   {
-    variant: 'filled',
-    title: 'Filled',
-    description: 'surface-container-highest. The default, for grouped content on a plain page.',
+    variant: 'soft',
+    title: 'Soft',
+    description: 'A translucent neutral fill. Groups content inside another card or a panel.',
   },
   {
-    variant: 'outlined',
-    title: 'Outlined',
-    description: 'surface with an outline-variant border. Calm enough for dense dashboards.',
+    variant: 'transparent',
+    title: 'Transparent',
+    description: 'No fill and no border. Keeps the card layout for content that sits on the page.',
   },
 ] as const;
 
 export default function CardVariants() {
   return (
-    <div className="grid w-full gap-4 sm:grid-cols-3">
+    <div className="grid w-full gap-4 sm:grid-cols-2">
       {variants.map((item) => (
         <Card key={item.variant} variant={item.variant}>
           <CardHeader title={item.title} description={item.description} />

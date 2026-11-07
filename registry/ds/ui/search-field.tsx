@@ -31,8 +31,6 @@ import {
 } from '@/registry/ds/ui/field';
 import { Spinner } from '@/registry/ds/ui/spinner';
 
-export type SearchFieldShape = 'field' | 'pill';
-
 export interface SearchFieldLabels {
   search: string;
   clear: string;
@@ -56,47 +54,31 @@ export const defaultSearchFieldLabels: SearchFieldLabels = {
 export const searchFieldStyles = tv({
   slots: {
     root: 'group/search',
-    container: '',
     icon: 'grid *:[grid-area:1/1]',
     glyph: [
-      'inline-flex items-center justify-center transition-opacity duration-150 ease-standard motion-reduce:duration-0',
+      'inline-flex items-center justify-center transition-opacity duration-150 ease-out motion-reduce:duration-0',
       'group-data-[pending]/search:opacity-0 group-data-[pending]/search:delay-300',
     ],
     pending: 'inline-flex animate-ds-fade-in-delayed items-center justify-center',
+    clear: 'animate-ds-fade-in motion-reduce:animate-none',
     shortcut: [
-      'pointer-events-none ms-(--field-gap) inline-flex shrink-0 items-center justify-center rounded-xs border border-b-2 border-outline-variant bg-surface-container-low [font-family:inherit] text-on-surface-variant whitespace-nowrap select-none',
-      'transition-opacity duration-150 ease-standard group-focus-within/control:opacity-0 motion-reduce:transition-none pointer-coarse:hidden',
+      'pointer-events-none ms-(--field-gap) inline-flex shrink-0 items-center justify-center bg-neutral-soft [font-family:inherit] font-medium text-on-surface-variant whitespace-nowrap select-none',
+      'transition-opacity duration-150 ease-out group-focus-within/control:opacity-0 motion-reduce:transition-none pointer-coarse:hidden',
     ],
   },
   variants: {
-    shape: {
-      field: {},
-      pill: {
-        container: [
-          'rounded-full border-0 bg-surface-container-high forced-colors:border',
-          'isolate before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-on-surface before:opacity-0 before:transition-opacity before:duration-150 before:ease-standard motion-reduce:before:transition-none',
-          'data-[hovered]:not-focus-within:not-data-[readonly]:not-data-[disabled]:before:opacity-8',
-          'focus-within:ring-2 data-[invalid]:ring-2 data-[invalid]:ring-inset',
-          'data-[readonly]:bg-surface-container data-[disabled]:bg-on-surface/4',
-        ],
-      },
-    },
     size: {
-      sm: { shortcut: 'h-5 min-w-5 px-1 text-label-sm' },
-      md: { shortcut: 'h-5 min-w-5 px-1 text-label-sm' },
-      lg: { shortcut: 'h-6 min-w-6 px-1.5 text-label-md' },
+      sm: { shortcut: 'h-5 min-w-5 rounded-md px-1 text-[0.6875rem]' },
+      md: { shortcut: 'h-5 min-w-5 rounded-md px-1 text-[0.6875rem]' },
+      lg: { shortcut: 'h-6 min-w-6 rounded-lg px-1.5 text-xs' },
     },
   },
-  compoundVariants: [
-    { shape: 'pill', size: 'sm', class: { container: '[--field-px:0.875rem]' } },
-    { shape: 'pill', size: 'md', class: { container: '[--field-px:1rem]' } },
-    { shape: 'pill', size: 'lg', class: { container: '[--field-px:1.25rem]' } },
-  ],
   defaultVariants: {
-    shape: 'field',
     size: 'md',
   },
 });
+
+export type SearchFieldVariant = 'outline' | 'soft';
 
 interface ShortcutCombo {
   key: string;
@@ -311,7 +293,6 @@ export interface SearchFieldProps
   onSubmit?: (value: string) => void | Promise<unknown>;
   isPending?: boolean;
   shortcut?: string;
-  shape?: SearchFieldShape;
   icon?: ReactNode;
   endAdornment?: ReactNode;
   inputRef?: Ref<HTMLInputElement>;
@@ -325,8 +306,7 @@ export function SearchField({
   errorMessage,
   necessityIndicator,
   size = 'md',
-  variant = 'outlined',
-  shape = 'field',
+  variant = 'outline',
   placeholder,
   onSubmit,
   isPending: isPendingProp = false,
@@ -344,10 +324,8 @@ export function SearchField({
   const groupRef = useRef<HTMLDivElement>(null);
   const [isRunning, setRunning] = useState(false);
   const isPending = isPendingProp || isRunning;
-  const isPill = shape === 'pill';
-  const fieldVariant = isPill ? 'outlined' : variant;
   const hasLabel = hasContent(label);
-  const styles = searchFieldStyles({ shape, size });
+  const styles = searchFieldStyles({ size });
   const hint = useFocusShortcut(shortcut, groupRef, !props.isDisabled, t);
   const ariaLabel =
     props['aria-label'] ?? (!hasLabel && !props['aria-labelledby'] ? t.search : undefined);
@@ -372,11 +350,10 @@ export function SearchField({
       onSubmit={onSubmit ? handleSubmit : undefined}
       data-slot="search-field"
       data-size={size}
-      data-variant={isPill ? undefined : variant}
-      data-shape={shape}
+      data-variant={variant}
       data-pending={isPending || undefined}
       className={composeRenderProps(className, (className) =>
-        fieldStyles({ size, variant: fieldVariant }).root({
+        fieldStyles({ size, variant }).root({
           className: styles.root({ className }),
         }),
       )}
@@ -390,10 +367,10 @@ export function SearchField({
           necessityIndicator={necessityIndicator}
           isRequired={props.isRequired}
           size={size}
-          variant={fieldVariant}
+          variant={variant}
           labels={labels}
         >
-          <FieldGroup ref={groupRef} isReadOnly={isReadOnly} className={styles.container()}>
+          <FieldGroup ref={groupRef} isReadOnly={isReadOnly}>
             <FieldAdornment placement="start" className={styles.icon()}>
               <ButtonContext value={null}>
                 <span data-slot="search-icon" className={styles.glyph()}>
@@ -422,7 +399,7 @@ export function SearchField({
               </kbd>
             ) : null}
             {!isEmpty && !isDisabled && !isReadOnly ? (
-              <FieldButton aria-label={t.clear} data-slot="clear-button">
+              <FieldButton aria-label={t.clear} data-slot="clear-button" className={styles.clear()}>
                 <icons.close />
               </FieldButton>
             ) : null}

@@ -4,7 +4,7 @@ export default function SearchFieldDemo() {
   return (
     <SearchField
       className="w-full max-w-md"
-      shape="pill"
+      variant="soft"
       shortcut="/"
       placeholder="Search documentation"
     />

@@ -14,13 +14,13 @@ export default function ToggleButtonIcons() {
         Like
       </ToggleButton>
       <ToggleButton
-        variant="outlined"
+        variant="ghost"
         startIcon={<VisibilityOffIcon />}
         selectedIcon={<VisibilityIcon />}
       >
         Show hidden
       </ToggleButton>
-      <ToggleButton variant="tonal" endIcon={<NotificationsIcon />}>
+      <ToggleButton variant="ghost" endIcon={<NotificationsIcon />}>
         Notifications
       </ToggleButton>
     </div>

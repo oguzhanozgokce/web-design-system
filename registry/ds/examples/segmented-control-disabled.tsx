@@ -11,17 +11,12 @@ export default function SegmentedControlDisabled() {
           4K
         </SegmentedControlItem>
       </SegmentedControl>
-      <SegmentedControl
-        aria-label="Backup frequency"
-        variant="thumb"
-        isDisabled
-        defaultSelectedKeys={['weekly']}
-      >
+      <SegmentedControl aria-label="Backup frequency" isDisabled defaultSelectedKeys={['weekly']}>
         <SegmentedControlItem id="daily">Daily</SegmentedControlItem>
         <SegmentedControlItem id="weekly">Weekly</SegmentedControlItem>
         <SegmentedControlItem id="monthly">Monthly</SegmentedControlItem>
       </SegmentedControl>
-      <p className="text-center text-body-sm text-on-surface-variant">
+      <p className="text-center text-xs text-on-surface-variant">
         4K is not available for this video. Your administrator sets how often backups run.
       </p>
     </div>

@@ -7,23 +7,51 @@
 @source '../components';
 
 :root,
-.dark {
-  --color-fd-background: var(--surface);
+.light,
+#nd-sidebar {
+  --color-fd-background: var(--canvas);
   --color-fd-foreground: var(--on-surface);
-  --color-fd-muted: var(--surface-container);
+  --color-fd-muted: var(--surface-raised);
   --color-fd-muted-foreground: var(--on-surface-variant);
-  --color-fd-popover: var(--surface-container-high);
+  --color-fd-popover: var(--surface-overlay);
   --color-fd-popover-foreground: var(--on-surface);
-  --color-fd-card: var(--surface-container-low);
+  --color-fd-card: var(--surface-raised);
   --color-fd-card-foreground: var(--on-surface);
-  --color-fd-border: var(--outline-variant);
-  --color-fd-primary: var(--primary);
-  --color-fd-primary-foreground: var(--on-primary);
-  --color-fd-secondary: var(--surface-container-high);
+  --color-fd-border: color-mix(in srgb, var(--on-surface) 9%, transparent);
+  --color-fd-primary: var(--on-surface);
+  --color-fd-primary-foreground: var(--surface);
+  --color-fd-secondary: color-mix(in srgb, var(--on-surface) 4%, var(--surface-raised));
   --color-fd-secondary-foreground: var(--on-surface);
-  --color-fd-accent: var(--secondary-container);
-  --color-fd-accent-foreground: var(--on-secondary-container);
-  --color-fd-ring: var(--secondary);
+  --color-fd-accent: color-mix(in srgb, var(--on-surface) 6%, transparent);
+  --color-fd-accent-foreground: var(--on-surface);
+  --color-fd-ring: var(--primary);
+  --color-fd-overlay: color-mix(in srgb, var(--scrim) 40%, transparent);
+}
+
+.dark,
+.dark #nd-sidebar {
+  --color-fd-background: var(--canvas);
+  --color-fd-foreground: var(--on-surface);
+  --color-fd-muted: var(--surface-raised);
+  --color-fd-muted-foreground: var(--on-surface-variant);
+  --color-fd-popover: var(--surface-overlay);
+  --color-fd-popover-foreground: var(--on-surface);
+  --color-fd-card: var(--surface-raised);
+  --color-fd-card-foreground: var(--on-surface);
+  --color-fd-border: color-mix(in srgb, var(--on-surface) 11%, transparent);
+  --color-fd-primary: var(--on-surface);
+  --color-fd-primary-foreground: var(--surface);
+  --color-fd-secondary: color-mix(in srgb, var(--on-surface) 6%, var(--surface-raised));
+  --color-fd-secondary-foreground: var(--on-surface);
+  --color-fd-accent: color-mix(in srgb, var(--on-surface) 10%, transparent);
+  --color-fd-accent-foreground: var(--on-surface);
+  --color-fd-ring: var(--primary);
+  --color-fd-overlay: color-mix(in srgb, var(--scrim) 60%, transparent);
+}
+
+#nd-sidebar,
+.dark #nd-sidebar {
+  --color-fd-card: var(--canvas);
 }
 
 html {

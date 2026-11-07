@@ -17,40 +17,44 @@ import { useDirection, useLabels, useMotionPreference } from '@/registry/ds/ui/d
 
 export const sliderStyles = tv({
   slots: {
-    root: 'group/slider flex min-w-0 flex-col gap-1 [--slider-gap:0.5rem] [--slider-handle-width:0.25rem]',
+    root: [
+      'group/slider flex min-w-0 flex-col gap-1 [--slider-gap:calc(var(--slider-thumb)/2)]',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 forced-colors:data-[disabled]:opacity-100',
+    ],
     header: 'flex min-w-0 gap-x-3 gap-y-0.5',
     label:
-      'min-w-0 cursor-default text-label-lg text-on-surface group-data-[disabled]/slider:text-on-surface/38 forced-colors:group-data-[disabled]/slider:text-[GrayText]',
+      'min-w-0 cursor-default text-sm font-medium text-on-surface forced-colors:group-data-[disabled]/slider:text-[GrayText]',
     output:
-      'shrink-0 text-body-md text-on-surface-variant tabular-digits group-data-[disabled]/slider:text-on-surface/38 forced-colors:group-data-[disabled]/slider:text-[GrayText]',
+      'shrink-0 text-sm text-on-surface-variant tabular-digits forced-colors:group-data-[disabled]/slider:text-[GrayText]',
     control: 'flex',
-    track: 'relative shrink-0 cursor-default',
-    rail: 'absolute forced-colors:forced-color-adjust-none',
+    track: 'relative shrink-0 cursor-pointer group-data-[disabled]/slider:cursor-not-allowed',
+    rail: 'absolute overflow-hidden rounded-control forced-colors:forced-color-adjust-none',
     segment: 'absolute',
-    stops: 'absolute inset-0',
-    stop: 'absolute size-1 rounded-full',
+    stops: 'pointer-events-none absolute',
+    stop: 'absolute size-(--slider-rail) rounded-full',
     thumb: [
-      'focus-ring group/thumb absolute z-10 rounded-full bg-primary data-[disabled]:bg-on-surface/38',
+      'focus-ring group/thumb absolute z-10 size-(--slider-thumb) cursor-grab rounded-full bg-surface-thumb shadow-sm',
+      'data-[hovered]:shadow-md data-[dragging]:scale-90 data-[dragging]:cursor-grabbing data-[disabled]:cursor-not-allowed data-[disabled]:shadow-none',
       'forced-colors:bg-[CanvasText] forced-colors:forced-color-adjust-none forced-colors:data-[disabled]:bg-[GrayText] forced-colors:data-[focus-visible]:outline-[Highlight]',
-      "after:absolute after:content-['']",
+      "after:absolute after:-inset-1 after:rounded-full after:content-['']",
       'data-[dragging]:z-20 data-[focus-visible]:z-20',
-      'transition-[width,height] duration-(--ds-duration-spatial-fast) ease-spatial-fast motion-reduce:transition-none',
+      'transition-[scale,box-shadow] duration-150 ease-out motion-reduce:transition-none motion-reduce:data-[dragging]:scale-100',
     ],
     indicator: 'pointer-events-none absolute flex',
     bubble: [
-      'flex h-11 min-w-12 shrink-0 items-center justify-center rounded-full bg-inverse-surface px-4 text-label-lg whitespace-nowrap text-inverse-on-surface tabular-digits',
-      'scale-75 opacity-0 transition-[opacity,scale] duration-[var(--ds-duration-effect-fast),var(--ds-duration-spatial-fast)] ease-[var(--ds-ease-effect-fast),var(--ds-ease-spatial-fast)] motion-reduce:scale-100',
+      'flex h-7 min-w-9 shrink-0 items-center justify-center rounded-control bg-inverse-surface px-2.5 text-xs font-medium whitespace-nowrap text-inverse-on-surface tabular-digits shadow-md',
+      'scale-90 opacity-0 transition-[opacity,scale] duration-150 ease-out motion-reduce:scale-100',
       'group-data-[dragging]/thumb:scale-100 group-data-[dragging]/thumb:opacity-100',
       'group-data-[focus-visible]/thumb:scale-100 group-data-[focus-visible]/thumb:opacity-100',
       'forced-colors:border forced-colors:border-[CanvasText] forced-colors:bg-[Canvas] forced-colors:text-[CanvasText]',
     ],
     marks:
-      'relative text-body-sm text-on-surface-variant select-none group-data-[disabled]/slider:text-on-surface/38 forced-colors:group-data-[disabled]/slider:text-[GrayText]',
+      'relative text-xs text-on-surface-variant select-none forced-colors:group-data-[disabled]/slider:text-[GrayText]',
     mark: 'absolute flex',
     markLabel: 'whitespace-nowrap',
     sizer: 'invisible col-start-1 row-start-1 whitespace-nowrap',
     description:
-      'text-body-sm text-on-surface-variant group-data-[disabled]/slider:text-on-surface/38 forced-colors:group-data-[disabled]/slider:text-[GrayText]',
+      'text-xs text-on-surface-variant forced-colors:group-data-[disabled]/slider:text-[GrayText]',
   },
   variants: {
     orientation: {
@@ -58,69 +62,52 @@ export const sliderStyles = tv({
         root: 'w-full',
         header: 'items-baseline',
         output: 'ms-auto',
-        control: 'flex-col',
-        track: 'mx-(--slider-gap) h-(--slider-handle)',
-        rail: '-inset-x-(--slider-gap) inset-y-0 my-auto h-(--slider-track)',
+        control: 'flex-col gap-1',
+        track: 'mx-(--slider-gap) h-(--slider-hit)',
+        rail: '-inset-x-(--slider-gap) inset-y-0 my-auto h-(--slider-rail)',
+        stops: '-inset-x-(--slider-gap) inset-y-0 my-auto h-(--slider-rail)',
         segment: 'inset-y-0',
-        stop: 'inset-y-0 my-auto -ms-0.5',
-        thumb:
-          'top-1/2 h-(--slider-handle) w-(--slider-handle-width) after:-inset-x-2 after:inset-y-0 data-[dragging]:w-0.5',
-        indicator: 'inset-x-0 bottom-full justify-center pb-1',
-        bubble: 'origin-bottom',
+        stop: '-ms-[calc(var(--slider-rail)/2)]',
+        thumb: 'top-1/2',
+        indicator: 'inset-x-0 bottom-full justify-center pb-2',
         marks: 'mx-(--slider-gap) h-4',
         mark: 'inset-y-0 w-0',
       },
       vertical: {
         root: 'h-60 w-fit items-center',
         header: 'flex-col items-center text-center',
-        control: 'min-h-0 flex-1',
-        track: 'my-(--slider-gap) w-(--slider-handle)',
-        rail: '-inset-y-(--slider-gap) inset-x-0 mx-auto w-(--slider-track)',
+        control: 'min-h-0 flex-1 gap-2',
+        track: 'my-(--slider-gap) w-(--slider-hit)',
+        rail: '-inset-y-(--slider-gap) inset-x-0 mx-auto w-(--slider-rail)',
+        stops: '-inset-y-(--slider-gap) inset-x-0 mx-auto w-(--slider-rail)',
         segment: 'inset-x-0',
-        stop: 'inset-x-0 mx-auto -mb-0.5',
-        thumb:
-          'inset-x-0 mx-auto h-(--slider-handle-width) w-(--slider-handle) after:inset-x-0 after:-inset-y-2 data-[dragging]:h-0.5',
-        indicator: 'inset-y-0 inset-e-full items-center pe-1',
+        stop: '-mb-[calc(var(--slider-rail)/2)]',
+        thumb: 'inset-x-0 mx-auto',
+        indicator: 'inset-y-0 inset-e-full items-center pe-2',
         bubble: 'origin-right',
         marks: 'my-(--slider-gap) grid content-start',
         mark: 'inset-s-0 h-0 items-center',
       },
     },
     size: {
-      sm: {
-        root: '[--slider-handle:2.75rem] [--slider-radius:var(--radius-sm)] [--slider-track:1rem]',
-      },
-      md: {
-        root: '[--slider-handle:2.75rem] [--slider-radius:var(--radius-sm)] [--slider-track:1.5rem]',
-      },
-      lg: {
-        root: '[--slider-handle:3.25rem] [--slider-radius:var(--radius-md)] [--slider-track:2.5rem]',
-      },
+      sm: { root: '[--slider-hit:1.5rem] [--slider-rail:0.25rem] [--slider-thumb:1rem]' },
+      md: { root: '[--slider-hit:1.75rem] [--slider-rail:0.25rem] [--slider-thumb:1.25rem]' },
+      lg: { root: '[--slider-hit:2rem] [--slider-rail:0.375rem] [--slider-thumb:1.5rem]' },
     },
     tone: {
       active: {
-        segment: [
-          'bg-primary group-data-[disabled]/slider:bg-on-surface/38',
-          'forced-colors:bg-[Highlight] forced-colors:group-data-[disabled]/slider:bg-[GrayText]',
-        ],
-        stop: [
-          'bg-on-primary group-data-[disabled]/slider:bg-inverse-on-surface',
-          'forced-colors:bg-[HighlightText] forced-colors:group-data-[disabled]/slider:bg-[Canvas]',
-        ],
+        segment:
+          'bg-primary-solid forced-colors:bg-[Highlight] forced-colors:group-data-[disabled]/slider:bg-[GrayText]',
+        stop: 'bg-on-primary-solid/70 forced-colors:bg-[HighlightText] forced-colors:group-data-[disabled]/slider:bg-[Canvas]',
       },
       inactive: {
         segment: [
-          'bg-secondary-container group-data-[disabled]/slider:bg-on-surface/12',
+          'bg-outline-variant',
           'forced-colors:border forced-colors:border-[CanvasText] forced-colors:bg-[Canvas] forced-colors:group-data-[disabled]/slider:border-[GrayText]',
         ],
-        stop: [
-          'bg-on-secondary-container group-data-[disabled]/slider:bg-on-surface/38',
-          'forced-colors:bg-[CanvasText] forced-colors:group-data-[disabled]/slider:bg-[GrayText]',
-        ],
+        stop: 'bg-on-surface-variant/60 forced-colors:bg-[CanvasText] forced-colors:group-data-[disabled]/slider:bg-[GrayText]',
       },
     },
-    startCap: { edge: '', gap: '', seam: '' },
-    endCap: { edge: '', gap: '', seam: '' },
     markAlign: {
       start: { mark: 'justify-start' },
       center: { mark: 'justify-center' },
@@ -128,38 +115,19 @@ export const sliderStyles = tv({
     },
     motion: {
       full: '',
-      reduced: { thumb: 'transition-none', bubble: 'scale-100' },
-      none: { thumb: 'transition-none', bubble: 'transition-none' },
+      reduced: { thumb: 'transition-none data-[dragging]:scale-100', bubble: 'scale-100' },
+      none: { thumb: 'transition-none data-[dragging]:scale-100', bubble: 'transition-none' },
     },
     direction: { ltr: '', rtl: '' },
     raised: { true: { thumb: 'z-11' }, false: '' },
   },
   compoundVariants: [
-    {
-      orientation: 'horizontal',
-      startCap: 'edge',
-      class: { segment: 'rounded-s-(--slider-radius)' },
-    },
-    { orientation: 'horizontal', startCap: 'gap', class: { segment: 'rounded-s-[0.125rem]' } },
-    {
-      orientation: 'horizontal',
-      endCap: 'edge',
-      class: { segment: 'rounded-e-(--slider-radius)' },
-    },
-    { orientation: 'horizontal', endCap: 'gap', class: { segment: 'rounded-e-[0.125rem]' } },
-    {
-      orientation: 'vertical',
-      startCap: 'edge',
-      class: { segment: 'rounded-b-(--slider-radius)' },
-    },
-    { orientation: 'vertical', startCap: 'gap', class: { segment: 'rounded-b-[0.125rem]' } },
-    { orientation: 'vertical', endCap: 'edge', class: { segment: 'rounded-t-(--slider-radius)' } },
-    { orientation: 'vertical', endCap: 'gap', class: { segment: 'rounded-t-[0.125rem]' } },
+    { orientation: 'horizontal', class: { bubble: 'origin-bottom' } },
     { orientation: 'vertical', direction: 'rtl', class: { bubble: 'origin-left' } },
   ],
   defaultVariants: {
     orientation: 'horizontal',
-    size: 'sm',
+    size: 'md',
     motion: 'full',
     direction: 'ltr',
   },
@@ -185,17 +153,11 @@ export const defaultSliderLabels: SliderLabels = {
 };
 
 type Orientation = 'horizontal' | 'vertical';
-type Cap = 'edge' | 'gap' | 'seam';
 type Tone = 'active' | 'inactive';
 
-interface Bound {
-  at: number;
-  cap: Cap;
-}
-
 interface Segment {
-  from: Bound;
-  to: Bound;
+  from: number;
+  to: number;
   tone: Tone;
 }
 
@@ -211,18 +173,12 @@ function roundValue(value: number) {
   return Math.round(value * 1e9) / 1e9;
 }
 
-function along(fraction: number, clearance: 0 | 1 | 2) {
-  return `calc(${clearance} * var(--slider-gap) + (100% - 2 * var(--slider-gap)) * ${fraction})`;
+function along(fraction: number) {
+  return `calc(var(--slider-gap) + (100% - 2 * var(--slider-gap)) * ${fraction})`;
 }
 
-function boundOffset(bound: Bound, fraction: number, handles: number[]) {
-  if (bound.cap === 'edge') return '0px';
-  if (bound.cap === 'gap') return along(fraction, 2);
-  const clearances = handles
-    .filter((handle) => handle <= fraction)
-    .map((handle) => along(handle, 2));
-  if (clearances.length === 0) return along(fraction, 1);
-  return `max(${[along(fraction, 1), ...clearances].join(', ')})`;
+function boundOffset(fraction: number) {
+  return fraction <= 0 ? '0px' : along(fraction);
 }
 
 function axisStyle(orientation: Orientation, start: string, end: string): CSSProperties {
@@ -231,14 +187,11 @@ function axisStyle(orientation: Orientation, start: string, end: string): CSSPro
     : { insetInlineStart: start, insetInlineEnd: end };
 }
 
-function buildSegments(thumbs: number[], seam: number | null, active: [number, number]) {
-  const cuts: Bound[] = thumbs.map((at) => ({ at, cap: 'gap' }));
-  if (seam != null) cuts.push({ at: seam, cap: 'seam' });
-  cuts.sort((a, b) => a.at - b.at);
-  const bounds: Bound[] = [{ at: 0, cap: 'edge' }, ...cuts, { at: 1, cap: 'edge' }];
+function buildSegments(cuts: number[], active: [number, number]) {
+  const bounds = [0, ...[...cuts].sort((a, b) => a - b), 1];
   return bounds.slice(1).map<Segment>((to, index) => {
     const from = bounds[index];
-    const middle = (from.at + to.at) / 2;
+    const middle = (from + to) / 2;
     return {
       from,
       to,
@@ -247,15 +200,17 @@ function buildSegments(thumbs: number[], seam: number | null, active: [number, n
   });
 }
 
-function gapMask(orientation: Orientation, direction: 'ltr' | 'rtl', thumbs: number[]) {
-  const toward =
-    orientation === 'vertical' ? 'to top' : direction === 'rtl' ? 'to left' : 'to right';
-  const stops = thumbs.flatMap((fraction) => {
-    const before = along(fraction, 0);
-    const after = along(fraction, 2);
-    return [`black ${before}`, `transparent ${before}`, `transparent ${after}`, `black ${after}`];
-  });
-  return `linear-gradient(${toward}, ${stops.join(', ')})`;
+function bubbleShift(fraction: number, direction: 'ltr' | 'rtl') {
+  const toward = (0.5 - fraction) * (direction === 'rtl' ? -1 : 1);
+  return `${toward} * (100% - var(--slider-thumb))`;
+}
+
+function bubbleStyle(fraction: number, direction: 'ltr' | 'rtl'): CSSProperties {
+  const shift = bubbleShift(fraction, direction);
+  return {
+    translate: `calc(${shift}) 0`,
+    transformOrigin: `calc(50% - ${shift}) 100%`,
+  };
 }
 
 function normaliseMarks(marks: ReadonlyArray<number | SliderMark> | undefined, state: SliderState) {
@@ -323,7 +278,7 @@ function SliderBody({
     !isRange && offsetFraction > 0 && offsetFraction < 1 && offsetFraction !== thumbs[0]
       ? offsetFraction
       : null;
-  const segments = buildSegments(thumbs, seam, [
+  const segments = buildSegments(seam == null ? thumbs : [...thumbs, seam], [
     state.getValuePercent(activeValues[0]),
     state.getValuePercent(activeValues[1]),
   ]);
@@ -334,8 +289,8 @@ function SliderBody({
   const intervals = (maxValue - minValue) / step;
   const canStop = Number.isFinite(intervals) && intervals > 0;
   const withStops = canStop && (showStops ?? (marks == null && intervals <= maxAutoStops));
-  const stopValues = new Set<number>([maxValue]);
-  if (isRange || offset > minValue) stopValues.add(minValue);
+  const stopValues = new Set<number>();
+  if (seam != null) stopValues.add(roundValue(offset));
   if (withStops) {
     for (let index = 0; index <= Math.floor(intervals + 1e-9); index++) {
       stopValues.add(roundValue(minValue + index * step));
@@ -343,9 +298,10 @@ function SliderBody({
   }
   for (const mark of markList) stopValues.add(roundValue(mark.value));
 
-  const thumbStyle: CSSProperties | undefined =
-    orientation === 'vertical' ? { transform: 'translateY(-50%)' } : undefined;
   const isVertical = orientation === 'vertical';
+  const thumbStyle: CSSProperties | undefined = isVertical
+    ? { transform: 'translateY(-50%)' }
+    : undefined;
 
   function thumbLabel(index: number) {
     if (thumbLabels?.[index] != null) return thumbLabels[index];
@@ -381,36 +337,23 @@ function SliderBody({
                 key={index}
                 data-slot="segment"
                 data-tone={segment.tone}
-                className={styles.segment({
-                  tone: segment.tone,
-                  startCap: segment.from.cap,
-                  endCap: segment.to.cap,
-                })}
+                className={styles.segment({ tone: segment.tone })}
                 style={axisStyle(
                   orientation,
-                  boundOffset(segment.from, segment.from.at, thumbs),
-                  boundOffset(
-                    segment.to,
-                    1 - segment.to.at,
-                    thumbs.map((thumb) => 1 - thumb),
-                  ),
+                  boundOffset(segment.from),
+                  boundOffset(1 - segment.to),
                 )}
               />
             ))}
-            <div
-              data-slot="stops"
-              className={styles.stops()}
-              style={{ maskImage: gapMask(orientation, direction, thumbs) }}
-            >
+          </div>
+          {stopValues.size > 0 ? (
+            <div aria-hidden="true" data-slot="stops" className={styles.stops()}>
               {[...stopValues]
-                .filter(
-                  (value) => seam == null || Math.abs(state.getValuePercent(value) - seam) > 1e-9,
-                )
                 .sort((a, b) => a - b)
                 .map((value) => {
                   const tone: Tone =
                     value >= activeValues[0] && value <= activeValues[1] ? 'active' : 'inactive';
-                  const position = along(state.getValuePercent(value), 1);
+                  const position = along(state.getValuePercent(value));
                   return (
                     <span
                       key={value}
@@ -422,7 +365,7 @@ function SliderBody({
                   );
                 })}
             </div>
-          </div>
+          ) : null}
           {values.map((value, index) => (
             <SliderThumb
               key={index}
@@ -441,7 +384,11 @@ function SliderBody({
             >
               {showValueIndicator ? (
                 <span aria-hidden="true" data-slot="value-indicator" className={styles.indicator()}>
-                  <span data-slot="bubble" className={styles.bubble()}>
+                  <span
+                    data-slot="bubble"
+                    className={styles.bubble()}
+                    style={isVertical ? undefined : bubbleStyle(thumbs[index], direction)}
+                  >
                     {state.getThumbValueLabel(index)}
                   </span>
                 </span>
@@ -527,7 +474,7 @@ export function Slider<T extends number | number[]>({
   labels,
   name,
   form,
-  size = 'sm',
+  size = 'md',
   orientation = 'horizontal',
   minValue = 0,
   maxValue = 100,

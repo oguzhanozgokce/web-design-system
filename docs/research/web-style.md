@@ -1266,14 +1266,25 @@ writes, or (c) take the v2 (MIT) recipe where one exists.
 
 ---
 
-## Decisions for the owner
+## Decisions
 
-1. **HeroUI v3 licence** (section 5): patterns-only, or close adaptation with Apache notices.
-2. **Destructive tone name**: `error`, `danger` or `destructive` (3.4).
-3. **Button default**: `solid · primary` or `soft · neutral` (3.4).
-4. **Button sizes**: drop `xs`/`xl` (3.4).
-5. **Container radius**: 20px cards and toasts (proposed), HeroUI's 24px, or Astryx's 12px.
-6. **Slider**: HeroUI's 20px track with a pill knob (proposed) or Astryx's 4px rail.
-7. **Tooltip**: inverted (proposed, Astryx) or light (HeroUI).
-8. **Type scale**: replace the M3 utilities with Tailwind sizes (proposed) or keep the names.
-9. **Default link tone**: neutral like both references (proposed) or `primary`.
+Settled by the owner on 2026-11-07:
+
+1. **HeroUI v3 licence**: patterns only. No HeroUI code is copied; nothing needs an Apache notice.
+2. **Destructive tone name**: `tone="error"`, matching the role name.
+3. **Button default**: `solid · primary`.
+4. **Button sizes**: `sm`, `md`, `lg` (32, 40, 48px) on Button, ToggleButton and ButtonGroup; `xs`
+   stays on IconButton only. Legacy names keep working until the clean-up pass removes them.
+5. **Container radius**: 20px for cards and toasts.
+6. **Slider**: the thin rail (Astryx), not the 20px track.
+7. **Tooltip**: inverted, dark in light mode.
+8. **Type scale**: Tailwind sizes (`text-sm font-medium`), replacing the Material type utilities.
+9. **Default link tone**: neutral.
+10. **Visual language**: a mix. HeroUI's shapes and liveliness on Astryx's neutral surfaces and calm
+    density.
+11. **Solid fills in dark mode**: vivid. Filled buttons, checked controls, slider ranges, progress
+    and solid badges use the `*-solid` roles, which keep the saturated light colour in dark mode
+    with its light on-colour. Text-coloured accents (links, ghost and outline labels, the focus
+    ring) keep `primary`, which is lighter in dark mode and stays readable on dark surfaces.
+12. **Tabs overflow**: scroll buttons at the ends.
+13. **FAB and avatar group**: follow the reference libraries, not Material.

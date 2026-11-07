@@ -8,7 +8,7 @@ export default function AvatarGroupTotal() {
         <Avatar name="Chen Wei" />
         <Avatar name="Ana Silva" />
       </AvatarGroup>
-      <bdi className="text-body-md text-on-surface-variant">#general</bdi>
+      <bdi className="text-sm text-on-surface-variant">#general</bdi>
     </div>
   );
 }

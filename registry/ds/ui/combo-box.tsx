@@ -55,23 +55,21 @@ export const defaultComboBoxLabels: ComboBoxLabels = {
 
 export const comboBoxStyles = tv({
   slots: {
-    count: [
-      'ms-1 inline-flex h-6 shrink-0 items-center rounded-sm px-2 text-label-md whitespace-nowrap tabular-digits [unicode-bidi:plaintext] select-none',
-      'bg-secondary-container text-on-secondary-container',
-      'group-data-[disabled]/control:bg-on-surface/12 group-data-[disabled]/control:text-current',
-    ],
+    count:
+      'ms-1 inline-flex h-6 shrink-0 items-center rounded-control bg-neutral-soft px-2 text-xs font-medium whitespace-nowrap text-on-surface tabular-digits [unicode-bidi:plaintext] select-none',
     value: 'sr-only',
     loading:
-      'ms-1 flex shrink-0 items-center justify-center text-primary [&_svg]:size-(--icon-size)',
+      'ms-1 flex shrink-0 items-center justify-center text-on-surface-variant [&_svg]:size-(--icon-size)',
+    trigger: 'data-[hovered]:text-on-surface',
     arrow: 'group-data-[open]/combo-box:rotate-180',
-    popover: 'flex min-w-[min(var(--trigger-width),calc(100vw-1.5rem))] flex-col',
+    popover:
+      'flex min-w-[min(var(--trigger-width),calc(100vw-1.5rem))] flex-col border border-outline-subtle [--ds-popover-scale:0.95]',
     list: 'max-h-[inherit]',
   },
   variants: {
     animated: {
       true: {
-        arrow:
-          'transition-[rotate] duration-(--ds-duration-spatial-fast) ease-spatial-fast motion-reduce:transition-none',
+        arrow: 'transition-[rotate] duration-150 ease-out motion-reduce:transition-none',
       },
       false: {},
     },
@@ -80,6 +78,8 @@ export const comboBoxStyles = tv({
     animated: true,
   },
 });
+
+export type ComboBoxVariant = 'outline' | 'soft';
 
 export interface ComboBoxProps<
   T extends object = object,
@@ -165,7 +165,7 @@ export function ComboBox<T extends object = object, M extends ComboBoxSelectionM
   errorMessage,
   necessityIndicator,
   size = 'md',
-  variant = 'outlined',
+  variant = 'outline',
   children,
   dependencies,
   placeholder,
@@ -206,7 +206,7 @@ export function ComboBox<T extends object = object, M extends ComboBoxSelectionM
 
   function emptyState(renderProps: ListBoxRenderProps) {
     if (isLoading) {
-      return <ListBoxStatus icon={<Spinner className="text-primary" />}>{t.loading}</ListBoxStatus>;
+      return <ListBoxStatus icon={<Spinner />}>{t.loading}</ListBoxStatus>;
     }
     if (renderEmptyState) return renderEmptyState(renderProps);
     return <ListBoxStatus>{t.noResults}</ListBoxStatus>;
@@ -256,8 +256,12 @@ export function ComboBox<T extends object = object, M extends ComboBoxSelectionM
             {canClear ? (
               <ComboBoxClearButton onClear={onClear} focusInput={focusInput} labels={labels} />
             ) : null}
-            <FieldButton aria-label={t.showSuggestions} data-slot="trigger">
-              <icons.arrowDropDown className={styles.arrow()} />
+            <FieldButton
+              aria-label={t.showSuggestions}
+              data-slot="trigger"
+              className={styles.trigger()}
+            >
+              <icons.chevronDown className={styles.arrow()} />
             </FieldButton>
           </FieldGroup>
           <Popover dir={direction} offset={4} maxHeight={320} className={styles.popover()}>

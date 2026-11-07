@@ -1,6 +1,6 @@
 ---
 title: Badge
-description: Material 3 badge as a small dot or a count that caps at 99+, in five tones, with a screen reader label and an anchor that pins it to the top-end corner of an icon or avatar.
+description: A small dot or count that caps at 99+, solid or soft in six tones, with a screen reader label and an anchor that pins it to the corner of an icon or avatar.
 ---
 
 <ComponentPreview name="badge-demo" />
@@ -25,9 +25,9 @@ import { Badge, BadgeAnchor } from '@/components/ds/badge';
 
 ### Dot, count and overflow
 
-Without `count` or children the badge is a 6px dot that says "something new". With `count` it
-grows to 16px and shows the number. Counts above `max` (99 by default) read `99+`. A count of zero
-renders nothing unless you pass `showZero`.
+Without `count` or children the badge is a dot that says "something new". With `count` it shows the
+number in a pill: 20px tall at `size="md"`, 16px at `size="sm"`. Counts above `max` (99 by default)
+read `99+`. A count of zero renders nothing unless you pass `showZero`.
 
 <ComponentPreview name="badge-sizes" />
 
@@ -39,19 +39,25 @@ both are given, `count` wins. Keep it to one word; longer text belongs in a
 
 <ComponentPreview name="badge-text" />
 
-### Tones
+### Variants and tones
 
-`error` is the Material 3 default and suits unread counts. `primary` fits totals that need no
-action, `success` and `warning` carry status, and `neutral` uses the inverse surface for an
-achromatic badge that reads on any background.
+`variant="solid"`, the default, fills the badge with a strong colour that stays saturated in dark
+mode. `soft` uses a pale tint of the tone with the tone as text, for counts that should not shout,
+such as a total next to a navigation item. `error` is the default tone and suits unread counts;
+`primary` fits totals that need no action, `success`, `warning` and `info` carry status, and
+`neutral` is a dark pill in light mode and a light one in dark mode. A dot always uses the solid
+fill, so it stays visible in either variant.
 
 <ComponentPreview name="badge-tones" />
 
 ### On an icon
 
-`BadgeAnchor` pins its `badge` to the top-end corner of its child, using the Material 3 offsets for
-a 24px icon: a dot sits inside the corner, and a count starts 12px before the end edge and grows
-outwards. The corner follows the reading direction, so it moves to the left in Arabic.
+`BadgeAnchor` pins its `badge` to the top-end corner of its child and moves it a quarter of its own
+size outwards, so a count overhangs the corner without hiding the icon. Anchored badges default to
+`size="sm"`. A 2px seam in the page colour separates the badge from what it sits on; on a raised
+surface, set `--ds-badge-seam` to that surface's colour on any ancestor, for example
+`[--ds-badge-seam:var(--surface-raised)]`. The corner follows the reading direction, so it moves to
+the left in Arabic.
 
 <ComponentPreview name="badge-anchor" />
 
@@ -73,16 +79,18 @@ change the default wording for every badge, set the [labels](#labels) once on `D
 
 ### Badge
 
-| Prop        | Type                                                          | Default                   |
-| ----------- | ------------------------------------------------------------- | ------------------------- |
-| `count`     | `number`                                                      |                           |
-| `max`       | `number`                                                      | `99`                      |
-| `showZero`  | `boolean`                                                     | `false`                   |
-| `tone`      | `'error' \| 'primary' \| 'success' \| 'warning' \| 'neutral'` | `'error'`                 |
-| `label`     | `string`, may contain `{count}`                               | the `count` or `dot` text |
-| `labels`    | `Partial<BadgeLabels>`                                        |                           |
-| `children`  | `ReactNode`                                                   |                           |
-| `className` | `string`                                                      |                           |
+| Prop        | Type                                                                    | Default                            |
+| ----------- | ----------------------------------------------------------------------- | ---------------------------------- |
+| `count`     | `number`                                                                |                                    |
+| `max`       | `number`                                                                | `99`                               |
+| `showZero`  | `boolean`                                                               | `false`                            |
+| `variant`   | `'solid' \| 'soft'`                                                     | `'solid'`                          |
+| `tone`      | `'error' \| 'primary' \| 'neutral' \| 'success' \| 'warning' \| 'info'` | `'error'`                          |
+| `size`      | `'sm' \| 'md'`                                                          | `'md'` inline, `'sm'` in an anchor |
+| `label`     | `string`, may contain `{count}`                                         | the `count` or `dot` text          |
+| `labels`    | `Partial<BadgeLabels>`                                                  |                                    |
+| `children`  | `ReactNode`                                                             |                                    |
+| `className` | `string`                                                                |                                    |
 
 Every other `span` attribute, including `ref`, is passed through.
 
@@ -98,8 +106,9 @@ Every other `span` attribute, including `ref`, is passed through.
 
 ### Data attributes
 
-Badge: `data-slot="badge"`, `data-size="small" | "large"`, `data-tone`. Part:
-`data-slot="badge-label"`. BadgeAnchor: `data-slot="badge-anchor"`, `data-overlap`.
+Badge: `data-slot="badge"`, `data-variant`, `data-tone`, `data-size`, and `data-dot` when it has no
+count or text. Part: `data-slot="badge-label"`. BadgeAnchor: `data-slot="badge-anchor"`,
+`data-overlap`.
 
 ### Labels
 
@@ -127,6 +136,7 @@ the current locale before they reach a template.
   count in that label, for example "Notifications, 3 new".
 - A badge does not announce changes. Use a toast or a polite live region when a new count needs to
   be spoken.
-- An anchored badge pops in with the fast spatial spring when it mounts, and appears instantly
-  under reduced motion. Inline badges never animate, so long lists stay calm.
-- Contrast is checked with axe for every tone in light, dark and RTL by `badge.test.tsx`.
+- An anchored badge pops in with a short spring when it mounts, and appears instantly under
+  reduced motion. Inline badges never animate, so long lists stay calm.
+- Contrast is checked with axe for every tone and variant in light, dark and RTL by
+  `badge.test.tsx`.

@@ -33,7 +33,7 @@ export default function SheetSides() {
     <div className="flex flex-wrap items-center justify-center gap-3">
       {sides.map(({ side, label, title, body }) => (
         <SheetTrigger key={side}>
-          <Button variant="outlined">{label}</Button>
+          <Button variant="outline">{label}</Button>
           <Sheet side={side}>
             <SheetHeader title={title} />
             <SheetBody>

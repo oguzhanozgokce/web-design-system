@@ -1,6 +1,6 @@
 ---
 title: Alert Dialog
-description: Confirmation dialog with confirm and cancel actions, a destructive tone, an async onConfirm that stays open while pending and shows failures inline, and an optional type-to-confirm phrase.
+description: Confirmation dialog with confirm and cancel actions, a tone for the icon and the confirm button, an async onConfirm that shows failures inline, and an optional type-to-confirm phrase.
 ---
 
 <ComponentPreview name="alert-dialog-demo" />
@@ -17,9 +17,9 @@ import { Button } from '@/components/ds/button';
 import { DialogTrigger } from '@/components/ds/dialog';
 
 <DialogTrigger>
-  <Button tone="destructive">Delete file</Button>
+  <Button tone="error">Delete file</Button>
   <AlertDialog
-    tone="destructive"
+    tone="error"
     title="Delete “Notes.txt”?"
     description="The file is deleted for everyone it is shared with. This cannot be undone."
     confirmLabel="Delete"
@@ -33,26 +33,30 @@ An alert dialog asks one question and offers two answers. It is built on
 and opens from the same `DialogTrigger`. Name the confirm button after the action ("Delete",
 "Publish"), not "OK", so the choice reads on its own.
 
+The confirm button is a solid [Button](/docs/components/actions/button), `error` with the `error`
+tone and `primary` otherwise; Cancel is a `soft`, neutral one beside it.
+
 When `onConfirm` returns a promise, as in the preview above, the confirm button shows a spinner,
-Cancel is disabled, and Escape and the scrim do nothing until the promise settles. The dialog
+Cancel is disabled, and Escape and the backdrop do nothing until the promise settles. The dialog
 closes when it resolves. A synchronous `onConfirm` closes the dialog right away.
 
 ## Examples
 
 ### Failure
 
-When the promise rejects, the dialog stays open and shows the error above the actions, where
-screen readers announce it. Both buttons work again, so the person can retry or cancel. The
+When the promise rejects, the dialog stays open and shows the error above the actions on a pale
+error tint, where screen readers announce it. Both buttons work again, so the person can retry or cancel. The
 message is `error.message` when there is one, otherwise the `error` label. Pass `errorMessage` as a
 node or as `(error) => node` to write your own.
 
 <ComponentPreview name="alert-dialog-error" />
 
-### Default tone
+### Tones
 
-`tone="default"` uses a primary confirm button for actions that are consequential but safe, such as
-publishing. Focus starts on the confirm button, so Enter confirms. With `tone="destructive"`, or
-while `isConfirmDisabled` is set, focus starts on Cancel instead.
+`tone` is `neutral` (the default), `primary`, `success`, `warning`, `info` or `error`. It tints the
+icon. Every tone but `error` uses a primary confirm button, for actions that are consequential but
+safe, such as publishing, and focus starts on it, so Enter confirms. `tone="error"` makes the
+confirm button red and starts focus on Cancel, as does `isConfirmDisabled` with any tone.
 
 <ComponentPreview name="alert-dialog-default" />
 
@@ -67,8 +71,8 @@ for actions that destroy a lot of data at once, such as a whole account.
 
 ### Hero icon
 
-`icon` sits above a centred title. It takes the `secondary` colour, or `error` with the destructive
-tone.
+`icon` sits in a 40px circle above the title, aligned to the start. The circle takes a pale tint
+of the tone (`bg-error-soft` with `tone="error"`) and a translucent grey with `neutral`.
 
 <ComponentPreview name="alert-dialog-icon" />
 
@@ -84,40 +88,51 @@ that opened the dialog is removed, focus has nowhere to return, so move it yours
 
 ### AlertDialog
 
-| Prop                        | Type                                           | Default            |
-| --------------------------- | ---------------------------------------------- | ------------------ |
-| `title`                     | `ReactNode`                                    | required           |
-| `description`               | `ReactNode`                                    |                    |
-| `children`                  | `ReactNode`                                    |                    |
-| `icon`                      | `ReactNode`                                    |                    |
-| `tone`                      | `'default' \| 'destructive'`                   | `'default'`        |
-| `confirmLabel`              | `ReactNode`                                    | `'Confirm'`        |
-| `cancelLabel`               | `ReactNode`                                    | `'Cancel'`         |
-| `onConfirm`                 | `() => void \| Promise<unknown>`               |                    |
-| `onCancel`                  | `() => void`                                   |                    |
-| `isConfirmDisabled`         | `boolean`                                      | `false`            |
-| `requireConfirmation`       | `string`                                       |                    |
-| `errorMessage`              | `ReactNode \| ((error: unknown) => ReactNode)` | from the rejection |
-| `labels`                    | `Partial<AlertDialogLabels>`                   |                    |
-| `size`                      | `'sm' \| 'md' \| 'lg'`                         | `'sm'`             |
-| `isDismissable`             | `boolean`                                      | `false`            |
-| `isKeyboardDismissDisabled` | `boolean`                                      | `false`            |
-| `isOpen`                    | `boolean`                                      | from the trigger   |
-| `defaultOpen`               | `boolean`                                      |                    |
-| `onOpenChange`              | `(isOpen: boolean) => void`                    |                    |
-| `className`                 | `string`                                       |                    |
-| `overlayClassName`          | `string`                                       |                    |
+| Prop                        | Type                                                                    | Default            |
+| --------------------------- | ----------------------------------------------------------------------- | ------------------ |
+| `title`                     | `ReactNode`                                                             | required           |
+| `description`               | `ReactNode`                                                             |                    |
+| `children`                  | `ReactNode`                                                             |                    |
+| `icon`                      | `ReactNode`                                                             |                    |
+| `tone`                      | `'neutral' \| 'primary' \| 'success' \| 'warning' \| 'info' \| 'error'` | `'neutral'`        |
+| `confirmLabel`              | `ReactNode`                                                             | `'Confirm'`        |
+| `cancelLabel`               | `ReactNode`                                                             | `'Cancel'`         |
+| `onConfirm`                 | `() => void \| Promise<unknown>`                                        |                    |
+| `onCancel`                  | `() => void`                                                            |                    |
+| `isConfirmDisabled`         | `boolean`                                                               | `false`            |
+| `requireConfirmation`       | `string`                                                                |                    |
+| `errorMessage`              | `ReactNode \| ((error: unknown) => ReactNode)`                          | from the rejection |
+| `labels`                    | `Partial<AlertDialogLabels>`                                            |                    |
+| `size`                      | `'sm' \| 'md' \| 'lg'`                                                  | `'sm'`             |
+| `isDismissable`             | `boolean`                                                               | `false`            |
+| `isKeyboardDismissDisabled` | `boolean`                                                               | `false`            |
+| `isOpen`                    | `boolean`                                                               | from the trigger   |
+| `defaultOpen`               | `boolean`                                                               |                    |
+| `onOpenChange`              | `(isOpen: boolean) => void`                                             |                    |
+| `className`                 | `string`                                                                |                    |
+| `overlayClassName`          | `string`                                                                |                    |
 
 `children` render in the body, above the type-to-confirm field. `onCancel` runs when Cancel is
-pressed; Escape and the scrim close the dialog through `onOpenChange`. While `onConfirm` is
+pressed; Escape and the backdrop close the dialog through `onOpenChange`. While `onConfirm` is
 pending, `isDismissable` and Escape are switched off whatever their props say. Use `isOpen`,
 `defaultOpen` and `onOpenChange` only when there is no `DialogTrigger`; with one, put them on the
 trigger.
 
+### Styling
+
+| Part    | Classes                                                                                        |
+| ------- | ---------------------------------------------------------------------------------------------- |
+| icon    | Dialog's icon circle, `bg-{tone}-soft text-on-{tone}-soft`, neutral `bg-neutral-soft`          |
+| confirm | `Button variant="solid"`, `tone="error"` with the error tone, `"primary"` otherwise            |
+| cancel  | `Button variant="soft" tone="neutral"`                                                         |
+| phrase  | `rounded-md bg-neutral-soft font-mono`                                                         |
+| input   | a 40px field: `rounded-field border-outline-variant bg-surface-raised`, `border-primary` focus |
+| error   | `rounded-item bg-error-soft text-sm`, the glyph in `text-on-error-soft`                        |
+
 ### Styles
 
-`alertDialogStyles({ tone })` exposes the `icon`, `content`, `confirmation`, `label`, `phrase`,
-`input` and `error` slots. The surface, header, body and footer come from `dialogStyles`.
+`alertDialogStyles()` exposes the `icon`, `content`, `confirmation`, `label`, `phrase`, `input` and
+`error` slots. The surface, header, body and footer come from `dialogStyles`.
 
 ### Data attributes
 
@@ -147,10 +162,10 @@ chip. The pending spinner takes its name from Button's labels (`button`).
 
 - The dialog has the `alertdialog` role, is named by its title and described by its
   description, so screen readers read the question when focus lands on a button.
-- Focus starts on the least risky choice: Cancel for destructive actions or while the confirm
+- Focus starts on the least risky choice: Cancel with the `error` tone or while the confirm
   button is disabled, the confirm button otherwise, and the type-to-confirm field when there is
   one. It returns to the trigger on close.
-- The scrim does not close an alert dialog unless `isDismissable` is set. Escape does, except
+- The backdrop does not close an alert dialog unless `isDismissable` is set. Escape does, except
   while the action is pending.
 - While pending, the confirm button keeps focus and announces its progress bar; Cancel and the
   phrase field cannot change the outcome.

@@ -1,4 +1,1 @@
-{
-  "title": "Docs",
-  "pages": ["index", "foundations", "components", "blocks"]
-}
+{ "title": "Docs", "pages": ["index", "foundations", "components"] }

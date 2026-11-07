@@ -2,7 +2,7 @@
   "name": "badge",
   "type": "registry:ui",
   "title": "Badge",
-  "description": "Material 3 badge as a small dot or a count that caps at 99+, in five tones, with a screen reader label and an anchor that pins it to the top-end corner of an icon or avatar.",
+  "description": "A small dot or count that caps at 99+, solid or soft in six tones, with a screen reader label and an anchor that pins it to the corner of an icon or avatar.",
   "category": "feedback",
   "files": ["ui/badge.tsx"]
 }

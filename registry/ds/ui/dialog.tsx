@@ -13,13 +13,11 @@ import {
   type Ref,
 } from 'react';
 import {
-  Button as AriaButton,
   Dialog as AriaDialog,
   DialogTrigger as AriaDialogTrigger,
   Heading,
   Modal,
   ModalOverlay,
-  composeRenderProps,
   useLocale,
   type ButtonProps as AriaButtonProps,
   type DialogProps as AriaDialogProps,
@@ -31,11 +29,13 @@ import {
 import { useMediaQuery } from '@/registry/ds/hooks/use-media-query';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
 import { ButtonGroupContext } from '@/registry/ds/ui/button';
-import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
+import { IconButton } from '@/registry/ds/ui/icon-button';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
 
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
+export type DialogIconTone = 'neutral' | 'primary' | 'success' | 'warning' | 'info' | 'error';
 
 export interface DialogLabels {
   close: string;
@@ -61,39 +61,35 @@ function hasContent(node: ReactNode) {
 export const dialogStyles = tv({
   slots: {
     overlay:
-      'fixed inset-x-0 top-0 z-50 flex h-(--visual-viewport-height) items-center justify-center bg-scrim/32 p-4 sm:p-8',
+      'fixed inset-x-0 top-0 z-50 flex h-(--visual-viewport-height) items-end justify-center bg-backdrop p-4 sm:items-center sm:p-10',
     surface: [
-      'group/dialog relative flex max-h-full w-full flex-col overflow-hidden rounded-xl bg-surface-container-high text-on-surface shadow-elevation-3 outline-none',
+      'group/dialog relative flex max-h-full w-full flex-col overflow-hidden bg-surface-overlay text-on-surface outline-none max-sm:[--ds-dialog-rise:0.25rem]',
       'forced-colors:border',
     ],
     dialog: 'flex min-h-0 flex-auto flex-col outline-none',
-    header: 'relative flex shrink-0 flex-col items-start gap-4 px-6 pt-6 text-start',
-    icon: 'inline-flex shrink-0 text-secondary [&_svg]:size-6',
-    heading: 'flex min-w-0 flex-col gap-4 self-stretch',
-    title: 'text-headline-sm wrap-break-word text-on-surface',
-    description: 'text-body-md text-on-surface-variant',
+    header: 'relative flex shrink-0 flex-col items-start gap-4 px-6 pt-6 text-start last:pb-6',
+    icon: 'flex size-10 shrink-0 items-center justify-center rounded-full [&_svg]:size-5',
+    heading: 'flex min-w-0 flex-col gap-2 self-stretch',
+    title: 'text-base font-semibold wrap-break-word text-on-surface',
+    description: 'text-sm text-on-surface-variant',
     action: 'flex shrink-0 items-center gap-1',
-    close: [
-      'state-layer focus-ring inline-flex size-10 shrink-0 cursor-default items-center justify-center rounded-full text-on-surface-variant',
-      'transition-colors duration-150 ease-standard data-[disabled]:text-on-surface/38 [&_svg]:size-6',
-      'pointer-coarse:after:absolute pointer-coarse:after:-inset-1',
-    ],
+    close: 'data-[pressed]:scale-[0.93] motion-reduce:data-[pressed]:scale-100',
     body: [
-      'focus-ring-inset mt-4 min-h-0 flex-auto overflow-y-auto overscroll-contain border-y border-transparent px-6 text-body-md text-on-surface-variant',
-      'transition-[border-color] duration-150 ease-standard first:mt-0 first:pt-6 last:pb-6',
-      'data-[overflow-bottom]:border-b-outline-variant data-[overflow-top]:border-t-outline-variant',
+      'focus-ring-inset mt-4 min-h-0 flex-auto overflow-y-auto overscroll-contain border-y border-transparent px-6 text-sm text-on-surface-variant',
+      'transition-[border-color] duration-150 ease-out first:mt-0 first:pt-6 last:pb-6',
+      'data-[overflow-bottom]:border-b-outline-subtle data-[overflow-top]:border-t-outline-subtle',
     ],
     footer: [
-      'flex shrink-0 flex-wrap items-center justify-end gap-2 p-6',
+      'flex shrink-0 flex-wrap items-center justify-end gap-2 px-6 pt-5 pb-6',
       'group-has-[[data-slot=dialog-action]]/dialog:hidden',
     ],
   },
   variants: {
     size: {
-      sm: { surface: 'max-w-96' },
-      md: { surface: 'max-w-140' },
-      lg: { surface: 'max-w-180' },
-      xl: { surface: 'max-w-240' },
+      sm: { surface: 'max-w-sm' },
+      md: { surface: 'max-w-md' },
+      lg: { surface: 'max-w-lg' },
+      xl: { surface: 'max-w-2xl' },
       full: {},
     },
     motion: {
@@ -101,21 +97,26 @@ export const dialogStyles = tv({
       fade: { overlay: fade, surface: fade },
       none: {},
     },
-    centered: {
-      true: { header: 'items-center text-center' },
+    iconTone: {
+      neutral: { icon: 'bg-neutral-soft text-on-surface' },
+      primary: { icon: 'bg-primary-soft text-on-primary-soft' },
+      success: { icon: 'bg-success-soft text-on-success-soft' },
+      warning: { icon: 'bg-warning-soft text-on-warning-soft' },
+      info: { icon: 'bg-info-soft text-on-info-soft' },
+      error: { icon: 'bg-error-soft text-on-error-soft' },
     },
     closable: {
-      true: { header: 'pe-16' },
+      true: { header: 'pe-14' },
     },
     fullScreen: {
+      false: { surface: 'rounded-dialog shadow-lg' },
       true: {
         overlay: 'p-0 sm:p-0',
-        surface:
-          'h-full max-w-none rounded-none bg-surface pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-none',
-        header: 'min-h-14 flex-row items-start gap-1 p-2',
-        heading: 'flex-1 gap-0.5 self-auto px-1 pt-1.5',
-        title: 'truncate text-title-lg',
-        body: 'mt-0 px-4 pt-2 pb-4 first:pt-4 last:pb-4',
+        surface: 'h-full max-w-none pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]',
+        header: 'min-h-14 flex-row items-start gap-1 p-2 last:pb-2',
+        heading: 'flex-1 gap-0.5 self-auto px-1 pt-2',
+        title: 'truncate',
+        body: 'mt-0 px-4 pt-4 pb-4 first:pt-4 last:pb-4',
         footer: 'px-4 pt-2 pb-4',
       },
     },
@@ -136,16 +137,11 @@ export const dialogStyles = tv({
           'data-[entering]:animate-ds-sheet-in-bottom data-[exiting]:animate-ds-sheet-out-bottom',
       },
     },
-    {
-      centered: true,
-      closable: true,
-      class: { header: 'ps-16' },
-    },
   ],
   defaultVariants: {
     size: 'md',
     motion: 'spatial',
-    centered: false,
+    iconTone: 'neutral',
     closable: false,
     fullScreen: false,
   },
@@ -253,20 +249,18 @@ export function Dialog({
         className={styles.surface({ className })}
       >
         <DialogLayoutContext value={layout}>
-          <SurfaceContext value={isFullScreen ? 'surface' : 'surface-container-high'}>
-            <ButtonGroupContext value={null}>
-              <AriaDialog
-                {...props}
-                aria-describedby={
-                  [ariaDescribedBy, ...descriptionIds].filter(Boolean).join(' ') || undefined
-                }
-                data-slot="dialog"
-                className={styles.dialog()}
-              >
-                {children}
-              </AriaDialog>
-            </ButtonGroupContext>
-          </SurfaceContext>
+          <ButtonGroupContext value={null}>
+            <AriaDialog
+              {...props}
+              aria-describedby={
+                [ariaDescribedBy, ...descriptionIds].filter(Boolean).join(' ') || undefined
+              }
+              data-slot="dialog"
+              className={styles.dialog()}
+            >
+              {children}
+            </AriaDialog>
+          </ButtonGroupContext>
         </DialogLayoutContext>
       </Modal>
     </ModalOverlay>
@@ -277,6 +271,7 @@ export interface DialogHeaderProps extends Omit<ComponentProps<'div'>, 'title'> 
   title?: ReactNode;
   description?: ReactNode;
   icon?: ReactNode;
+  iconTone?: DialogIconTone;
   action?: ReactNode;
   showCloseButton?: boolean;
 }
@@ -285,6 +280,7 @@ export function DialogHeader({
   title,
   description,
   icon,
+  iconTone = 'neutral',
   action,
   showCloseButton = false,
   className,
@@ -292,15 +288,15 @@ export function DialogHeader({
   ...props
 }: DialogHeaderProps) {
   const { isFullScreen } = use(DialogLayoutContext);
-  const centered = hasContent(icon) && !isFullScreen;
+  const showIcon = hasContent(icon) && !isFullScreen;
   const closable = showCloseButton && !isFullScreen;
-  const styles = dialogStyles({ fullScreen: isFullScreen, centered, closable });
+  const styles = dialogStyles({ fullScreen: isFullScreen, iconTone, closable });
 
   return (
     <div {...props} data-slot="dialog-header" className={styles.header({ className })}>
       {isFullScreen ? <DialogClose /> : null}
-      {centered ? (
-        <span data-slot="dialog-icon" className={styles.icon()}>
+      {showIcon ? (
+        <span data-slot="dialog-icon" data-tone={iconTone} className={styles.icon()}>
           {icon}
         </span>
       ) : null}
@@ -314,7 +310,7 @@ export function DialogHeader({
           {action}
         </div>
       ) : null}
-      {closable ? <DialogClose className="absolute inset-e-4 top-5" /> : null}
+      {closable ? <DialogClose className="absolute inset-e-4 top-4" /> : null}
     </div>
   );
 }
@@ -458,19 +454,25 @@ export function DialogClose({
   className,
   ...props
 }: DialogCloseProps) {
-  const { labels } = use(DialogLayoutContext);
+  const { isFullScreen, labels } = use(DialogLayoutContext);
   const t = useLabels('dialog', defaultDialogLabels, labels);
   const icons = useIcons();
+  const close = dialogStyles().close();
 
   return (
-    <AriaButton
+    <IconButton
       slot="close"
       {...props}
       aria-label={ariaLabel ?? t.close}
-      data-slot="dialog-close"
-      className={composeRenderProps(className, (className) => dialogStyles().close({ className }))}
-    >
-      {children ?? <icons.close />}
-    </AriaButton>
+      icon={children ?? <icons.close />}
+      variant="ghost"
+      tone="neutral"
+      size={isFullScreen ? 'md' : 'sm'}
+      className={
+        typeof className === 'function'
+          ? (renderProps) => `${close} ${className(renderProps)}`
+          : `${close} ${className ?? ''}`
+      }
+    />
   );
 }

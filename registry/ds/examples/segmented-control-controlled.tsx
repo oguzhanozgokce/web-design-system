@@ -33,7 +33,7 @@ export default function SegmentedControlControlled() {
           </SegmentedControlItem>
         ))}
       </SegmentedControl>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {names.length ? `Showing ${list.format(names)}` : 'Showing everything'}
       </p>
     </div>

@@ -1,6 +1,6 @@
 ---
 title: Link
-description: Text link in an inline and a standalone style, with an optional forward arrow, external links that announce the new tab, router navigation and a disabled state.
+description: Text link in an inline and a standalone style and three tones, with an optional forward arrow, external links that announce the new tab, router navigation and a disabled state.
 ---
 
 <ComponentPreview name="link-demo" />
@@ -21,12 +21,18 @@ import { Link } from '@/components/ds/link';
 
 ## Examples
 
-### Variants
+### Variants and tones
 
-`inline` is for links inside a sentence. It takes the font of the text around it and keeps an
-underline, so the link never depends on colour alone. `standalone` is for links that sit on their
-own, such as a card footer or a "view all" action. It uses the `label-lg` type and shows the
-underline only on hover. Do not put a standalone link inside a paragraph.
+`inline` is for links inside a sentence. It takes the font of the text around it and keeps a quiet
+1.5px underline at rest, so the link never depends on colour alone; the underline darkens to the
+text colour on hover. `standalone` is for links that sit on their own, such as a card footer or a
+"view all" action. It is `text-sm font-medium` and shows its underline only on hover. Do not put a
+standalone link inside a paragraph.
+
+`tone` sets the colour. `neutral` (the default) uses the text colour, so links read as part of
+the page and the accent stays for actions. `primary` paints the link in the accent, for the one link
+that should stand out. `inherit` takes the colour of the text around it, such as a caption or an
+error message.
 
 <ComponentPreview name="link-variants" />
 
@@ -42,22 +48,23 @@ and leave it off for links that download or change something.
 
 `isExternal` opens the link in a new tab with `rel="noreferrer noopener"`, adds a north-east glyph
 and appends a visually hidden "(opens in a new tab)", the `opensInNewTab` label. Any `rel` you pass
-is kept. When `isExternal` is set, the external glyph replaces the forward arrow.
+is kept. When `isExternal` is set, the external glyph replaces the forward arrow. Trailing glyphs
+rest at 60% opacity and come to full strength on hover and focus.
 
 <ComponentPreview name="link-external" />
 
 ### Disabled
 
 `isDisabled` renders a non-focusable element with `role="link"` and `aria-disabled`, without an
-`href`. Say nearby why the link is unavailable.
+`href`, at half opacity. Say nearby why the link is unavailable.
 
 <ComponentPreview name="link-disabled" align="start" />
 
 ### Type
 
 An inline link inherits size and weight, so it fits in a heading or a caption without extra
-classes. A standalone link takes another type role through `className`, for example `text-title-md`
-on a marketing page. The arrow scales with it.
+classes. A standalone link takes another size through `className`, for example `text-base` on a
+marketing page. The arrow scales with it.
 
 <ComponentPreview name="link-typography" />
 
@@ -65,34 +72,34 @@ on a marketing page. The arrow scales with it.
 
 Links navigate through `DSProvider`'s router, like `ButtonLink`. Pass `navigate` once, as shown in
 [Installation](/docs/foundations/installation), and every internal link keeps client-side navigation
-and next-intl locale prefixes. External links and links opened with a modifier key fall back to the
-browser.
+and locale prefixes. External links and links opened with a modifier key fall back to the browser.
 
 ## API
 
 ### Link
 
-| Prop         | Type                                                 | Default    |
-| ------------ | ---------------------------------------------------- | ---------- |
-| `variant`    | `'inline' \| 'standalone'`                           | `'inline'` |
-| `showArrow`  | `boolean`                                            | `false`    |
-| `isExternal` | `boolean`                                            | `false`    |
-| `isDisabled` | `boolean`                                            | `false`    |
-| `labels`     | `Partial<LinkLabels>`                                |            |
-| `href`       | `string`                                             |            |
-| `onPress`    | `(event: PressEvent) => void`                        |            |
-| `className`  | `string \| (renderProps: LinkRenderProps) => string` |            |
-| `ref`        | `Ref<HTMLAnchorElement>`                             |            |
+| Prop         | Type                                                 | Default     |
+| ------------ | ---------------------------------------------------- | ----------- |
+| `variant`    | `'inline' \| 'standalone'`                           | `'inline'`  |
+| `tone`       | `'neutral' \| 'primary' \| 'inherit'`                | `'neutral'` |
+| `showArrow`  | `boolean`                                            | `false`     |
+| `isExternal` | `boolean`                                            | `false`     |
+| `isDisabled` | `boolean`                                            | `false`     |
+| `labels`     | `Partial<LinkLabels>`                                |             |
+| `href`       | `string`                                             |             |
+| `onPress`    | `(event: PressEvent) => void`                        |             |
+| `className`  | `string \| (renderProps: LinkRenderProps) => string` |             |
+| `ref`        | `Ref<HTMLAnchorElement>`                             |             |
 
 Every other [React Aria Link](https://react-aria.adobe.com/Link) prop is passed through, such as
 `target`, `rel`, `download` and `routerOptions`.
 
-`linkStyles({ variant })` returns the link classes, for styling another React Aria element as a
-link.
+`linkStyles({ variant, tone })` returns the link classes, for styling another React Aria element as
+a link.
 
 ### Data attributes
 
-`data-variant`, `data-external`, `data-hovered`, `data-pressed`, `data-focus-visible`,
+`data-variant`, `data-tone`, `data-external`, `data-hovered`, `data-pressed`, `data-focus-visible`,
 `data-disabled`, `data-current`. Parts: `data-slot="label"`, `"arrow"`, `"external-icon"`.
 
 ### Labels
@@ -108,7 +115,9 @@ Text the link writes on its own. Pass `labels` to one link, or set them for ever
 
 - Built on React Aria `Link`: Enter activates it, and press events normalise mouse, touch and
   keyboard. Without `href` it renders `role="link"` and stays focusable.
-- Inline links keep an underline at rest, which meets WCAG 1.4.1 without relying on colour.
+- Inline links keep an underline at rest, which meets WCAG 1.4.1 without relying on colour. A
+  neutral inline link has the same colour as the text around it, so the underline is what marks it.
+- The focus ring is a 2px outline with a 2px offset and softly rounded corners.
 - External links say they open a new tab in the accessible name. The glyphs are hidden from
   assistive technology.
 - The arrow only moves when the motion preference allows it, and its transition stops under

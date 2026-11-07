@@ -8,7 +8,7 @@ export default function SegmentedControlMultiple() {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <p id={labelId} className="text-label-lg text-on-surface">
+      <p id={labelId} className="text-sm font-medium text-on-surface">
         Notify me by
       </p>
       <SegmentedControl
@@ -20,7 +20,7 @@ export default function SegmentedControlMultiple() {
         <SegmentedControlItem id="sms">SMS</SegmentedControlItem>
         <SegmentedControlItem id="push">Push</SegmentedControlItem>
       </SegmentedControl>
-      <p className="text-body-sm text-on-surface-variant">
+      <p className="text-xs text-on-surface-variant">
         With none selected, you get no notifications.
       </p>
     </div>

@@ -3,12 +3,16 @@ import { PasswordField } from '@/registry/ds/ui/password-field';
 export default function PasswordFieldVariants() {
   return (
     <div className="grid w-full max-w-xl gap-6 sm:grid-cols-2">
-      <PasswordField label="Admin PIN" size="sm" description="Small, for dense admin forms." />
       <PasswordField
         label="Admin PIN"
-        variant="filled"
         size="sm"
-        description="Filled, on tinted surfaces."
+        description="Small and outline, for dense forms."
+      />
+      <PasswordField
+        label="Admin PIN"
+        variant="soft"
+        size="sm"
+        description="Small and soft, for toolbars and tinted panels."
       />
       <PasswordField
         className="sm:col-span-2"

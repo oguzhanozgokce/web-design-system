@@ -2,50 +2,50 @@
 
 Every component planned for the library, grouped into waves. A wave is built in parallel, one agent
 per row, each followed by an independent review. References point at `docs/research/libraries.json`
-entries and the Compose library; read them before designing.
+entries and `docs/research/web-style.md`; read them before designing.
 
 Status: ✅ built and reviewed · 🚧 in progress · ⬜ planned
 
 ## Wave 0 — Foundations
 
-| Item                                               | Status | Notes                                                                            |
-| -------------------------------------------------- | ------ | -------------------------------------------------------------------------------- |
-| Tokens from one seed                               | ✅     | MaterialKolor-identical scheme, 3 contrast levels, spring `linear()`             |
-| `theme.css`                                        | ✅     | Roles, type scale, shapes, elevation, state layer, focus ring, overlay keyframes |
-| `utils`, `i18n`, `motion`, `color-scheme`, `icons` | ✅     | 115 Material Symbols Rounded glyphs                                              |
-| `DSProvider`                                       | ✅     | Locale, router, messages, icons, motion preference                               |
-| Hooks                                              | ✅     | `useControllableState`, `useMediaQuery`, `useLocalStorageState`                  |
-| Dynamic colour                                     | 🚧     | `DynamicTheme` (subtree or page), seeds from images, cached boot script, review  |
-| Button, ButtonLink                                 | ✅     | Reference implementation                                                         |
-| Catalogue, registry, `check-ds`, browser tests     | ✅     | Fumadocs static export, axe in light/dark/RTL                                    |
+| Item                                               | Status | Notes                                                                           |
+| -------------------------------------------------- | ------ | ------------------------------------------------------------------------------- |
+| Tokens from one seed                               | ✅     | Generated scheme, neutral layers, 3 contrast levels, spring `linear()`          |
+| `theme.css`                                        | ✅     | Roles, solid and soft fills, radius families, shadows, focus ring, keyframes    |
+| `utils`, `i18n`, `motion`, `color-scheme`, `icons` | ✅     | 115 Material Symbols Rounded glyphs                                             |
+| `DSProvider`                                       | ✅     | Locale, router, messages, icons, motion preference                              |
+| Hooks                                              | ✅     | `useControllableState`, `useMediaQuery`, `useLocalStorageState`                 |
+| Dynamic colour                                     | 🚧     | `DynamicTheme` (subtree or page), seeds from images, cached boot script, review |
+| Button, ButtonLink                                 | ✅     | Reference implementation                                                        |
+| Catalogue, registry, `check-ds`, browser tests     | ✅     | Fumadocs static export, axe in light/dark/RTL                                   |
 
 ## Wave 1 — Core primitives
 
-| Component(s)                                   | Category     | Built on (RAC)                         | References                                                        |
-| ---------------------------------------------- | ------------ | -------------------------------------- | ----------------------------------------------------------------- |
-| IconButton, Fab, ExtendedFab                   | actions      | Button, ToggleButton                   | DSIcon, DSFab; Astryx IconButton; M3 icon buttons                 |
-| ButtonGroup, ToggleButton, ToggleButtonGroup   | actions      | Group, ToggleButton, ToggleButtonGroup | DSButtonGroup; Astryx ButtonGroup/SizeContext; M3 connected group |
-| Link, CopyButton                               | actions      | Link, Button                           | Astryx LinkProvider idea                                          |
-| Field parts, TextField, TextArea               | inputs       | TextField, Input, TextArea, Label      | Astryx Field contract; BoardUI Input; M3 filled/outlined fields   |
-| SearchField, PasswordField                     | inputs       | SearchField, TextField                 | DSSearchField; teli password-input                                |
-| NumberField (stepper / counter)                | inputs       | NumberField                            | Astryx NumberInput, BoardUI NumberField, Bencho rolling counter   |
-| Checkbox, CheckboxGroup, RadioGroup, Switch    | inputs       | Checkbox, RadioGroup, Switch           | DSCheckbox, DSRadioButton; BoardUI SwitchCard                     |
-| Slider, RangeSlider                            | inputs       | Slider                                 | M3 sliders                                                        |
-| ListBox, Select, ComboBox                      | inputs       | ListBox, Select, ComboBox, Popover     | DSDropdown; Astryx Selector/Typeahead; EasyUI Combobox keywords   |
-| Tabs, SegmentedControl                         | navigation   | Tabs, ToggleButtonGroup                | BoardUI SegmentedControl measured thumb; M3 tabs                  |
-| Dialog, AlertDialog                            | overlays     | Dialog, Modal, ModalOverlay            | DSDialog; BoardUI AlertDialog async onConfirm                     |
-| Sheet (side, bottom, top)                      | overlays     | Modal, Dialog                          | DSBottomSheet; HeroUI Sheet snap points; EasyUI Sheet thresholds  |
-| Popover, Tooltip                               | overlays     | Popover, Tooltip                       | React Bits warm tooltip group (idea only)                         |
-| Menu                                           | overlays     | Menu, MenuTrigger, SubmenuTrigger      | DSDropdown; Astryx DropdownMenu                                   |
-| Toast                                          | feedback     | UNSTABLE_Toast / own queue             | DSMessageHost; HeroUI/BoardUI toast(); Bencho toast stack         |
-| Badge, Chip                                    | feedback     | TagGroup for chips                     | DSBadge, DSChip; M3 chips                                         |
-| Avatar, AvatarGroup                            | data-display | —                                      | DSAvatar, DSAvatarGroup                                           |
-| ProgressBar, ProgressCircle, Spinner, Skeleton | feedback     | ProgressBar, Meter                     | DSProgress, DSLoadingIndicator                                    |
-| Card, ClickableCard, SelectableCard, Divider   | layout       | Link, Checkbox, Separator              | DSCard; Astryx card trio; HeroUI SurfaceContext                   |
-| Disclosure, Accordion                          | layout       | Disclosure, DisclosureGroup            | DSExpandableItem                                                  |
-| Banner (inline message), EmptyState            | feedback     | —                                      | DSInlineMessage, DSAnnouncement, screen states                    |
-| Kbd, TagGroup                                  | data-display | TagGroup                               | Astryx Kbd, Tokenizer                                             |
-| Theme builder page                             | catalogue    | —                                      | `brandColors` at runtime                                          |
+| Component(s)                                   | Category     | Built on (RAC)                         | References                                                      |
+| ---------------------------------------------- | ------------ | -------------------------------------- | --------------------------------------------------------------- |
+| IconButton, Fab, ExtendedFab                   | actions      | Button, ToggleButton                   | Astryx IconButton; HeroUI button and FAB geometry               |
+| ButtonGroup, ToggleButton, ToggleButtonGroup   | actions      | Group, ToggleButton, ToggleButtonGroup | Astryx ButtonGroup/SizeContext; HeroUI attached groups          |
+| Link, CopyButton                               | actions      | Link, Button                           | Astryx LinkProvider idea                                        |
+| Field parts, TextField, TextArea               | inputs       | TextField, Input, TextArea, Label      | Astryx Field contract; BoardUI Input; HeroUI field variants     |
+| SearchField, PasswordField                     | inputs       | SearchField, TextField                 | Astryx SearchInput; teli password-input                         |
+| NumberField (stepper / counter)                | inputs       | NumberField                            | Astryx NumberInput, BoardUI NumberField, Bencho rolling counter |
+| Checkbox, CheckboxGroup, RadioGroup, Switch    | inputs       | Checkbox, RadioGroup, Switch           | HeroUI control motion; BoardUI SwitchCard                       |
+| Slider, RangeSlider                            | inputs       | Slider                                 | Astryx thin rail; HeroUI thumb                                  |
+| ListBox, Select, ComboBox                      | inputs       | ListBox, Select, ComboBox, Popover     | Astryx Selector/Typeahead; EasyUI Combobox keywords             |
+| Tabs, SegmentedControl                         | navigation   | Tabs, ToggleButtonGroup                | BoardUI SegmentedControl measured thumb; Astryx tabs            |
+| Dialog, AlertDialog                            | overlays     | Dialog, Modal, ModalOverlay            | HeroUI modal; BoardUI AlertDialog async onConfirm               |
+| Sheet (side, bottom, top)                      | overlays     | Modal, Dialog                          | HeroUI Sheet snap points; EasyUI Sheet thresholds               |
+| Popover, Tooltip                               | overlays     | Popover, Tooltip                       | React Bits warm tooltip group (idea only)                       |
+| Menu                                           | overlays     | Menu, MenuTrigger, SubmenuTrigger      | Astryx DropdownMenu; HeroUI dropdown                            |
+| Toast                                          | feedback     | UNSTABLE_Toast / own queue             | HeroUI/BoardUI toast(); Bencho toast stack                      |
+| Badge, Chip                                    | feedback     | TagGroup for chips                     | Astryx Badge; HeroUI chip                                       |
+| Avatar, AvatarGroup                            | data-display | —                                      | Astryx Avatar overlap; HeroUI avatar-group clip                 |
+| ProgressBar, ProgressCircle, Spinner, Skeleton | feedback     | ProgressBar, Meter                     | HeroUI progress and skeleton                                    |
+| Card, ClickableCard, SelectableCard, Divider   | layout       | Link, Checkbox, Separator              | Astryx card trio                                                |
+| Disclosure, Accordion                          | layout       | Disclosure, DisclosureGroup            | HeroUI accordion surface                                        |
+| Banner (inline message), EmptyState            | feedback     | —                                      | Astryx Banner and EmptyState                                    |
+| Kbd, TagGroup                                  | data-display | TagGroup                               | Astryx Kbd, Tokenizer                                           |
+| Theme builder page                             | catalogue    | —                                      | `brandColors` at runtime                                        |
 
 ## Wave 2 — Dates, data and navigation
 
@@ -75,11 +75,11 @@ Status: ✅ built and reviewed · 🚧 in progress · ⬜ planned
 | SplitButton                                                                                                                                                                               | actions      | Button + Menu                                    |
 | Form (validation, sections, actions)                                                                                                                                                      | inputs       | Form                                             |
 
-## Wave 3 — Expressive
+## Wave 3 — Motion and micro-interactions
 
 HoldToConfirmButton, SlideToConfirm, DynamicIsland (live activity), RollingCounter, Marquee,
 SplitText / Typewriter / ShinyText / GradientText, SpotlightCard, ShineBorder / BorderBeam,
-MagneticButton, Reveal (`data-reveal`), ScrollProgress, LoadingIndicator (M3 Expressive morphing
+MagneticButton, Reveal (`data-reveal`), ScrollProgress, LoadingIndicator (morphing
 shapes), DotGrid / GradientMesh / Aurora backgrounds, Confetti, ThemeToggle with view transitions,
 TiltCard, LiquidSwitch variant, UndoToast.
 

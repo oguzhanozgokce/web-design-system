@@ -6,7 +6,7 @@ export default function ListBoxSections() {
     <ListBox
       aria-label="Move to"
       selectionMode="single"
-      variant="outlined"
+      variant="outline"
       className="w-full max-w-xs"
     >
       <ListBoxSection title="Recent">

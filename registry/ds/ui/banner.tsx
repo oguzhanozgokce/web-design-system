@@ -18,7 +18,7 @@ import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-pr
 
 export type BannerTone = 'info' | 'success' | 'warning' | 'error' | 'neutral';
 
-export type BannerVariant = 'tonal' | 'outlined';
+export type BannerVariant = 'soft' | 'surface';
 
 export type BannerLayout = 'inline' | 'page';
 
@@ -41,44 +41,39 @@ export const defaultBannerLabels: BannerLabels = {
 export const bannerStyles = tv({
   slots: {
     root: [
-      'group/banner relative flex w-full items-start gap-3 text-start',
+      'group/banner relative flex w-full items-start gap-3 px-4 py-3 text-start',
       'data-[exiting]:pointer-events-none data-[exiting]:animate-ds-fade-out',
     ],
-    icon: 'inline-flex size-5 shrink-0 items-center justify-center text-[1.25rem] [&_svg]:size-[1em]',
-    body: 'flex min-w-0 flex-1 flex-col',
+    icon: 'mt-0.5 inline-flex size-4 shrink-0 items-center justify-center [&_svg]:size-4',
+    body: 'flex min-w-0 flex-1 flex-col gap-2',
     content: 'flex min-w-0 flex-col gap-0.5 [overflow-wrap:anywhere]',
-    title: 'text-title-sm',
-    description: 'text-body-md',
-    extra: 'text-body-md',
-    actions: 'flex flex-wrap items-center gap-2',
+    title: 'text-sm font-semibold',
+    description: 'text-sm',
+    extra: 'text-sm',
+    actions:
+      'flex flex-wrap items-center gap-2 has-[>[data-slot=button][data-variant=ghost]:first-child]:-ms-3',
     dismiss: [
-      'state-layer focus-ring inline-flex size-8 shrink-0 cursor-default items-center justify-center rounded-full',
-      'transition-colors duration-150 ease-standard [&_svg]:size-5',
+      'focus-ring transition-control no-tap-highlight -my-1 -me-1.5 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full',
+      'data-[hovered]:bg-neutral-soft data-[pressed]:bg-neutral-soft-hover [&_svg]:size-4',
     ],
   },
   variants: {
     layout: {
-      inline: {
-        root: 'rounded-md py-2 ps-4',
-        icon: 'mt-2',
-        content: 'py-2',
-        actions: 'pb-1 has-[>[data-slot=button][data-variant=text]:first-child]:-ms-3.5',
-        dismiss: 'mt-0.5',
-      },
+      inline: { root: 'rounded-container' },
       page: {
-        root: '@container/banner rounded-none py-2 ps-4 sm:ps-6',
-        icon: 'mt-1.5',
+        root: '@container/banner rounded-none sm:px-6',
         body: 'gap-x-6 @2xl/banner:flex-row @2xl/banner:items-start',
-        content: 'py-1.5 @2xl/banner:flex-1',
-        actions: 'justify-end pb-1 @2xl/banner:shrink-0 @2xl/banner:pb-0',
+        content: '@2xl/banner:flex-1',
+        actions: '@2xl/banner:-my-1.5 @2xl/banner:shrink-0 @2xl/banner:justify-end',
       },
     },
     variant: {
-      tonal: {
-        actions: '[&_[data-slot=button][data-variant=text]]:text-current',
+      soft: {
+        actions: '[&>[data-slot=button][data-variant=ghost]]:text-current',
+        dismiss: 'text-current',
       },
-      outlined: {
-        root: 'border bg-surface text-on-surface',
+      surface: {
+        root: 'border border-outline-subtle bg-surface-raised text-on-surface',
         description: 'text-on-surface-variant',
         extra: 'text-on-surface-variant',
         dismiss: 'text-on-surface-variant',
@@ -91,71 +86,33 @@ export const bannerStyles = tv({
       error: {},
       neutral: {},
     },
-    isDismissable: {
-      true: { root: 'pe-2' },
-      false: { root: 'pe-4' },
-    },
   },
   compoundVariants: [
-    { layout: 'page', isDismissable: false, class: { root: 'sm:pe-6' } },
-    { layout: 'page', isDismissable: true, class: { root: 'sm:pe-4' } },
-    { layout: 'page', variant: 'outlined', class: { root: 'border-x-0 border-t-0' } },
+    { layout: 'page', variant: 'surface', class: { root: 'border-x-0 border-t-0' } },
+    { variant: 'soft', tone: 'info', class: { root: 'bg-info-soft text-on-info-soft' } },
+    { variant: 'soft', tone: 'success', class: { root: 'bg-success-soft text-on-success-soft' } },
+    { variant: 'soft', tone: 'warning', class: { root: 'bg-warning-soft text-on-warning-soft' } },
+    { variant: 'soft', tone: 'error', class: { root: 'bg-error-soft text-on-error-soft' } },
     {
-      variant: 'tonal',
-      tone: 'info',
-      class: {
-        root: 'bg-info-container text-on-info-container [&_[data-focus-visible]]:outline-on-info-container',
-      },
-    },
-    {
-      variant: 'tonal',
-      tone: 'success',
-      class: {
-        root: 'bg-success-container text-on-success-container [&_[data-focus-visible]]:outline-on-success-container',
-      },
-    },
-    {
-      variant: 'tonal',
-      tone: 'warning',
-      class: {
-        root: 'bg-warning-container text-on-warning-container [&_[data-focus-visible]]:outline-on-warning-container',
-      },
-    },
-    {
-      variant: 'tonal',
-      tone: 'error',
-      class: {
-        root: 'bg-error-container text-on-error-container [&_[data-focus-visible]]:outline-on-error-container',
-      },
-    },
-    {
-      variant: 'tonal',
+      variant: 'soft',
       tone: 'neutral',
-      class: { root: 'bg-surface-container-high text-on-surface', icon: 'text-on-surface-variant' },
+      class: {
+        root: 'bg-neutral-soft text-on-surface',
+        icon: 'text-on-surface-variant',
+        description: 'text-on-surface-variant',
+        extra: 'text-on-surface-variant',
+      },
     },
-    { variant: 'outlined', tone: 'info', class: { root: 'border-info/50', icon: 'text-info' } },
-    {
-      variant: 'outlined',
-      tone: 'success',
-      class: { root: 'border-success/50', icon: 'text-success' },
-    },
-    {
-      variant: 'outlined',
-      tone: 'warning',
-      class: { root: 'border-warning/50', icon: 'text-warning' },
-    },
-    { variant: 'outlined', tone: 'error', class: { root: 'border-error/50', icon: 'text-error' } },
-    {
-      variant: 'outlined',
-      tone: 'neutral',
-      class: { root: 'border-outline-variant', icon: 'text-on-surface-variant' },
-    },
+    { variant: 'surface', tone: 'info', class: { icon: 'text-info' } },
+    { variant: 'surface', tone: 'success', class: { icon: 'text-success' } },
+    { variant: 'surface', tone: 'warning', class: { icon: 'text-warning' } },
+    { variant: 'surface', tone: 'error', class: { icon: 'text-error' } },
+    { variant: 'surface', tone: 'neutral', class: { icon: 'text-on-surface-variant' } },
   ],
   defaultVariants: {
     layout: 'inline',
-    variant: 'tonal',
+    variant: 'soft',
     tone: 'info',
-    isDismissable: false,
   },
 });
 
@@ -234,7 +191,7 @@ export interface BannerProps extends Omit<ComponentProps<'div'>, 'title' | 'role
 
 export function Banner({
   tone = 'info',
-  variant = 'tonal',
+  variant = 'soft',
   layout = 'inline',
   title,
   description,
@@ -294,7 +251,7 @@ export function Banner({
 
   if (!isOpen && !isExiting) return null;
 
-  const styles = bannerStyles({ tone, variant, layout, isDismissable });
+  const styles = bannerStyles({ tone, variant, layout });
   const toneIcons = {
     info: icons.info,
     success: icons.checkCircle,
@@ -352,7 +309,7 @@ export function Banner({
         </div>
         {actions != null ? (
           <div data-slot="actions" className={styles.actions()}>
-            <ButtonGroupContext value={{ variant: 'text', size: 'sm' }}>
+            <ButtonGroupContext value={{ variant: 'ghost', size: 'sm' }}>
               {actions}
             </ButtonGroupContext>
           </div>

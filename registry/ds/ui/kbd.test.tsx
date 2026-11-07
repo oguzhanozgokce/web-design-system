@@ -24,14 +24,49 @@ describe('Kbd', () => {
     const screen = await renderWithDS(<Kbd>K</Kbd>);
     const key = screen.getByText('K').element();
     expect(key.tagName).toBe('KBD');
-    expect(key.getAttribute('data-variant')).toBe('outlined');
+    expect(key.getAttribute('data-variant')).toBe('soft');
     expect(key.getAttribute('data-size')).toBe('md');
     expect(key.getBoundingClientRect().height).toBe(24);
+    const style = getComputedStyle(key);
+    expect(style.borderTopLeftRadius).toBe('8px');
+    expect(style.fontWeight).toBe('500');
+    expect(style.fontSize).toBe('12px');
+    expect(style.borderTopWidth).toBe('0px');
   });
 
-  it('is 20px high at size sm', async () => {
+  it('uses the sans font inside monospaced text', async () => {
+    const screen = await renderWithDS(
+      <p className="font-mono">
+        <span data-testid="mono">x</span> <Kbd>K</Kbd>
+      </p>,
+    );
+    const key = screen.getByText('K').element();
+    expect(getComputedStyle(key).fontFamily).not.toBe(
+      getComputedStyle(screen.getByTestId('mono').element()).fontFamily,
+    );
+  });
+
+  it('paints the soft key on the neutral fill and the ghost key on nothing', async () => {
+    const screen = await renderWithDS(
+      <div className="flex gap-2">
+        <Kbd>A</Kbd>
+        <Kbd variant="ghost">B</Kbd>
+        <span data-testid="probe" className="bg-neutral-soft" />
+      </div>,
+    );
+    expect(getComputedStyle(screen.getByText('A').element()).backgroundColor).toBe(
+      getComputedStyle(screen.getByTestId('probe').element()).backgroundColor,
+    );
+    expect(getComputedStyle(screen.getByText('B').element()).backgroundColor).toBe(
+      'rgba(0, 0, 0, 0)',
+    );
+  });
+
+  it('is 20px high with a 6px corner at size sm', async () => {
     const screen = await renderWithDS(<Kbd size="sm">K</Kbd>);
-    expect(screen.getByText('K').element().getBoundingClientRect().height).toBe(20);
+    const key = screen.getByText('K').element();
+    expect(key.getBoundingClientRect().height).toBe(20);
+    expect(getComputedStyle(key).borderTopLeftRadius).toBe('6px');
   });
 
   it('shows a glyph and speaks the English key name by default', async () => {
@@ -195,11 +230,11 @@ describe('KbdCombo', () => {
 
   it('passes variant and size to every key', async () => {
     const screen = await renderWithDS(
-      <KbdCombo data-testid="combo" keys={['mod', 'K']} variant="text" size="sm" />,
+      <KbdCombo data-testid="combo" keys={['mod', 'K']} variant="ghost" size="sm" />,
     );
     const keys = screen.getByTestId('combo').element().querySelectorAll('[data-slot="kbd"]');
     for (const key of keys) {
-      expect(key.getAttribute('data-variant')).toBe('text');
+      expect(key.getAttribute('data-variant')).toBe('ghost');
       expect(key.getAttribute('data-size')).toBe('sm');
     }
   });
@@ -227,8 +262,8 @@ describe('Kbd accessibility', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          {(['outlined', 'tonal', 'text'] as const).map((variant) => (
-            <p key={variant} className="flex flex-wrap items-center gap-3 text-body-md">
+          {(['soft', 'ghost'] as const).map((variant) => (
+            <p key={variant} className="flex flex-wrap items-center gap-3 text-sm">
               <KbdCombo keys={['mod', 'shift', 'P']} variant={variant} platform="apple" />
               <KbdCombo keys={['mod', 'K']} variant={variant} size="sm" platform="other" />
               <Kbd variant={variant}>escape</Kbd>
@@ -237,14 +272,17 @@ describe('Kbd accessibility', () => {
               </Kbd>
             </p>
           ))}
-          <div className="rounded-sm bg-surface-container p-2 text-on-surface-variant">
-            <KbdCombo keys={['mod', 'D']} variant="text" separator="+" />
+          <div className="rounded-item bg-surface-raised p-2 text-on-surface-variant">
+            <KbdCombo keys={['mod', 'D']} variant="ghost" separator="+" />
+          </div>
+          <div className="rounded-item bg-surface-overlay p-2">
+            <KbdCombo keys={['mod', 'shift', 'K']} size="sm" platform="other" />
           </div>
         </div>,
         options,
       );
       await expectNoA11yViolations(screen.container);
-      screen.unmount();
+      await screen.unmount();
     }
   });
 });

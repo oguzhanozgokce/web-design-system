@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: Material 3 modal dialog with header, scrolling body and actions, five sizes, a centred hero icon, dismissal control and a full-screen layout with a top app bar on phones.
+description: Modal dialog with a header, a scrolling body and actions, five sizes, a hero icon, dismissal control and a full-screen layout for phones.
 ---
 
 <ComponentPreview name="dialog-demo" />
@@ -27,7 +27,7 @@ import {
     <DialogHeader title="Edit profile" description="Your name appears on your profile." />
     <DialogBody>…</DialogBody>
     <DialogFooter>
-      <Button slot="close" variant="text">
+      <Button slot="close" variant="soft">
         Cancel
       </Button>
       <Button onPress={save}>Save</Button>
@@ -41,20 +41,26 @@ with `slot="close"` inside the dialog closes it. For actions that must finish fi
 function as children: it receives `close`, so an async save can close the dialog when it resolves.
 For a yes-or-no question, use [Alert Dialog](/docs/components/overlays/alert-dialog) instead.
 
+The main action is a solid primary [Button](/docs/components/actions/button) and the way out is a
+`soft` one, so the accent appears once per dialog. On a phone the dialog sits at the bottom of the
+screen, within reach of the thumb, and from 640px it is centred.
+
 ## Examples
 
 ### Sizes
 
-`size` sets the maximum width: `sm` 384px, `md` 560px (the default and the Material 3 maximum),
-`lg` 720px and `xl` 960px. The dialog never grows past the viewport. `full` covers the whole
-viewport at every width and switches the header to a top app bar.
+`size` sets the maximum width: `sm` 384px, `md` 448px (the default), `lg` 512px and `xl` 672px.
+The dialog never grows past the viewport and keeps a 16px margin on phones and 40px from 640px.
+`full` covers the whole viewport at every width and switches the header to a top bar.
 
 <ComponentPreview name="dialog-sizes" />
 
 ### Hero icon
 
-An `icon` on `DialogHeader` sits above the title, and the title and description centre around it,
-as in Material 3. Use it when the icon adds meaning, such as a sync or security problem.
+An `icon` on `DialogHeader` sits in a 40px circle above the title, aligned to the start like the
+text. `iconTone` tints the circle: `neutral` (the default) is a translucent grey, and `primary`,
+`success`, `warning`, `info` and `error` use a pale tint of that role. Use an icon when it adds
+meaning, such as a sync or security problem.
 
 <ComponentPreview name="dialog-icon" />
 
@@ -69,7 +75,7 @@ body becomes focusable so keyboard users can scroll it.
 ### Full screen on phones
 
 With `fullScreenOnMobile`, the dialog fills the screen below 600px, slides up from the bottom and
-turns its header into a 56px top app bar: a close button, the title and the `action` you pass to
+turns its header into a 56px top bar: a close button, the title and the `action` you pass to
 `DialogHeader`. The footer is hidden there while an action is shown, so pass the same confirm
 button to both. From 600px up it is a basic dialog and the header `action` is not rendered.
 
@@ -77,8 +83,10 @@ button to both. From 600px up it is a basic dialog and the header `action` is no
 
 ### Close button
 
-`showCloseButton` adds a close button at the end of the header. Use it for dialogs that only show
-information, such as a list of keyboard shortcuts, where a footer would be empty.
+`showCloseButton` adds a close button 16px from the top and end corner: a 32px ghost, neutral
+[Icon Button](/docs/components/actions/icon-button) that shrinks a little when pressed. Use it for
+dialogs that only show information, such as a list of keyboard shortcuts, where a footer would be
+empty.
 
 <ComponentPreview name="dialog-close-button" />
 
@@ -92,7 +100,7 @@ the dialog opened.
 
 ### Required action
 
-`isDismissable={false}` ignores presses on the scrim and `isKeyboardDismissDisabled` ignores
+`isDismissable={false}` ignores presses on the backdrop and `isKeyboardDismissDisabled` ignores
 Escape, so the only way out is an action in the dialog. Keep this for states the person must
 resolve, such as an expired session.
 
@@ -130,25 +138,24 @@ pressable component such as `Button`.
 | `overlayClassName`             | `string`                                                           |                    |
 | `children`                     | `ReactNode \| ((renderProps: { close: () => void }) => ReactNode)` |                    |
 
-`className` goes to the dialog surface and `overlayClassName` to the scrim. Every other
+`className` goes to the dialog surface and `overlayClassName` to the backdrop. Every other
 [React Aria Dialog](https://react-aria.adobe.com/Dialog) prop is passed to the element with the
 dialog role. Use `isOpen`, `defaultOpen` and `onOpenChange` on `Dialog` only when there is no
 `DialogTrigger`.
 
-The surface is `surface-container-high`, or `surface` in the full-screen layout, and the dialog says
-so through `SurfaceContext`, so a [Card](/docs/components/layout/card) inside it steps up from the
-dialog rather than from the page. Buttons inside it keep their own size and variant even when the
-trigger sits in a [Button Group](/docs/components/actions/button-group).
+Buttons inside the dialog keep their own size and variant even when the trigger sits in a
+[Button Group](/docs/components/actions/button-group).
 
 ### DialogHeader
 
-| Prop              | Type        | Default |
-| ----------------- | ----------- | ------- |
-| `title`           | `ReactNode` |         |
-| `description`     | `ReactNode` |         |
-| `icon`            | `ReactNode` |         |
-| `action`          | `ReactNode` |         |
-| `showCloseButton` | `boolean`   | `false` |
+| Prop              | Type                                                                    | Default     |
+| ----------------- | ----------------------------------------------------------------------- | ----------- |
+| `title`           | `ReactNode`                                                             |             |
+| `description`     | `ReactNode`                                                             |             |
+| `icon`            | `ReactNode`                                                             |             |
+| `iconTone`        | `'neutral' \| 'primary' \| 'success' \| 'warning' \| 'info' \| 'error'` | `'neutral'` |
+| `action`          | `ReactNode`                                                             |             |
+| `showCloseButton` | `boolean`                                                               | `false`     |
 
 The title is a level 2 heading that names the dialog, and the description describes it. `icon` is
 not shown in the full-screen layout; `action` is shown only there. `children` render below the
@@ -168,37 +175,53 @@ places actions at the end and wraps them when they do not fit.
 
 ### DialogClose
 
-An icon button in the `close` slot. Its `aria-label` defaults to the `close` label and its icon to
-`close` from `DSProvider` icons. Every other React Aria `Button` prop is passed through.
+A ghost, neutral [Icon Button](/docs/components/actions/icon-button) in the `close` slot: 32px in
+the header, 40px in the full-screen top bar. Its `aria-label` defaults to the `close` label and
+its icon to `close` from `DSProvider` icons; `children` replace the icon. Every other React Aria
+`Button` prop is passed through.
 
 ### useDialogLayout
 
 Returns `{ isFullScreen }` inside a dialog, for content that should change in the full-screen
 layout.
 
+### Styling
+
+| Part        | Classes                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| backdrop    | `bg-backdrop`, `items-end p-4` on phones, `items-center p-10` from 640px                       |
+| surface     | `rounded-dialog bg-surface-overlay shadow-lg`; square and shadowless in the full-screen layout |
+| header      | `px-6 pt-6`, the icon `size-10 rounded-full` with a 20px glyph                                 |
+| title       | `text-base font-semibold text-on-surface`                                                      |
+| description | `text-sm text-on-surface-variant`, 8px under the title                                         |
+| body        | `text-sm text-on-surface-variant`, hairline `border-outline-subtle` dividers while it scrolls  |
+| footer      | `flex justify-end gap-2 px-6 pt-5 pb-6`                                                        |
+| close       | a 32px ghost, neutral Icon Button at `inset-e-4 top-4`, pressed `scale-[0.93]`                 |
+
 ### Styles for other overlays
 
-`dialogStyles({ size, fullScreen, motion, centered, closable })` exposes the `overlay`,
+`dialogStyles({ size, fullScreen, motion, iconTone, closable })` exposes the `overlay`,
 `surface`, `dialog`, `header`, `icon`, `heading`, `title`, `description`, `action`, `close`,
-`body` and `footer` slots. `motion` is `'spatial'`, `'fade'` or `'none'`; `centered` is the
-hero-icon header and `closable` reserves room for the close button.
+`body` and `footer` slots. `motion` is `'spatial'`, `'fade'` or `'none'`; `iconTone` tints the
+icon circle and `closable` reserves room for the close button.
 
 ### Data attributes
 
 Surface: `data-slot="dialog-surface"`, `data-size`, `data-fullscreen`, `data-entering`,
-`data-exiting`. Body: `data-overflow-top`, `data-overflow-bottom`. Parts:
-`data-slot="dialog-overlay"`, `"dialog"`, `"dialog-header"`, `"dialog-icon"`, `"dialog-heading"`,
-`"dialog-title"`, `"dialog-description"`, `"dialog-action"`, `"dialog-body"`, `"dialog-footer"`,
-`"dialog-close"`.
+`data-exiting`. Body: `data-overflow-top`, `data-overflow-bottom`. Icon: `data-slot="dialog-icon"`
+with `data-tone`. Parts: `data-slot="dialog-overlay"`, `"dialog"`, `"dialog-header"`,
+`"dialog-heading"`, `"dialog-title"`, `"dialog-description"`, `"dialog-action"`, `"dialog-body"`,
+`"dialog-footer"`. The close button is an Icon Button (`data-slot="icon-button"`) with
+`slot="close"`.
 
 ### Labels
 
 Text the dialog writes on its own. Pass `labels` to one `Dialog`, which hands them to every close
 button inside it, or set them for every dialog with `<DSProvider labels={{ dialog: { … } }}>`.
 
-| Key     | Default | Used for                                                                |
-| ------- | ------- | ----------------------------------------------------------------------- |
-| `close` | `Close` | the accessible name of `DialogClose`, in the header and the top app bar |
+| Key     | Default | Used for                                                            |
+| ------- | ------- | ------------------------------------------------------------------- |
+| `close` | `Close` | the accessible name of `DialogClose`, in the header and the top bar |
 
 ## Accessibility
 
@@ -206,12 +229,13 @@ button inside it, or set them for every dialog with `<DSProvider labels={{ dialo
   opens, stays inside while it is open and returns to the trigger when it closes. Content behind
   it is hidden from screen readers and page scrolling is locked.
 - The dialog is named by its title (or `aria-label`) and described by its description.
-- Escape closes the dialog unless `isKeyboardDismissDisabled` is set. When the scrim dismisses
+- Escape closes the dialog unless `isKeyboardDismissDisabled` is set. When the backdrop dismisses
   it, screen reader users also get a hidden dismiss button.
 - A body that scrolls becomes focusable, so it can be scrolled with the keyboard.
 - The portal takes its direction and language from the locale, so the close button and actions
   sit on the correct side in Arabic.
-- The dialog scales in and the full-screen layout slides up. With reduced motion, from the system
-  or `DSProvider`, both fade instead; with motion disabled they appear at once.
+- The backdrop fades in, the dialog scales in from slightly larger, and the full-screen layout
+  slides up. With reduced motion, from the system or `DSProvider`, both fade instead; with motion
+  disabled they appear at once.
 - Contrast is checked with axe in light, dark and RTL, for the basic and full-screen layouts, by
   `dialog.test.tsx`.

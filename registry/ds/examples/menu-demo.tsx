@@ -27,7 +27,7 @@ export default function MenuDemo() {
   return (
     <div className="flex flex-col items-center gap-3">
       <MenuTrigger>
-        <Button variant="outlined" endIcon={<ArrowDropDownIcon />}>
+        <Button variant="outline" endIcon={<ArrowDropDownIcon />}>
           Actions
         </Button>
         <Menu onAction={(key) => setLast(key)}>
@@ -44,12 +44,12 @@ export default function MenuDemo() {
             Download
           </MenuItem>
           <MenuSeparator />
-          <MenuItem id="delete" startIcon={<DeleteIcon />} tone="destructive">
+          <MenuItem id="delete" startIcon={<DeleteIcon />} tone="error">
             Delete
           </MenuItem>
         </Menu>
       </MenuTrigger>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {last != null ? `Last action: ${labels[String(last)]}` : 'No action yet'}
       </p>
     </div>

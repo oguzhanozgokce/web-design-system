@@ -6,22 +6,37 @@ import { StarFilledIcon, StarIcon } from '@/registry/ds/lib/icons';
 import { ButtonGroup } from '@/registry/ds/ui/button-group';
 import { ToggleButton, ToggleButtonGroup } from '@/registry/ds/ui/toggle-button';
 
-const still = { provider: { motion: 'disabled' as const } };
+function roleStyle(className: string) {
+  const probe = document.createElement('span');
+  probe.className = className;
+  document.querySelector('[data-testid="ds-root"]')!.append(probe);
+  const style = getComputedStyle(probe);
+  const result = { backgroundColor: style.backgroundColor, color: style.color };
+  probe.remove();
+  return result;
+}
 
 function radius(element: Element, corner: 'TopLeft' | 'TopRight' = 'TopLeft') {
   return parseFloat(getComputedStyle(element)[`border${corner}Radius`]);
 }
 
+function label(element: Element) {
+  return element.querySelector('[data-slot="label"] > :not([aria-hidden])')!;
+}
+
 describe('ToggleButton', () => {
-  it('renders a pressed-state button that toggles on press', async () => {
+  it('renders a soft pressed-state button that toggles on press', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <ToggleButton onChange={onChange}>Watch folder</ToggleButton>,
     );
     const toggle = screen.getByRole('button', { name: 'Watch folder' });
     await expect.element(toggle).toHaveAttribute('aria-pressed', 'false');
-    await expect.element(toggle).toHaveAttribute('data-variant', 'filled');
-    await expect.element(toggle).toHaveAttribute('data-shape', 'round');
+    await expect.element(toggle).toHaveAttribute('data-variant', 'soft');
+    await expect.element(toggle).toHaveAttribute('data-size', 'md');
+    await expect.element(toggle).not.toHaveAttribute('data-shape');
+    expect(toggle.element().getBoundingClientRect().height).toBe(40);
+    expect(radius(toggle.element())).toBe(9999);
 
     await toggle.click();
     await expect.element(toggle).toHaveAttribute('aria-pressed', 'true');
@@ -40,14 +55,14 @@ describe('ToggleButton', () => {
       return (
         <>
           <ToggleButton isSelected={pinned} onChange={setPinned}>
-            Pin to dashboard
+            Pin to sidebar
           </ToggleButton>
           <p>{pinned ? 'Pinned' : 'Not pinned'}</p>
         </>
       );
     }
     const screen = await renderWithDS(<Controlled />);
-    const toggle = screen.getByRole('button', { name: 'Pin to dashboard' });
+    const toggle = screen.getByRole('button', { name: 'Pin to sidebar' });
     await expect.element(toggle).toHaveAttribute('aria-pressed', 'true');
     await toggle.click();
     await expect.element(screen.getByText('Not pinned')).toBeVisible();
@@ -69,84 +84,69 @@ describe('ToggleButton', () => {
     await expect.element(screen.getByTestId('outline')).not.toBeInTheDocument();
   });
 
-  it('morphs from a capsule to a rounded square when selected, and back for square shape', async () => {
+  it('tints the selected toggle and leaves the rest neutral', async () => {
     const screen = await renderWithDS(
       <div className="flex gap-2">
-        <ToggleButton>Round</ToggleButton>
-        <ToggleButton shape="square">Square</ToggleButton>
+        <ToggleButton>Soft off</ToggleButton>
+        <ToggleButton defaultSelected>Soft on</ToggleButton>
+        <ToggleButton variant="ghost">Ghost off</ToggleButton>
+        <ToggleButton variant="ghost" defaultSelected>
+          Ghost on
+        </ToggleButton>
       </div>,
-      still,
     );
-    const round = screen.getByRole('button', { name: 'Round' });
-    const square = screen.getByRole('button', { name: 'Square' });
-    await expect.element(round).toBeVisible();
+    const style = (name: string) =>
+      getComputedStyle(screen.getByRole('button', { name }).element());
+    await expect.element(screen.getByRole('button', { name: 'Soft on' })).toBeVisible();
+    const selected = roleStyle('bg-primary-soft text-on-primary-soft');
+    expect(style('Soft off').backgroundColor).toBe(roleStyle('bg-neutral-soft').backgroundColor);
+    expect(style('Soft off').color).toBe(roleStyle('text-on-surface').color);
+    expect(style('Ghost off').backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    for (const name of ['Soft on', 'Ghost on']) {
+      expect(style(name).backgroundColor).toBe(selected.backgroundColor);
+      expect(style(name).color).toBe(selected.color);
+    }
+  });
 
-    expect(radius(round.element())).toBe(20);
-    expect(radius(square.element())).toBe(12);
+  it('turns the label semibold when selected without changing the width', async () => {
+    const screen = await renderWithDS(<ToggleButton>Bold</ToggleButton>);
+    const toggle = screen.getByRole('button', { name: 'Bold' });
+    await expect.element(toggle).toBeVisible();
+    const width = toggle.element().getBoundingClientRect().width;
+    expect(getComputedStyle(label(toggle.element())).fontWeight).toBe('500');
 
-    await round.click();
-    await square.click();
-    await expect.element(round).toHaveAttribute('data-selected', 'true');
-    await expect.element(square).toHaveAttribute('data-selected', 'true');
-    expect(radius(round.element())).toBe(12);
-    expect(radius(square.element())).toBe(20);
+    await toggle.click();
+    await expect.element(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(getComputedStyle(label(toggle.element())).fontWeight).toBe('600');
+    expect(toggle.element().getBoundingClientRect().width).toBe(width);
+  });
 
-    round.element().focus();
+  it('scales down while pressed and keeps its pill shape', async () => {
+    const screen = await renderWithDS(<ToggleButton>Bold</ToggleButton>);
+    const toggle = screen.getByRole('button', { name: 'Bold' });
+    await expect.element(toggle).toBeVisible();
+    toggle.element().focus();
     await userEvent.keyboard('[Space>]');
-    await expect.element(round).toHaveAttribute('data-pressed', 'true');
-    expect(radius(round.element())).toBe(8);
+    await expect.element(toggle).toHaveAttribute('data-pressed', 'true');
+    await expect.poll(() => getComputedStyle(toggle.element()).scale).toBe('0.97');
+    expect(radius(toggle.element())).toBe(9999);
     await userEvent.keyboard('[/Space]');
-    await expect.element(round).not.toHaveAttribute('data-pressed');
-    await expect.element(round).not.toHaveAttribute('data-selected');
-    expect(radius(round.element())).toBe(20);
   });
 
-  it('animates the shape with the spatial spring unless motion is reduced', async () => {
-    const animated = await renderWithDS(<ToggleButton>Bold</ToggleButton>);
-    await expect.element(animated.getByRole('button')).toBeVisible();
-    const animatedStyle = getComputedStyle(animated.getByRole('button').element());
-    const radiusIndex = animatedStyle.transitionProperty.split(', ').indexOf('border-radius');
-    expect(radiusIndex).toBeGreaterThan(-1);
-    expect(animatedStyle.transitionDuration.split(', ')[radiusIndex]).not.toBe('0s');
-    expect(animatedStyle.transitionTimingFunction).toContain('linear(');
-    await animated.unmount();
-
-    const reduced = await renderWithDS(<ToggleButton>Bold</ToggleButton>, {
-      provider: { motion: 'reduced' },
-    });
-    await expect.element(reduced.getByRole('button')).toBeVisible();
-    const reducedStyle = getComputedStyle(reduced.getByRole('button').element());
-    expect(reducedStyle.transitionDuration.split(', ')[radiusIndex]).toBe('0s');
-  });
-
-  it('uses the selected container colour and keeps disabled colours when disabled', async () => {
+  it('keeps its colours and halves its opacity when disabled', async () => {
     const screen = await renderWithDS(
       <div className="flex gap-2">
         <ToggleButton defaultSelected>Enabled</ToggleButton>
         <ToggleButton defaultSelected isDisabled>
           Disabled
         </ToggleButton>
-        <ToggleButton>Idle</ToggleButton>
       </div>,
     );
-    const enabled = screen.getByRole('button', { name: 'Enabled' });
-    await expect.element(enabled).toBeVisible();
-    const primary = getComputedStyle(screen.getByTestId('ds-root').element())
-      .getPropertyValue('--primary')
-      .trim();
-    const probe = document.createElement('div');
-    probe.style.backgroundColor = primary;
-    document.body.append(probe);
-    const primaryRgb = getComputedStyle(probe).backgroundColor;
-    probe.remove();
-
-    expect(getComputedStyle(enabled.element()).backgroundColor).toBe(primaryRgb);
-    expect(
-      getComputedStyle(screen.getByRole('button', { name: 'Disabled' }).element()).backgroundColor,
-    ).not.toBe(primaryRgb);
-    expect(
-      getComputedStyle(screen.getByRole('button', { name: 'Idle' }).element()).backgroundColor,
-    ).not.toBe(primaryRgb);
+    const enabled = getComputedStyle(screen.getByRole('button', { name: 'Enabled' }).element());
+    const disabled = getComputedStyle(screen.getByRole('button', { name: 'Disabled' }).element());
+    expect(disabled.backgroundColor).toBe(enabled.backgroundColor);
+    expect(disabled.opacity).toBe('0.5');
+    expect(disabled.cursor).toBe('not-allowed');
   });
 
   it('does not toggle when disabled', async () => {
@@ -160,26 +160,26 @@ describe('ToggleButton', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it('takes size and variant from a ButtonGroup but ignores the text variant', async () => {
+  it('takes size and variant from a ButtonGroup and maps button variants onto toggles', async () => {
     const screen = await renderWithDS(
       <>
-        <ButtonGroup aria-label="Format" size="sm" buttonVariant="tonal">
+        <ButtonGroup aria-label="Format" size="sm" buttonVariant="solid">
           <ToggleButton>Bold</ToggleButton>
-          <ToggleButton variant="outlined">Italic</ToggleButton>
+          <ToggleButton variant="ghost">Italic</ToggleButton>
         </ButtonGroup>
-        <ButtonGroup aria-label="Text" buttonVariant="text" isDisabled>
+        <ButtonGroup aria-label="Text" buttonVariant="outline" isDisabled>
           <ToggleButton>Underline</ToggleButton>
         </ButtonGroup>
       </>,
     );
     const bold = screen.getByRole('button', { name: 'Bold' });
-    await expect.element(bold).toHaveAttribute('data-variant', 'tonal');
+    await expect.element(bold).toHaveAttribute('data-variant', 'soft');
     await expect.element(bold).toHaveAttribute('data-size', 'sm');
     await expect
       .element(screen.getByRole('button', { name: 'Italic' }))
-      .toHaveAttribute('data-variant', 'outlined');
+      .toHaveAttribute('data-variant', 'ghost');
     const underline = screen.getByRole('button', { name: 'Underline' });
-    await expect.element(underline).toHaveAttribute('data-variant', 'filled');
+    await expect.element(underline).toHaveAttribute('data-variant', 'ghost');
     await expect.element(underline).toBeDisabled();
   });
 });
@@ -189,7 +189,7 @@ describe('ToggleButtonGroup', () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
       <ToggleButtonGroup
-        aria-label="Traffic period"
+        aria-label="Upload period"
         defaultSelectedKeys={['week']}
         disallowEmptySelection
         onSelectionChange={onSelectionChange}
@@ -199,8 +199,8 @@ describe('ToggleButtonGroup', () => {
         <ToggleButton id="month">Month</ToggleButton>
       </ToggleButtonGroup>,
     );
-    const group = screen.getByRole('radiogroup', { name: 'Traffic period' });
-    await expect.element(group).toHaveAttribute('data-variant', 'connected');
+    const group = screen.getByRole('radiogroup', { name: 'Upload period' });
+    await expect.element(group).toHaveAttribute('data-variant', 'attached');
     await expect
       .element(screen.getByRole('radio', { name: 'Week' }))
       .toHaveAttribute('aria-checked', 'true');
@@ -222,31 +222,31 @@ describe('ToggleButtonGroup', () => {
 
   it('allows several toggles in multiple selection mode', async () => {
     function Filters() {
-      const [selected, setSelected] = useState<Set<Key>>(new Set(['paid']));
+      const [selected, setSelected] = useState<Set<Key>>(new Set(['photos']));
       return (
         <>
           <ToggleButtonGroup
-            aria-label="Order status"
+            aria-label="File type"
             selectionMode="multiple"
             selectedKeys={selected}
             onSelectionChange={setSelected}
           >
-            <ToggleButton id="paid">Paid</ToggleButton>
-            <ToggleButton id="pending">Pending</ToggleButton>
-            <ToggleButton id="refunded">Refunded</ToggleButton>
+            <ToggleButton id="photos">Photos</ToggleButton>
+            <ToggleButton id="videos">Videos</ToggleButton>
+            <ToggleButton id="documents">Documents</ToggleButton>
           </ToggleButtonGroup>
           <output>{[...selected].sort().join(',')}</output>
         </>
       );
     }
     const screen = await renderWithDS(<Filters />);
-    await expect.element(screen.getByRole('toolbar', { name: 'Order status' })).toBeVisible();
-    await screen.getByRole('button', { name: 'Refunded' }).click();
-    await expect.element(screen.getByText('paid,refunded')).toBeVisible();
-    await screen.getByRole('button', { name: 'Paid' }).click();
-    await expect.element(screen.getByText('refunded', { exact: true })).toBeVisible();
+    await expect.element(screen.getByRole('toolbar', { name: 'File type' })).toBeVisible();
+    await screen.getByRole('button', { name: 'Documents' }).click();
+    await expect.element(screen.getByText('documents,photos')).toBeVisible();
+    await screen.getByRole('button', { name: 'Photos' }).click();
+    await expect.element(screen.getByText('documents', { exact: true })).toBeVisible();
     await expect
-      .element(screen.getByRole('button', { name: 'Refunded' }))
+      .element(screen.getByRole('button', { name: 'Documents' }))
       .toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -311,9 +311,9 @@ describe('ToggleButtonGroup', () => {
 
   it('gives its toggles the group size and button variant unless they set their own', async () => {
     const screen = await renderWithDS(
-      <ToggleButtonGroup aria-label="Density" size="sm" buttonVariant="outlined">
+      <ToggleButtonGroup aria-label="Density" size="sm" buttonVariant="ghost">
         <ToggleButton id="compact">Compact</ToggleButton>
-        <ToggleButton id="comfortable" variant="tonal" size="lg">
+        <ToggleButton id="comfortable" variant="soft" size="lg">
           Comfortable
         </ToggleButton>
       </ToggleButtonGroup>,
@@ -321,17 +321,17 @@ describe('ToggleButtonGroup', () => {
     const group = screen.getByRole('radiogroup', { name: 'Density' });
     await expect.element(group).toHaveAttribute('data-size', 'sm');
     const compact = screen.getByRole('radio', { name: 'Compact' });
-    await expect.element(compact).toHaveAttribute('data-variant', 'outlined');
+    await expect.element(compact).toHaveAttribute('data-variant', 'ghost');
     await expect.element(compact).toHaveAttribute('data-size', 'sm');
     const comfortable = screen.getByRole('radio', { name: 'Comfortable' });
-    await expect.element(comfortable).toHaveAttribute('data-variant', 'tonal');
+    await expect.element(comfortable).toHaveAttribute('data-variant', 'soft');
     await expect.element(comfortable).toHaveAttribute('data-size', 'lg');
   });
 
   it('takes size, variant and disabled state from an enclosing ButtonGroup', async () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Editor" size="sm" buttonVariant="text" isDisabled>
+      <ButtonGroup aria-label="Editor" size="sm" buttonVariant="ghost" isDisabled>
         <ToggleButtonGroup
           aria-label="Alignment"
           defaultSelectedKeys={['start']}
@@ -347,47 +347,57 @@ describe('ToggleButtonGroup', () => {
     await expect.element(group).toHaveAttribute('data-disabled', 'true');
     const centre = screen.getByRole('radio', { name: 'Centre' });
     await expect.element(centre).toHaveAttribute('data-size', 'sm');
-    await expect.element(centre).toHaveAttribute('data-variant', 'filled');
+    await expect.element(centre).toHaveAttribute('data-variant', 'ghost');
     await expect.element(centre).toBeDisabled();
     await centre.click({ force: true });
     await expect.element(centre).toHaveAttribute('aria-checked', 'false');
     expect(onSelectionChange).not.toHaveBeenCalled();
   });
 
-  it('rounds out the selected item of a connected group', async () => {
+  it('joins an attached group into one pill and hides the separators around the selection', async () => {
     const screen = await renderWithDS(
-      <ToggleButtonGroup aria-label="Range" defaultSelectedKeys={['quarter']}>
+      <ToggleButtonGroup aria-label="Range" defaultSelectedKeys={['week']}>
+        <ToggleButton id="day">Day</ToggleButton>
+        <ToggleButton id="week">Week</ToggleButton>
         <ToggleButton id="month">Month</ToggleButton>
-        <ToggleButton id="quarter">Quarter</ToggleButton>
         <ToggleButton id="year">Year</ToggleButton>
       </ToggleButtonGroup>,
-      still,
     );
-    const quarter = screen.getByRole('radio', { name: 'Quarter' });
-    const year = screen.getByRole('radio', { name: 'Year' });
-    await expect.element(quarter).toBeVisible();
-    expect(radius(quarter.element())).toBe(20);
-    expect(radius(year.element())).toBe(4);
-    expect(radius(year.element(), 'TopRight')).toBe(20);
+    const shown = (name: string) => {
+      const style = getComputedStyle(screen.getByRole('radio', { name }).element(), '::before');
+      return style.display !== 'none' && style.content !== 'none' && style.content !== 'normal';
+    };
+    const day = screen.getByRole('radio', { name: 'Day' });
+    await expect.element(day).toBeVisible();
+    expect(radius(day.element())).toBe(9999);
+    expect(radius(day.element(), 'TopRight')).toBe(0);
+    expect(radius(screen.getByRole('radio', { name: 'Week' }).element())).toBe(0);
+    expect(radius(screen.getByRole('radio', { name: 'Year' }).element(), 'TopRight')).toBe(9999);
+    expect(shown('Week')).toBe(false);
+    expect(shown('Month')).toBe(false);
+    expect(shown('Year')).toBe(true);
 
-    await year.click();
-    await expect.element(year).toHaveAttribute('aria-checked', 'true');
-    expect(radius(year.element())).toBe(20);
-    expect(radius(quarter.element())).toBe(4);
+    await screen.getByRole('radio', { name: 'Year' }).click();
+    await expect
+      .element(screen.getByRole('radio', { name: 'Year' }))
+      .toHaveAttribute('aria-checked', 'true');
+    expect(shown('Week')).toBe(true);
+    expect(shown('Month')).toBe(true);
+    expect(shown('Year')).toBe(false);
   });
 
-  it('keeps each toggle’s own shape in a standard group', async () => {
+  it('spaces a detached group by 4px and keeps each toggle a pill', async () => {
     const screen = await renderWithDS(
-      <ToggleButtonGroup aria-label="Range" variant="standard" defaultSelectedKeys={['month']}>
+      <ToggleButtonGroup aria-label="Range" variant="detached" defaultSelectedKeys={['month']}>
         <ToggleButton id="month">Month</ToggleButton>
         <ToggleButton id="year">Year</ToggleButton>
       </ToggleButtonGroup>,
-      still,
     );
-    const month = screen.getByRole('radio', { name: 'Month' });
-    await expect.element(month).toBeVisible();
-    expect(radius(month.element())).toBe(12);
-    expect(radius(screen.getByRole('radio', { name: 'Year' }).element())).toBe(20);
+    const group = screen.getByRole('radiogroup', { name: 'Range' });
+    await expect.element(group).toHaveAttribute('data-variant', 'detached');
+    expect(getComputedStyle(group.element()).columnGap).toBe('4px');
+    expect(radius(screen.getByRole('radio', { name: 'Month' }).element())).toBe(9999);
+    expect(radius(screen.getByRole('radio', { name: 'Year' }).element())).toBe(9999);
   });
 
   it('disables every toggle when the group is disabled', async () => {
@@ -407,13 +417,13 @@ describe('ToggleButtonGroup', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          {(['filled', 'tonal', 'outlined', 'elevated'] as const).map((variant) => (
+          {(['soft', 'ghost'] as const).map((variant) => (
             <div key={variant} className="flex gap-2">
               <ToggleButton variant={variant}>Off</ToggleButton>
               <ToggleButton variant={variant} defaultSelected>
                 On
               </ToggleButton>
-              <ToggleButton variant={variant} shape="square" defaultSelected isDisabled>
+              <ToggleButton variant={variant} defaultSelected isDisabled>
                 Locked
               </ToggleButton>
             </div>
@@ -424,14 +434,14 @@ describe('ToggleButtonGroup', () => {
             <ToggleButton id="month">Month</ToggleButton>
           </ToggleButtonGroup>
           <ToggleButtonGroup
-            aria-label="Status"
+            aria-label="File type"
             selectionMode="multiple"
-            buttonVariant="outlined"
+            buttonVariant="ghost"
             orientation="vertical"
-            defaultSelectedKeys={['paid']}
+            defaultSelectedKeys={['photos']}
           >
-            <ToggleButton id="paid">Paid</ToggleButton>
-            <ToggleButton id="refunded">Refunded</ToggleButton>
+            <ToggleButton id="photos">Photos</ToggleButton>
+            <ToggleButton id="videos">Videos</ToggleButton>
           </ToggleButtonGroup>
         </div>,
         options,

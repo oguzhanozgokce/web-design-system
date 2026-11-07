@@ -6,7 +6,7 @@ export default function LinkDisabled() {
       <Link href="#api" variant="standalone" isDisabled>
         Download file
       </Link>
-      <p className="text-body-sm text-on-surface-variant">The file is still being prepared.</p>
+      <p className="text-xs text-on-surface-variant">The file is still being prepared.</p>
     </div>
   );
 }

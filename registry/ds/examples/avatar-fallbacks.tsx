@@ -27,7 +27,7 @@ export default function AvatarFallbacks() {
       {cases.map(({ caption, avatar }) => (
         <li key={caption} className="flex w-20 flex-col items-center gap-2 text-center">
           {avatar}
-          <span className="text-body-sm text-on-surface-variant">{caption}</span>
+          <span className="text-xs text-on-surface-variant">{caption}</span>
         </li>
       ))}
     </ul>

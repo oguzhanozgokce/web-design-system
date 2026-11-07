@@ -6,7 +6,7 @@ import { Toaster, toast, type ToastTone } from '@/registry/ds/ui/toast';
 const toasterId = 'toast-tones';
 
 const samples: { tone: ToastTone; label: string; message: string }[] = [
-  { tone: 'default', label: 'Default', message: 'Draft saved' },
+  { tone: 'neutral', label: 'Neutral', message: 'Draft saved' },
   { tone: 'info', label: 'Info', message: 'Update available' },
   { tone: 'success', label: 'Success', message: 'Changes saved' },
   { tone: 'warning', label: 'Warning', message: 'Storage almost full' },
@@ -19,7 +19,7 @@ export default function ToastTones() {
       {samples.map(({ tone, label, message }) => (
         <Button
           key={tone}
-          variant="outlined"
+          variant="outline"
           onPress={() => {
             toast(message, { tone, toasterId });
           }}

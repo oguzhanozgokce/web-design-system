@@ -11,7 +11,6 @@ import {
   FolderIcon,
 } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
-import { Card } from '@/registry/ds/ui/card';
 import {
   Menu,
   MenuHeader,
@@ -64,9 +63,24 @@ function ShortcutMenu({
   );
 }
 
+function visibleText(node: Element) {
+  const clone = node.cloneNode(true) as Element;
+  clone.querySelectorAll('.sr-only').forEach((hidden) => hidden.remove());
+  return clone.textContent;
+}
+
 async function shortcutTexts() {
-  await expect.element(page.getByRole('menu')).toBeVisible();
-  return [...document.querySelectorAll('[data-slot="shortcut"]')].map((node) => node.textContent);
+  await expect.element(page.getByRole('menu').first()).toBeVisible();
+  return [...document.querySelectorAll('[data-slot="shortcut"]')].map(visibleText);
+}
+
+function probe(className: string, property: 'backgroundColor' | 'color' = 'backgroundColor') {
+  const element = document.createElement('span');
+  element.className = className;
+  document.querySelector('[data-testid="ds-root"]')!.append(element);
+  const value = getComputedStyle(element)[property];
+  element.remove();
+  return value;
 }
 
 function firstKey(handler: ReturnType<typeof vi.fn>) {
@@ -91,7 +105,7 @@ function ProjectMenu({
         <MenuItem
           id="duplicate"
           startIcon={<CopyIcon />}
-          description="Copies the line items and the client"
+          description="Copies the files and the members"
         >
           Duplicate
         </MenuItem>
@@ -99,7 +113,7 @@ function ProjectMenu({
           Archive
         </MenuItem>
         <MenuSeparator />
-        <MenuItem id="delete" startIcon={<DeleteIcon />} tone="destructive">
+        <MenuItem id="delete" startIcon={<DeleteIcon />} tone="error">
           Delete project
         </MenuItem>
       </Menu>
@@ -124,17 +138,17 @@ function ViewMenu({
           onSelectionChange={onSortChange}
         >
           <MenuHeader>Sort by</MenuHeader>
-          <MenuItem id="date">Issue date</MenuItem>
-          <MenuItem id="amount">Amount</MenuItem>
+          <MenuItem id="date">Date created</MenuItem>
+          <MenuItem id="name">Name</MenuItem>
         </MenuSection>
         <MenuSeparator />
         <MenuSection
           selectionMode="multiple"
-          defaultSelectedKeys={['client', 'status']}
+          defaultSelectedKeys={['owner', 'status']}
           onSelectionChange={onColumnsChange}
         >
           <MenuHeader>Columns</MenuHeader>
-          <MenuItem id="client">Client</MenuItem>
+          <MenuItem id="owner">Owner</MenuItem>
           <MenuItem id="status">Status</MenuItem>
           <MenuItem id="due">Due date</MenuItem>
         </MenuSection>
@@ -155,7 +169,7 @@ function FileMenu({ onAction }: { onAction?: (key: Key) => void }) {
           </MenuItem>
           <Menu onAction={onAction}>
             <MenuItem id="backups">Backups</MenuItem>
-            <MenuItem id="taxes">Taxes 2026</MenuItem>
+            <MenuItem id="archive">Archive 2026</MenuItem>
           </Menu>
         </SubmenuTrigger>
         <MenuItem id="download" startIcon={<DownloadIcon />}>
@@ -167,7 +181,7 @@ function FileMenu({ onAction }: { onAction?: (key: Key) => void }) {
 }
 
 describe('Menu', () => {
-  it('opens a menu named by its trigger with the M3 surface', async () => {
+  it('opens a menu named by its trigger on the overlay surface', async () => {
     const screen = await renderWithDS(<ProjectMenu />);
     const trigger = screen.getByRole('button', { name: 'Project actions' });
     await expect.element(trigger).toHaveAttribute('aria-haspopup', 'true');
@@ -180,17 +194,38 @@ describe('Menu', () => {
     expect(page.getByRole('menuitem').all()).toHaveLength(4);
     await expect
       .element(page.getByRole('menuitem', { name: 'Delete project' }))
-      .toHaveAttribute('data-tone', 'destructive');
+      .toHaveAttribute('data-tone', 'error');
     await expect.element(page.getByRole('separator')).toBeInTheDocument();
 
-    const popover = document.querySelector('[data-slot="menu-popover"]');
-    expect(popover).toHaveClass(
-      'bg-surface-container',
-      'rounded-sm',
-      'shadow-elevation-2',
-      'min-w-28',
-    );
-    expect(popover).not.toHaveClass('bg-surface-container-high');
+    const popover = document.querySelector<HTMLElement>('[data-slot="menu-popover"]')!;
+    const style = getComputedStyle(popover);
+    expect(style.backgroundColor).toBe(probe('bg-surface-overlay'));
+    expect(style.borderTopLeftRadius).toBe('16px');
+    expect(style.paddingTop).toBe('4px');
+    expect(style.boxShadow).not.toBe('none');
+    expect(popover.offsetWidth).toBeGreaterThanOrEqual(224);
+    const item = page.getByRole('menuitem', { name: /^Duplicate/ }).element();
+    expect(getComputedStyle(item).borderTopLeftRadius).toBe('12px');
+    expect(getComputedStyle(item).minHeight).toBe('36px');
+    expect(getComputedStyle(item).fontSize).toBe('14px');
+  });
+
+  it('fills the focused row with the neutral or error soft role', async () => {
+    await renderWithDS(<ProjectMenu />);
+    await userEvent.keyboard('{Tab}');
+    await userEvent.keyboard('{Enter}');
+    const edit = page.getByRole('menuitem', { name: /^Edit project/ });
+    await expect.element(edit).toHaveFocus();
+    await expect
+      .poll(() => getComputedStyle(edit.element()).backgroundColor)
+      .toBe(probe('bg-neutral-soft'));
+    await userEvent.keyboard('{End}');
+    const remove = page.getByRole('menuitem', { name: 'Delete project' });
+    await expect.element(remove).toHaveFocus();
+    await expect
+      .poll(() => getComputedStyle(remove.element()).backgroundColor)
+      .toBe(probe('bg-error-soft'));
+    expect(getComputedStyle(remove.element()).color).toBe(probe('text-error', 'color'));
   });
 
   it('calls onAction with the item key, closes and returns focus to the trigger', async () => {
@@ -225,7 +260,8 @@ describe('Menu', () => {
     const edit = page.getByRole('menuitem', { name: /^Edit project/ });
     await expect.element(edit).toHaveFocus();
     await expect.element(edit).toHaveAttribute('data-focus-visible', 'true');
-    expect(getComputedStyle(edit.element()).outlineWidth).toBe('3px');
+    expect(getComputedStyle(edit.element()).outlineWidth).toBe('2px');
+    expect(getComputedStyle(edit.element()).outlineOffset).toBe('-2px');
     await userEvent.keyboard('{ArrowDown}');
     await expect.element(page.getByRole('menuitem', { name: /^Duplicate/ })).toHaveFocus();
     await userEvent.keyboard('{ArrowDown}');
@@ -265,33 +301,37 @@ describe('Menu', () => {
     const duplicate = page.getByRole('menuitem', { name: /^Duplicate/ });
     await expect
       .element(duplicate)
-      .toHaveAccessibleName(/^Duplicate\s*Copies the line items and the client$/);
+      .toHaveAccessibleName(/^Duplicate\s*Copies the files and the members$/);
     await expect.element(duplicate).not.toHaveAttribute('aria-labelledby');
     await expect.element(duplicate).not.toHaveAttribute('aria-describedby');
 
     const edit = page.getByRole('menuitem', { name: /^Edit project/ });
-    await expect.element(edit).toHaveAccessibleName(/^Edit project\s*(⌘E|Ctrl\+E)$/);
+    await expect
+      .element(edit)
+      .toHaveAccessibleName(/^Edit project\s*(Command\s*\+\s*E|Control\s*\+\s*E)$/);
     expect(edit.element().querySelector('[data-slot="start-icon"]')).toHaveAttribute(
       'aria-hidden',
       'true',
     );
-    const shortcut = edit.element().querySelector('[data-slot="shortcut"]');
-    expect(shortcut?.tagName).toBe('KBD');
-    expect(shortcut).toHaveAttribute('dir', 'ltr');
-    expect(shortcut).toHaveTextContent(
-      shortcut?.getAttribute('data-platform') === 'apple' ? '⌘E' : 'Ctrl+E',
+    const shortcut = edit.element().querySelector('[data-slot="shortcut"]')!;
+    const combo = shortcut.querySelector('[data-slot="kbd-combo"]');
+    expect(combo?.tagName).toBe('KBD');
+    expect(combo).toHaveAttribute('dir', 'ltr');
+    expect(combo).toHaveAttribute('data-variant', 'ghost');
+    expect(visibleText(shortcut)).toBe(
+      shortcut.getAttribute('data-platform') === 'apple' ? '⌘E' : 'Ctrl+E',
     );
   });
 
   it('shows Apple symbols in Apple modifier order on Apple platforms', async () => {
     stubPlatform('macOS');
     try {
-      const screen = await renderWithDS(<ShortcutMenu label="Folder" item="Export statement" />);
+      const screen = await renderWithDS(<ShortcutMenu label="Folder" item="Export file" />);
       await screen.getByRole('button', { name: 'Folder' }).click();
       expect(await shortcutTexts()).toEqual(['⇧⌘S', '⌃⌥⌦', 'F2', 'Space']);
       await expect
-        .element(page.getByRole('menuitem', { name: /^Export statement/ }))
-        .toHaveAccessibleName(/^Export statement\s*⇧⌘S$/);
+        .element(page.getByRole('menuitem', { name: /^Export file/ }))
+        .toHaveAccessibleName(/^Export file\s*Shift\s*\+\s*Command\s*\+\s*S$/);
     } finally {
       restorePlatform();
     }
@@ -300,11 +340,10 @@ describe('Menu', () => {
   it('joins English key names with + elsewhere, whatever the locale', async () => {
     stubPlatform('Windows');
     try {
-      const screen = await renderWithDS(
-        <ShortcutMenu label="Rechnung" item="Kontoauszug exportieren" />,
-        { locale: 'de' },
-      );
-      await screen.getByRole('button', { name: 'Rechnung' }).click();
+      const screen = await renderWithDS(<ShortcutMenu label="Datei" item="Datei exportieren" />, {
+        locale: 'de',
+      });
+      await screen.getByRole('button', { name: 'Datei' }).click();
       expect(await shortcutTexts()).toEqual(['Ctrl+Shift+S', 'Alt+Ctrl+Del', 'F2', 'Space']);
       expect(document.querySelector('[data-slot="shortcut"]')).toHaveAttribute(
         'data-platform',
@@ -321,11 +360,10 @@ describe('Menu', () => {
       labels: { menu: { ctrl: 'Strg', shift: 'Umschalt', delete: 'Entf', space: 'Leertaste' } },
     };
     try {
-      const screen = await renderWithDS(
-        <ShortcutMenu label="Rechnung" item="Kontoauszug exportieren" />,
-        { provider },
-      );
-      await screen.getByRole('button', { name: 'Rechnung' }).click();
+      const screen = await renderWithDS(<ShortcutMenu label="Datei" item="Datei exportieren" />, {
+        provider,
+      });
+      await screen.getByRole('button', { name: 'Datei' }).click();
       expect(await shortcutTexts()).toEqual([
         'Strg+Umschalt+S',
         'Alt+Strg+Entf',
@@ -338,13 +376,13 @@ describe('Menu', () => {
 
       const own = await renderWithDS(
         <ShortcutMenu
-          label="Rechnung"
-          item="Kontoauszug exportieren"
+          label="Datei"
+          item="Datei exportieren"
           labels={{ alt: 'Wahl', space: 'Leer' }}
         />,
         { provider },
       );
-      await own.getByRole('button', { name: 'Rechnung' }).click();
+      await own.getByRole('button', { name: 'Datei' }).click();
       expect(await shortcutTexts()).toEqual(['Strg+Umschalt+S', 'Wahl+Strg+Entf', 'F2', 'Leer']);
     } finally {
       restorePlatform();
@@ -361,7 +399,7 @@ describe('Menu', () => {
             <SubmenuTrigger>
               <MenuItem>Verschieben nach</MenuItem>
               <Menu>
-                <MenuItem shortcut={['ctrl', 'M']}>Lohnabrechnung</MenuItem>
+                <MenuItem shortcut={['ctrl', 'M']}>Projektplan</MenuItem>
               </Menu>
             </SubmenuTrigger>
           </Menu>
@@ -369,9 +407,8 @@ describe('Menu', () => {
       );
       await screen.getByRole('button', { name: 'Datei' }).click();
       await page.getByRole('menuitem', { name: 'Verschieben nach' }).click();
-      await expect
-        .element(page.getByRole('menuitem', { name: /^Lohnabrechnung/ }))
-        .toHaveAccessibleName(/^Lohnabrechnung\s*Strg\+M$/);
+      await expect.element(page.getByRole('menuitem', { name: /^Projektplan/ })).toBeVisible();
+      expect(await shortcutTexts()).toEqual(['Strg+M']);
     } finally {
       restorePlatform();
     }
@@ -383,18 +420,24 @@ describe('Menu', () => {
     await screen.getByRole('button', { name: 'View' }).click();
 
     await expect.element(page.getByRole('group', { name: 'Sort by' })).toBeVisible();
-    const date = page.getByRole('menuitemradio', { name: 'Issue date' });
+    const date = page.getByRole('menuitemradio', { name: 'Date created' });
     await expect.element(date).toHaveAttribute('aria-checked', 'true');
     await expect.element(date).toHaveAttribute('data-selected', 'true');
-    expect(date.element().querySelector('[data-slot="check"] svg')).not.toBeNull();
+    const check = date.element().querySelector<HTMLElement>('[data-slot="check"]')!;
+    expect(check.querySelector('svg')).not.toBeNull();
+    expect(getComputedStyle(check).color).toBe(probe('text-primary', 'color'));
+    const label = date.element().querySelector('[data-slot="label"]')!;
+    expect(check.getBoundingClientRect().right).toBeLessThan(label.getBoundingClientRect().left);
+    expect(getComputedStyle(date.element()).paddingInlineStart).toBe('32px');
+    expect(getComputedStyle(date.element()).color).toBe(probe('text-on-surface', 'color'));
 
-    const amount = page.getByRole('menuitemradio', { name: 'Amount' });
-    expect(amount.element().querySelector('[data-slot="check"]')).not.toBeNull();
-    expect(amount.element().querySelector('[data-slot="check"] svg')).toBeNull();
+    const name = page.getByRole('menuitemradio', { name: 'Name' });
+    expect(name.element().querySelector('[data-slot="check"]')).not.toBeNull();
+    expect(name.element().querySelector('[data-slot="check"] svg')).toBeNull();
 
-    await amount.click();
+    await name.click();
     expect(onSortChange).toHaveBeenCalledOnce();
-    expect([...(onSortChange.mock.calls[0][0] as Set<Key>)]).toEqual(['amount']);
+    expect([...(onSortChange.mock.calls[0][0] as Set<Key>)]).toEqual(['name']);
   });
 
   it('toggles multiple selection and stays open', async () => {
@@ -408,8 +451,8 @@ describe('Menu', () => {
     await due.click();
     await expect.element(due).toHaveAttribute('aria-checked', 'true');
     expect([...(onColumnsChange.mock.calls[0][0] as Set<Key>)].sort()).toEqual([
-      'client',
       'due',
+      'owner',
       'status',
     ]);
     await expect.element(page.getByRole('menu')).toBeVisible();
@@ -439,7 +482,7 @@ describe('Menu', () => {
     await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
   });
 
-  it('keeps the destructive tone when selected and the disabled colour above both', async () => {
+  it('keeps the error tone when selected and dims disabled items', async () => {
     const screen = await renderWithDS(
       <MenuTrigger>
         <Button>Retention</Button>
@@ -449,28 +492,31 @@ describe('Menu', () => {
           disabledKeys={['locked']}
         >
           <MenuItem id="keep">Keep drafts</MenuItem>
-          <MenuItem id="purge" tone="destructive">
-            Purge after 30 days
+          <MenuItem id="purge" tone="error">
+            Empty trash after 30 days
           </MenuItem>
-          <MenuItem id="locked" tone="destructive">
-            Purge immediately
+          <MenuItem id="locked" tone="error">
+            Empty trash now
           </MenuItem>
         </Menu>
       </MenuTrigger>,
     );
     await screen.getByRole('button', { name: 'Retention' }).click();
 
+    const color = (element: Element) => getComputedStyle(element).color;
     const keep = page.getByRole('menuitemcheckbox', { name: 'Keep drafts' });
-    await expect.element(keep).toHaveClass('text-primary');
-    const purge = page.getByRole('menuitemcheckbox', { name: 'Purge after 30 days' });
+    await expect.element(keep).toBeVisible();
+    expect(color(keep.element())).toBe(probe('text-on-surface', 'color'));
+    const purge = page.getByRole('menuitemcheckbox', { name: 'Empty trash after 30 days' });
     await expect.element(purge).toHaveAttribute('aria-checked', 'true');
-    await expect.element(purge).toHaveClass('text-error');
-    await expect.element(purge).not.toHaveClass('text-primary');
-    expect(purge.element().querySelector('[data-slot="check"]')).toHaveClass('text-error');
-    const locked = page.getByRole('menuitemcheckbox', { name: 'Purge immediately' });
+    expect(color(purge.element())).toBe(probe('text-error', 'color'));
+    expect(color(purge.element().querySelector('[data-slot="check"]')!)).toBe(
+      probe('text-error', 'color'),
+    );
+    const locked = page.getByRole('menuitemcheckbox', { name: 'Empty trash now' });
     await expect.element(locked).toHaveAttribute('aria-disabled', 'true');
-    await expect.element(locked).toHaveClass('text-on-surface/38');
-    await expect.element(locked).not.toHaveClass('text-error');
+    expect(getComputedStyle(locked.element()).opacity).toBe('0.5');
+    expect(getComputedStyle(locked.element()).cursor).toBe('not-allowed');
   });
 
   it('names a section without a header by its aria-label', async () => {
@@ -478,15 +524,15 @@ describe('Menu', () => {
       <MenuTrigger>
         <Button>Export</Button>
         <Menu>
-          <MenuSection aria-label="Spreadsheet formats">
-            <MenuItem>CSV</MenuItem>
-            <MenuItem>Excel workbook</MenuItem>
+          <MenuSection aria-label="Image formats">
+            <MenuItem>PNG</MenuItem>
+            <MenuItem>JPEG</MenuItem>
           </MenuSection>
         </Menu>
       </MenuTrigger>,
     );
     await screen.getByRole('button', { name: 'Export' }).click();
-    const group = page.getByRole('group', { name: 'Spreadsheet formats' });
+    const group = page.getByRole('group', { name: 'Image formats' });
     await expect.element(group).toHaveAttribute('data-slot', 'menu-section');
     expect(group.getByRole('menuitem').all()).toHaveLength(2);
   });
@@ -543,7 +589,7 @@ describe('Menu', () => {
     await expect.element(move).toHaveAttribute('data-open', 'true');
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{Enter}');
-    expect(firstKey(onAction)).toBe('taxes');
+    expect(firstKey(onAction)).toBe('archive');
     await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
   });
 
@@ -581,28 +627,111 @@ describe('Menu', () => {
     await page.getByRole('menuitem', { name: 'Move to' }).click();
     const backups = page.getByRole('menuitem', { name: 'Backups' });
     await expect.element(backups).toHaveAttribute('data-size', 'sm');
-    expect(getComputedStyle(backups.element()).minHeight).toBe('40px');
+    expect(getComputedStyle(backups.element()).minHeight).toBe('32px');
   });
 
-  it('wraps long labels to two lines inside the 280px maximum width', async () => {
-    const screen = await renderWithDS(
-      <MenuTrigger>
-        <Button>Rechnung</Button>
-        <Menu>
-          <MenuItem>Zahlungserinnerung an alle säumigen Kunden dieses Quartals senden</MenuItem>
-        </Menu>
-      </MenuTrigger>,
-      { locale: 'de' },
-    );
+  it('opens submenus beside their item on wide screens', async () => {
+    await page.viewport(1024, 768);
+    try {
+      const screen = await renderWithDS(<FileMenu />);
+      await screen.getByRole('button', { name: 'File' }).click();
+      const move = page.getByRole('menuitem', { name: 'Move to' });
+      await move.click();
+      await expect.element(page.getByRole('menuitem', { name: 'Backups' })).toBeVisible();
+      const [parent, submenu] = document.querySelectorAll<HTMLElement>(
+        '[data-slot="menu-popover"]',
+      );
+      expect(submenu).not.toHaveAttribute('data-stacked');
+      await expect
+        .poll(() => submenu.getBoundingClientRect().left)
+        .toBeGreaterThan(parent.getBoundingClientRect().right - 16);
+    } finally {
+      await page.viewport(414, 896);
+    }
+  });
 
-    await screen.getByRole('button', { name: 'Rechnung' }).click();
-    await expect.element(page.getByRole('menu')).toBeVisible();
-    const popover = document.querySelector('[data-slot="menu-popover"]') as HTMLElement;
-    const label = popover.querySelector('[data-slot="label"]') as HTMLElement;
-    const lineHeight = parseFloat(getComputedStyle(label).lineHeight);
-    await expect.poll(() => label.offsetHeight).toBe(lineHeight * 2);
-    expect(popover.offsetWidth).toBeLessThanOrEqual(280);
-    expect(popover).toHaveAttribute('lang', 'de');
+  it('stacks a submenu under its item and inside the screen at 375px', async () => {
+    await page.viewport(375, 812);
+    try {
+      const screen = await renderWithDS(
+        <div className="flex justify-end">
+          <FileMenu />
+        </div>,
+      );
+      await screen.getByRole('button', { name: 'File' }).click();
+      const move = page.getByRole('menuitem', { name: 'Move to' });
+      await move.click();
+      const backups = page.getByRole('menuitem', { name: 'Backups' });
+      await expect.element(backups).toBeVisible();
+      const submenu = document.querySelectorAll<HTMLElement>('[data-slot="menu-popover"]')[1];
+      await expect.element(submenu).toHaveAttribute('data-stacked', 'true');
+      await expect
+        .poll(() => submenu.getBoundingClientRect().top)
+        .toBeGreaterThanOrEqual(move.element().getBoundingClientRect().bottom);
+      const box = submenu.getBoundingClientRect();
+      expect(box.left).toBeGreaterThanOrEqual(0);
+      expect(box.right).toBeLessThanOrEqual(375);
+      expect(move.element().getBoundingClientRect().top).toBeGreaterThanOrEqual(0);
+
+      const onBackups = vi.fn();
+      backups.element().addEventListener('click', onBackups);
+      await backups.click();
+      expect(onBackups).toHaveBeenCalled();
+      await expect.element(page.getByRole('menu')).not.toBeInTheDocument();
+    } finally {
+      await page.viewport(414, 896);
+    }
+  });
+
+  it('wraps long labels to two lines inside the 320px maximum width', async () => {
+    await page.viewport(1024, 768);
+    try {
+      const screen = await renderWithDS(
+        <MenuTrigger>
+          <Button>Projekt</Button>
+          <Menu>
+            <MenuItem>
+              Erinnerung an alle Mitglieder dieses Projekts und ihrer Teams senden
+            </MenuItem>
+          </Menu>
+        </MenuTrigger>,
+        { locale: 'de' },
+      );
+
+      await screen.getByRole('button', { name: 'Projekt' }).click();
+      await expect.element(page.getByRole('menu')).toBeVisible();
+      const popover = document.querySelector('[data-slot="menu-popover"]') as HTMLElement;
+      const label = popover.querySelector('[data-slot="label"]') as HTMLElement;
+      const lineHeight = parseFloat(getComputedStyle(label).lineHeight);
+      await expect.poll(() => label.offsetHeight).toBe(lineHeight * 2);
+      expect(popover.offsetWidth).toBeLessThanOrEqual(320);
+      expect(popover).toHaveAttribute('lang', 'de');
+    } finally {
+      await page.viewport(414, 896);
+    }
+  });
+
+  it('keeps the menu inside a 375px screen', async () => {
+    await page.viewport(375, 812);
+    try {
+      const screen = await renderWithDS(
+        <MenuTrigger>
+          <Button>Projekt</Button>
+          <Menu>
+            <MenuItem>
+              Erinnerung an alle Mitglieder dieses Projekts und ihrer Teams senden
+            </MenuItem>
+          </Menu>
+        </MenuTrigger>,
+        { locale: 'de' },
+      );
+      await screen.getByRole('button', { name: 'Projekt' }).click();
+      await expect.element(page.getByRole('menu')).toBeVisible();
+      const popover = document.querySelector('[data-slot="menu-popover"]') as HTMLElement;
+      expect(popover.offsetWidth).toBeLessThanOrEqual(375 - 32);
+    } finally {
+      await page.viewport(414, 896);
+    }
   });
 
   it('renders link items that navigate through the DSProvider router', async () => {
@@ -611,7 +740,7 @@ describe('Menu', () => {
       <MenuTrigger>
         <Button>Help</Button>
         <Menu>
-          <MenuItem href="/docs/projects">Invoicing guide</MenuItem>
+          <MenuItem href="/docs/projects">Getting started guide</MenuItem>
           <MenuItem href="https://status.example.com" target="_blank" rel="noreferrer">
             Service status
           </MenuItem>
@@ -621,7 +750,7 @@ describe('Menu', () => {
     );
 
     await screen.getByRole('button', { name: 'Help' }).click();
-    const guide = page.getByRole('menuitem', { name: 'Invoicing guide' });
+    const guide = page.getByRole('menuitem', { name: 'Getting started guide' });
     expect(guide.element().tagName).toBe('A');
     await expect.element(guide).toHaveAttribute('href', '/docs/projects');
     await expect
@@ -688,15 +817,15 @@ describe('Menu', () => {
     await expect.element(page.getByRole('menu')).toHaveAttribute('data-size', 'sm');
     const item = page.getByRole('menuitem', { name: /^Duplicate/ });
     await expect.element(item).toHaveAttribute('data-size', 'sm');
-    expect(getComputedStyle(item.element()).minHeight).toBe('40px');
+    expect(getComputedStyle(item.element()).minHeight).toBe('32px');
   });
 
-  it('renders md items at least 48px tall', async () => {
+  it('renders md items at least 36px tall', async () => {
     const screen = await renderWithDS(<ProjectMenu />);
     await screen.getByRole('button', { name: 'Project actions' }).click();
     const item = page.getByRole('menuitem', { name: /^Edit project/ });
     await expect.element(item).toBeVisible();
-    expect(getComputedStyle(item.element()).minHeight).toBe('48px');
+    expect(getComputedStyle(item.element()).minHeight).toBe('36px');
   });
 
   it('shows an empty state from labels, DSProvider or the English default', async () => {
@@ -731,26 +860,6 @@ describe('Menu', () => {
     await expect.element(page.getByText('Henüz dosya yok')).toBeVisible();
   });
 
-  it('raises cards inside the popover above the menu surface', async () => {
-    const screen = await renderWithDS(
-      <MenuTrigger>
-        <Button>Ayşe Demir</Button>
-        <MenuPopover>
-          <Card variant="outlined">Finance workspace</Card>
-          <MenuList>
-            <MenuItem>Sign out</MenuItem>
-          </MenuList>
-        </MenuPopover>
-      </MenuTrigger>,
-    );
-    await screen.getByRole('button', { name: 'Ayşe Demir' }).click();
-    await expect.element(page.getByRole('menu')).toBeVisible();
-    expect(document.querySelector('[data-slot="menu-popover"] [data-slot="card"]')).toHaveAttribute(
-      'data-surface',
-      'surface-container-high',
-    );
-  });
-
   it('renders dynamic items', async () => {
     const members = [
       { id: 'ayse', name: 'Ayşe Demir' },
@@ -782,10 +891,8 @@ describe('Menu', () => {
     );
   });
 
-  it('exports the menu surface styles', () => {
-    expect(menuPopoverStyles()).toContain('bg-surface-container');
-    expect(menuPopoverStyles()).not.toContain('bg-surface-container-high');
-    expect(menuPopoverStyles()).toContain('max-w-[min(17.5rem,calc(100vw-1.5rem))]');
+  it('exports the menu surface styles with their motion', () => {
+    expect(menuPopoverStyles()).toContain('animate-ds-popover-in');
     expect(menuPopoverStyles({ motion: 'none' })).not.toContain('animate-ds-popover-in');
   });
 
@@ -801,8 +908,8 @@ describe('Menu', () => {
               <MenuItem startIcon={<EditIcon />} shortcut={['mod', 'E']}>
                 Edit project
               </MenuItem>
-              <MenuItem description="Copies the line items and the client">Duplicate</MenuItem>
-              <MenuItem isDisabled description="Paid projects cannot be archived">
+              <MenuItem description="Copies the files and the members">Duplicate</MenuItem>
+              <MenuItem isDisabled description="Shared projects cannot be archived">
                 Archive
               </MenuItem>
               <SubmenuTrigger>
@@ -813,13 +920,15 @@ describe('Menu', () => {
               </SubmenuTrigger>
             </MenuSection>
             <MenuSeparator />
-            <MenuSection selectionMode="single" defaultSelectedKeys={['eur']}>
-              <MenuHeader>Currency</MenuHeader>
-              <MenuItem id="eur">Euro</MenuItem>
-              <MenuItem id="try">Turkish lira</MenuItem>
+            <MenuSection selectionMode="single" defaultSelectedKeys={['comfortable']}>
+              <MenuHeader>Density</MenuHeader>
+              <MenuItem id="comfortable">Comfortable</MenuItem>
+              <MenuItem id="compact" shortcut={['mod', 'shift', 'D']}>
+                Compact
+              </MenuItem>
             </MenuSection>
             <MenuSeparator />
-            <MenuItem startIcon={<DeleteIcon />} tone="destructive">
+            <MenuItem startIcon={<DeleteIcon />} tone="error">
               Delete project
             </MenuItem>
           </Menu>

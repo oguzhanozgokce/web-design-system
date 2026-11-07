@@ -6,7 +6,6 @@ import { RoleSwatches } from '@/components/theme-builder/role-swatches';
 import { ThemeBuilder } from '@/components/theme-builder/theme-builder';
 import {
   buildSchemes,
-  composeCall,
   configJson,
   contrastOptions,
   defaultSettings,
@@ -35,6 +34,11 @@ function defaults(overrides: Partial<Parameters<typeof brandColors>[0]> = {}) {
     surfaces: 'neutral',
     ...overrides,
   });
+}
+
+function rgb(hex: string) {
+  const value = Number.parseInt(hex.slice(1), 16);
+  return `rgb(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255})`;
 }
 
 function setNativeValue(input: HTMLInputElement, value: string) {
@@ -128,7 +132,7 @@ describe('ThemeBuilder', () => {
       .toMatchTextContent(/"style": "neutral"/);
   });
 
-  it('previews contrast and dark mode, and carries contrast into the Compose call', async () => {
+  it('previews contrast and dark mode on the canvas layer', async () => {
     const screen = await renderWithDS(<ThemeBuilder />);
 
     await screen.getByRole('radio', { name: 'High' }).click();
@@ -145,11 +149,19 @@ describe('ThemeBuilder', () => {
       'data-theme',
       'dark',
     );
+    const preview = document.querySelector<HTMLElement>('[data-slot="theme-preview"]')!;
+    await expect.poll(() => getComputedStyle(preview).backgroundColor).toBe(rgb(dark.canvas));
+  });
 
-    await screen.getByRole('tab', { name: 'Compose' }).click();
-    await expect
-      .element(screen.getByRole('region', { name: 'Compose' }))
-      .toMatchTextContent(/contrast = DSContrast\.HIGH/);
+  it('exports tokens.css and config.json only', async () => {
+    const screen = await renderWithDS(<ThemeBuilder />);
+    const formats = screen.getByRole('tablist', { name: 'Export format' });
+
+    await expect.element(formats).toBeVisible();
+    const names = Array.from(formats.element().querySelectorAll('[role="tab"]')).map(
+      (tab) => tab.textContent,
+    );
+    expect(names).toEqual(['tokens.css', 'config.json']);
   });
 
   it('resets every control to the catalogue default', async () => {
@@ -194,11 +206,11 @@ describe('ThemeBuilder', () => {
       .poll(() => writeText.mock.calls[0]?.[0])
       .toBe(tokensCss(buildSchemes(defaultSettings.seed, defaultSettings.style)));
 
-    await screen.getByRole('tab', { name: 'Compose' }).click();
-    await screen.getByRole('button', { name: 'Copy Kotlin' }).click();
+    await screen.getByRole('tab', { name: 'config.json' }).click();
+    await screen.getByRole('button', { name: 'Copy JSON' }).click();
     await expect
       .poll(() => writeText.mock.calls[1]?.[0])
-      .toBe(composeCall(defaultSettings.seed, defaultSettings.style, 'standard'));
+      .toBe(configJson(defaultSettings.seed, defaultSettings.style));
   });
 
   it('shows every colour role with its value', async () => {
@@ -232,18 +244,6 @@ describe('Theme exports', () => {
       style: 'fidelity',
     });
   });
-
-  it('writes the Compose call with Kotlin enum names', () => {
-    expect(composeCall(teal.seed.toLowerCase(), 'tonal-spot', 'medium')).toBe(
-      [
-        'rememberDSBrandColors(',
-        '    seed = Color(0xFF0B8F6A),',
-        '    style = DSPaletteStyle.TONAL_SPOT,',
-        '    contrast = DSContrast.MEDIUM,',
-        ')',
-      ].join('\n'),
-    );
-  });
 });
 
 describe('ThemeBuilder accessibility', () => {
@@ -262,7 +262,7 @@ describe('ThemeBuilder accessibility', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(<ThemeBuilder />, options);
       await expectNoA11yViolations(screen.container);
-      screen.unmount();
+      await screen.unmount();
     }
   });
 
@@ -281,7 +281,7 @@ describe('ThemeBuilder accessibility', () => {
               </div>,
             );
             await expectNoA11yViolations(screen.container);
-            screen.unmount();
+            await screen.unmount();
           }
         }
       }

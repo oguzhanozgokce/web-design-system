@@ -7,7 +7,7 @@ export default function ListBoxDisabled() {
       selectionMode="single"
       defaultSelectedKeys={['cloud']}
       disabledKeys={['drive']}
-      variant="outlined"
+      variant="outline"
       className="w-full max-w-xs"
     >
       <ListBoxItem id="device" description="Available offline">

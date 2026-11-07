@@ -15,8 +15,8 @@ export default function FabMenuExample() {
   const [last, setLast] = useState<string | null>(null);
 
   return (
-    <div className="relative flex h-96 w-full max-w-sm flex-col justify-between rounded-lg bg-surface-container-low p-4">
-      <p className="text-body-md text-on-surface-variant" aria-live="polite">
+    <div className="relative flex h-96 w-full max-w-sm flex-col justify-between rounded-container border border-outline-subtle bg-canvas p-4">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {last ? `Last action: ${actions[last]}` : 'No action yet'}
       </p>
       <FabMenu aria-label="Create" className="self-end" onAction={(key) => setLast(String(key))}>

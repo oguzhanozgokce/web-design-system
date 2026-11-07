@@ -27,7 +27,7 @@ export default function BannerActions() {
           </>
         }
       />
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {attempts === 0 ? 'Not retried yet' : `Retries: ${attempts}`}
       </p>
     </div>

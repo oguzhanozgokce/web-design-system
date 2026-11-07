@@ -12,7 +12,7 @@ export default function BannerIcon() {
       />
       <Banner
         tone="info"
-        variant="outlined"
+        variant="surface"
         icon={null}
         description="Times are shown in your time zone. Change it in Settings → Language and region."
       />

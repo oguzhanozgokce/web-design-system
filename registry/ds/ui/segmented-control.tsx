@@ -25,46 +25,37 @@ import { useIcons, useMotionPreference } from '@/registry/ds/ui/ds-provider';
 
 export const segmentedControlStyles = tv({
   slots: {
-    root: 'group/segmented relative isolate max-w-full items-stretch rounded-full',
+    root: [
+      'group/segmented relative isolate max-w-full items-stretch gap-0.5 rounded-control bg-neutral-soft p-1',
+      'data-[disabled]:cursor-not-allowed',
+    ],
     thumb: [
-      'pointer-events-none absolute inset-s-0 rounded-full bg-surface-bright opacity-0 shadow-elevation-1 data-[visible]:opacity-100',
-      'group-data-[disabled]/segmented:bg-on-surface/12 group-data-[disabled]/segmented:shadow-none',
-      'group-data-[thumb-ready]/segmented:transition-[translate,width] group-data-[thumb-ready]/segmented:duration-(--ds-duration-spatial) group-data-[thumb-ready]/segmented:ease-spatial motion-reduce:transition-none!',
+      'pointer-events-none absolute inset-y-1 inset-s-0 rounded-control bg-surface-segment opacity-0 shadow-xs data-[visible]:opacity-100',
+      'inset-ring-1 inset-ring-[color:light-dark(transparent,color-mix(in_srgb,var(--on-surface)_12%,transparent))]',
+      'group-data-[disabled]/segmented:data-[visible]:opacity-50',
+      'group-data-[thumb-ready]/segmented:transition-[translate,width] group-data-[thumb-ready]/segmented:duration-250 group-data-[thumb-ready]/segmented:ease-fluid motion-reduce:transition-none!',
     ],
     segment: [
-      'state-layer focus-ring-inset group/segment relative inline-flex min-w-0 cursor-default items-center justify-center whitespace-nowrap select-none',
-      'transition-[background-color,color,border-color,box-shadow] duration-150 ease-standard motion-reduce:transition-none',
-      'data-[disabled]:text-on-surface/38',
+      'focus-ring-inset no-tap-highlight group/segment relative inline-flex min-w-0 cursor-pointer items-center justify-center rounded-control font-medium whitespace-nowrap text-on-surface-variant select-none',
+      'transition-[color,background-color,box-shadow] duration-150 ease-out motion-reduce:transition-none',
+      'data-[hovered]:text-on-surface data-[selected]:text-on-surface',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
     ],
-    icon: 'inline-flex shrink-0 items-center justify-center text-(length:--icon-size) not-last:me-2 [&_svg]:size-[1em]',
+    icon: 'inline-flex shrink-0 items-center justify-center text-(length:--icon-size) not-last:me-1.5 [&_svg]:size-[1em]',
     check: [
       'grid shrink-0 grid-cols-[0fr] opacity-0 group-data-[selected]/segment:grid-cols-[1fr] group-data-[selected]/segment:opacity-100',
-      'transition-[grid-template-columns,opacity] duration-(--ds-duration-spatial-fast) ease-spatial-fast motion-reduce:transition-none',
+      'transition-[grid-template-columns,opacity] duration-200 ease-fluid motion-reduce:transition-none',
     ],
     checkClip: 'flex min-w-0 overflow-hidden',
     checkGlyph:
-      'inline-flex shrink-0 items-center justify-center pe-2 text-(length:--icon-size) [&_svg]:size-[1em]',
+      'inline-flex shrink-0 items-center justify-center pe-1.5 text-(length:--icon-size) [&_svg]:size-[1em]',
     label: 'min-w-0 truncate',
   },
   variants: {
-    variant: {
-      outlined: {
-        root: 'border border-outline data-[disabled]:border-on-surface/12',
-        segment: [
-          'border-outline text-on-surface not-first-of-type:border-s first-of-type:rounded-s-full last-of-type:rounded-e-full',
-          'data-[disabled]:border-on-surface/12',
-          'data-[selected]:not-data-[disabled]:bg-secondary-container data-[selected]:not-data-[disabled]:text-on-secondary-container data-[selected]:data-[disabled]:bg-on-surface/12',
-        ],
-      },
-      thumb: {
-        root: 'bg-on-surface/8',
-        segment:
-          'rounded-full text-on-surface-variant data-[selected]:not-data-[disabled]:text-on-surface',
-      },
-    },
     size: {
-      sm: { root: 'h-8', segment: 'px-3 text-label-lg [--icon-size:1rem]' },
-      md: { root: 'h-10', segment: 'px-4 text-label-lg [--icon-size:1.125rem]' },
+      sm: { root: 'h-8', segment: 'px-2.5 text-xs [--icon-size:0.875rem]' },
+      md: { root: 'h-10', segment: 'px-3 text-sm [--icon-size:1rem]' },
+      lg: { root: 'h-12', segment: 'px-4 text-base [--icon-size:1.125rem]' },
     },
     fullWidth: {
       true: { root: 'flex w-full', segment: 'flex-1 basis-0' },
@@ -72,7 +63,12 @@ export const segmentedControlStyles = tv({
     },
     measured: {
       true: '',
-      false: '',
+      false: {
+        segment: [
+          'data-[selected]:bg-surface-segment data-[selected]:shadow-xs',
+          'data-[selected]:inset-ring-1 data-[selected]:inset-ring-[color:light-dark(transparent,color-mix(in_srgb,var(--on-surface)_12%,transparent))]',
+        ],
+      },
     },
     instant: {
       true: { thumb: 'transition-none!', segment: 'transition-none', check: 'transition-none' },
@@ -80,25 +76,10 @@ export const segmentedControlStyles = tv({
     },
   },
   compoundVariants: [
-    {
-      variant: 'thumb',
-      size: 'sm',
-      class: { root: 'p-0.5', segment: 'px-2.5', thumb: 'inset-y-0.5' },
-    },
-    { variant: 'thumb', size: 'md', class: { root: 'p-1', thumb: 'inset-y-1' } },
     { fullWidth: true, size: 'sm', class: { segment: 'px-2' } },
-    { fullWidth: true, size: 'md', class: { segment: 'px-3' } },
-    {
-      variant: 'thumb',
-      measured: false,
-      class: {
-        segment:
-          'data-[selected]:not-data-[disabled]:bg-surface-bright data-[selected]:not-data-[disabled]:shadow-elevation-1 data-[selected]:data-[disabled]:bg-on-surface/12',
-      },
-    },
+    { fullWidth: true, size: 'md', class: { segment: 'px-2.5' } },
   ],
   defaultVariants: {
-    variant: 'outlined',
     size: 'md',
     fullWidth: false,
     measured: false,
@@ -108,12 +89,9 @@ export const segmentedControlStyles = tv({
 
 type SegmentedControlStyleVariants = VariantProps<typeof segmentedControlStyles>;
 
-export type SegmentedControlVariant = NonNullable<SegmentedControlStyleVariants['variant']>;
-
 export type SegmentedControlSize = NonNullable<SegmentedControlStyleVariants['size']>;
 
 interface SegmentedControlContextValue {
-  variant: SegmentedControlVariant;
   size: SegmentedControlSize;
   fullWidth: boolean;
   checkmark: boolean;
@@ -122,7 +100,6 @@ interface SegmentedControlContextValue {
 }
 
 const SegmentedControlContext = createContext<SegmentedControlContextValue>({
-  variant: 'outlined',
   size: 'md',
   fullWidth: false,
   checkmark: false,
@@ -241,7 +218,6 @@ export interface SegmentedControlProps extends Omit<
   AriaToggleButtonGroupProps,
   'className' | 'children' | 'orientation'
 > {
-  variant?: SegmentedControlVariant;
   size?: SegmentedControlSize;
   fullWidth?: boolean;
   showCheckmark?: boolean;
@@ -251,7 +227,6 @@ export interface SegmentedControlProps extends Omit<
 }
 
 export function SegmentedControl({
-  variant = 'outlined',
   size = 'md',
   fullWidth = false,
   selectionMode = 'single',
@@ -263,24 +238,23 @@ export function SegmentedControl({
   ...props
 }: SegmentedControlProps) {
   const { spatialEnabled } = useMotionPreference();
-  const tracksThumb = variant === 'thumb' && selectionMode === 'single';
+  const tracksThumb = selectionMode === 'single';
   const [thumbPlaced, setThumbPlaced] = useState(false);
   const measured = tracksThumb && thumbPlaced;
   const markPlaced = useCallback(() => setThumbPlaced(true), []);
 
   const context = useMemo<SegmentedControlContextValue>(
     () => ({
-      variant,
       size,
       fullWidth,
-      checkmark: showCheckmark ?? (variant === 'outlined' && selectionMode === 'multiple'),
+      checkmark: showCheckmark ?? selectionMode === 'multiple',
       measured,
       instant: !spatialEnabled,
     }),
-    [variant, size, fullWidth, showCheckmark, selectionMode, measured, spatialEnabled],
+    [size, fullWidth, showCheckmark, selectionMode, measured, spatialEnabled],
   );
 
-  const styles = segmentedControlStyles({ variant, size, fullWidth, instant: !spatialEnabled });
+  const styles = segmentedControlStyles({ size, fullWidth, instant: !spatialEnabled });
 
   return (
     <SegmentedControlContext value={context}>
@@ -290,7 +264,6 @@ export function SegmentedControl({
         selectionMode={selectionMode}
         disallowEmptySelection={disallowEmptySelection ?? selectionMode === 'single'}
         data-slot="segmented-control"
-        data-variant={variant}
         data-size={size}
         data-selection-mode={selectionMode}
         data-full-width={fullWidth || undefined}
@@ -326,9 +299,9 @@ export function SegmentedControlItem({
   className,
   ...props
 }: SegmentedControlItemProps) {
-  const { variant, size, fullWidth, checkmark, measured, instant } = use(SegmentedControlContext);
+  const { size, fullWidth, checkmark, measured, instant } = use(SegmentedControlContext);
   const icons = useIcons();
-  const styles = segmentedControlStyles({ variant, size, fullWidth, measured, instant });
+  const styles = segmentedControlStyles({ size, fullWidth, measured, instant });
 
   return (
     <AriaToggleButton

@@ -30,12 +30,12 @@ describe('Toast', () => {
       });
       toast('Draft saved', { action: { label: 'Undo', onAction: () => {} } });
       toast.info('Upload scheduled for Friday', {
-        description: 'Funds arrive in one to two business days.',
+        description: 'Files appear in the shared folder when it finishes.',
       });
       toast.success('Message received');
-      toast.warning('Card ending 4242 expires in 7 days', { title: 'Update sharing' });
+      toast.warning('Storage almost full', { title: 'Update sharing' });
       toast.error('Sync failed', { action: { label: 'Retry', onAction: () => {} } });
-      toast.loading('Exporting 240 orders');
+      toast.loading('Exporting 240 photos');
 
       await expect.poll(toastCount).toBe(5);
       await wait(50);
@@ -47,37 +47,103 @@ describe('Toast', () => {
 
   it('announces a message inside a labelled notifications region', async () => {
     await renderWithDS(<Toaster />);
-    toast('Project DOC-2048 sent to Nova Corp');
+    toast('Project Garden shared with Ayşe');
 
     const item = notifications().getByRole('alertdialog', {
-      name: 'Project DOC-2048 sent to Nova Corp',
+      name: 'Project Garden shared with Ayşe',
     });
     await expect.element(item).toBeVisible();
-    await expect.element(item).toHaveAttribute('data-tone', 'default');
+    await expect.element(item).toHaveAttribute('data-tone', 'neutral');
     await expect.element(notifications()).toHaveAttribute('data-placement', 'bottom-end');
     await expect
       .element(item.getByRole('alert'))
-      .toHaveTextContent('Project DOC-2048 sent to Nova Corp');
+      .toHaveTextContent('Project Garden shared with Ayşe');
   });
 
-  it('gives each tone its container and icon, with a title and description', async () => {
-    await renderWithDS(<Toaster isExpanded maxVisibleToasts={5} />);
+  it('sits on the overlay surface and colours only the icon by tone', async () => {
+    await renderWithDS(
+      <>
+        <Toaster isExpanded maxVisibleToasts={5} />
+        <span data-testid="reference" className="bg-surface-overlay text-success" />
+      </>,
+      { dark: true },
+    );
+    document.documentElement.classList.add('dark');
     toast.success('Message received');
-    toast.warning('Card ending 4242 expires in 7 days', {
+    toast.warning('Storage almost full', {
       title: 'Update sharing',
-      description: 'Renewal is on 1 December.',
+      description: 'Free up space before 1 December.',
     });
 
+    const reference = getComputedStyle(page.getByTestId('reference').element());
     const success = page.getByRole('alertdialog', { name: 'Message received' });
     await expect.element(success).toHaveAttribute('data-tone', 'success');
-    await expect.element(success).toHaveClass(/bg-success-container/);
-    expect(success.element().querySelector('[data-slot="icon"] svg')).not.toBeNull();
+    const surface = getComputedStyle(success.element());
+    expect(surface.backgroundColor).toBe(reference.backgroundColor);
+    expect(surface.borderRadius).toBe('20px');
+    expect(surface.boxShadow).not.toBe('none');
+    const icon = success.element().querySelector('[data-slot="icon"]')!;
+    expect(icon.querySelector('svg')).not.toBeNull();
+    expect(getComputedStyle(icon).color).toBe(reference.color);
+    expect(icon.getBoundingClientRect().width).toBe(16);
 
     const warning = page.getByRole('alertdialog', { name: 'Update sharing' });
-    await expect.element(warning).toHaveClass(/bg-warning-container/);
     await expect
       .element(warning)
-      .toHaveAccessibleDescription('Card ending 4242 expires in 7 days Renewal is on 1 December.');
+      .toHaveAccessibleDescription('Storage almost full Free up space before 1 December.');
+    const title = warning.element().querySelector('[data-slot="title"]')!;
+    expect(getComputedStyle(title).fontWeight).toBe('500');
+    expect(getComputedStyle(title).color).not.toBe(
+      getComputedStyle(warning.element().querySelector('[data-slot="icon"]')!).color,
+    );
+  });
+
+  it('defaults to the neutral tone and follows tone updates', async () => {
+    await renderWithDS(<Toaster isExpanded />);
+    const id = toast('Draft saved');
+    const item = page.getByRole('alertdialog', { name: 'Draft saved' });
+    await expect.element(item).toHaveAttribute('data-tone', 'neutral');
+    toast.update(id, { tone: 'success' });
+    await expect.element(item).toHaveAttribute('data-tone', 'success');
+    toast.update(id, { tone: 'neutral' });
+    await expect.element(item).toHaveAttribute('data-tone', 'neutral');
+  });
+
+  it('shows the close button on hover or focus, and always on a persistent toast', async () => {
+    const screen = await renderWithDS(
+      <>
+        <p>Folder</p>
+        <Toaster isExpanded />
+      </>,
+      { provider: { motion: 'disabled' } },
+    );
+    await userEvent.hover(screen.getByText('Folder'));
+    toast('Share link copied');
+    toast('Your export is being prepared', { duration: Infinity });
+
+    const timed = page.getByRole('alertdialog', { name: 'Share link copied' });
+    const close = timed.getByRole('button', { name: 'Close' });
+    await expect.element(close).toBeInTheDocument();
+    expect(getComputedStyle(close.element()).opacity).toBe('0');
+    await userEvent.hover(timed);
+    await expect.poll(() => getComputedStyle(close.element()).opacity).toBe('1');
+
+    const persistent = page
+      .getByRole('alertdialog', { name: 'Your export is being prepared' })
+      .getByRole('button', { name: 'Close' });
+    await userEvent.hover(screen.getByText('Folder'));
+    await expect.poll(() => getComputedStyle(persistent.element()).opacity).toBe('1');
+  });
+
+  it('gives the action a small soft neutral button', async () => {
+    await renderWithDS(<Toaster />);
+    toast('Project archived', { action: { label: 'Undo', onAction: () => {} } });
+    const undo = page
+      .getByRole('alertdialog', { name: 'Project archived' })
+      .getByRole('button', { name: 'Undo' });
+    await expect.element(undo).toHaveAttribute('data-variant', 'soft');
+    await expect.element(undo).toHaveAttribute('data-tone', 'neutral');
+    await expect.element(undo).toHaveAttribute('data-size', 'sm');
   });
 
   it('closes from the close button and reports why', async () => {
@@ -189,19 +255,19 @@ describe('Toast', () => {
     await renderWithDS(<Toaster isExpanded />);
     let finish: (file: string) => void = () => {};
     toast.promise(new Promise<string>((resolve) => (finish = resolve)), {
-      loading: 'Exporting 240 orders',
+      loading: 'Exporting 240 photos',
       success: (file) => ({ message: 'Export ready', description: file }),
       error: 'Export failed',
     });
 
-    const pending = page.getByRole('alertdialog', { name: 'Exporting 240 orders' });
+    const pending = page.getByRole('alertdialog', { name: 'Exporting 240 photos' });
     await expect.element(pending).toHaveAttribute('data-loading', 'true');
     const node = pending.element();
 
-    finish('orders-november.csv');
+    finish('photos-november.zip');
     const ready = page.getByRole('alertdialog', { name: 'Export ready' });
     await expect.element(ready).toHaveAttribute('data-tone', 'success');
-    await expect.element(ready).toHaveAccessibleDescription('orders-november.csv');
+    await expect.element(ready).toHaveAccessibleDescription('photos-november.zip');
     expect(ready.element()).toBe(node);
 
     toast.promise(Promise.reject(new Error('team timeout')), {
@@ -251,9 +317,9 @@ describe('Toast', () => {
       </>,
     );
     await userEvent.hover(screen.getByText('Folder'));
-    toast.error('Card ending 4242 was declined', {
+    toast.error('photo.jpg is larger than 20 MB', {
       title: 'Message failed',
-      action: { label: 'Update card', onAction: () => {} },
+      action: { label: 'Choose another', onAction: () => {} },
     });
     toast.info('Upload scheduled for Friday');
 
@@ -266,21 +332,21 @@ describe('Toast', () => {
 
   it('shows at most maxVisibleToasts and brings queued toasts back', async () => {
     await renderWithDS(<Toaster maxVisibleToasts={2} />);
-    toast('Order 1001 shipped');
-    toast('Order 1002 shipped');
-    toast('Order 1003 shipped');
+    toast('Photo 1 uploaded');
+    toast('Photo 2 uploaded');
+    toast('Photo 3 uploaded');
 
-    const newest = page.getByRole('alertdialog', { name: 'Order 1003 shipped' });
+    const newest = page.getByRole('alertdialog', { name: 'Photo 3 uploaded' });
     await expect.element(newest).toBeVisible();
     await expect.poll(toastCount).toBe(2);
     await expect
-      .element(page.getByRole('alertdialog', { name: 'Order 1001 shipped' }))
+      .element(page.getByRole('alertdialog', { name: 'Photo 1 uploaded' }))
       .not.toBeInTheDocument();
 
-    toast.dismiss(toast('Order 1004 shipped'));
+    toast.dismiss(toast('Photo 4 uploaded'));
     await newest.getByRole('button', { name: 'Close' }).click();
     await expect
-      .element(page.getByRole('alertdialog', { name: 'Order 1001 shipped' }))
+      .element(page.getByRole('alertdialog', { name: 'Photo 1 uploaded' }))
       .toBeInTheDocument();
   });
 
@@ -308,12 +374,10 @@ describe('Toast', () => {
       </>,
     );
     toast('Draft saved');
-    toast('Folder closed for October', { toasterId: 'folder' });
+    toast('Folder synced', { toasterId: 'folder' });
 
     const folder = page.getByRole('region', { name: 'Folder updates' });
-    await expect
-      .element(folder.getByRole('alertdialog', { name: 'Folder closed for October' }))
-      .toBeVisible();
+    await expect.element(folder.getByRole('alertdialog', { name: 'Folder synced' })).toBeVisible();
     await expect.element(folder).toHaveAttribute('data-placement', 'top-center');
     await expect
       .element(notifications().getByRole('alertdialog', { name: 'Draft saved' }))
@@ -329,20 +393,21 @@ describe('Toast', () => {
 
     const region = page.getByRole('region', { name: 'Bildirimler' });
     await expect.element(region).toBeVisible();
-    await expect.element(region.getByRole('button', { name: 'Kapat' })).toBeVisible();
+    await expect.element(region.getByRole('button', { name: 'Kapat' })).toBeInTheDocument();
   });
 
   it('places start and end by reading direction', async () => {
     await page.viewport(1024, 768);
     try {
       await renderWithDS(<Toaster placement="bottom-start" />, { locale: 'ar' });
-      toast('تم إرسال الفاتورة');
+      toast('تم حفظ المسودة');
 
       const region = page.getByRole('region', { name: 'Notifications' });
       await expect.element(region).toHaveAttribute('dir', 'rtl');
       const box = region.element().getBoundingClientRect();
-      expect(Math.round(window.innerWidth - box.right)).toBe(24);
-      expect(Math.round(window.innerHeight - box.bottom)).toBe(24);
+      expect(Math.round(window.innerWidth - box.right)).toBe(16);
+      expect(Math.round(window.innerHeight - box.bottom)).toBe(16);
+      expect(Math.round(box.width)).toBe(400);
     } finally {
       await page.viewport(414, 896);
     }
@@ -383,15 +448,15 @@ describe('Toast', () => {
   it('hides the close button only on toasts that time out when showCloseButton is false', async () => {
     await renderWithDS(<Toaster showCloseButton={false} isExpanded />);
     toast('Share link copied');
-    toast('Your tax report is being prepared', { duration: Infinity });
+    toast('Your export is being prepared', { duration: Infinity });
 
     await expect
       .element(
         page
-          .getByRole('alertdialog', { name: 'Your tax report is being prepared' })
+          .getByRole('alertdialog', { name: 'Your export is being prepared' })
           .getByRole('button', { name: 'Close' }),
       )
-      .toBeVisible();
+      .toBeInTheDocument();
     await expect
       .element(
         page
@@ -461,17 +526,17 @@ describe('Toast', () => {
         <Toaster toasterId="folder" aria-label="Folder updates" />
       </>,
     );
-    toast('Closing October', { id: 'folder-close', onClose });
+    toast('Archiving the October folder', { id: 'folder-archive', onClose });
     await expect
-      .element(notifications().getByRole('alertdialog', { name: 'Closing October' }))
+      .element(notifications().getByRole('alertdialog', { name: 'Archiving the October folder' }))
       .toBeVisible();
 
-    toast.success('October closed', { id: 'folder-close', toasterId: 'folder' });
+    toast.success('October folder archived', { id: 'folder-archive', toasterId: 'folder' });
     await expect
       .element(
         page
           .getByRole('region', { name: 'Folder updates' })
-          .getByRole('alertdialog', { name: 'October closed' }),
+          .getByRole('alertdialog', { name: 'October folder archived' }),
       )
       .toBeVisible();
     await expect.poll(toastCount).toBe(1);
@@ -521,28 +586,28 @@ describe('Toast', () => {
     await renderWithDS(<Toaster />);
     const id = toast('3 comments uploaded', {
       title: 'Comments',
-      description: 'Ready to match in the folder.',
-      action: { label: 'Match', onAction: () => {} },
+      description: 'Ready to review in the folder.',
+      action: { label: 'Review', onAction: () => {} },
     });
 
     const item = page.getByRole('alertdialog', { name: 'Comments' });
     await expect
       .element(item)
-      .toHaveAccessibleDescription('3 comments uploaded Ready to match in the folder.');
+      .toHaveAccessibleDescription('3 comments uploaded Ready to review in the folder.');
 
     toast.update(id, { title: null, description: null, action: null });
     const plain = page.getByRole('alertdialog', { name: '3 comments uploaded' });
     await expect.element(plain).toHaveAccessibleDescription('');
-    await expect.element(plain.getByRole('button', { name: 'Match' })).not.toBeInTheDocument();
+    await expect.element(plain.getByRole('button', { name: 'Review' })).not.toBeInTheDocument();
   });
 
   it('stacks from the top edge for top placements', async () => {
     await renderWithDS(<Toaster placement="top-center" />, { provider: { motion: 'disabled' } });
-    toast('Order 1001 shipped');
-    toast('Order 1002 shipped');
+    toast('Photo 1 uploaded');
+    toast('Photo 2 uploaded');
 
-    const front = page.getByRole('alertdialog', { name: 'Order 1002 shipped' });
-    const behind = page.getByRole('alertdialog', { name: 'Order 1001 shipped' });
+    const front = page.getByRole('alertdialog', { name: 'Photo 2 uploaded' });
+    const behind = page.getByRole('alertdialog', { name: 'Photo 1 uploaded' });
     await expect.element(behind).toHaveAttribute('data-stacked', 'true');
     await expect.element(notifications()).toHaveAttribute('data-placement', 'top-center');
     await expect
@@ -551,7 +616,7 @@ describe('Toast', () => {
     const frontBox = front.element().getBoundingClientRect();
     const behindBox = behind.element().getBoundingClientRect();
     expect(Math.round(frontBox.top)).toBe(16);
-    expect(Math.round(behindBox.bottom - frontBox.bottom)).toBe(10);
+    expect(Math.round(behindBox.bottom - frontBox.bottom)).toBe(12);
   });
 
   it('fades instead of sliding with reduced motion', async () => {
@@ -565,11 +630,11 @@ describe('Toast', () => {
 
   it('never hands out an id that a caller already chose', async () => {
     await renderWithDS(<Toaster isExpanded />);
-    const first = toast('Order 1001 shipped');
+    const first = toast('Photo 1 uploaded');
     const taken = `toast-${Number(first.split('-')[1]) + 1}`;
-    toast('Order 1002 shipped', { id: taken });
+    toast('Photo 2 uploaded', { id: taken });
 
-    expect(toast('Order 1003 shipped')).not.toBe(taken);
+    expect(toast('Photo 3 uploaded')).not.toBe(taken);
     await expect.poll(toastCount).toBe(3);
   });
 });

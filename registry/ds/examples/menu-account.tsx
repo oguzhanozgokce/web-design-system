@@ -28,7 +28,7 @@ function Initials({ className }: { className: string }) {
     <span
       aria-hidden="true"
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full bg-tertiary-container text-on-tertiary-container',
+        'inline-flex shrink-0 items-center justify-center rounded-full bg-primary-soft text-on-primary-soft',
         className,
       )}
     >
@@ -43,20 +43,21 @@ export default function MenuAccount() {
   return (
     <MenuTrigger>
       <Button
-        variant="text"
-        startIcon={<Initials className="size-7 text-label-md" />}
+        variant="ghost"
+        startIcon={<Initials className="size-7 text-xs font-medium" />}
         endIcon={<ArrowDropDownIcon />}
       >
         Ayşe Demir
       </Button>
       <MenuPopover placement="bottom end">
-        <div className="flex items-center gap-3 border-b border-outline-variant px-4 py-3">
-          <Initials className="size-10 text-title-sm" />
+        <div className="flex items-center gap-3 px-2.5 py-2">
+          <Initials className="size-9 text-sm font-semibold" />
           <div className="min-w-0">
-            <p className="truncate text-title-sm text-on-surface">Ayşe Demir</p>
-            <p className="truncate text-body-sm text-on-surface-variant">ayse@example.com</p>
+            <p className="truncate text-sm font-semibold text-on-surface">Ayşe Demir</p>
+            <p className="truncate text-xs text-on-surface-variant">ayse@example.com</p>
           </div>
         </div>
+        <MenuSeparator />
         <MenuList>
           <MenuItem startIcon={<PersonIcon />}>Profile</MenuItem>
           <MenuItem startIcon={<SettingsIcon />} shortcut={['mod', ',']}>

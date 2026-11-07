@@ -13,9 +13,9 @@ export default function PopoverForm() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-title-md text-on-surface">{name}</span>
+      <span className="text-base font-semibold text-on-surface">{name}</span>
       <PopoverTrigger>
-        <Button variant="text" size="sm" startIcon={<EditIcon />}>
+        <Button variant="ghost" size="sm" startIcon={<EditIcon />}>
           Rename
         </Button>
         <Popover placement="bottom start">
@@ -35,7 +35,7 @@ export default function PopoverForm() {
               >
                 <TextField name="name" label="Name" defaultValue={name} isRequired autoFocus />
                 <div className="flex justify-end gap-2">
-                  <Button variant="text" onPress={close}>
+                  <Button variant="soft" onPress={close}>
                     Cancel
                   </Button>
                   <Button type="submit" isPending={isSaving}>

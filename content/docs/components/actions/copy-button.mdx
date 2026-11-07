@@ -1,6 +1,6 @@
 ---
 title: Copy Button
-description: Copies a string or an async value to the clipboard, confirms with a check and a screen-reader announcement, and reports failures; icon-only or with a label.
+description: Copies a string or an async value to the clipboard, morphs its icon into a check, announces the result and reports failures; icon-only or with a label.
 ---
 
 <ComponentPreview name="copy-button-demo" />
@@ -28,17 +28,26 @@ The button keeps the width of the longer label, so nothing around it moves.
 
 ### Variants
 
-Without children the button is an icon-only circle. It defaults to `text`, which suits code blocks
-and table cells. With a label it defaults to `outlined`. Inside a `ButtonGroup` it takes the group's
-`buttonVariant` and `size` instead. Every Button variant works in both forms.
+Without children the copy button is a ghost [IconButton](/docs/components/actions/icon-button),
+which suits code blocks and table cells. With a label it is a soft
+[Button](/docs/components/actions/button). Inside a `ButtonGroup` it takes the group's
+`buttonVariant` and `size` instead. All four variants work in both forms.
 
 <ComponentPreview name="copy-button-variants" />
 
+### Feedback
+
+On a successful copy the copy glyph shrinks and fades out while a check grows in from half size in
+the success colour, over 150 ms. It turns back after `timeout`. When the copy fails, the button
+switches to the error tone and shows the error glyph until the timeout ends, so a failure is never
+silent. Under reduced motion the glyphs only cross-fade.
+
 ### Sizes
 
-The icon-only circle follows the Button heights, from `xs` (28px) to `xl` (56px), so it lines up
-with fields and buttons of the same size. `md` is the default. On touch screens the `xs`, `sm` and
-`md` circles get a larger invisible hit area, as `IconButton` does.
+`sm` is the default, so the button sits quietly next to the text it copies. The icon-only form
+takes the IconButton sizes from `xs` (28px) to `lg` (48px); the labelled form takes the Button sizes
+`sm`, `md` and `lg`. On touch screens the `xs`, `sm` and `md` circles get a larger invisible hit
+area.
 
 <ComponentPreview name="copy-button-sizes" />
 
@@ -70,24 +79,25 @@ use it directly.
 
 ### CopyButton
 
-| Prop          | Type                                                        | Default                               |
-| ------------- | ----------------------------------------------------------- | ------------------------------------- |
-| `value`       | `string \| (() => string \| Promise<string>)`               | required                              |
-| `children`    | `ReactNode`                                                 | icon-only when omitted                |
-| `aria-label`  | `string`                                                    | `copy` label when icon-only           |
-| `variant`     | `'filled' \| 'tonal' \| 'outlined' \| 'text' \| 'elevated'` | group's, else `'text'` / `'outlined'` |
-| `size`        | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                      | group's, else `'md'`                  |
-| `onCopy`      | `(text: string) => void`                                    |                                       |
-| `onCopyError` | `(error: unknown) => void`                                  |                                       |
-| `timeout`     | `number`                                                    | `2000`                                |
-| `isDisabled`  | `boolean`                                                   | `false`                               |
-| `labels`      | `Partial<CopyButtonLabels>`                                 |                                       |
+| Prop          | Type                                          | Default                            |
+| ------------- | --------------------------------------------- | ---------------------------------- |
+| `value`       | `string \| (() => string \| Promise<string>)` | required                           |
+| `children`    | `ReactNode`                                   | icon-only when omitted             |
+| `aria-label`  | `string`                                      | `copy` label when icon-only        |
+| `variant`     | `'solid' \| 'soft' \| 'outline' \| 'ghost'`   | group's, else `'ghost'` / `'soft'` |
+| `size`        | `'xs' \| 'sm' \| 'md' \| 'lg'`                | group's, else `'sm'`               |
+| `onCopy`      | `(text: string) => void`                      |                                    |
+| `onCopyError` | `(error: unknown) => void`                    |                                    |
+| `timeout`     | `number`                                      | `2000`                             |
+| `isDisabled`  | `boolean`                                     | `false`                            |
+| `labels`      | `Partial<CopyButtonLabels>`                   |                                    |
 
-Every other [Button](/docs/components/actions/button) prop is passed through except `onPress`,
-`startIcon`, `endIcon`, `tone`, `isPending` and the form `value`, which the copy button owns.
-`labels` takes the copy button's own labels, not Button's.
+`xs` applies to the icon-only form. Every other [Button](/docs/components/actions/button) prop is
+passed through except `onPress`, `startIcon`, `endIcon`, `tone`, `isPending` and the form `value`,
+which the copy button owns: it sets `tone="error"` itself while a copy has failed. `labels` takes
+the copy button's own labels, not Button's.
 
-`copyButtonStyles` holds the classes for the `base`, `glyph`, `icon`, `label` and `face` slots.
+`copyButtonStyles` holds the classes for the `glyph`, `icon`, `label` and `face` slots.
 
 ### useCopyToClipboard
 
@@ -104,10 +114,12 @@ not a failed copy: the status stays `copied` and `copy(value)` rejects with that
 
 ### Data attributes
 
-The root is a Button, so it carries Button's attributes plus `data-status` (`idle`, `copied`,
-`failed`). Parts: `data-slot="glyph"`, `"copy-label"`, `"face"`. The live region,
-`data-slot="announcer"`, is rendered in `document.body`, so the button stays the only element in its
-parent and fits a connected `ButtonGroup`.
+The root is an IconButton (`data-slot="icon-button"`) without a label and a Button
+(`data-slot="button"`) with one, so it carries their attributes plus `data-status` (`idle`,
+`copied`, `failed`); `data-tone` reads `error` while a copy has failed. Parts:
+`data-slot="glyph"`, `"copy-label"`, `"face"`, and `data-glyph` (`idle`, `copied`, `failed`) on each
+icon. The live region, `data-slot="announcer"`, is rendered in `document.body`, so the button stays
+the only element in its parent and fits an attached `ButtonGroup`.
 
 ### Labels
 
@@ -120,13 +132,14 @@ button with `<DSProvider labels={{ copyButton: { … } }}>`.
 | `copied`     | `Copied`        | the label after a copy, and its announcement                    |
 | `copyFailed` | `Couldn’t copy` | the label after a failed copy, and its announcement             |
 
-The pending spinner is Button's. Set its name for every button with
+The pending spinner belongs to the underlying button. Name it for every icon-only copy button with
+`<DSProvider labels={{ iconButton: { pending: … } }}>` and for every labelled one with
 `<DSProvider labels={{ button: { pending: … } }}>`.
 
 ## Accessibility
 
-- Built on Button and React Aria `Button`: Enter and Space copy, and focus stays on the button
-  while an async value loads.
+- Built on React Aria `Button`: Enter and Space copy, and focus stays on the button while an async
+  value loads.
 - "Copied" and "Couldn't copy" are announced through a polite live region that takes its `lang` and
   `dir` from `DSProvider`'s locale. It lives in `document.body` and stays exposed while a modal
   dialog hides the rest of the page. The icon-only button keeps its name, so the announcement is
@@ -134,6 +147,7 @@ The pending spinner is Button's. Set its name for every button with
   screen readers say "Copied" twice.
 - Failures are reported, never silent. The Clipboard API needs a secure context (HTTPS or
   localhost) and a focused document; outside one the button reports "Couldn't copy".
-- The glyph cross-fades; it also scales only when the motion preference allows it.
+- Success and failure change the glyph as well as the colour, so neither rests on colour alone.
+- The glyph scales only when the motion preference allows it; otherwise it cross-fades.
 - Contrast is checked with axe in light, dark and RTL, before and after a copy, by
   `copy-button.test.tsx`.

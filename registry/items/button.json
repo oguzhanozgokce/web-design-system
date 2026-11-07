@@ -2,7 +2,7 @@
   "name": "button",
   "type": "registry:ui",
   "title": "Button",
-  "description": "Material 3 button in five variants and five sizes, with icons, a destructive tone, a link twin and automatic pending state for async actions.",
+  "description": "Pill button in four variants, three tones and three sizes, with icons, a link twin and automatic pending state for async actions.",
   "category": "actions",
   "files": ["ui/button.tsx"]
 }

@@ -22,7 +22,7 @@ export default function DialogFullScreen() {
       <Dialog fullScreenOnMobile size="lg">
         {({ close }) => {
           const save = (
-            <Button variant="text" isDisabled={!title.trim()} onPress={close}>
+            <Button isDisabled={!title.trim()} onPress={close}>
               Save
             </Button>
           );
@@ -41,7 +41,7 @@ export default function DialogFullScreen() {
                 </div>
               </DialogBody>
               <DialogFooter>
-                <Button slot="close" variant="text">
+                <Button slot="close" variant="soft">
                   Cancel
                 </Button>
                 {save}

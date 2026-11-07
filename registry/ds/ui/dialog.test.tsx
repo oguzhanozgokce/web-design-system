@@ -4,7 +4,6 @@ import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { InfoIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
 import { ButtonGroup } from '@/registry/ds/ui/button-group';
-import { Card } from '@/registry/ds/ui/card';
 import {
   Dialog,
   DialogBody,
@@ -37,12 +36,12 @@ function InviteDialog({
       <Dialog {...dialog}>
         <DialogHeader
           title="Invite teammate"
-          description="They get access to the Operating folder."
+          description="They get access to the Projects folder."
           {...header}
         />
         <DialogBody>{body}</DialogBody>
         <DialogFooter>
-          <Button slot="close" variant="text">
+          <Button slot="close" variant="soft" tone="neutral">
             Cancel
           </Button>
           <Button slot="close">Send invite</Button>
@@ -57,7 +56,7 @@ function folderEntries(count: number) {
     <ul>
       {Array.from({ length: count }, (_, index) => (
         <li key={index} className="py-2">
-          Entry {index + 1}: card message to supplier
+          Photo {index + 1}: shared with the design team
         </li>
       ))}
     </ul>
@@ -66,6 +65,15 @@ function folderEntries(count: number) {
 
 function surface() {
   return document.querySelector<HTMLElement>('[data-slot="dialog-surface"]');
+}
+
+function roleBackground(className: string) {
+  const probe = document.createElement('div');
+  probe.className = className;
+  document.body.append(probe);
+  const color = getComputedStyle(probe).backgroundColor;
+  probe.remove();
+  return color;
 }
 
 function removeStaleLiveAnnouncements() {
@@ -99,13 +107,49 @@ describe('Dialog', () => {
     await expect.element(dialog).toHaveFocus();
     await expect
       .element(dialog)
-      .toHaveAccessibleDescription('They get access to the Operating folder.');
+      .toHaveAccessibleDescription('They get access to the Projects folder.');
     await expect
       .element(page.getByRole('heading', { level: 2, name: 'Invite teammate' }))
       .toBeVisible();
     expect(surface()).toHaveAttribute('data-size', 'md');
-    expect(surface()).toHaveClass('bg-surface-container-high', 'rounded-xl', 'max-w-140');
     expect(surface()).not.toHaveAttribute('data-fullscreen');
+    const style = getComputedStyle(surface()!);
+    expect(style.borderTopLeftRadius).toBe('24px');
+    expect(style.backgroundColor).toBe(roleBackground('bg-surface-overlay'));
+    expect(style.boxShadow).not.toBe('none');
+    expect(getComputedStyle(page.getByRole('heading').element()).fontWeight).toBe('600');
+  });
+
+  it('dims the page behind it with the backdrop role', async () => {
+    const screen = await renderWithDS(<InviteDialog />);
+    await screen.getByRole('button', { name: 'Invite teammate' }).click();
+    await expect.element(page.getByRole('dialog')).toBeVisible();
+    const overlay = document.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!;
+    expect(getComputedStyle(overlay).backgroundColor).toBe(roleBackground('bg-backdrop'));
+  });
+
+  it('sits at the bottom of a phone screen and in the centre from 640px', async () => {
+    await page.viewport(phone.width, phone.height);
+    const screen = await renderWithDS(<InviteDialog />);
+    await screen.getByRole('button', { name: 'Invite teammate' }).click();
+    await expect.element(page.getByRole('dialog')).toBeVisible();
+    await expect
+      .poll(() => Math.round(phone.height - surface()!.getBoundingClientRect().bottom))
+      .toBe(16);
+    await userEvent.keyboard('{Escape}');
+    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+    await screen.unmount();
+
+    await page.viewport(desktop.width, desktop.height);
+    const wide = await renderWithDS(<InviteDialog />);
+    await wide.getByRole('button', { name: 'Invite teammate' }).click();
+    await expect.element(page.getByRole('dialog')).toBeVisible();
+    await expect
+      .poll(() => {
+        const box = surface()!.getBoundingClientRect();
+        return Math.round(box.top - (desktop.height - box.bottom));
+      })
+      .toBe(0);
   });
 
   it('closes from a footer action and returns focus to the trigger', async () => {
@@ -170,7 +214,7 @@ describe('Dialog', () => {
     await expect.element(dialog.getByRole('button', { name: 'Send invite' })).toHaveFocus();
   });
 
-  it('centres the header around a hero icon and closes from the close button', async () => {
+  it('puts a hero icon above the title, aligned to the start, and closes from the close button', async () => {
     const screen = await renderWithDS(
       <InviteDialog header={{ icon: <InfoIcon />, showCloseButton: true }} />,
     );
@@ -178,10 +222,21 @@ describe('Dialog', () => {
     await trigger.click();
 
     const header = document.querySelector('[data-slot="dialog-header"]');
-    expect(header?.querySelector('[data-slot="dialog-icon"] svg')).not.toBeNull();
-    expect(header).toHaveClass('items-center', 'text-center');
+    const icon = header?.querySelector<HTMLElement>('[data-slot="dialog-icon"]');
+    expect(icon?.querySelector('svg')).not.toBeNull();
+    expect(icon).toHaveAttribute('data-tone', 'neutral');
+    expect(icon!.offsetWidth).toBe(40);
+    expect(getComputedStyle(icon!).borderTopLeftRadius).not.toBe('0px');
+    const heading = header!.querySelector<HTMLElement>('[data-slot="dialog-heading"]')!;
+    expect(heading.offsetLeft).toBe(icon!.offsetLeft);
+    expect(heading.offsetTop).toBeGreaterThan(icon!.offsetTop + icon!.offsetHeight);
 
-    await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click();
+    const close = page.getByRole('dialog').getByRole('button', { name: 'Close' });
+    await expect.element(close).toHaveAttribute('data-variant', 'ghost');
+    await expect.element(close).toHaveAttribute('data-tone', 'neutral');
+    await expect.element(close).toHaveAttribute('data-size', 'sm');
+    await expect.element(close).toHaveAttribute('slot', 'close');
+    await close.click();
     await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
     await expect.element(trigger).toHaveFocus();
   });
@@ -215,6 +270,16 @@ describe('Dialog', () => {
     expect(shortBody).not.toHaveAttribute('tabindex');
   });
 
+  it('tints the hero icon with iconTone', async () => {
+    const screen = await renderWithDS(
+      <InviteDialog header={{ icon: <InfoIcon />, iconTone: 'success' }} />,
+    );
+    await screen.getByRole('button', { name: 'Invite teammate' }).click();
+    const icon = document.querySelector<HTMLElement>('[data-slot="dialog-icon"]')!;
+    expect(icon).toHaveAttribute('data-tone', 'success');
+    expect(getComputedStyle(icon).backgroundColor).toBe(roleBackground('bg-success-soft'));
+  });
+
   it('turns into a full-screen dialog with a top app bar on compact screens', async () => {
     await page.viewport(phone.width, phone.height);
     const onSave = vi.fn();
@@ -223,7 +288,7 @@ describe('Dialog', () => {
         dialog={{ fullScreenOnMobile: true }}
         header={{
           action: (
-            <Button variant="text" onPress={onSave}>
+            <Button variant="ghost" tone="primary" onPress={onSave}>
               Save
             </Button>
           ),
@@ -235,7 +300,7 @@ describe('Dialog', () => {
     await expect.element(dialog).toBeVisible();
 
     expect(surface()).toHaveAttribute('data-fullscreen', 'true');
-    expect(surface()).toHaveClass('h-full', 'rounded-none', 'bg-surface');
+    expect(getComputedStyle(surface()!).borderTopLeftRadius).toBe('0px');
     expect(surface()!.className).toContain('animate-ds-sheet-in-bottom');
     expect(surface()!.className).not.toContain('animate-ds-dialog-in');
     const box = surface()!.getBoundingClientRect();
@@ -247,6 +312,7 @@ describe('Dialog', () => {
     const close = dialog.getByRole('button', { name: 'Close' });
     const save = dialog.getByRole('button', { name: 'Save' });
     await expect.element(close).toBeVisible();
+    await expect.element(close).toHaveAttribute('data-size', 'md');
     await expect.element(save).toBeVisible();
     expect(document.querySelector('[data-slot="dialog-footer"]')).not.toBeVisible();
     expect(close.element().getBoundingClientRect().left).toBeLessThan(
@@ -263,7 +329,7 @@ describe('Dialog', () => {
     const screen = await renderWithDS(
       <InviteDialog
         dialog={{ fullScreenOnMobile: true }}
-        header={{ action: <Button variant="text">Save</Button> }}
+        header={{ action: <Button variant="ghost">Save</Button> }}
       />,
     );
     await screen.getByRole('button', { name: 'Invite teammate' }).click();
@@ -290,9 +356,9 @@ describe('Dialog', () => {
   it('applies each size as a maximum width', async () => {
     for (const [size, width] of [
       ['sm', 384],
-      ['md', 560],
-      ['lg', 720],
-      ['xl', 960],
+      ['md', 448],
+      ['lg', 512],
+      ['xl', 672],
     ] as const) {
       const screen = await renderWithDS(<InviteDialog dialog={{ size }} />);
       await screen.getByRole('button', { name: 'Invite teammate' }).click();
@@ -395,7 +461,7 @@ describe('Dialog', () => {
             }}
           >
             <DialogHeader title="Rename folder" showCloseButton />
-            <DialogBody>Names show on statements and exports.</DialogBody>
+            <DialogBody>Names show in search and in shared links.</DialogBody>
           </Dialog>
         </>
       );
@@ -421,7 +487,7 @@ describe('Dialog', () => {
           {({ close }) => (
             <>
               <DialogHeader title="Edit note" />
-              <DialogBody>Reconciled with the team statement.</DialogBody>
+              <DialogBody>Shared with the design team.</DialogBody>
               <DialogFooter>
                 <Button
                   onPress={async () => {
@@ -450,7 +516,7 @@ describe('Dialog', () => {
       <DialogTrigger>
         <Button>Preview comment</Button>
         <Dialog aria-label="Comment RC-1042">
-          <DialogBody>Paid 1,250.00 to Riverside Supplies.</DialogBody>
+          <DialogBody>Shared with 3 people.</DialogBody>
           <DialogFooter>
             <DialogClose />
           </DialogFooter>
@@ -509,7 +575,7 @@ describe('Dialog', () => {
 
   it('renders its buttons at their own size and variant when opened from a ButtonGroup', async () => {
     const screen = await renderWithDS(
-      <ButtonGroup aria-label="Profile actions" size="sm" buttonVariant="outlined">
+      <ButtonGroup aria-label="Profile actions" size="sm" buttonVariant="outline">
         <Button>Copy link</Button>
         <DialogTrigger>
           <Button>Edit profile</Button>
@@ -524,38 +590,12 @@ describe('Dialog', () => {
     );
     const trigger = screen.getByRole('button', { name: 'Edit profile' });
     await expect.element(trigger).toHaveAttribute('data-size', 'sm');
-    await expect.element(trigger).toHaveAttribute('data-variant', 'outlined');
+    await expect.element(trigger).toHaveAttribute('data-variant', 'outline');
 
     await trigger.click();
     const save = page.getByRole('dialog').getByRole('button', { name: 'Save' });
     await expect.element(save).toHaveAttribute('data-size', 'md');
-    await expect.element(save).toHaveAttribute('data-variant', 'filled');
-  });
-
-  it('raises cards inside it above its own surface, whatever surrounds the trigger', async () => {
-    const summary = <Card variant="outlined">Folder summary</Card>;
-    const screen = await renderWithDS(<InviteDialog body={summary} />);
-    await screen.getByRole('button', { name: 'Invite teammate' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(document.querySelector('[data-slot="dialog-body"] [data-slot="card"]')).toHaveAttribute(
-      'data-surface',
-      'surface-container-highest',
-    );
-    await userEvent.keyboard('{Escape}');
-    await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
-    await screen.unmount();
-
-    const nested = await renderWithDS(
-      <Card variant="filled">
-        <InviteDialog dialog={{ size: 'full' }} body={summary} />
-      </Card>,
-    );
-    await nested.getByRole('button', { name: 'Invite teammate' }).click();
-    await expect.element(page.getByRole('dialog')).toBeVisible();
-    expect(document.querySelector('[data-slot="dialog-body"] [data-slot="card"]')).toHaveAttribute(
-      'data-surface',
-      'surface',
-    );
+    await expect.element(save).toHaveAttribute('data-variant', 'solid');
   });
 
   it('sets the direction and language of the portal from the locale', async () => {
@@ -593,9 +633,11 @@ describe('Dialog', () => {
 
   it('exports dialogStyles for custom overlays', () => {
     const styles = dialogStyles({ size: 'lg' });
-    expect(styles.surface()).toContain('max-w-180');
-    expect(styles.overlay()).toContain('bg-scrim/32');
-    expect(dialogStyles({ fullScreen: true }).surface()).toContain('rounded-none');
+    expect(styles.surface()).toContain('max-w-lg');
+    expect(styles.surface()).toContain('rounded-dialog');
+    expect(styles.overlay()).toContain('bg-backdrop');
+    expect(dialogStyles({ fullScreen: true }).surface()).not.toContain('rounded-dialog');
+    expect(dialogStyles({ iconTone: 'error' }).icon()).toContain('bg-error-soft');
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {
@@ -628,7 +670,7 @@ describe('Dialog', () => {
       const screen = await renderWithDS(
         <InviteDialog
           dialog={{ fullScreenOnMobile: true }}
-          header={{ action: <Button variant="text">Save</Button> }}
+          header={{ action: <Button variant="ghost">Save</Button> }}
           body={folderEntries(30)}
         />,
         options,

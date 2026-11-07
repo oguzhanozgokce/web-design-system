@@ -28,7 +28,7 @@ export default function DialogScrollable() {
 
   return (
     <DialogTrigger>
-      <Button variant="outlined" startIcon={<UploadIcon />}>
+      <Button variant="outline" startIcon={<UploadIcon />}>
         Upload photos
       </Button>
       <Dialog>
@@ -37,16 +37,16 @@ export default function DialogScrollable() {
           description="Check the list before the photos are added to your library."
         />
         <DialogBody>
-          <ul className="divide-y divide-outline-variant">
+          <ul className="divide-y divide-outline-subtle">
             {files.map((file) => (
               <li key={file.name} className="flex items-center justify-between gap-4 py-3">
                 <span className="flex min-w-0 flex-col">
-                  <span className="truncate text-body-lg text-on-surface">{file.name}</span>
-                  <span className="text-body-sm text-on-surface-variant">
+                  <span className="truncate text-base text-on-surface">{file.name}</span>
+                  <span className="text-xs text-on-surface-variant">
                     {date.format(new Date(2026, 2, file.day))}
                   </span>
                 </span>
-                <span className="text-body-md text-on-surface-variant tabular-digits">
+                <span className="text-sm text-on-surface-variant tabular-digits">
                   {size.format(file.size)}
                 </span>
               </li>
@@ -54,7 +54,7 @@ export default function DialogScrollable() {
           </ul>
         </DialogBody>
         <DialogFooter>
-          <Button slot="close" variant="text">
+          <Button slot="close" variant="soft">
             Cancel
           </Button>
           <Button slot="close">Upload 24</Button>

@@ -4,7 +4,7 @@ import { RichTooltip, TooltipTrigger } from '@/registry/ds/ui/tooltip';
 export default function TooltipRich() {
   return (
     <TooltipTrigger>
-      <ToggleButton variant="outlined" defaultSelected>
+      <ToggleButton variant="soft" defaultSelected>
         Auto-save
       </ToggleButton>
       <RichTooltip title="Auto-save" placement="bottom" showArrow>

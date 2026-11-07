@@ -19,8 +19,8 @@ function ContactSkeleton() {
         <div key={contact.name} className="flex items-center gap-3 px-2 py-3">
           <Skeleton shape="circle" />
           <div className="flex flex-1 flex-col">
-            <Skeleton shape="text" className="w-1/3 text-title-sm" />
-            <Skeleton shape="text" className="w-1/2 text-body-sm" />
+            <Skeleton shape="text" className="w-1/3 text-sm" />
+            <Skeleton shape="text" className="w-1/2 text-xs" />
           </div>
         </div>
       ))}
@@ -34,7 +34,7 @@ export default function ContentStateSkeleton() {
   return (
     <div className="flex w-full max-w-lg flex-col items-end gap-2">
       <Button
-        variant="text"
+        variant="ghost"
         size="sm"
         startIcon={<RefreshIcon />}
         isDisabled={status === 'loading'}
@@ -49,17 +49,17 @@ export default function ContentStateSkeleton() {
         status={status}
         loadingLabel="Loading contacts"
         loadingContent={<ContactSkeleton />}
-        className="rounded-lg border border-outline-variant bg-surface p-2"
+        className="rounded-container border border-outline-subtle bg-surface-raised p-2"
       >
         <ul className="flex flex-col">
           {contacts.map((contact) => (
             <li key={contact.name} className="flex items-center gap-3 px-2 py-3">
-              <span className="inline-flex size-10 items-center justify-center rounded-full bg-secondary-container text-title-sm text-on-secondary-container">
+              <span className="inline-flex size-10 items-center justify-center rounded-full bg-neutral-soft text-sm font-medium text-on-surface">
                 {contact.name.charAt(0)}
               </span>
               <span className="flex flex-col">
-                <span className="text-title-sm text-on-surface">{contact.name}</span>
-                <span className="text-body-sm text-on-surface-variant">{contact.email}</span>
+                <span className="text-sm font-medium text-on-surface">{contact.name}</span>
+                <span className="text-xs text-on-surface-variant">{contact.email}</span>
               </span>
             </li>
           ))}

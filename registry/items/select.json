@@ -2,7 +2,7 @@
   "name": "select",
   "type": "registry:ui",
   "title": "Select",
-  "description": "Field-styled select on the shared Field contract, with icons and avatars in the value, sections, single or multiple selection shown as text, a count or chips, and async loading.",
+  "description": "Pick one or several options from a list, with icons and avatars, sections, chips or a count, and async loading.",
   "category": "inputs",
   "files": ["ui/select.tsx"]
 }

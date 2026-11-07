@@ -12,7 +12,7 @@ export default function FabAsync() {
   return (
     <div className="flex flex-col items-center gap-3">
       <ExtendedFab
-        color="secondary"
+        tone="neutral"
         icon={<SyncIcon />}
         onPress={async () => {
           await new Promise((resolve) => setTimeout(resolve, 1800));
@@ -21,7 +21,7 @@ export default function FabAsync() {
       >
         Sync now
       </ExtendedFab>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {syncedAt
           ? `Synced at ${new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(syncedAt)}`
           : 'Not synced yet'}

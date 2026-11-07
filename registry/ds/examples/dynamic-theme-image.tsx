@@ -24,7 +24,7 @@ function useObjectUrl(file: File | null) {
 
 const ring = cn(
   'focus-ring cursor-pointer outline-offset-2',
-  'data-[selected]:ring-2 data-[selected]:ring-offset-2 data-[selected]:ring-offset-surface',
+  'data-[selected]:ring-2 data-[selected]:ring-offset-2 data-[selected]:ring-offset-canvas',
 );
 
 export default function DynamicThemeImage() {
@@ -68,7 +68,7 @@ export default function DynamicThemeImage() {
           <Radio
             key={item.src}
             value={item.src}
-            className={cn(ring, 'overflow-hidden rounded-md data-[selected]:ring-primary')}
+            className={cn(ring, 'overflow-hidden rounded-lg data-[selected]:ring-primary')}
           >
             <img src={item.src} alt={item.name} className="h-12 w-18 object-cover" />
           </Radio>
@@ -81,24 +81,24 @@ export default function DynamicThemeImage() {
             const items = event.items.filter((item) => item.kind === 'file');
             pick(await Promise.all(items.map((item) => item.getFile())));
           }}
-          className="flex flex-wrap items-center gap-3 rounded-lg border border-dashed border-outline-variant p-3 text-on-surface-variant data-[drop-target]:border-primary data-[drop-target]:bg-primary-container/40"
+          className="flex flex-wrap items-center gap-3 rounded-container border border-dashed border-outline-variant p-3 text-on-surface-variant data-[drop-target]:border-primary data-[drop-target]:bg-primary-soft"
         >
           <FileTrigger acceptedFileTypes={['image/*']} onSelect={(files) => pick(files)}>
-            <Button variant="tonal" size="sm" startIcon={<UploadIcon />}>
+            <Button variant="soft" size="sm" startIcon={<UploadIcon />}>
               Choose a photo
             </Button>
           </FileTrigger>
-          <Text slot="label" className="text-body-sm">
+          <Text slot="label" className="text-xs">
             Drop a photo here
           </Text>
         </DropZone>
-        <p className="text-body-sm text-on-surface-variant">
+        <p className="text-xs text-on-surface-variant">
           Photos are read in your browser and never uploaded.
         </p>
       </div>
 
       <div className="flex min-h-10 flex-wrap items-center gap-3">
-        <p role="status" className="flex items-center gap-2 text-body-sm text-on-surface-variant">
+        <p role="status" className="flex items-center gap-2 text-xs text-on-surface-variant">
           {status === 'loading' ? <Spinner /> : null}
           {message}
         </p>
@@ -125,7 +125,7 @@ export default function DynamicThemeImage() {
                     seed={candidate}
                     paletteStyle="fidelity"
                     contrast="standard"
-                    className="grid size-8 place-items-center rounded-full bg-primary-container text-on-primary-container"
+                    className="grid size-8 place-items-center rounded-full bg-primary-solid text-on-primary-solid"
                   >
                     {isSelected ? <CheckIcon className="text-lg" /> : null}
                   </DynamicTheme>
@@ -138,21 +138,21 @@ export default function DynamicThemeImage() {
 
       <DynamicTheme
         seed={seed}
-        className="overflow-hidden rounded-xl bg-surface-container text-on-surface"
+        className="overflow-hidden rounded-container border border-outline-subtle bg-surface-raised text-on-surface"
       >
         <img src={fileUrl ?? sample} alt="" className="h-36 w-full object-cover" />
         <div className="flex flex-col gap-3 p-4">
           <div>
-            <p className="text-label-md text-primary uppercase">Collection</p>
-            <p className="text-title-lg">Quiet hours</p>
-            <p className="text-body-md text-on-surface-variant">
-              24 tracks · themed from the cover
-            </p>
+            <p className="text-xs font-medium text-primary">Collection</p>
+            <p className="text-xl font-semibold tracking-tight">Quiet hours</p>
+            <p className="text-sm text-on-surface-variant">24 tracks · themed from the cover</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button>Play</Button>
-            <Button variant="tonal">Save</Button>
-            <span className="self-center rounded-full bg-tertiary-container px-3 py-1 text-label-md text-on-tertiary-container">
+            <Button variant="soft" tone="primary">
+              Save
+            </Button>
+            <span className="self-center rounded-control bg-primary-soft px-3 py-1 text-xs font-medium text-on-primary-soft">
               New
             </span>
           </div>

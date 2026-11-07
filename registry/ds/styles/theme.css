@@ -63,124 +63,151 @@
   --color-info-container: var(--info-container);
   --color-on-info-container: var(--on-info-container);
 
-  --ease-spatial-fast: var(--ds-ease-spatial-fast);
-  --ease-spatial: var(--ds-ease-spatial);
-  --ease-spatial-slow: var(--ds-ease-spatial-slow);
-  --ease-effect-fast: var(--ds-ease-effect-fast);
-  --ease-effect: var(--ds-ease-effect);
-  --ease-effect-slow: var(--ds-ease-effect-slow);
+  --color-canvas: var(--canvas);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-surface-segment: var(--surface-segment);
+  --color-surface-thumb: var(--surface-thumb);
+
+  --color-primary-solid: var(--primary-solid);
+  --color-on-primary-solid: var(--on-primary-solid);
+  --color-primary-solid-hover: color-mix(
+    in oklab,
+    var(--primary-solid) 90%,
+    var(--on-primary-solid)
+  );
+  --color-error-solid: var(--error-solid);
+  --color-on-error-solid: var(--on-error-solid);
+  --color-error-solid-hover: color-mix(in oklab, var(--error-solid) 90%, var(--on-error-solid));
+  --color-success-solid: var(--success-solid);
+  --color-on-success-solid: var(--on-success-solid);
+  --color-success-solid-hover: color-mix(
+    in oklab,
+    var(--success-solid) 90%,
+    var(--on-success-solid)
+  );
+  --color-warning-solid: var(--warning-solid);
+  --color-on-warning-solid: var(--on-warning-solid);
+  --color-warning-solid-hover: color-mix(
+    in oklab,
+    var(--warning-solid) 90%,
+    var(--on-warning-solid)
+  );
+  --color-info-solid: var(--info-solid);
+  --color-on-info-solid: var(--on-info-solid);
+  --color-info-solid-hover: color-mix(in oklab, var(--info-solid) 90%, var(--on-info-solid));
+  --color-inverse-surface-hover: color-mix(
+    in oklab,
+    var(--inverse-surface) 90%,
+    var(--inverse-on-surface)
+  );
+  --color-surface-overlay-hover: color-mix(in oklab, var(--surface-overlay) 94%, var(--on-surface));
+  --color-primary-soft: color-mix(in oklab, var(--primary) 12%, transparent);
+  --color-primary-soft-hover: color-mix(in oklab, var(--primary) 16%, transparent);
+  --color-on-primary-soft: var(--primary);
+  --color-error-soft: color-mix(in oklab, var(--error) 12%, transparent);
+  --color-error-soft-hover: color-mix(in oklab, var(--error) 16%, transparent);
+  --color-on-error-soft: var(--error);
+  --color-success-soft: color-mix(in oklab, var(--success) 12%, transparent);
+  --color-success-soft-hover: color-mix(in oklab, var(--success) 16%, transparent);
+  --color-on-success-soft: var(--success);
+  --color-warning-soft: color-mix(in oklab, var(--warning) 12%, transparent);
+  --color-warning-soft-hover: color-mix(in oklab, var(--warning) 16%, transparent);
+  --color-on-warning-soft: var(--warning);
+  --color-info-soft: color-mix(in oklab, var(--info) 12%, transparent);
+  --color-info-soft-hover: color-mix(in oklab, var(--info) 16%, transparent);
+  --color-on-info-soft: var(--info);
+  --color-neutral-soft: light-dark(
+    color-mix(in srgb, var(--on-surface) 6%, transparent),
+    color-mix(in srgb, var(--on-surface) 10%, transparent)
+  );
+  --color-neutral-soft-hover: light-dark(
+    color-mix(in srgb, var(--on-surface) 10%, transparent),
+    color-mix(in srgb, var(--on-surface) 14%, transparent)
+  );
+  --color-outline-subtle: light-dark(
+    color-mix(in srgb, var(--on-surface) 8%, transparent),
+    color-mix(in srgb, var(--on-surface) 10%, transparent)
+  );
+  --color-backdrop: light-dark(
+    color-mix(in srgb, var(--scrim) 40%, transparent),
+    color-mix(in srgb, var(--scrim) 60%, transparent)
+  );
+
+  --shadow-xs:
+    0 2px 4px 0 light-dark(color-mix(in srgb, var(--shadow) 4%, transparent), transparent),
+    0 1px 2px 0 light-dark(color-mix(in srgb, var(--shadow) 6%, transparent), transparent),
+    0 0 1px 0 light-dark(color-mix(in srgb, var(--shadow) 6%, transparent), transparent);
+  --shadow-sm:
+    0 2px 4px 0
+      light-dark(
+        color-mix(in srgb, var(--shadow) 5%, transparent),
+        color-mix(in srgb, var(--shadow) 25%, transparent)
+      ),
+    0 4px 8px 0
+      light-dark(
+        color-mix(in srgb, var(--shadow) 10%, transparent),
+        color-mix(in srgb, var(--shadow) 40%, transparent)
+      ),
+    inset 0 0 0 1px light-dark(transparent, color-mix(in srgb, var(--on-surface) 8%, transparent));
+  --shadow-md:
+    0 2px 8px 0
+      light-dark(
+        color-mix(in srgb, var(--shadow) 6%, transparent),
+        color-mix(in srgb, var(--shadow) 35%, transparent)
+      ),
+    0 -6px 12px 0 light-dark(color-mix(in srgb, var(--shadow) 3%, transparent), transparent),
+    0 14px 28px 0
+      light-dark(
+        color-mix(in srgb, var(--shadow) 8%, transparent),
+        color-mix(in srgb, var(--shadow) 50%, transparent)
+      ),
+    inset 0 0 0 1px light-dark(transparent, color-mix(in srgb, var(--on-surface) 12%, transparent));
+  --shadow-lg:
+    0 4px 6px 0
+      light-dark(
+        color-mix(in srgb, var(--shadow) 10%, transparent),
+        color-mix(in srgb, var(--shadow) 50%, transparent)
+      ),
+    0 12px 24px 0
+      light-dark(
+        color-mix(in srgb, var(--shadow) 15%, transparent),
+        color-mix(in srgb, var(--shadow) 70%, transparent)
+      ),
+    inset 0 0 0 1px light-dark(transparent, color-mix(in srgb, var(--on-surface) 15%, transparent));
 }
 
 @theme {
-  --radius-xs: 0.25rem;
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.75rem;
-  --radius-2xl: 2rem;
-  --radius-3xl: 3rem;
+  --radius-control: 9999px;
+  --radius-field: 0.75rem;
+  --radius-item: 0.75rem;
+  --radius-overlay: 1rem;
+  --radius-container: 1.25rem;
+  --radius-dialog: 1.5rem;
 
-  --text-display-lg: 3.5625rem;
-  --text-display-lg--line-height: 4rem;
-  --text-display-lg--letter-spacing: -0.0044em;
-  --text-display-lg--font-weight: 400;
-  --text-display-md: 2.8125rem;
-  --text-display-md--line-height: 3.25rem;
-  --text-display-md--letter-spacing: 0;
-  --text-display-md--font-weight: 400;
-  --text-display-sm: 2.25rem;
-  --text-display-sm--line-height: 2.75rem;
-  --text-display-sm--letter-spacing: 0;
-  --text-display-sm--font-weight: 400;
-  --text-headline-lg: 2rem;
-  --text-headline-lg--line-height: 2.5rem;
-  --text-headline-lg--letter-spacing: 0;
-  --text-headline-lg--font-weight: 400;
-  --text-headline-md: 1.75rem;
-  --text-headline-md--line-height: 2.25rem;
-  --text-headline-md--letter-spacing: 0;
-  --text-headline-md--font-weight: 400;
-  --text-headline-sm: 1.5rem;
-  --text-headline-sm--line-height: 2rem;
-  --text-headline-sm--letter-spacing: 0;
-  --text-headline-sm--font-weight: 400;
-  --text-title-lg: 1.375rem;
-  --text-title-lg--line-height: 1.75rem;
-  --text-title-lg--letter-spacing: 0;
-  --text-title-lg--font-weight: 400;
-  --text-title-md: 1rem;
-  --text-title-md--line-height: 1.5rem;
-  --text-title-md--letter-spacing: 0.0094em;
-  --text-title-md--font-weight: 500;
-  --text-title-sm: 0.875rem;
-  --text-title-sm--line-height: 1.25rem;
-  --text-title-sm--letter-spacing: 0.0071em;
-  --text-title-sm--font-weight: 500;
-  --text-body-lg: 1rem;
-  --text-body-lg--line-height: 1.5rem;
-  --text-body-lg--letter-spacing: 0.0313em;
-  --text-body-lg--font-weight: 400;
-  --text-body-md: 0.875rem;
-  --text-body-md--line-height: 1.25rem;
-  --text-body-md--letter-spacing: 0.0179em;
-  --text-body-md--font-weight: 400;
-  --text-body-sm: 0.75rem;
-  --text-body-sm--line-height: 1rem;
-  --text-body-sm--letter-spacing: 0.0333em;
-  --text-body-sm--font-weight: 400;
-  --text-label-lg: 0.875rem;
-  --text-label-lg--line-height: 1.25rem;
-  --text-label-lg--letter-spacing: 0.0071em;
-  --text-label-lg--font-weight: 500;
-  --text-label-md: 0.75rem;
-  --text-label-md--line-height: 1rem;
-  --text-label-md--letter-spacing: 0.0417em;
-  --text-label-md--font-weight: 500;
-  --text-label-sm: 0.6875rem;
-  --text-label-sm--line-height: 1rem;
-  --text-label-sm--letter-spacing: 0.0455em;
-  --text-label-sm--font-weight: 500;
+  --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
-  --shadow-elevation-1:
-    0 1px 2px 0 color-mix(in srgb, var(--shadow) 30%, transparent),
-    0 1px 3px 1px color-mix(in srgb, var(--shadow) 15%, transparent);
-  --shadow-elevation-2:
-    0 1px 2px 0 color-mix(in srgb, var(--shadow) 30%, transparent),
-    0 2px 6px 2px color-mix(in srgb, var(--shadow) 15%, transparent);
-  --shadow-elevation-3:
-    0 1px 3px 0 color-mix(in srgb, var(--shadow) 30%, transparent),
-    0 4px 8px 3px color-mix(in srgb, var(--shadow) 15%, transparent);
-  --shadow-elevation-4:
-    0 2px 3px 0 color-mix(in srgb, var(--shadow) 30%, transparent),
-    0 6px 10px 4px color-mix(in srgb, var(--shadow) 15%, transparent);
-  --shadow-elevation-5:
-    0 4px 4px 0 color-mix(in srgb, var(--shadow) 30%, transparent),
-    0 8px 12px 6px color-mix(in srgb, var(--shadow) 15%, transparent);
-
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --ease-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
-
-  --animate-ds-spin: ds-spin 1s linear infinite;
-  --animate-ds-shimmer: ds-shimmer 1.2s ease-in-out infinite;
+  --animate-ds-spin: ds-spin 0.75s linear infinite;
+  --animate-ds-shimmer: ds-shimmer 2s linear infinite;
   --animate-ds-pulse: ds-pulse 1.8s ease-in-out infinite;
   --animate-ds-fade-in-delayed: ds-fade-in 150ms ease-out 300ms both;
-  --animate-ds-fade-in: ds-fade-in 150ms var(--ease-standard) both;
-  --animate-ds-fade-out: ds-fade-out 100ms var(--ease-standard) both;
-  --animate-ds-popover-in: ds-popover-in 200ms var(--ease-emphasized-decelerate) both;
-  --animate-ds-popover-out: ds-popover-out 120ms var(--ease-emphasized-accelerate) both;
-  --animate-ds-dialog-in: ds-dialog-in 300ms var(--ease-emphasized-decelerate) both;
-  --animate-ds-dialog-out: ds-dialog-out 150ms var(--ease-emphasized-accelerate) both;
-  --animate-ds-sheet-in-bottom: ds-sheet-in-bottom 350ms var(--ease-emphasized-decelerate) both;
-  --animate-ds-sheet-out-bottom: ds-sheet-out-bottom 200ms var(--ease-emphasized-accelerate) both;
-  --animate-ds-sheet-in-top: ds-sheet-in-top 350ms var(--ease-emphasized-decelerate) both;
-  --animate-ds-sheet-out-top: ds-sheet-out-top 200ms var(--ease-emphasized-accelerate) both;
-  --animate-ds-sheet-in-end: ds-sheet-in-end 350ms var(--ease-emphasized-decelerate) both;
-  --animate-ds-sheet-out-end: ds-sheet-out-end 200ms var(--ease-emphasized-accelerate) both;
-  --animate-ds-sheet-in-start: ds-sheet-in-start 350ms var(--ease-emphasized-decelerate) both;
-  --animate-ds-sheet-out-start: ds-sheet-out-start 200ms var(--ease-emphasized-accelerate) both;
-  --animate-ds-toast-in: ds-toast-in 300ms var(--ease-emphasized-decelerate) both;
-  --animate-ds-toast-out: ds-fade-out 150ms var(--ease-emphasized-accelerate) both;
+  --animate-ds-fade-in: ds-fade-in 150ms ease-out both;
+  --animate-ds-fade-out: ds-fade-out 100ms ease-out both;
+  --animate-ds-popover-in: ds-popover-in 150ms ease both;
+  --animate-ds-popover-out: ds-popover-out 100ms ease both;
+  --animate-ds-dialog-in: ds-dialog-in 250ms var(--ease-out-quad) both;
+  --animate-ds-dialog-out: ds-dialog-out 100ms ease both;
+  --animate-ds-sheet-in-bottom: ds-sheet-in-bottom 250ms var(--ease-fluid) both;
+  --animate-ds-sheet-out-bottom: ds-sheet-out-bottom 200ms var(--ease-fluid) both;
+  --animate-ds-sheet-in-top: ds-sheet-in-top 250ms var(--ease-fluid) both;
+  --animate-ds-sheet-out-top: ds-sheet-out-top 200ms var(--ease-fluid) both;
+  --animate-ds-sheet-in-end: ds-sheet-in-end 250ms var(--ease-fluid) both;
+  --animate-ds-sheet-out-end: ds-sheet-out-end 200ms var(--ease-fluid) both;
+  --animate-ds-sheet-in-start: ds-sheet-in-start 250ms var(--ease-fluid) both;
+  --animate-ds-sheet-out-start: ds-sheet-out-start 200ms var(--ease-fluid) both;
+  --animate-ds-toast-in: ds-toast-in 350ms var(--ease-fluid) both;
+  --animate-ds-toast-out: ds-fade-out 250ms var(--ease-fluid) both;
 
   @keyframes ds-fade-in {
     from {
@@ -197,29 +224,30 @@
   @keyframes ds-popover-in {
     from {
       opacity: 0;
-      scale: 0.96;
+      scale: var(--ds-popover-scale, 0.95);
+      translate: var(--ds-popover-offset, 0 0);
     }
   }
 
   @keyframes ds-popover-out {
     to {
       opacity: 0;
-      scale: 0.96;
+      scale: 0.95;
     }
   }
 
   @keyframes ds-dialog-in {
     from {
       opacity: 0;
-      scale: 0.92;
-      translate: 0 0.5rem;
+      scale: 1.05;
+      translate: 0 var(--ds-dialog-rise, 0);
     }
   }
 
   @keyframes ds-dialog-out {
     to {
       opacity: 0;
-      scale: 0.96;
+      scale: 0.95;
     }
   }
 
@@ -274,7 +302,6 @@
   @keyframes ds-toast-in {
     from {
       opacity: 0;
-      scale: 0.96;
       translate: 0 1rem;
     }
   }
@@ -287,10 +314,10 @@
 
   @keyframes ds-shimmer {
     from {
-      background-position: 150% 0;
+      translate: calc(var(--ds-direction, 1) * -100%) 0;
     }
     to {
-      background-position: -50% 0;
+      translate: calc(var(--ds-direction, 1) * 100%) 0;
     }
   }
 
@@ -301,72 +328,33 @@
   }
 }
 
-@utility state-layer {
-  position: relative;
-  isolation: isolate;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background-color: currentColor;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 150ms var(--ease-standard);
-  }
-
-  @media (hover: hover) {
-    &:where(:not([data-disabled], :disabled)):hover::before {
-      opacity: 0.08;
-    }
-  }
-
-  &[data-hovered]::before {
-    opacity: 0.08;
-  }
-
-  &:where([data-focus-visible], :focus-visible)::before {
-    opacity: 0.1;
-  }
-
-  &:where([data-pressed], :active:not([data-disabled], :disabled))::before {
-    opacity: 0.1;
-  }
-
-  &[data-dragging]::before {
-    opacity: 0.16;
-  }
-}
-
 @utility focus-ring {
   outline: 0 solid transparent;
   outline-offset: 2px;
 
   &:where([data-focus-visible], :focus-visible) {
-    outline: 3px solid var(--secondary);
+    outline: 2px solid var(--focus-color, var(--primary));
   }
 }
 
 @utility focus-ring-inset {
   outline: 0 solid transparent;
-  outline-offset: -3px;
+  outline-offset: -2px;
 
   &:where([data-focus-visible], :focus-visible) {
-    outline: 3px solid var(--secondary);
+    outline: 2px solid var(--focus-color, var(--primary));
   }
 }
 
-@utility skeleton-shimmer {
-  background-image: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--on-surface) 6%, transparent) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  background-repeat: no-repeat;
+@utility transition-control {
+  transition-property: scale, background-color, color, border-color, box-shadow, opacity;
+  transition-duration: 250ms, 100ms, 100ms, 100ms, 100ms, 150ms;
+  transition-timing-function:
+    ease, var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-out);
+}
+
+@utility no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
 }
 
 @utility tabular-digits {
@@ -382,6 +370,22 @@
 
   [dir='ltr'] {
     --ds-direction: 1;
+  }
+
+  [data-placement='top'] {
+    --ds-popover-offset: 0 0.25rem;
+  }
+
+  [data-placement='bottom'] {
+    --ds-popover-offset: 0 -0.25rem;
+  }
+
+  [data-placement='left'] {
+    --ds-popover-offset: 0.25rem 0;
+  }
+
+  [data-placement='right'] {
+    --ds-popover-offset: -0.25rem 0;
   }
 
   @media (prefers-reduced-motion: reduce) {

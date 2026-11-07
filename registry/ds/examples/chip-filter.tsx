@@ -18,7 +18,7 @@ export default function ChipFilter() {
           Mentions
         </FilterChip>
       </div>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         Showing {unreadOnly ? 'unread' : 'all'} messages
         {mentions ? ' that mention you' : ''}.
       </p>

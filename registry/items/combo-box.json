@@ -2,7 +2,7 @@
   "name": "combo-box",
   "type": "registry:ui",
   "title": "Combo box",
-  "description": "Searchable select on the shared Field contract that ignores case and accents, matches item keywords, loads results as you type, accepts custom values, picks one or several options and clears with one press.",
+  "description": "Searchable select that ignores case and accents, matches keywords, loads results as you type and picks one or several options.",
   "category": "inputs",
   "files": ["ui/combo-box.tsx"]
 }

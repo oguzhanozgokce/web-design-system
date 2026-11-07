@@ -21,7 +21,7 @@ export default function ContentStateError() {
             : 'This page is unavailable'
         }
         errorDescription="This usually takes a few minutes. The page updates by itself."
-        className="rounded-lg border border-outline-variant bg-surface"
+        className="rounded-container border border-outline-subtle bg-surface-raised"
       />
       <ContentState
         error={new HttpError(403)}
@@ -39,7 +39,7 @@ export default function ContentStateError() {
             primaryAction={<ButtonLink href="#accessibility">Request access</ButtonLink>}
           />
         )}
-        className="rounded-lg border border-outline-variant bg-surface"
+        className="rounded-container border border-outline-subtle bg-surface-raised"
       />
     </div>
   );

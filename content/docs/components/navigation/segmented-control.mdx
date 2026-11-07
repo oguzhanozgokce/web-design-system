@@ -1,6 +1,6 @@
 ---
 title: Segmented Control
-description: Material 3 segmented button for one or several choices, with a check on selected segments, plus a thumb style whose filled thumb slides to the selection.
+description: Pill-shaped segmented control for one or several choices, with a raised selection that slides between segments.
 ---
 
 <ComponentPreview name="segmented-control-demo" />
@@ -24,37 +24,41 @@ import { SegmentedControl, SegmentedControlItem } from '@/components/ds/segmente
 Use a segmented control to switch a view or a setting between two to five short options. To move
 between sections of content, use [Tabs](/docs/components/navigation/tabs).
 
+The options sit on a neutral tinted track. The selected one is a raised pill on the segment
+surface, white in light mode and a lifted grey in dark mode, with a small shadow. Unselected labels
+are grey and darken on hover; the accent colour is not used.
+
 ## Examples
 
-### Thumb
+### Sliding selection
 
-`variant="thumb"` puts the options on a tinted track and slides a filled thumb under the selected
-one on the spatial spring. The thumb is measured from the selected segment, so it fits any label
-length, translation or right-to-left layout, and it re-measures when a label, the width or the
-page direction changes. It is quieter than the outlined style, which suits a toolbar or a card
-header. Under reduced motion it moves without animation.
+In single selection mode the raised pill slides to the selected segment over 250ms on the fluid
+curve. It is measured from the selected segment, so it fits any label length, translation or
+right-to-left layout, and it re-measures when a label, the width or the page direction changes.
+Under reduced motion it moves without animation.
 
-<ComponentPreview name="segmented-control-thumb" />
+<ComponentPreview name="segmented-control-sliding" />
 
 ### Multiple selection
 
-`selectionMode="multiple"` lets people turn several options on. Selected segments show a check, so
-the state reads without colour. The check slides in on its own when the segment has no icon.
-Multiple selection may be empty, so say what an empty selection means. A visible label linked with
-`aria-labelledby` names the control for everyone.
+`selectionMode="multiple"` lets people turn several options on. Each selected segment gets its own
+raised pill and a check, so the state reads without relying on the fill alone. The check slides in
+on its own when the segment has no icon. Multiple selection may be empty, so say what an empty
+selection means. A visible label linked with `aria-labelledby` names the control for everyone.
 
 <ComponentPreview name="segmented-control-multiple" />
 
 ### Sizes
 
-`md` (40px) is the default. `sm` (32px) fits card headers, toolbars and dense tables.
+`md` (40px) is the default. `sm` (32px) fits card headers, toolbars and dense tables, and `lg`
+(48px) suits a page-level switch. The segments are 8px shorter than the track.
 
 <ComponentPreview name="segmented-control-sizes" />
 
 ### Icons
 
 `icon` goes before the label. An icon-only segment needs an `aria-label`. With `showCheckmark`, the
-check replaces the icon of a selected segment, as Material 3 does.
+check replaces the icon of a selected segment.
 
 <ComponentPreview name="segmented-control-icons" />
 
@@ -68,7 +72,8 @@ fields around them in a form or a narrow card. Long labels are truncated.
 ### Disabled
 
 `isDisabled` on the control disables every segment; `isDisabled` on a `SegmentedControlItem`
-disables one. Say nearby why an option is unavailable.
+disables one. Disabled segments are drawn at half opacity with a not-allowed cursor. Say nearby why
+an option is unavailable.
 
 <ComponentPreview name="segmented-control-disabled" />
 
@@ -83,23 +88,22 @@ in single selection mode too.
 
 ### SegmentedControl
 
-| Prop                     | Type                       | Default                                            |
-| ------------------------ | -------------------------- | -------------------------------------------------- |
-| `variant`                | `'outlined' \| 'thumb'`    | `'outlined'`                                       |
-| `size`                   | `'sm' \| 'md'`             | `'md'`                                             |
-| `fullWidth`              | `boolean`                  | `false`                                            |
-| `selectionMode`          | `'single' \| 'multiple'`   | `'single'`                                         |
-| `selectedKeys`           | `Iterable<Key>`            |                                                    |
-| `defaultSelectedKeys`    | `Iterable<Key>`            |                                                    |
-| `onSelectionChange`      | `(keys: Set<Key>) => void` |                                                    |
-| `disallowEmptySelection` | `boolean`                  | `true` in single mode, `false` in multiple mode    |
-| `showCheckmark`          | `boolean`                  | `true` for outlined multiple selection, else false |
-| `isDisabled`             | `boolean`                  | `false`                                            |
-| `aria-label`             | `string`                   |                                                    |
+| Prop                     | Type                       | Default                                         |
+| ------------------------ | -------------------------- | ----------------------------------------------- |
+| `size`                   | `'sm' \| 'md' \| 'lg'`     | `'md'`                                          |
+| `fullWidth`              | `boolean`                  | `false`                                         |
+| `selectionMode`          | `'single' \| 'multiple'`   | `'single'`                                      |
+| `selectedKeys`           | `Iterable<Key>`            |                                                 |
+| `defaultSelectedKeys`    | `Iterable<Key>`            |                                                 |
+| `onSelectionChange`      | `(keys: Set<Key>) => void` |                                                 |
+| `disallowEmptySelection` | `boolean`                  | `true` in single mode, `false` in multiple mode |
+| `showCheckmark`          | `boolean`                  | `true` in multiple mode, else `false`           |
+| `isDisabled`             | `boolean`                  | `false`                                         |
+| `aria-label`             | `string`                   |                                                 |
 
 Every other [React Aria ToggleButtonGroup](https://react-aria.adobe.com/ToggleButtonGroup) prop is
-passed through. The thumb slides in single selection mode; with `selectionMode="multiple"` the thumb
-style fills each selected segment instead.
+passed through. The pill slides in single selection mode; with `selectionMode="multiple"` each
+selected segment is filled instead.
 
 ### SegmentedControlItem
 
@@ -116,13 +120,12 @@ require one.
 
 ### Data attributes
 
-SegmentedControl: `data-slot="segmented-control"`, `data-variant`, `data-size`,
-`data-selection-mode`, `data-full-width`, `data-disabled`, `data-thumb-ready` (once the thumb has
-been measured). SegmentedControlItem: `data-slot="segment"`,
+SegmentedControl: `data-slot="segmented-control"`, `data-size`, `data-selection-mode`,
+`data-full-width`, `data-disabled`, `data-thumb-ready` (once the sliding pill has been measured). SegmentedControlItem: `data-slot="segment"`,
 `data-selected`, `data-hovered`, `data-pressed`, `data-focus-visible`, `data-disabled`. Parts:
 `data-slot="thumb"` (with `data-visible`), `"icon"`, `"check"`, `"label"`.
 
-Until the thumb is measured, for example before hydration, the selected segment paints its own fill,
+Until the pill is measured, for example before hydration, the selected segment paints its own fill,
 so the control never renders without a visible selection.
 
 ## Accessibility
@@ -131,7 +134,9 @@ so the control never renders without a visible selection.
   multiple selection mode it is a `toolbar` of buttons with `aria-pressed`.
 - The control is one tab stop. Arrow keys move between segments, mirrored in right-to-left
   languages, and Space or Enter selects the focused one.
-- The thumb and the check are decorative and hidden from assistive technology; the selected state
-  is announced by the role.
+- The sliding pill and the check are decorative and hidden from assistive technology; the selected
+  state is announced by the role.
+- The focus ring is a 2px outline drawn inside the focused segment, so it is not clipped by the
+  track.
 - Give each control an `aria-label`, or point `aria-labelledby` at a visible heading.
 - Contrast is checked with axe in light, dark and RTL by `segmented-control.test.tsx`.

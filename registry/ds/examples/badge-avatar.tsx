@@ -15,11 +15,11 @@ export default function BadgeAvatar() {
     <ul className="flex flex-wrap items-start justify-center gap-8">
       {people.map(({ name, initials, badge }) => (
         <li key={name} className="flex w-24 flex-col-reverse items-center gap-2 text-center">
-          <span className="text-body-sm text-on-surface">{name}</span>
+          <span className="text-xs text-on-surface">{name}</span>
           <BadgeAnchor overlap="circular" badge={badge}>
             <span
               aria-hidden="true"
-              className="grid size-12 place-items-center rounded-full bg-primary-container text-title-md text-on-primary-container"
+              className="grid size-12 place-items-center rounded-full bg-neutral-soft text-base font-medium text-on-surface"
             >
               {initials}
             </span>

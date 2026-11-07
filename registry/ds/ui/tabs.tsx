@@ -13,6 +13,7 @@ import {
   type RefObject,
 } from 'react';
 import {
+  Button as AriaButton,
   SelectionIndicator,
   Tab as AriaTab,
   TabList as AriaTabList,
@@ -25,72 +26,88 @@ import {
   type TabProps as AriaTabProps,
   type TabsProps as AriaTabsProps,
 } from 'react-aria-components';
-import { tv, type VariantProps } from '@/registry/ds/lib/utils';
+import { tv } from '@/registry/ds/lib/utils';
 import { Badge, BadgeAnchor } from '@/registry/ds/ui/badge';
-import { useMotionPreference } from '@/registry/ds/ui/ds-provider';
+import { useIcons, useMotionPreference } from '@/registry/ds/ui/ds-provider';
 
 export const tabsStyles = tv({
   slots: {
     root: 'group/tabs flex min-w-0',
-    listContainer:
-      'relative flex min-w-0 before:pointer-events-none before:absolute before:bg-outline-variant',
-    scroller:
-      'relative isolate flex min-w-0 flex-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-    list: 'flex',
+    listContainer: 'relative flex min-w-0',
+    scroller: 'relative flex min-w-0 flex-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+    list: 'flex gap-0.5',
     tab: [
-      'state-layer focus-ring-inset group/tab relative flex shrink-0 cursor-default items-center whitespace-nowrap no-underline select-none isolation-auto!',
-      'transition-colors duration-150 ease-standard motion-reduce:transition-none',
-      'text-on-surface-variant data-[hovered]:not-data-[selected]:not-data-[disabled]:text-on-surface',
-      'data-[disabled]:text-on-surface/38',
+      'focus-ring-inset no-tap-highlight group/tab relative flex shrink-0 cursor-pointer items-center font-medium whitespace-nowrap text-on-surface-variant no-underline select-none',
+      'transition-[color,background-color] duration-150 ease-out motion-reduce:transition-none',
+      'data-[selected]:text-on-surface data-[hovered]:text-on-surface',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
     ],
-    content: 'relative flex items-center justify-center gap-2',
+    content: 'relative flex items-center justify-center gap-1.5',
     icon: 'relative inline-flex shrink-0 items-center justify-center text-(length:--icon-size) [&_svg]:size-[1em]',
     label: '',
     indicatorTrack: 'pointer-events-none absolute inset-0 [direction:ltr]',
     indicator: [
-      'pointer-events-none absolute',
-      'transition-[width,height,translate] duration-(--ds-duration-spatial) ease-spatial motion-reduce:transition-none',
+      'pointer-events-none absolute forced-color-adjust-none forced-colors:bg-[Highlight]',
+      'transition-[width,height,translate] duration-250 ease-fluid motion-reduce:transition-none',
     ],
-    panel: 'focus-ring min-w-0 rounded-sm',
+    scrollEdge: 'pointer-events-none absolute z-[1] flex items-center justify-center',
+    scrollButton: [
+      'no-tap-highlight transition-control pointer-events-auto inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control bg-surface-overlay text-on-surface-variant shadow-xs',
+      'animate-ds-fade-in motion-reduce:animate-none',
+      'data-[hovered]:bg-surface-overlay-hover data-[hovered]:text-on-surface data-[pressed]:scale-[0.94] motion-reduce:data-[pressed]:scale-100',
+      '[&_svg]:size-(--scroll-icon-size)',
+    ],
+    panel: 'focus-ring min-w-0 rounded-item',
   },
   variants: {
     variant: {
-      primary: {
-        tab: 'h-12 px-4 text-title-sm [--icon-size:1.5rem] data-[selected]:not-data-[disabled]:text-primary',
-        indicator: 'bg-primary group-data-[disabled]/tab:bg-on-surface/38',
-      },
-      secondary: {
-        tab: 'h-12 px-4 text-title-sm [--icon-size:1.25rem] data-[selected]:not-data-[disabled]:text-on-surface',
-        indicator: 'bg-primary group-data-[disabled]/tab:bg-on-surface/38',
+      underline: {
+        listContainer:
+          'before:pointer-events-none before:absolute before:bg-outline-subtle before:forced-color-adjust-none forced-colors:before:bg-[CanvasText]',
+        tab: 'rounded-item data-[hovered]:bg-neutral-soft',
+        indicator: 'rounded-full bg-primary',
       },
       pill: {
-        listContainer: 'before:hidden',
-        list: 'gap-1',
-        tab: 'h-8 rounded-full px-3 text-label-lg [--icon-size:1.125rem] data-[selected]:not-data-[disabled]:text-on-secondary-container',
-        indicator:
-          'top-0 -z-2 inset-s-0 h-full w-full rounded-full bg-secondary-container group-data-[disabled]/tab:bg-on-surface/12',
+        listContainer: 'max-w-full bg-neutral-soft p-1',
+        tab: 'rounded-control forced-colors:data-[selected]:text-[HighlightText] forced-colors:data-[selected]:forced-color-adjust-none',
+        indicator: 'inset-0 rounded-control bg-surface-segment shadow-xs',
+      },
+    },
+    size: {
+      sm: {
+        scrollButton: 'size-6 [--scroll-icon-size:0.875rem]',
+      },
+      md: {
+        scrollButton: 'size-8 [--scroll-icon-size:1rem]',
+      },
+      lg: {
+        scrollButton: 'size-10 [--scroll-icon-size:1.25rem]',
       },
     },
     orientation: {
       horizontal: {
         root: 'flex-col gap-4',
-        listContainer: 'before:inset-x-0 before:bottom-0 before:h-px',
         scroller:
           'overflow-x-auto overflow-y-hidden [--fade-angle:90deg] rtl:[--fade-angle:270deg]',
         list: 'w-max min-w-full',
+        scrollEdge: 'inset-y-0',
       },
       vertical: {
         root: 'flex-row items-start gap-6',
-        listContainer:
-          'shrink-0 flex-col self-stretch before:inset-y-0 before:inset-e-0 before:w-px',
-        scroller: 'flex-col overflow-x-hidden overflow-y-auto [--fade-angle:180deg]',
+        listContainer: 'shrink-0 flex-col',
+        scroller: 'min-h-0 flex-col overflow-x-hidden overflow-y-auto [--fade-angle:180deg]',
         list: 'h-max min-h-full flex-col',
         tab: 'w-full justify-start',
+        scrollEdge: 'inset-x-0',
         panel: 'flex-1',
       },
     },
+    edge: {
+      start: '',
+      end: '',
+    },
     stacked: {
-      true: { tab: 'h-16', content: 'flex-col-reverse gap-0.5' },
+      true: { content: 'flex-col-reverse gap-1' },
       false: '',
     },
     fullWidth: {
@@ -114,42 +131,98 @@ export const tabsStyles = tv({
     },
   },
   compoundVariants: [
+    { variant: 'underline', size: 'sm', class: { tab: 'h-8 px-2.5 text-sm [--icon-size:1rem]' } },
+    { variant: 'underline', size: 'md', class: { tab: 'h-10 px-3 text-sm [--icon-size:1rem]' } },
     {
-      variant: 'primary',
+      variant: 'underline',
+      size: 'lg',
+      class: { tab: 'h-12 px-4 text-base [--icon-size:1.25rem]' },
+    },
+    { variant: 'pill', size: 'sm', class: { tab: 'h-6 px-2.5 text-xs [--icon-size:0.875rem]' } },
+    { variant: 'pill', size: 'md', class: { tab: 'h-8 px-4 text-sm [--icon-size:1rem]' } },
+    {
+      variant: 'pill',
+      size: 'lg',
+      class: { tab: 'h-10 px-5 text-base [--icon-size:1.25rem]' },
+    },
+    {
+      variant: 'underline',
       orientation: 'horizontal',
       class: {
-        content: 'min-w-6 self-stretch',
-        indicator: 'bottom-0 h-[3px] inset-s-0 w-full rounded-t-[3px]',
+        listContainer: 'before:inset-x-0 before:bottom-0 before:h-px',
+        indicator: 'bottom-0 h-0.5 w-full inset-s-0',
       },
     },
     {
-      variant: 'primary',
+      variant: 'underline',
       orientation: 'vertical',
-      class: { indicator: 'inset-y-3 inset-e-0 w-[3px] rounded-s-[3px]' },
+      class: {
+        listContainer: 'self-stretch before:inset-y-0 before:inset-e-0 before:w-px',
+        indicator: 'inset-e-0 top-0 h-full w-0.5',
+      },
     },
     {
-      variant: 'secondary',
+      variant: 'pill',
       orientation: 'horizontal',
-      class: { indicator: 'bottom-0 h-0.5 w-full inset-s-0' },
-    },
-    {
-      variant: 'secondary',
-      orientation: 'vertical',
-      class: { indicator: 'inset-e-0 top-0 h-full w-0.5' },
+      class: {
+        listContainer: 'w-fit rounded-control',
+        indicator: 'top-0 h-full w-full inset-s-0',
+      },
     },
     {
       variant: 'pill',
       orientation: 'vertical',
-      class: { tab: 'h-9 px-4' },
+      class: { listContainer: 'self-start rounded-container' },
+    },
+    {
+      variant: 'underline',
+      orientation: 'horizontal',
+      edge: 'start',
+      class: { scrollEdge: 'inset-s-0' },
+    },
+    {
+      variant: 'underline',
+      orientation: 'horizontal',
+      edge: 'end',
+      class: { scrollEdge: 'inset-e-0' },
+    },
+    {
+      variant: 'pill',
+      orientation: 'horizontal',
+      edge: 'start',
+      class: { scrollEdge: 'inset-s-1' },
+    },
+    { variant: 'pill', orientation: 'horizontal', edge: 'end', class: { scrollEdge: 'inset-e-1' } },
+    {
+      variant: 'underline',
+      orientation: 'vertical',
+      edge: 'start',
+      class: { scrollEdge: 'top-0' },
+    },
+    {
+      variant: 'underline',
+      orientation: 'vertical',
+      edge: 'end',
+      class: { scrollEdge: 'bottom-0' },
+    },
+    { variant: 'pill', orientation: 'vertical', edge: 'start', class: { scrollEdge: 'top-1' } },
+    { variant: 'pill', orientation: 'vertical', edge: 'end', class: { scrollEdge: 'bottom-1' } },
+    {
+      variant: 'pill',
+      orientation: 'horizontal',
+      fullWidth: true,
+      class: { listContainer: 'w-full' },
     },
     {
       orientation: 'horizontal',
       fullWidth: true,
       class: { tab: 'flex-1 justify-center' },
     },
+    { stacked: true, class: { tab: 'h-auto py-2' } },
   ],
   defaultVariants: {
-    variant: 'primary',
+    variant: 'underline',
+    size: 'md',
     orientation: 'horizontal',
     stacked: false,
     fullWidth: false,
@@ -159,9 +232,9 @@ export const tabsStyles = tv({
   },
 });
 
-type TabsStyleVariants = VariantProps<typeof tabsStyles>;
+export type TabsVariant = 'underline' | 'pill';
 
-export type TabsVariant = NonNullable<TabsStyleVariants['variant']>;
+export type TabsSize = 'sm' | 'md' | 'lg';
 
 export type TabsIconPlacement = 'top' | 'start';
 
@@ -169,6 +242,7 @@ type Orientation = 'horizontal' | 'vertical';
 
 interface TabsStyleContextValue {
   variant: TabsVariant;
+  size: TabsSize;
   orientation: Orientation;
   iconPlacement: TabsIconPlacement;
   fullWidth: boolean;
@@ -177,9 +251,10 @@ interface TabsStyleContextValue {
 }
 
 const TabsStyleContext = createContext<TabsStyleContextValue>({
-  variant: 'primary',
+  variant: 'underline',
+  size: 'md',
   orientation: 'horizontal',
-  iconPlacement: 'top',
+  iconPlacement: 'start',
   fullWidth: false,
   instant: false,
   animated: true,
@@ -187,13 +262,15 @@ const TabsStyleContext = createContext<TabsStyleContextValue>({
 
 export interface TabsProps extends Omit<AriaTabsProps, 'className'> {
   variant?: TabsVariant;
+  size?: TabsSize;
   iconPlacement?: TabsIconPlacement;
   fullWidth?: boolean;
   className?: AriaTabsProps['className'];
 }
 
 export function Tabs({
-  variant = 'primary',
+  variant = 'underline',
+  size = 'md',
   orientation = 'horizontal',
   iconPlacement,
   fullWidth = false,
@@ -201,21 +278,19 @@ export function Tabs({
   ...props
 }: TabsProps) {
   const { spatialEnabled, effectsEnabled } = useMotionPreference();
-  const placement =
-    orientation === 'vertical'
-      ? 'start'
-      : (iconPlacement ?? (variant === 'primary' ? 'top' : 'start'));
+  const placement = orientation === 'vertical' ? 'start' : (iconPlacement ?? 'start');
 
   const context = useMemo<TabsStyleContextValue>(
     () => ({
       variant,
+      size,
       orientation,
       iconPlacement: placement,
       fullWidth,
       instant: !spatialEnabled,
       animated: effectsEnabled,
     }),
-    [variant, orientation, placement, fullWidth, spatialEnabled, effectsEnabled],
+    [variant, size, orientation, placement, fullWidth, spatialEnabled, effectsEnabled],
   );
 
   return (
@@ -225,6 +300,7 @@ export function Tabs({
         orientation={orientation}
         data-slot="tabs"
         data-variant={variant}
+        data-size={size}
         data-icon-placement={placement}
         data-full-width={fullWidth || undefined}
         className={composeRenderProps(className, (className) =>
@@ -277,7 +353,7 @@ function useOverflowEdges(
   return edges;
 }
 
-const revealMargin = 40;
+const edgeZone = 40;
 
 function useRevealSelectedTab(
   scrollerRef: RefObject<HTMLDivElement | null>,
@@ -302,8 +378,8 @@ function useRevealSelectedTab(
     const itemEnd = vertical ? item.bottom : item.right;
 
     let delta = 0;
-    if (itemStart < viewStart + revealMargin) delta = itemStart - viewStart - revealMargin;
-    else if (itemEnd > viewEnd - revealMargin) delta = itemEnd - viewEnd + revealMargin;
+    if (itemStart < viewStart + edgeZone) delta = itemStart - viewStart - edgeZone;
+    else if (itemEnd > viewEnd - edgeZone) delta = itemEnd - viewEnd + edgeZone;
 
     const behavior: ScrollBehavior = smooth && hasRevealed.current ? 'smooth' : 'instant';
     hasRevealed.current = true;
@@ -312,13 +388,65 @@ function useRevealSelectedTab(
   }, [scrollerRef, orientation, smooth, selectedKey]);
 }
 
+function pageScroller(
+  scroller: HTMLElement,
+  orientation: Orientation,
+  direction: 1 | -1,
+  smooth: boolean,
+) {
+  const vertical = orientation === 'vertical';
+  const viewport = vertical ? scroller.clientHeight : scroller.clientWidth;
+  const distance = Math.max(viewport - edgeZone * 2, viewport / 2) * direction;
+  const behavior: ScrollBehavior = smooth ? 'smooth' : 'instant';
+  if (vertical) {
+    scroller.scrollBy({ top: distance, behavior });
+    return;
+  }
+  const rtl = getComputedStyle(scroller).direction === 'rtl';
+  scroller.scrollBy({ left: rtl ? -distance : distance, behavior });
+}
+
+interface TabScrollButtonProps {
+  edge: 'start' | 'end';
+  onPress: () => void;
+}
+
+function TabScrollButton({ edge, onPress }: TabScrollButtonProps) {
+  const { variant, size, orientation } = use(TabsStyleContext);
+  const icons = useIcons();
+  const styles = tabsStyles({ variant, size, orientation, edge });
+  const vertical = orientation === 'vertical';
+  const Icon = vertical
+    ? edge === 'start'
+      ? icons.chevronUp
+      : icons.chevronDown
+    : edge === 'start'
+      ? icons.chevronLeft
+      : icons.chevronRight;
+
+  return (
+    <span aria-hidden="true" data-slot="tab-scroll-edge" className={styles.scrollEdge()}>
+      <AriaButton
+        excludeFromTabOrder
+        preventFocusOnPress
+        onPress={onPress}
+        data-slot="tab-scroll-button"
+        data-edge={edge}
+        className={styles.scrollButton()}
+      >
+        <Icon className={vertical ? undefined : 'rtl:-scale-x-100'} />
+      </AriaButton>
+    </span>
+  );
+}
+
 export interface TabListProps<T> extends Omit<AriaTabListProps<T>, 'className'> {
   className?: string;
   ref?: Ref<HTMLDivElement>;
 }
 
 export function TabList<T extends object>({ className, ref, ...props }: TabListProps<T>) {
-  const { variant, orientation, fullWidth, instant } = use(TabsStyleContext);
+  const { variant, size, orientation, fullWidth, instant } = use(TabsStyleContext);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const edges = useOverflowEdges(scrollerRef, listRef, orientation);
@@ -333,8 +461,13 @@ export function TabList<T extends object>({ className, ref, ...props }: TabListP
     [ref],
   );
 
+  const page = (direction: 1 | -1) => {
+    if (scrollerRef.current) pageScroller(scrollerRef.current, orientation, direction, !instant);
+  };
+
   const styles = tabsStyles({
     variant,
+    size,
     orientation,
     fullWidth,
     overflow: edges.start || edges.end,
@@ -351,8 +484,18 @@ export function TabList<T extends object>({ className, ref, ...props }: TabListP
       >
         <AriaTabList {...props} ref={setListRef} data-slot="tab-list" className={styles.list()} />
       </div>
+      {edges.start ? <TabScrollButton edge="start" onPress={() => page(-1)} /> : null}
+      {edges.end ? <TabScrollButton edge="end" onPress={() => page(1)} /> : null}
     </div>
   );
+}
+
+function settleIndicator(node: HTMLDivElement | null) {
+  if (!node) return;
+  let frame = requestAnimationFrame(() => {
+    frame = requestAnimationFrame(() => node.style.removeProperty('translate'));
+  });
+  return () => cancelAnimationFrame(frame);
 }
 
 function renderBadge(badge: TabBaseProps['badge']) {
@@ -376,14 +519,17 @@ type TabLabelProps =
 export type TabProps = TabBaseProps & TabLabelProps;
 
 export function Tab({ icon, badge, children, className, ...props }: TabProps) {
-  const { variant, orientation, iconPlacement, fullWidth, instant } = use(TabsStyleContext);
+  const { variant, size, orientation, iconPlacement, fullWidth, instant } = use(TabsStyleContext);
   const stacked = iconPlacement === 'top' && icon != null && children != null;
   const badgeNode = renderBadge(badge);
   const badgeOnIcon = badgeNode != null && icon != null && (stacked || children == null);
-  const styles = tabsStyles({ variant, orientation, fullWidth, stacked, instant });
-  const indicatorInContent = variant === 'primary' && orientation === 'horizontal';
+  const styles = tabsStyles({ variant, size, orientation, fullWidth, stacked, instant });
   const selectionIndicator = (
-    <SelectionIndicator data-slot="indicator" className={styles.indicator()} />
+    <SelectionIndicator
+      ref={settleIndicator}
+      data-slot="indicator"
+      className={styles.indicator()}
+    />
   );
   const indicator =
     orientation === 'horizontal' ? (
@@ -413,12 +559,11 @@ export function Tab({ icon, badge, children, className, ...props }: TabProps) {
       data-stacked={stacked || undefined}
       className={composeRenderProps(className, (className) => styles.tab({ className }))}
     >
-      {indicatorInContent ? null : indicator}
+      {indicator}
       <span data-slot="tab-content" className={styles.content()}>
         {stacked ? labelSlot : iconSlot}
         {stacked ? iconSlot : labelSlot}
         {badgeOnIcon ? null : badgeNode}
-        {indicatorInContent ? indicator : null}
       </span>
     </AriaTab>
   );

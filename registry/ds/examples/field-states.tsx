@@ -15,7 +15,7 @@ export default function FieldStates() {
       <TextField
         label="Email"
         type="email"
-        variant="filled"
+        variant="soft"
         defaultValue="alex.morgan@"
         isInvalid
         errorMessage="Enter a complete email address."

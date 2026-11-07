@@ -1,6 +1,6 @@
 ---
 title: List box
-description: Selectable list on React Aria ListBox, with sections, start icons or avatars, descriptions, a check mark for selected rows, two densities, an empty state and load-more.
+description: Selectable list with sections, icons or avatars, descriptions, a check mark for selected rows, two densities and load-more.
 ---
 
 <ComponentPreview name="list-box-demo" />
@@ -14,7 +14,7 @@ description: Selectable list on React Aria ListBox, with sections, start icons o
 ```tsx
 import { ListBox, ListBoxItem } from '@/components/ds/list-box';
 
-<ListBox aria-label="Layout" selectionMode="single" variant="outlined">
+<ListBox aria-label="Layout" selectionMode="single" variant="outline">
   <ListBoxItem id="list" startIcon={<ListIcon />} description="One item per row">
     List
   </ListBoxItem>
@@ -28,6 +28,13 @@ Use it on its own for a picker that stays on screen, such as a side panel or a s
 
 ## Examples
 
+### Variants
+
+`plain` (the default) has no frame of its own; it is the list inside a popover, or a column on a
+surface that already has one. `outline` puts the list on a raised card with a hairline border and
+20 px corners, and gives selected rows a light primary tint as well as the check mark. Rows have
+12 px corners in both, tint grey on hover and shrink slightly while pressed.
+
 ### Sections
 
 `ListBoxSection` groups items under a `title`. Sections after the first get a divider. A section
@@ -37,7 +44,7 @@ without a title needs an `aria-label`.
 
 ### Avatars
 
-`avatar` sits before the text and is sized by the list density: 32px at `md`, 24px at `sm`. Pass an
+`avatar` sits before the text and is sized by the list density: 32 px at `md`, 24 px at `sm`. Pass an
 image or an initials badge. The slot is hidden from assistive technology, since the item text
 already names the row, so give an image `alt=""`.
 
@@ -46,7 +53,7 @@ already names the row, so give an image `alt=""`.
 ### Multiple selection
 
 `selectionMode="multiple"` lets people pick several rows with a click, Space or Enter. Every selected
-row shows the check mark and the selected container colour. Use `selectedKeys` and
+row shows the check mark, and in the `outline` variant the primary tint. Use `selectedKeys` and
 `onSelectionChange` to own the value.
 
 <ComponentPreview name="list-box-multiple" />
@@ -54,8 +61,8 @@ row shows the check mark and the selected container colour. Use `selectedKeys` a
 ### Disabled items
 
 Disable single items with `isDisabled` or several with `disabledKeys`. Disabled rows are skipped by
-the keyboard and cannot be selected; one that is already selected keeps its check mark on a muted
-container. Say why in the description, so the row is not a dead end.
+the keyboard and cannot be selected, and fade to half opacity with a not-allowed cursor; one that is
+already selected keeps its check mark. Say why in the description, so the row is not a dead end.
 
 <ComponentPreview name="list-box-disabled" />
 
@@ -68,7 +75,7 @@ a message and an icon that fit the context.
 
 ### Density
 
-`density="md"` (40px rows) is the default. `sm` (32px rows) suits dense admin panels and toolbars.
+`density="md"` (36 px rows) is the default. `sm` (32 px rows) suits dense admin panels and toolbars.
 Rows grow with a description, so long text wraps instead of being cut.
 
 <ComponentPreview name="list-box-density" />
@@ -96,7 +103,7 @@ height so it scrolls.
 | `onAction`            | `(key: Key) => void`                             |            |
 | `disabledKeys`        | `Iterable<Key>`                                  |            |
 | `density`             | `'sm' \| 'md'`                                   | `'md'`     |
-| `variant`             | `'plain' \| 'outlined'`                          | `'plain'`  |
+| `variant`             | `'plain' \| 'outline'`                           | `'plain'`  |
 | `renderEmptyState`    | `(renderProps: ListBoxRenderProps) => ReactNode` | “No items” |
 | `isLoading`           | `boolean`                                        |            |
 | `onLoadMore`          | `() => void`                                     |            |
@@ -138,7 +145,8 @@ A centred message for `renderEmptyState`, with an optional `icon`. It takes ever
 `listBoxStyles(variants)` returns one class function per slot: `root`, `section`, `header`, `item`,
 `avatar`, `icon`, `content`, `label`, `description`, `check`, `status` and `loader`. Variants are
 `density` (`'sm' | 'md'`, sets the row height, padding and icon size as CSS variables on `root`) and
-`variant` (`'plain' | 'outlined'`).
+`variant` (`'plain' | 'outline'`). In the `outline` variant the item tints its selected state through
+the root's `data-variant`, so a custom item keeps working when it sits in a plain list.
 
 ### Contexts
 
@@ -175,5 +183,7 @@ lists they open.
   announced through `aria-selected`.
 - An option is not named by its label alone, because the visible description would then be missing
   from its name, which fails WCAG 2.5.3 (Label in Name).
-- Rows show an inset focus ring for keyboard focus, so it is never clipped by the list or a popover.
+- Rows show an inset 2 px primary ring and a grey tint for keyboard focus, so the ring is never
+  clipped by the list or a popover; a pointer press shows no ring.
+- The press scale is turned off under reduced motion.
 - Contrast is checked with axe in light, dark and RTL by `list-box.test.tsx`.

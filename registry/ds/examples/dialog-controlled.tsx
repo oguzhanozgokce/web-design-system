@@ -24,15 +24,15 @@ export default function DialogControlled() {
 
   return (
     <>
-      <ul className="w-full max-w-md divide-y divide-outline-variant rounded-lg bg-surface-container-low px-4 text-on-surface">
+      <ul className="w-full max-w-md divide-y divide-outline-subtle rounded-container border border-outline-subtle bg-surface-raised px-4 text-on-surface">
         {files.map((file) => (
           <li key={file.name} className="flex items-center justify-between gap-3 py-2">
             <span className="flex min-w-0 flex-col">
-              <span className="truncate text-body-lg">{file.name}</span>
-              <span className="text-body-sm text-on-surface-variant">{file.kind}</span>
+              <span className="truncate text-base">{file.name}</span>
+              <span className="text-xs text-on-surface-variant">{file.kind}</span>
             </span>
             <Button
-              variant="text"
+              variant="ghost"
               size="sm"
               aria-label={`Details for ${file.name}`}
               onPress={() => {

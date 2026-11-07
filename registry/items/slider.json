@@ -2,7 +2,7 @@
   "name": "slider",
   "type": "registry:ui",
   "title": "Slider",
-  "description": "Material 3 Expressive slider with one value or a range, three track sizes, stop indicators, labelled marks, a centred fill, a value bubble while dragging, vertical orientation and locale-aware formatting.",
+  "description": "Thin-rail slider with one value or a range, stops, labelled marks, a centred fill, a value bubble and vertical orientation.",
   "category": "inputs",
   "files": ["ui/slider.tsx"]
 }

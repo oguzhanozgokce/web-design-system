@@ -15,20 +15,44 @@ import { ButtonGroup } from '@/registry/ds/ui/button-group';
 import { IconButton, IconButtonLink, IconToggleButton } from '@/registry/ds/ui/icon-button';
 import { ToggleButtonGroup } from '@/registry/ds/ui/toggle-button';
 
+function roleStyle(className: string) {
+  const probe = document.createElement('span');
+  probe.className = className;
+  document.querySelector('[data-testid="ds-root"]')!.append(probe);
+  const style = getComputedStyle(probe);
+  const result = {
+    backgroundColor: style.backgroundColor,
+    color: style.color,
+    borderColor: style.borderTopColor,
+  };
+  probe.remove();
+  return result;
+}
+
 describe('IconButton', () => {
-  it('renders an accessible button named by aria-label', async () => {
+  it('renders a ghost neutral circle named by aria-label', async () => {
     const screen = await renderWithDS(<IconButton aria-label="Edit project" icon={<EditIcon />} />);
     const button = screen.getByRole('button', { name: 'Edit project' });
     await expect.element(button).toBeVisible();
-    await expect.element(button).toHaveAttribute('data-variant', 'standard');
+    await expect.element(button).toHaveAttribute('data-slot', 'icon-button');
+    await expect.element(button).toHaveAttribute('data-variant', 'ghost');
+    await expect.element(button).toHaveAttribute('data-tone', 'neutral');
     await expect.element(button).toHaveAttribute('data-size', 'md');
-    await expect.element(button).toHaveAttribute('data-shape', 'round');
+    await expect.element(button).not.toHaveAttribute('data-shape');
+    await userEvent.unhover(button);
+    await expect
+      .poll(() => getComputedStyle(button.element()).backgroundColor)
+      .toBe('rgba(0, 0, 0, 0)');
+    const style = getComputedStyle(button.element());
+    expect(style.color).toBe(roleStyle('text-on-surface').color);
+    expect(style.borderTopLeftRadius).toBe('9999px');
+    expect(style.cursor).toBe('pointer');
     expect(button.element().getBoundingClientRect().width).toBe(40);
     expect(button.element().getBoundingClientRect().height).toBe(40);
   });
 
-  it('sizes the button from xs to xl', async () => {
-    const sizes = { xs: 28, sm: 32, md: 40, lg: 48, xl: 56 } as const;
+  it('sizes the circle and its icon from xs to lg', async () => {
+    const sizes = { xs: [28, 16], sm: [32, 16], md: [40, 20], lg: [48, 24] } as const;
     const screen = await renderWithDS(
       <div className="flex gap-2">
         {(Object.keys(sizes) as (keyof typeof sizes)[]).map((size) => (
@@ -36,11 +60,84 @@ describe('IconButton', () => {
         ))}
       </div>,
     );
-    for (const [size, pixels] of Object.entries(sizes)) {
-      const rect = screen.getByRole('button', { name: size }).element().getBoundingClientRect();
-      expect(rect.width).toBe(pixels);
-      expect(rect.height).toBe(pixels);
+    for (const [size, [box, icon]] of Object.entries(sizes)) {
+      const button = screen.getByRole('button', { name: size }).element();
+      expect(button.getBoundingClientRect().width).toBe(box);
+      expect(button.getBoundingClientRect().height).toBe(box);
+      expect(button.querySelector('svg')!.getBoundingClientRect().width).toBe(icon);
     }
+  });
+
+  it('paints every variant and tone from the shared button roles', async () => {
+    const screen = await renderWithDS(
+      <div className="flex gap-2">
+        <IconButton aria-label="Solid" variant="solid" icon={<EditIcon />} />
+        <IconButton aria-label="Soft" variant="soft" icon={<EditIcon />} />
+        <IconButton aria-label="Soft primary" variant="soft" tone="primary" icon={<EditIcon />} />
+        <IconButton aria-label="Outline" variant="outline" icon={<EditIcon />} />
+        <IconButton aria-label="Delete" variant="ghost" tone="error" icon={<DeleteIcon />} />
+      </div>,
+    );
+    const style = (name: string) =>
+      getComputedStyle(screen.getByRole('button', { name, exact: true }).element());
+
+    await expect
+      .element(screen.getByRole('button', { name: 'Solid' }))
+      .toHaveAttribute('data-tone', 'primary');
+    expect(style('Solid').backgroundColor).toBe(roleStyle('bg-primary-solid').backgroundColor);
+    expect(style('Solid').color).toBe(roleStyle('text-on-primary-solid').color);
+    expect(style('Soft').backgroundColor).toBe(roleStyle('bg-neutral-soft').backgroundColor);
+    expect(style('Soft primary').backgroundColor).toBe(
+      roleStyle('bg-primary-soft').backgroundColor,
+    );
+    expect(style('Outline').borderTopColor).toBe(
+      roleStyle('border border-outline-variant').borderColor,
+    );
+    expect(style('Delete').color).toBe(roleStyle('text-error').color);
+  });
+
+  it('scales down while pressed, more at xs, and stays still when motion is reduced', async () => {
+    async function expectPressedScale(element: Element, scale: string) {
+      (element as HTMLElement).focus();
+      await userEvent.keyboard('[Space>]');
+      await expect.poll(() => element.getAttribute('data-pressed')).toBe('true');
+      await expect.poll(() => getComputedStyle(element).scale).toBe(scale);
+      await userEvent.keyboard('[/Space]');
+    }
+
+    const screen = await renderWithDS(
+      <div className="flex gap-2">
+        <IconButton aria-label="Medium" icon={<EditIcon />} />
+        <IconButton aria-label="Close" size="xs" icon={<EditIcon />} />
+      </div>,
+    );
+    await expectPressedScale(screen.getByRole('button', { name: 'Medium' }).element(), '0.97');
+    await expectPressedScale(screen.getByRole('button', { name: 'Close' }).element(), '0.93');
+    await screen.unmount();
+
+    const reduced = await renderWithDS(<IconButton aria-label="Medium" icon={<EditIcon />} />, {
+      provider: { motion: 'reduced' },
+    });
+    const still = reduced.getByRole('button', { name: 'Medium' });
+    await expect.element(still).toHaveAttribute('data-reduced-motion', 'true');
+    still.element().focus();
+    await userEvent.keyboard('[Space>]');
+    await expect.element(still).toHaveAttribute('data-pressed', 'true');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(getComputedStyle(still.element()).scale).toBe('1');
+    await userEvent.keyboard('[/Space]');
+  });
+
+  it('draws the focus ring in the error colour for the error tone', async () => {
+    const screen = await renderWithDS(
+      <IconButton aria-label="Delete row" tone="error" icon={<DeleteIcon />} />,
+    );
+    await userEvent.keyboard('{Tab}');
+    const button = screen.getByRole('button', { name: 'Delete row' });
+    await expect.element(button).toHaveAttribute('data-focus-visible', 'true');
+    const style = getComputedStyle(button.element());
+    expect(style.outlineStyle).toBe('solid');
+    expect(style.outlineColor).toBe(roleStyle('text-error').color);
   });
 
   it('calls onPress from mouse and keyboard', async () => {
@@ -60,9 +157,9 @@ describe('IconButton', () => {
     let finish: () => void = () => {};
     const onPress = vi.fn(() => new Promise<void>((resolve) => (finish = resolve)));
     const screen = await renderWithDS(
-      <IconButton aria-label="Refresh balances" icon={<RefreshIcon />} onPress={onPress} />,
+      <IconButton aria-label="Refresh photos" icon={<RefreshIcon />} onPress={onPress} />,
     );
-    const button = screen.getByRole('button', { name: 'Refresh balances' });
+    const button = screen.getByRole('button', { name: 'Refresh photos' });
 
     await button.click();
     await expect.element(button).toHaveAttribute('data-pending', 'true');
@@ -109,75 +206,36 @@ describe('IconButton', () => {
       .toBeInTheDocument();
   });
 
-  it('does not fire when disabled', async () => {
+  it('does not fire when disabled and fades to half opacity', async () => {
     const onPress = vi.fn();
-    const screen = await renderWithDS(
-      <IconButton aria-label="Delete row" icon={<DeleteIcon />} isDisabled onPress={onPress} />,
-    );
-    const button = screen.getByRole('button', { name: 'Delete row' });
-    await expect.element(button).toBeDisabled();
-    await button.click({ force: true });
-    expect(onPress).not.toHaveBeenCalled();
-  });
-
-  it('marks the destructive tone and square shape on the root', async () => {
     const screen = await renderWithDS(
       <IconButton
         aria-label="Delete row"
+        variant="solid"
         icon={<DeleteIcon />}
-        variant="tonal"
-        tone="destructive"
-        shape="square"
+        isDisabled
+        onPress={onPress}
       />,
     );
     const button = screen.getByRole('button', { name: 'Delete row' });
-    await expect.element(button).toHaveAttribute('data-tone', 'destructive');
-    await expect.element(button).toHaveAttribute('data-shape', 'square');
-    await expect.element(button).toHaveClass('bg-error-container');
-  });
-
-  it('scales the square corner with the size', async () => {
-    const corners = { xs: '8px', sm: '8px', md: '12px', lg: '12px', xl: '16px' } as const;
-    const screen = await renderWithDS(
-      <div className="flex gap-2">
-        {(Object.keys(corners) as (keyof typeof corners)[]).map((size) => (
-          <IconButton key={size} size={size} shape="square" aria-label={size} icon={<EditIcon />} />
-        ))}
-      </div>,
-    );
-    for (const [size, radius] of Object.entries(corners)) {
-      const button = screen.getByRole('button', { name: size }).element();
-      expect(getComputedStyle(button).borderRadius).toBe(radius);
-    }
-  });
-
-  it('runs the press morph on the spatial spring and drops it for reduced motion', async () => {
-    const screen = await renderWithDS(<IconButton aria-label="Edit project" icon={<EditIcon />} />);
-    const button = screen.getByRole('button', { name: 'Edit project' });
-    await expect.element(button).not.toHaveAttribute('data-reduced-motion');
-    expect(getComputedStyle(button.element()).transitionDuration.split(', ').at(-1)).not.toBe('0s');
-    await screen.unmount();
-
-    const reduced = await renderWithDS(
-      <IconButton aria-label="Edit project" icon={<EditIcon />} />,
-      {
-        provider: { motion: 'reduced' },
-      },
-    );
-    const still = reduced.getByRole('button', { name: 'Edit project' });
-    await expect.element(still).toHaveAttribute('data-reduced-motion', 'true');
-    expect(getComputedStyle(still.element()).transitionDuration.split(', ').at(-1)).toBe('0s');
+    await expect.element(button).toBeDisabled();
+    const style = getComputedStyle(button.element());
+    expect(style.opacity).toBe('0.5');
+    expect(style.cursor).toBe('not-allowed');
+    expect(style.backgroundColor).toBe(roleStyle('bg-primary-solid').backgroundColor);
+    await button.click({ force: true });
+    expect(onPress).not.toHaveBeenCalled();
   });
 
   it('takes size, tone, variant and disabled state from a ButtonGroup', async () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
       <>
-        <ButtonGroup aria-label="Row actions" size="sm" buttonVariant="tonal" tone="destructive">
+        <ButtonGroup aria-label="Row actions" size="sm" buttonVariant="soft" tone="error">
           <IconButton aria-label="Delete row" icon={<DeleteIcon />} onPress={onPress} />
           <IconToggleButton aria-label="Pin row" icon={<FavoriteIcon />} />
         </ButtonGroup>
-        <ButtonGroup aria-label="Toolbar" buttonVariant="text" isDisabled>
+        <ButtonGroup aria-label="Toolbar" buttonVariant="ghost" isDisabled>
           <IconButton aria-label="Edit project" icon={<EditIcon />} onPress={onPress} />
           <IconButtonLink href="#status" aria-label="Status" icon={<OpenInNewIcon />} />
         </ButtonGroup>
@@ -185,15 +243,15 @@ describe('IconButton', () => {
     );
     const remove = screen.getByRole('button', { name: 'Delete row' });
     await expect.element(remove).toHaveAttribute('data-size', 'sm');
-    await expect.element(remove).toHaveAttribute('data-variant', 'tonal');
-    await expect.element(remove).toHaveAttribute('data-tone', 'destructive');
+    await expect.element(remove).toHaveAttribute('data-variant', 'soft');
+    await expect.element(remove).toHaveAttribute('data-tone', 'error');
     expect(remove.element().getBoundingClientRect().width).toBe(32);
-    await expect
-      .element(screen.getByRole('button', { name: 'Pin row' }))
-      .toHaveAttribute('data-size', 'sm');
+    const pin = screen.getByRole('button', { name: 'Pin row' });
+    await expect.element(pin).toHaveAttribute('data-size', 'sm');
+    await expect.element(pin).toHaveAttribute('data-variant', 'soft');
 
     const edit = screen.getByRole('button', { name: 'Edit project' });
-    await expect.element(edit).toHaveAttribute('data-variant', 'standard');
+    await expect.element(edit).toHaveAttribute('data-variant', 'ghost');
     await expect.element(edit).toBeDisabled();
     await edit.click({ force: true });
     expect(onPress).not.toHaveBeenCalled();
@@ -215,12 +273,14 @@ describe('IconButton', () => {
       <IconButtonLink
         href="https://example.com/status"
         aria-label="Open status page"
+        variant="outline"
         icon={<OpenInNewIcon />}
       />,
     );
-    await expect
-      .element(screen.getByRole('link', { name: 'Open status page' }))
-      .toHaveAttribute('href', 'https://example.com/status');
+    const link = screen.getByRole('link', { name: 'Open status page' });
+    await expect.element(link).toHaveAttribute('href', 'https://example.com/status');
+    await expect.element(link).toHaveAttribute('data-variant', 'outline');
+    await expect.element(link).toHaveAttribute('data-tone', 'neutral');
   });
 });
 
@@ -237,6 +297,7 @@ describe('IconToggleButton', () => {
     );
     const button = screen.getByRole('button', { name: 'Favourite' });
     await expect.element(button).toHaveAttribute('aria-pressed', 'false');
+    await expect.element(button).toHaveAttribute('data-variant', 'ghost');
     await expect.element(screen.getByTestId('outline')).toBeInTheDocument();
 
     await button.click();
@@ -265,6 +326,32 @@ describe('IconToggleButton', () => {
     await expect.element(screen.getByTestId('outline')).toBeInTheDocument();
   });
 
+  it('tints the selected toggle with the primary soft fill in both variants', async () => {
+    const screen = await renderWithDS(
+      <div className="flex gap-2">
+        <IconToggleButton aria-label="Ghost off" icon={<FavoriteIcon />} />
+        <IconToggleButton aria-label="Ghost on" icon={<FavoriteIcon />} defaultSelected />
+        <IconToggleButton aria-label="Soft off" variant="soft" icon={<FavoriteIcon />} />
+        <IconToggleButton
+          aria-label="Soft on"
+          variant="soft"
+          icon={<FavoriteIcon />}
+          defaultSelected
+        />
+      </div>,
+    );
+    const style = (name: string) =>
+      getComputedStyle(screen.getByRole('button', { name }).element());
+    const selected = roleStyle('bg-primary-soft text-on-primary-soft');
+    await expect.element(screen.getByRole('button', { name: 'Ghost on' })).toBeVisible();
+    expect(style('Ghost off').backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(style('Soft off').backgroundColor).toBe(roleStyle('bg-neutral-soft').backgroundColor);
+    for (const name of ['Ghost on', 'Soft on']) {
+      expect(style(name).backgroundColor).toBe(selected.backgroundColor);
+      expect(style(name).color).toBe(selected.color);
+    }
+  });
+
   it('follows a controlled isSelected', async () => {
     const onChange = vi.fn();
 
@@ -274,7 +361,7 @@ describe('IconToggleButton', () => {
         <>
           <IconToggleButton
             aria-label="Pin folder"
-            variant="filled"
+            variant="soft"
             icon={<FavoriteIcon />}
             isSelected={pinned}
             onChange={onChange}
@@ -295,57 +382,21 @@ describe('IconToggleButton', () => {
 
     await screen.getByRole('button', { name: 'Pin from outside' }).click();
     await expect.element(toggle).toHaveAttribute('aria-pressed', 'true');
-    await expect.element(toggle).toHaveClass('data-[selected]:bg-primary');
+    await expect.element(toggle).toHaveAttribute('data-selected', 'true');
   });
 
-  it('swaps shape when selected, so the state does not rest on colour', async () => {
-    const screen = await renderWithDS(
-      <>
-        <IconToggleButton aria-label="Favourite" variant="tonal" icon={<FavoriteIcon />} />
-        <IconToggleButton
-          aria-label="Pin"
-          variant="outlined"
-          shape="square"
-          icon={<FavoriteIcon />}
-        />
-      </>,
-      { provider: { motion: 'reduced' } },
-    );
-    const round = screen.getByRole('button', { name: 'Favourite' });
-    const square = screen.getByRole('button', { name: 'Pin' });
-    expect(getComputedStyle(round.element()).borderRadius).toBe('50%');
-    expect(getComputedStyle(square.element()).borderRadius).toBe('12px');
-
-    await round.click();
-    await square.click();
-    await expect.element(round).toHaveAttribute('aria-pressed', 'true');
-    await expect.poll(() => getComputedStyle(round.element()).borderRadius).toBe('12px');
-    await expect.poll(() => getComputedStyle(square.element()).borderRadius).toBe('50%');
-  });
-
-  it('uses the disabled roles when a selected toggle is disabled', async () => {
-    const variants = ['standard', 'filled', 'tonal', 'outlined'] as const;
+  it('keeps its colours and halves its opacity when disabled', async () => {
     const screen = await renderWithDS(
       <div className="flex gap-2">
-        {variants.map((variant) => (
-          <IconToggleButton
-            key={variant}
-            variant={variant}
-            aria-label={variant}
-            icon={<FavoriteIcon />}
-            defaultSelected
-            isDisabled
-          />
-        ))}
-        <span data-testid="disabled-roles" className="bg-on-surface/12 text-on-surface/38" />
+        <IconToggleButton aria-label="On" icon={<FavoriteIcon />} defaultSelected />
+        <IconToggleButton aria-label="Locked" icon={<FavoriteIcon />} defaultSelected isDisabled />
       </div>,
     );
-    const expected = getComputedStyle(screen.getByTestId('disabled-roles').element());
-    for (const variant of variants) {
-      const style = getComputedStyle(screen.getByRole('button', { name: variant }).element());
-      expect(style.color).toBe(expected.color);
-      if (variant !== 'standard') expect(style.backgroundColor).toBe(expected.backgroundColor);
-    }
+    const on = getComputedStyle(screen.getByRole('button', { name: 'On' }).element());
+    const locked = getComputedStyle(screen.getByRole('button', { name: 'Locked' }).element());
+    expect(locked.backgroundColor).toBe(on.backgroundColor);
+    expect(locked.opacity).toBe('0.5');
+    expect(locked.cursor).toBe('not-allowed');
   });
 
   it('takes selection, size and variant from a ToggleButtonGroup', async () => {
@@ -353,9 +404,9 @@ describe('IconToggleButton', () => {
     const screen = await renderWithDS(
       <ToggleButtonGroup
         aria-label="Folder layout"
-        variant="standard"
+        variant="detached"
         size="sm"
-        buttonVariant="outlined"
+        buttonVariant="soft"
         selectionMode="single"
         defaultSelectedKeys={['list']}
         onSelectionChange={onSelectionChange}
@@ -367,7 +418,7 @@ describe('IconToggleButton', () => {
     const list = screen.getByRole('radio', { name: 'List view' });
     const grid = screen.getByRole('radio', { name: 'Grid view' });
     await expect.element(list).toHaveAttribute('aria-checked', 'true');
-    await expect.element(grid).toHaveAttribute('data-variant', 'outlined');
+    await expect.element(grid).toHaveAttribute('data-variant', 'soft');
     await expect.element(grid).toHaveAttribute('data-size', 'sm');
 
     await grid.click();
@@ -398,7 +449,7 @@ describe('IconToggleButton', () => {
 
 describe('IconButton accessibility', () => {
   it('has no accessibility violations in light, dark and RTL', async () => {
-    const variants = ['standard', 'filled', 'tonal', 'outlined'] as const;
+    const variants = ['solid', 'soft', 'outline', 'ghost'] as const;
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-3 p-4">
@@ -415,14 +466,23 @@ describe('IconButton accessibility', () => {
               <IconButton
                 key={variant}
                 variant={variant}
-                tone="destructive"
+                tone="primary"
+                aria-label={`Share ${variant}`}
+                icon={<EditIcon />}
+              />
+            ))}
+            {variants.map((variant) => (
+              <IconButton
+                key={variant}
+                variant={variant}
+                tone="error"
                 aria-label={`Delete ${variant}`}
                 icon={<DeleteIcon />}
               />
             ))}
           </div>
           <div className="flex gap-2">
-            {variants.map((variant) => (
+            {(['soft', 'ghost'] as const).map((variant) => (
               <IconToggleButton
                 key={variant}
                 variant={variant}
@@ -431,7 +491,7 @@ describe('IconButton accessibility', () => {
                 selectedIcon={<FavoriteFilledIcon />}
               />
             ))}
-            {variants.map((variant) => (
+            {(['soft', 'ghost'] as const).map((variant) => (
               <IconToggleButton
                 key={variant}
                 variant={variant}
@@ -443,8 +503,8 @@ describe('IconButton accessibility', () => {
             ))}
           </div>
           <div className="flex gap-2">
-            <IconButton aria-label="Disabled" icon={<EditIcon />} variant="filled" isDisabled />
-            <IconButton aria-label="Pending" icon={<RefreshIcon />} variant="tonal" isPending />
+            <IconButton aria-label="Disabled" icon={<EditIcon />} variant="solid" isDisabled />
+            <IconButton aria-label="Pending" icon={<RefreshIcon />} variant="soft" isPending />
             <IconButtonLink href="#status" aria-label="Status" icon={<OpenInNewIcon />} />
           </div>
         </div>,

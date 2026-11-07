@@ -5,7 +5,7 @@ import { Heading } from 'react-aria-components';
 import { tv } from '@/registry/ds/lib/utils';
 import { ButtonGroupContext, type ButtonStyleProps } from '@/registry/ds/ui/button';
 
-export type EmptyStateSize = 'compact' | 'default' | 'page';
+export type EmptyStateSize = 'sm' | 'md' | 'lg';
 
 export type EmptyStateHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -14,65 +14,56 @@ export const emptyStateStyles = tv({
     root: 'mx-auto flex w-full flex-col items-center text-center',
     media: 'inline-flex shrink-0 items-center justify-center',
     content: 'flex w-full flex-col items-center [overflow-wrap:anywhere]',
-    title: 'text-on-surface',
+    title: 'font-semibold text-on-surface',
     description: 'text-on-surface-variant',
     extra: 'text-on-surface-variant',
-    actions: 'flex flex-wrap items-center justify-center',
+    actions: 'flex flex-wrap items-center justify-center gap-2',
   },
   variants: {
     size: {
-      compact: {
-        root: 'gap-3 px-4 py-6',
-        content: 'max-w-sm gap-1',
-        title: 'text-title-sm',
-        description: 'text-body-sm',
-        extra: 'text-body-sm',
-        actions: 'gap-1',
+      sm: {
+        root: 'gap-2 p-4',
+        content: 'max-w-xs gap-0.5',
+        title: 'text-sm',
+        description: 'text-xs',
+        extra: 'text-xs',
+        actions: 'pt-1',
       },
-      default: {
-        root: 'gap-4 px-6 py-10',
+      md: {
+        root: 'gap-4 px-6 py-8',
+        content: 'max-w-[22.5rem] gap-1',
+        title: 'text-lg',
+        description: 'text-sm',
+        extra: 'text-sm',
+      },
+      lg: {
+        root: 'min-h-[min(32rem,70dvh)] justify-center gap-5 px-6 py-16',
         content: 'max-w-md gap-2',
-        title: 'text-title-lg',
-        description: 'text-body-md',
-        extra: 'text-body-md',
-        actions: 'gap-2 pt-2',
-      },
-      page: {
-        root: 'min-h-[min(32rem,70dvh)] justify-center gap-6 px-6 py-16',
-        content: 'max-w-lg gap-3',
-        title: 'text-headline-sm',
-        description: 'text-body-lg',
-        extra: 'text-body-lg',
-        actions: 'gap-3 pt-2',
+        title: 'text-2xl tracking-tight',
+        description: 'text-base',
+        extra: 'text-base',
+        actions: 'pt-1',
       },
     },
     media: {
-      icon: { media: '[&_svg]:size-[1em]' },
+      icon: {
+        media: 'rounded-full bg-neutral-soft text-on-surface-variant [&_svg]:size-[1em]',
+      },
       illustration: {
         media: '[&>img]:h-full [&>img]:w-auto [&>svg]:h-full [&>svg]:w-auto',
       },
     },
   },
   compoundVariants: [
-    { size: 'compact', media: 'icon', class: { media: 'text-[1.5rem] text-on-surface-variant' } },
-    {
-      size: 'default',
-      media: 'icon',
-      class: { media: 'size-16 rounded-full bg-surface-container-high text-[2rem] text-primary' },
-    },
-    {
-      size: 'page',
-      media: 'icon',
-      class: {
-        media: 'size-22 rounded-full bg-surface-container-high text-[2.75rem] text-primary',
-      },
-    },
-    { size: 'compact', media: 'illustration', class: { media: 'h-16' } },
-    { size: 'default', media: 'illustration', class: { media: 'h-28' } },
-    { size: 'page', media: 'illustration', class: { media: 'h-40 sm:h-48' } },
+    { size: 'sm', media: 'icon', class: { media: 'size-10 text-[1.25rem]' } },
+    { size: 'md', media: 'icon', class: { media: 'size-12 text-[1.5rem]' } },
+    { size: 'lg', media: 'icon', class: { media: 'size-16 text-[2rem]' } },
+    { size: 'sm', media: 'illustration', class: { media: 'h-16' } },
+    { size: 'md', media: 'illustration', class: { media: 'h-28' } },
+    { size: 'lg', media: 'illustration', class: { media: 'h-40 sm:h-48' } },
   ],
   defaultVariants: {
-    size: 'default',
+    size: 'md',
     media: 'icon',
   },
 });
@@ -81,14 +72,17 @@ const actionStyles: Record<
   EmptyStateSize,
   { primary: ButtonStyleProps; secondary: ButtonStyleProps }
 > = {
-  compact: { primary: { variant: 'text', size: 'sm' }, secondary: { variant: 'text', size: 'sm' } },
-  default: {
-    primary: { variant: 'filled', size: 'md' },
-    secondary: { variant: 'text', size: 'md' },
+  sm: {
+    primary: { variant: 'soft', size: 'sm' },
+    secondary: { variant: 'ghost', size: 'sm' },
   },
-  page: {
-    primary: { variant: 'filled', size: 'md' },
-    secondary: { variant: 'outlined', size: 'md' },
+  md: {
+    primary: { variant: 'solid', size: 'md' },
+    secondary: { variant: 'soft', size: 'md' },
+  },
+  lg: {
+    primary: { variant: 'solid', size: 'md' },
+    secondary: { variant: 'soft', size: 'md' },
   },
 };
 
@@ -110,7 +104,7 @@ export function EmptyState({
   illustration,
   primaryAction,
   secondaryAction,
-  size = 'default',
+  size = 'md',
   headingLevel = 2,
   children,
   className,

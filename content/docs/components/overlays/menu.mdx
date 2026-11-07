@@ -1,6 +1,6 @@
 ---
 title: Menu
-description: Material 3 menu that opens from a button or a right click, with icons, descriptions, shortcut hints that follow the platform, sections, check-mark selection, nested submenus, link items and a destructive tone.
+description: A menu that opens from a button or a right click, with icons, descriptions, platform-aware shortcuts, sections, selection, submenus and links.
 ---
 
 <ComponentPreview name="menu-demo" />
@@ -23,7 +23,7 @@ import { DeleteIcon, EditIcon, MoreVerticalIcon } from '@/lib/ds/icons';
       Edit
     </MenuItem>
     <MenuSeparator />
-    <MenuItem id="delete" startIcon={<DeleteIcon />} tone="destructive">
+    <MenuItem id="delete" startIcon={<DeleteIcon />} tone="error">
       Delete
     </MenuItem>
   </Menu>
@@ -47,13 +47,15 @@ part of what screen readers announce for the item.
 
 ### Keyboard shortcuts
 
-`shortcut` shows the key combination that also runs the action. `'mod'` is ⌘ on Apple platforms and
-Ctrl elsewhere. On Apple platforms the menu shows symbols in Apple's modifier order (⌃ ⌥ ⇧ ⌘) with
-no separator; elsewhere it joins key names from its [labels](#labels) with `+`, such as
-`Ctrl+Shift+S`, which a German app turns into `Strg+Umschalt+S`. Named keys are `mod`, `command`,
-`control`, `option`, `alt`, `shift`, `enter`, `backspace`, `delete`, `escape`, `tab`, `space` and
-the four arrows; any other string, such as `'Z'` or `'F2'`, renders as written. The menu only shows
-the hint: register the shortcut yourself.
+`shortcut` shows the key combination that also runs the action, at the end of the row in small grey
+text. It is a ghost [KbdCombo](/docs/components/data-display/kbd), so it follows the platform the
+same way: `'mod'` is ⌘ on Apple platforms and Ctrl elsewhere, Apple platforms show symbols in
+Apple's modifier order (⌃ ⌥ ⇧ ⌘) with no separator, and elsewhere the keys are joined with `+`,
+such as `Ctrl+Shift+S`, which a German app turns into `Strg+Umschalt+S` through the menu's
+[labels](#labels). Named keys are `mod`, `command`, `control`, `option`, `alt`, `shift`, `enter`,
+`backspace`, `delete`, `escape`, `tab`, `space` and the four arrows; any other string, such as `'Z'`
+or `'F2'`, renders as written, with single letters in capitals. The menu only shows the hint:
+register the shortcut yourself.
 
 <ComponentPreview name="menu-shortcuts" />
 
@@ -67,8 +69,9 @@ header needs an `aria-label`. Put a `MenuSeparator` between sections.
 ### Selection
 
 `selectionMode="single"` or `"multiple"` on a `Menu` or a `MenuSection` turns items into radio or
-checkbox items with a check mark at the end. Each section keeps its own selection, so one menu can
-hold a sort order and a set of visible columns. Single selection closes the menu; multiple
+checkbox items. Their labels move in to make room for a check mark at the start, drawn in
+`primary`; the label itself stays in the normal text colour. Each section keeps its own selection,
+so one menu can hold a sort order and a set of visible columns. Single selection closes the menu; multiple
 selection keeps it open so people can tick several items.
 
 <ComponentPreview name="menu-selection" />
@@ -84,10 +87,12 @@ Pass `items` and a function as children to render a menu from data. Each item ne
 
 `SubmenuTrigger` takes a `MenuItem` and a `Menu`. The submenu opens on hover after 200 ms, with
 the arrow key that points into it, or with Enter, and it inherits the parent's `size` and
-`labels`. Keep nesting to two levels; deeper paths are easier as a dialog. A submenu opens beside
-its parent and is never moved on top of it, so on a phone-width screen a menu in the middle of the
-page has no room for one. There, use a `MenuSection` with its own selection instead, as the
-account menu below does.
+`labels`. Keep nesting to two levels; deeper paths are easier as a dialog.
+
+On screens wider than 30rem (480px) a submenu opens beside its parent. Up to that width two menus
+side by side do not fit, so the submenu drops below the item that opened it instead, indented 16px
+towards the reading direction and over the items further down. The item stays visible above it,
+the popover carries `data-stacked`, and the keyboard works the same in both layouts.
 
 <ComponentPreview name="menu-submenu" />
 
@@ -107,9 +112,10 @@ arrow keys. Say why it is unavailable in the `description` rather than hiding it
 
 ### Sizes
 
-`md` items are 48px tall, the Material 3 default and a comfortable touch target. `sm` is the dense
-40px variant for admin tables and toolbars. This example renders `MenuList` inline so both sizes
-are visible at once.
+`md` rows are at least 36px tall with 14px text and 16px icons. `sm` rows are 32px, for admin tables
+and toolbars. Rows have 12px corners inside the 16px popover, which has 4px of padding, so the
+corners stay concentric. This example renders `MenuList` inline so both sizes are visible at
+once.
 
 <ComponentPreview name="menu-sizes" />
 
@@ -146,61 +152,66 @@ component.
 
 ### Menu
 
-| Prop                  | Type                                                 | Default                                    |
-| --------------------- | ---------------------------------------------------- | ------------------------------------------ |
-| `size`                | `'sm' \| 'md'`                                       | `'md'`, or the parent menu's size          |
-| `onAction`            | `(key: Key, value: T) => void`                       |                                            |
-| `selectionMode`       | `'none' \| 'single' \| 'multiple'`                   | `'none'`                                   |
-| `selectedKeys`        | `'all' \| Iterable<Key>`                             |                                            |
-| `defaultSelectedKeys` | `'all' \| Iterable<Key>`                             |                                            |
-| `onSelectionChange`   | `(keys: Selection) => void`                          |                                            |
-| `disabledKeys`        | `Iterable<Key>`                                      |                                            |
-| `items`               | `Iterable<T>`                                        |                                            |
-| `shouldCloseOnSelect` | `boolean`                                            | `true`, `false` for multiple selection     |
-| `renderEmptyState`    | `() => ReactNode`                                    | the `empty` label                          |
-| `placement`           | `'bottom start' \| 'bottom end' \| 'top start' \| …` | `'bottom start'`, submenus `'end top'`     |
-| `offset`              | `number`                                             | `8`, `0` for context menus, submenus `-4`  |
-| `crossOffset`         | `number`                                             | `0`, submenus `-8` (`-4` when `size="sm"`) |
-| `shouldFlip`          | `boolean`                                            | `true`                                     |
-| `maxHeight`           | `number`                                             | the space left in the viewport             |
-| `containerPadding`    | `number`                                             | `12`                                       |
-| `labels`              | `Partial<MenuLabels>`                                | the parent menu's labels                   |
+| Prop                  | Type                                                 | Default                                |
+| --------------------- | ---------------------------------------------------- | -------------------------------------- |
+| `size`                | `'sm' \| 'md'`                                       | `'md'`, or the parent menu's size      |
+| `onAction`            | `(key: Key, value: T) => void`                       |                                        |
+| `selectionMode`       | `'none' \| 'single' \| 'multiple'`                   | `'none'`                               |
+| `selectedKeys`        | `'all' \| Iterable<Key>`                             |                                        |
+| `defaultSelectedKeys` | `'all' \| Iterable<Key>`                             |                                        |
+| `onSelectionChange`   | `(keys: Selection) => void`                          |                                        |
+| `disabledKeys`        | `Iterable<Key>`                                      |                                        |
+| `items`               | `Iterable<T>`                                        |                                        |
+| `shouldCloseOnSelect` | `boolean`                                            | `true`, `false` for multiple selection |
+| `renderEmptyState`    | `() => ReactNode`                                    | the `empty` label                      |
+| `placement`           | `'bottom start' \| 'bottom end' \| 'top start' \| …` | `'bottom start'`, submenus `'end top'` |
+
+Up to 30rem wide, a submenu defaults to `placement="bottom start"`, `offset` `2` and a 16px
+`crossOffset` instead.
+| `offset` | `number` | `8`, `0` for context menus, submenus `-2` |
+| `crossOffset` | `number` | `0`, submenus `-4` |
+| `shouldFlip` | `boolean` | `true` |
+| `maxHeight` | `number` | the space left in the viewport |
+| `containerPadding` | `number` | `12` |
+| `labels` | `Partial<MenuLabels>` | the parent menu's labels |
 
 Every other [React Aria Menu](https://react-aria.adobe.com/Menu) prop is passed through to the list.
-The surface is `surface-container` with `rounded-sm` corners and elevation 2, between 112px and
-280px wide. The popover says so through `SurfaceContext`, so a [Card](/docs/components/layout/card)
-in custom menu content steps up from the menu. Buttons in that content keep their own size and
-variant even when the trigger sits in a [Button Group](/docs/components/actions/button-group).
+The surface is `bg-surface-overlay` with `rounded-overlay` (16px) corners, `shadow-md` and 4px of
+padding, between 224px and 320px wide and never wider than the screen less 32px. Buttons in custom
+content keep their own size and variant even when the trigger sits in a
+[Button Group](/docs/components/actions/button-group).
 
 ### MenuItem
 
-| Prop            | Type                         | Default                        |
-| --------------- | ---------------------------- | ------------------------------ |
-| `id`            | `Key`                        |                                |
-| `children`      | `ReactNode`                  | the label                      |
-| `startIcon`     | `ReactNode`                  |                                |
-| `description`   | `ReactNode`                  |                                |
-| `shortcut`      | `MenuShortcutKey[]`          |                                |
-| `tone`          | `'default' \| 'destructive'` | `'default'`                    |
-| `isDisabled`    | `boolean`                    | `false`                        |
-| `onAction`      | `() => void`                 |                                |
-| `textValue`     | `string`                     | the label, when it is a string |
-| `href`          | `string`                     |                                |
-| `target`, `rel` | `string`                     |                                |
-| `routerOptions` | `RouterOptions`              |                                |
+| Prop            | Type                   | Default                        |
+| --------------- | ---------------------- | ------------------------------ |
+| `id`            | `Key`                  |                                |
+| `children`      | `ReactNode`            | the label                      |
+| `startIcon`     | `ReactNode`            |                                |
+| `description`   | `ReactNode`            |                                |
+| `shortcut`      | `MenuShortcutKey[]`    |                                |
+| `tone`          | `'neutral' \| 'error'` | `'neutral'`                    |
+| `isDisabled`    | `boolean`              | `false`                        |
+| `onAction`      | `() => void`           |                                |
+| `textValue`     | `string`               | the label, when it is a string |
+| `href`          | `string`               |                                |
+| `target`, `rel` | `string`               |                                |
+| `routerOptions` | `RouterOptions`        |                                |
 
 Every other [React Aria MenuItem](https://react-aria.adobe.com/Menu) prop is passed through. Set
 `textValue` when the label is not a plain string, so typeahead still finds the item. A long label
-wraps to a second line and is clipped after that, so keep labels to a few words. A selected item
-turns `primary`, a destructive one stays `error` even when selected, and a disabled one is
-`on-surface` at 38% whatever its tone. The start icon is decorative and hidden from screen readers.
+wraps to a second line and is clipped after that, so keep labels to a few words. The focused row
+takes `bg-neutral-soft`; an `error` item has `error` text and icon and a `bg-error-soft` focus,
+and keeps them when selected, its check included. A pressed row scales to 98%. A disabled item
+keeps its colours at half opacity with a not-allowed cursor. The start icon is decorative and
+hidden from screen readers.
 
 ### MenuSection, MenuHeader and MenuSeparator
 
 `MenuSection` takes `selectionMode`, `selectedKeys`, `defaultSelectedKeys`, `onSelectionChange`,
 `disallowEmptySelection` and `shouldCloseOnSelect` of its own, and `aria-label` when it has no
-`MenuHeader`. `MenuHeader` is the section title. `MenuSeparator` is a divider in
-`outline-variant`.
+`MenuHeader`. `MenuHeader` is the section title, `text-xs font-medium` in `on-surface-variant`.
+`MenuSeparator` is a 1px `outline-subtle` line inset 8px from the popover's padding.
 
 ### SubmenuTrigger
 
@@ -215,26 +226,30 @@ except the placement ones; rendered outside a popover it needs an `aria-label`.
 
 ### Styles
 
-`menuPopoverStyles({ motion, className })` extends `popoverStyles` from Popover with the menu
-surface. `menuStyles({ size, tone, isSelected, isDisabled })` exposes the `list`, `item`, `icon`,
-`content`, `label`, `description`, `shortcut`, `indicator`, `section`, `header`, `separator` and
+`menuPopoverStyles({ motion, className })` is the menu surface, with Popover's enter and exit
+motion. `menuStyles({ size, tone, selectable })` exposes the `list`, `item`, `icon`, `content`,
+`label`, `description`, `shortcut`, `check`, `submenu`, `section`, `header`, `separator` and
 `empty` slots.
 
 ### Data attributes
 
 Menu: `data-slot="menu"`, `data-size`, `data-empty`. Popover: `data-slot="menu-popover"`,
-`data-placement`, `data-trigger` (`MenuTrigger` or `SubmenuTrigger`), `data-entering`,
-`data-exiting`. Item: `data-slot="menu-item"`, `data-tone`, `data-size`, `data-hovered`,
+`data-placement`, `data-trigger` (`MenuTrigger` or `SubmenuTrigger`), `data-stacked` on a submenu
+below its item, `data-entering`, `data-exiting`. Item: `data-slot="menu-item"`, `data-tone`, `data-size`, `data-hovered`,
 `data-focused`, `data-focus-visible`, `data-pressed`, `data-selected`, `data-selection-mode`,
 `data-disabled`, `data-has-submenu`, `data-open`. Parts: `data-slot="start-icon"`, `"content"`,
-`"label"`, `"description"`, `"shortcut"` (with `data-platform`), `"check"`, `"submenu-indicator"`,
+`"label"`, `"description"`, `"shortcut"` (with `data-platform`, holding a `"kbd-combo"`), `"check"`,
+`"submenu-indicator"`,
 `"menu-section"`, `"menu-header"`, `"menu-separator"`, `"empty"`.
 
 ### Labels
 
 Text the menu writes on its own. Pass `labels` to one `Menu` or `MenuList`, which hands them to its
 items and submenus, or set them for every menu with `<DSProvider labels={{ menu: { … } }}>`. The
-key names are used outside Apple platforms, where keyboards print them.
+key names are the short names shown outside Apple platforms, where keyboards print them; they
+override Kbd's `*Short` [labels](/docs/components/data-display/kbd#labels) for this menu. What
+screen readers hear for each key comes from Kbd's labels, so set those app-wide with
+`<DSProvider labels={{ kbd: { … } }}>`.
 
 | Key         | Default     | Used for                                    |
 | ----------- | ----------- | ------------------------------------------- |
@@ -258,16 +273,16 @@ key names are used outside Apple platforms, where keyboards print them.
   arrow or Escape. The chevron flips with the reading direction.
 - Selectable items are `menuitemradio` or `menuitemcheckbox` with `aria-checked`. The check mark is
   decorative.
-- An item's accessible name is all of its visible text: label, description and shortcut. Speech
-  input users can say exactly what they see (WCAG 2.5.3, which axe checks), and a shortcut such as
-  `Ctrl+E` is read the way it is printed. Apple symbols such as ⌘ are read by VoiceOver as the key
-  name. In tests, match items by the start of their name, such as `{ name: /^Duplicate/ }`.
+- An item's accessible name starts with its label, then its description and the shortcut's key
+  names, so speech input users can say what they see (WCAG 2.5.3, which axe checks). Symbols such
+  as ⌘ are hidden and replaced by the spoken name, so `⌘E` is read as "Command+E". In tests, match
+  items by the start of their name, such as `{ name: /^Duplicate/ }`.
 - Context menus leave out `aria-haspopup`, because pressing the trigger does not open them. Offer
   the same actions from a visible button.
-- Disabled items stay visible and are skipped by the arrow keys. The destructive tone is colour
-  only, so keep the word in the label, such as "Delete", and confirm actions that cannot be undone.
+- Disabled items stay visible and are skipped by the arrow keys. The error tone is colour only, so
+  keep the word in the label, such as "Delete", and confirm actions that cannot be undone.
 - The menu grows from its trigger. With reduced motion, from the system or `DSProvider`, it fades
-  instead. In forced-colours mode the focused item uses the system highlight.
+  instead, and pressed rows do not scale. In forced-colours mode the focused item uses the system highlight.
 - The popover renders in a portal and carries the current `lang` and `dir`, so translated items
   are pronounced correctly and submenus open towards the reading direction.
 - Contrast is checked with axe in light, dark and RTL by `menu.test.tsx`.

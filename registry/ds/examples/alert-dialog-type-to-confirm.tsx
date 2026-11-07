@@ -8,11 +8,11 @@ import { DialogTrigger } from '@/registry/ds/ui/dialog';
 export default function AlertDialogTypeToConfirm() {
   return (
     <DialogTrigger>
-      <Button tone="destructive" startIcon={<DeleteIcon />}>
+      <Button tone="error" startIcon={<DeleteIcon />}>
         Delete account
       </Button>
       <AlertDialog
-        tone="destructive"
+        tone="error"
         icon={<DeleteIcon />}
         title="Delete your account?"
         description="Your profile, files and settings are deleted permanently."

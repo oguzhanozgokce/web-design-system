@@ -1,28 +1,26 @@
 ---
 title: Typography
-description: The Material 3 type scale as Tailwind utilities.
+description: Tailwind's size scale with explicit weights, and which pairing each part of a component uses.
 ---
 
-Each utility sets size, line height, letter spacing and weight together. The font family comes
-from the project.
+Components use Tailwind's own size scale (`text-xs` to `text-6xl`) with an explicit weight. The
+font family comes from the project. Weights are 400, 500 and 600 only, and letter spacing stays at
+0 for 16px and below.
 
-| Utility            | Size / line height | Weight | Use                       |
-| ------------------ | ------------------ | ------ | ------------------------- |
-| `text-display-lg`  | 57 / 64            | 400    | Hero numbers, marketing   |
-| `text-display-md`  | 45 / 52            | 400    |                           |
-| `text-display-sm`  | 36 / 44            | 400    |                           |
-| `text-headline-lg` | 32 / 40            | 400    | Page titles               |
-| `text-headline-md` | 28 / 36            | 400    |                           |
-| `text-headline-sm` | 24 / 32            | 400    | Section titles            |
-| `text-title-lg`    | 22 / 28            | 400    | Dialog titles             |
-| `text-title-md`    | 16 / 24            | 500    | Card titles, list headers |
-| `text-title-sm`    | 14 / 20            | 500    |                           |
-| `text-body-lg`     | 16 / 24            | 400    | Long text                 |
-| `text-body-md`     | 14 / 20            | 400    | Default UI text           |
-| `text-body-sm`     | 12 / 16            | 400    | Supporting text           |
-| `text-label-lg`    | 14 / 20            | 500    | Buttons, tabs             |
-| `text-label-md`    | 12 / 16            | 500    | Chips, badges             |
-| `text-label-sm`    | 11 / 16            | 500    | Tiny labels               |
+| Role                              | Classes                                               | Size / line |
+| --------------------------------- | ----------------------------------------------------- | ----------- |
+| Control label (button, tab, menu) | `text-sm font-medium`                                 | 14 / 20     |
+| Small control (chip, tag, badge)  | `text-xs font-medium`                                 | 12 / 16     |
+| Large control                     | `text-base font-medium`                               | 16 / 24     |
+| Field value                       | `text-base pointer-fine:text-sm`                      | 16 → 14     |
+| Field label                       | `text-sm font-medium text-on-surface`                 | 14 / 20     |
+| Description and helper text       | `text-xs text-on-surface-variant`                     | 12 / 16     |
+| Error                             | `text-xs text-error`                                  | 12 / 16     |
+| Body in cards and overlays        | `text-sm text-on-surface-variant`                     | 14 / 20     |
+| Card title                        | `text-sm font-semibold text-on-surface`               | 14 / 20     |
+| Dialog title                      | `text-base font-semibold`                             | 16 / 24     |
+| Headings 1 to 4                   | `text-2xl` to `text-base font-semibold`               | 24 to 16    |
+| Display                           | `text-4xl` to `text-6xl font-semibold tracking-tight` | 36 to 60    |
 
-`cn()` and `tv()` know these names, so `cn('text-body-md', 'text-on-surface')` keeps both: one is a
-size, the other a colour.
+Field values are 16px on touch screens, so iOS does not zoom into a focused input, and 14px with a
+fine pointer. Headings of 20px and more add `tracking-tight`.

@@ -12,7 +12,7 @@ export default function IconButtonAsync() {
   return (
     <div className="flex items-center gap-3">
       <IconButton
-        variant="outlined"
+        variant="outline"
         aria-label="Refresh"
         icon={<RefreshIcon />}
         onPress={async () => {
@@ -20,7 +20,7 @@ export default function IconButtonAsync() {
           setSyncedAt(new Date());
         }}
       />
-      <p className="text-body-md text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {syncedAt
           ? `Updated at ${new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(syncedAt)}`
           : 'Updated this morning'}

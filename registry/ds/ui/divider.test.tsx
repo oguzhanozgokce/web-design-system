@@ -16,20 +16,52 @@ describe('Divider', () => {
     expect(separator.element().tagName).toBe('HR');
     await expect.element(separator).toHaveAttribute('data-orientation', 'horizontal');
     await expect.element(separator).toHaveAttribute('data-inset', 'none');
-    expect(separator.element().getBoundingClientRect().width).toBe(320);
+    await expect.element(separator).toHaveAttribute('data-variant', 'subtle');
+    const box = separator.element().getBoundingClientRect();
+    expect(box.width).toBe(320);
+    expect(box.height).toBe(1);
+  });
+
+  it('draws a 1px fill in the subtle or strong outline role', async () => {
+    const screen = await renderWithDS(
+      <div className="flex w-80 flex-col gap-2">
+        <Divider data-testid="subtle" />
+        <Divider variant="strong" data-testid="strong" />
+        <Divider variant="strong" data-testid="labelled">
+          Older
+        </Divider>
+        <span data-testid="subtle-probe" className="bg-outline-subtle" />
+        <span data-testid="strong-probe" className="bg-outline-variant" />
+      </div>,
+    );
+    const style = (id: string) => getComputedStyle(screen.getByTestId(id).element());
+    expect(style('subtle').backgroundColor).toBe(style('subtle-probe').backgroundColor);
+    expect(style('subtle').borderTopWidth).toBe('0px');
+    expect(style('strong').backgroundColor).toBe(style('strong-probe').backgroundColor);
+    await expect.element(screen.getByTestId('strong')).toHaveAttribute('data-variant', 'strong');
+    const line = screen
+      .getByTestId('labelled')
+      .element()
+      .querySelector('[data-slot="divider-line"]')!;
+    expect(getComputedStyle(line).backgroundColor).toBe(style('strong-probe').backgroundColor);
+    expect(line.getBoundingClientRect().height).toBe(1);
+    const label = screen.getByText('Older').element();
+    expect(getComputedStyle(label).fontSize).toBe('12px');
+    expect(getComputedStyle(label).paddingInlineStart).toBe('12px');
   });
 
   it('renders a vertical separator that stretches to the row height', async () => {
     const screen = await renderWithDS(
       <div className="flex h-10 items-center gap-2">
-        <Button variant="text">Bold</Button>
+        <Button variant="ghost">Bold</Button>
         <Divider orientation="vertical" />
-        <Button variant="text">Link</Button>
+        <Button variant="ghost">Link</Button>
       </div>,
     );
     const separator = screen.getByRole('separator');
     await expect.element(separator).toHaveAttribute('aria-orientation', 'vertical');
     expect(separator.element().getBoundingClientRect().height).toBe(40);
+    expect(separator.element().getBoundingClientRect().width).toBe(1);
   });
 
   it('insets by the logical start or both sides', async () => {
@@ -55,9 +87,9 @@ describe('Divider', () => {
       <div className="flex h-10 items-center gap-2" data-testid="row">
         <span>Draft</span>
         <Divider orientation="vertical" inset="start" data-testid="start" />
-        <span>Posted</span>
+        <span>Review</span>
         <Divider orientation="vertical" inset="middle" data-testid="middle" />
-        <span>Paid</span>
+        <span>Published</span>
       </div>,
     );
     const row = screen.getByTestId('row').element().getBoundingClientRect();
@@ -73,9 +105,9 @@ describe('Divider', () => {
   it('names a vertical labelled divider and keeps it vertical', async () => {
     const screen = await renderWithDS(
       <div className="flex h-32 items-stretch gap-4">
-        <span>Card message</span>
+        <span>Upload a file</span>
         <OrDivider orientation="vertical" />
-        <span>Team transfer</span>
+        <span>Paste a link</span>
       </div>,
     );
     const separator = screen.getByRole('separator', { name: 'or' });
@@ -129,6 +161,7 @@ describe('Divider', () => {
       const screen = await renderWithDS(
         <div className="flex w-80 flex-col gap-4 p-4">
           <Divider />
+          <Divider variant="strong" />
           <Divider inset="start" />
           <Divider inset="middle" />
           <OrDivider />
@@ -136,13 +169,13 @@ describe('Divider', () => {
           <div className="flex h-10 items-center gap-2">
             <span>Draft</span>
             <Divider orientation="vertical" inset="middle" />
-            <span>Posted</span>
+            <span>Review</span>
           </div>
         </div>,
         options,
       );
       await expectNoA11yViolations(screen.container);
-      screen.unmount();
+      await screen.unmount();
     }
   });
 });

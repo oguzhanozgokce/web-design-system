@@ -21,7 +21,7 @@ export default function SegmentedControlIcons() {
           Calendar
         </SegmentedControlItem>
       </SegmentedControl>
-      <SegmentedControl aria-label="Layout" variant="thumb" defaultSelectedKeys={['rows']}>
+      <SegmentedControl aria-label="Layout" defaultSelectedKeys={['rows']}>
         <SegmentedControlItem id="rows" icon={<TableRowsIcon />} aria-label="Rows" />
         <SegmentedControlItem id="grid" icon={<GridViewIcon />} aria-label="Grid" />
       </SegmentedControl>

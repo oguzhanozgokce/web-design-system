@@ -32,13 +32,13 @@ export default function TabsControlled() {
       </TabList>
       {steps.map((step) => (
         <TabPanel key={step.id} id={step.id} className="flex flex-col items-start gap-4">
-          <p className="text-body-md text-on-surface-variant">{step.body}</p>
+          <p className="text-sm text-on-surface-variant">{step.body}</p>
           {next ? (
             <Button size="sm" onPress={() => setSelected(next.id)}>
               Continue to {next.label.toLowerCase()}
             </Button>
           ) : (
-            <Button size="sm" variant="tonal" onPress={() => setSelected('account')}>
+            <Button size="sm" variant="soft" onPress={() => setSelected('account')}>
               Review from the start
             </Button>
           )}

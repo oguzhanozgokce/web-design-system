@@ -22,8 +22,8 @@ export default function ToggleButtonGroupMultiple() {
       <ToggleButtonGroup
         aria-label="Text style"
         selectionMode="multiple"
-        variant="standard"
-        buttonVariant="outlined"
+        variant="detached"
+        buttonVariant="ghost"
         size="sm"
         selectedKeys={selected}
         onSelectionChange={setSelected}
@@ -35,7 +35,7 @@ export default function ToggleButtonGroupMultiple() {
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
-      <p className={`text-body-lg text-on-surface ${preview}`}>Preview text</p>
+      <p className={`text-base text-on-surface ${preview}`}>Preview text</p>
     </div>
   );
 }

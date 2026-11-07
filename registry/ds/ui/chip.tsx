@@ -32,76 +32,59 @@ const iconBase =
 export const chipStyles = tv({
   slots: {
     root: [
-      'focus-ring group/chip relative isolate inline-flex max-w-full shrink-0 cursor-default items-center rounded-sm border whitespace-nowrap no-underline select-none',
-      '[transition:background-color_150ms_var(--ease-standard),color_150ms_var(--ease-standard),border-color_150ms_var(--ease-standard),box-shadow_150ms_var(--ease-standard),padding_var(--chip-morph-duration)_var(--ds-ease-spatial-fast)]',
-      'motion-reduce:[--chip-morph-duration:0ms]',
-      'data-[disabled]:text-on-surface/38 data-[disabled]:shadow-none',
+      'focus-ring transition-control no-tap-highlight group/chip relative inline-flex max-w-full shrink-0 cursor-default items-center rounded-control border font-medium whitespace-nowrap no-underline select-none',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+      'data-[selected]:border-transparent data-[selected]:bg-primary-soft data-[selected]:text-on-primary-soft',
     ],
-    leadingIcon: iconBase,
-    trailingIcon: iconBase,
+    leadingIcon: [iconBase, 'text-on-surface-variant group-data-[selected]/chip:text-current'],
+    trailingIcon: [iconBase, 'text-on-surface-variant'],
     reveal: [
       'grid grid-cols-[0fr] group-data-[pending]/chip:grid-cols-[1fr] group-data-[selected]/chip:grid-cols-[1fr]',
-      '[transition:grid-template-columns_var(--chip-morph-duration)_var(--ds-ease-spatial-fast)]',
+      'transition-[grid-template-columns] duration-150 ease-out-quad',
     ],
     revealContent: 'flex min-w-0 overflow-hidden',
     avatar: [
-      'relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-primary-container text-label-sm text-on-primary-container',
-      'group-data-[disabled]/chip:opacity-38 [&_img]:size-full [&_img]:object-cover',
+      'relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-surface-raised font-medium text-on-surface-variant',
+      '[&_img]:size-full [&_img]:object-cover',
     ],
     avatarContent: 'grid size-full place-items-center',
     avatarPending:
-      'absolute inset-0 grid place-items-center bg-primary-container text-(length:--icon-size) text-on-primary-container',
+      'absolute inset-0 grid place-items-center bg-surface-raised text-(length:--icon-size) text-on-surface-variant',
     avatarCheck: [
-      'absolute inset-0 grid scale-50 place-items-center bg-primary text-(length:--icon-size) text-on-primary opacity-0 [&_svg]:size-[1em]',
-      'transition-[opacity,scale] duration-(--chip-morph-duration) ease-standard',
+      'absolute inset-0 grid scale-50 place-items-center bg-primary-solid text-(length:--icon-size) text-on-primary-solid opacity-0 [&_svg]:size-[1em]',
+      'transition-[opacity,scale] duration-150 ease-out-quad',
       'group-data-[selected]/chip:scale-100 group-data-[selected]/chip:opacity-100',
     ],
     label: 'min-w-0 truncate',
     remove: [
-      'state-layer focus-ring relative inline-flex shrink-0 cursor-default items-center justify-center rounded-full text-(length:--icon-size) [&_svg]:size-[1em]',
-      'data-[disabled]:text-on-surface/38',
+      'focus-ring no-tap-highlight relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full text-current after:absolute [&_svg]:size-(--remove-icon-size)',
+      'transition-[background-color] duration-100 ease-out data-[hovered]:bg-current/12 data-[pressed]:bg-current/16',
+      'data-[disabled]:cursor-not-allowed',
     ],
     group: 'flex flex-col gap-2',
-    groupLabel: 'text-label-lg text-on-surface-variant',
-    list: 'focus-ring flex flex-wrap gap-2 rounded-xs data-[empty]:text-body-md data-[empty]:text-on-surface-variant',
-    description: 'text-body-sm text-on-surface-variant',
+    groupLabel: 'w-fit text-sm font-medium text-on-surface',
+    list: 'focus-ring flex flex-wrap gap-1.5 rounded-item data-[empty]:text-sm data-[empty]:text-on-surface-variant',
+    description: 'text-xs text-on-surface-variant',
   },
   variants: {
     variant: {
-      outlined: {
-        root: [
-          'border-outline-variant bg-transparent text-on-surface-variant data-[disabled]:border-on-surface/12',
-          'data-[selected]:not-data-[disabled]:border-transparent data-[selected]:not-data-[disabled]:bg-secondary-container data-[selected]:not-data-[disabled]:text-on-secondary-container',
-          'data-[selected]:data-[disabled]:border-transparent data-[selected]:data-[disabled]:bg-on-surface/12',
-        ],
-      },
-      elevated: {
-        root: [
-          'border-transparent bg-surface-container-low text-on-surface-variant shadow-elevation-1 data-[disabled]:bg-on-surface/12 data-[hovered]:shadow-elevation-2',
-          'data-[selected]:not-data-[disabled]:bg-secondary-container data-[selected]:not-data-[disabled]:text-on-secondary-container',
-        ],
-      },
-      tonal: {
-        root: [
-          'border-transparent bg-secondary-container text-on-secondary-container data-[disabled]:bg-on-surface/12',
-          'data-[selected]:not-data-[disabled]:bg-secondary data-[selected]:not-data-[disabled]:text-on-secondary',
-        ],
-      },
+      soft: { root: 'border-transparent bg-neutral-soft text-on-surface' },
+      outline: { root: 'border-outline-variant bg-transparent text-on-surface' },
     },
     size: {
       sm: {
-        root: 'h-7 text-label-lg [--icon-size:1rem]',
-        leadingIcon: 'me-1.5',
-        trailingIcon: 'ms-1.5',
-        avatar: 'me-1.5 size-5',
-        remove: 'ms-0.5 size-5',
+        root: 'h-6 text-xs [--icon-size:0.875rem]',
+        leadingIcon: 'me-1',
+        trailingIcon: 'ms-1',
+        avatar: 'me-1.5 size-4 text-[0.5rem]',
+        remove: 'ms-0.5 size-4 after:-inset-1 [--remove-icon-size:0.75rem]',
       },
       md: {
-        root: 'h-8 text-label-lg [--icon-size:1.125rem]',
-        leadingIcon: 'me-2',
-        trailingIcon: 'ms-2',
-        avatar: 'me-2 size-6',
-        remove: 'ms-1 size-6',
+        root: 'h-8 text-sm [--icon-size:1rem]',
+        leadingIcon: 'me-1.5',
+        trailingIcon: 'ms-1.5',
+        avatar: 'me-1.5 size-6 text-[0.625rem]',
+        remove: 'ms-1 size-5 after:-inset-0.5 [--remove-icon-size:0.875rem]',
       },
     },
     leading: {
@@ -116,47 +99,49 @@ export const chipStyles = tv({
       remove: '',
     },
     interactive: {
-      true: { root: 'state-layer' },
+      true: {
+        root: [
+          'cursor-pointer data-[pressed]:scale-[0.97] motion-reduce:data-[pressed]:scale-100',
+          'data-[selected]:data-[hovered]:bg-primary-soft-hover data-[selected]:data-[pressed]:bg-primary-soft-hover',
+        ],
+      },
       false: '',
     },
     morph: {
-      true: { root: '[--chip-morph-duration:var(--ds-duration-spatial-fast)]' },
-      false: { root: '[--chip-morph-duration:0ms]' },
+      true: '',
+      false: { reveal: 'transition-none', avatarCheck: 'transition-none' },
     },
   },
   compoundVariants: [
     {
-      variant: ['outlined', 'elevated'],
+      variant: 'soft',
+      interactive: true,
       class: {
-        leadingIcon:
-          'text-primary group-data-[disabled]/chip:text-inherit group-data-[selected]/chip:text-inherit',
+        root: 'data-[hovered]:not-data-[selected]:bg-neutral-soft-hover data-[pressed]:not-data-[selected]:bg-neutral-soft-hover',
       },
     },
-    { size: 'md', leading: 'none', class: { root: 'ps-4' } },
-    { size: 'md', leading: 'icon', class: { root: 'ps-2' } },
+    {
+      variant: 'outline',
+      interactive: true,
+      class: {
+        root: 'data-[hovered]:not-data-[selected]:bg-neutral-soft data-[pressed]:not-data-[selected]:bg-neutral-soft-hover',
+      },
+    },
+    { size: 'md', leading: ['none', 'reveal'], class: { root: 'ps-3' } },
+    { size: 'md', leading: 'icon', class: { root: 'ps-2.5' } },
     { size: 'md', leading: 'avatar', class: { root: 'ps-1' } },
-    {
-      size: 'md',
-      leading: 'reveal',
-      class: { root: 'ps-4 data-[pending]:ps-2 data-[selected]:ps-2' },
-    },
-    { size: 'md', trailing: 'none', class: { root: 'pe-4' } },
-    { size: 'md', trailing: 'icon', class: { root: 'pe-2' } },
-    { size: 'md', trailing: 'remove', class: { root: 'pe-1' } },
-    { size: 'sm', leading: 'none', class: { root: 'ps-3' } },
-    { size: 'sm', leading: 'icon', class: { root: 'ps-1.5' } },
+    { size: 'md', trailing: 'none', class: { root: 'pe-3' } },
+    { size: 'md', trailing: 'icon', class: { root: 'pe-2.5' } },
+    { size: 'md', trailing: 'remove', class: { root: 'pe-1.5' } },
+    { size: 'sm', leading: ['none', 'reveal'], class: { root: 'ps-2.5' } },
+    { size: 'sm', leading: 'icon', class: { root: 'ps-2' } },
     { size: 'sm', leading: 'avatar', class: { root: 'ps-1' } },
-    {
-      size: 'sm',
-      leading: 'reveal',
-      class: { root: 'ps-3 data-[pending]:ps-1.5 data-[selected]:ps-1.5' },
-    },
-    { size: 'sm', trailing: 'none', class: { root: 'pe-3' } },
-    { size: 'sm', trailing: 'icon', class: { root: 'pe-1.5' } },
+    { size: 'sm', trailing: 'none', class: { root: 'pe-2.5' } },
+    { size: 'sm', trailing: 'icon', class: { root: 'pe-2' } },
     { size: 'sm', trailing: 'remove', class: { root: 'pe-1' } },
   ],
   defaultVariants: {
-    variant: 'outlined',
+    variant: 'soft',
     size: 'md',
     leading: 'none',
     trailing: 'none',
@@ -165,7 +150,7 @@ export const chipStyles = tv({
   },
 });
 
-export type ChipVariant = 'outlined' | 'elevated' | 'tonal';
+export type ChipVariant = 'soft' | 'outline';
 
 export interface ChipLabels {
   remove: LabelTemplate<{ label: string }>;
@@ -195,7 +180,7 @@ function leadingKind(startIcon: ReactNode, avatar: ReactNode, hasReveal: boolean
 }
 
 interface ChipGroupContextValue {
-  variant: ChipVariant;
+  variant?: ChipVariant;
   size: ChipSize;
   isDisabled?: boolean;
   labels?: Partial<ChipLabels>;
@@ -345,7 +330,7 @@ export function Chip({
   const chipLabels = mergeLabels<Partial<ChipLabels>>({}, group?.labels, labels);
   const { spatialEnabled } = useMotionPreference();
   const style = {
-    variant: variant ?? group?.variant ?? 'outlined',
+    variant: variant ?? group?.variant ?? 'soft',
     size: size ?? group?.size ?? 'md',
   };
   const label = textValue ?? (typeof children === 'string' ? children : undefined);
@@ -419,7 +404,7 @@ export interface ChipGroupProps<T extends object>
 }
 
 export function ChipGroup<T extends object>({
-  variant = 'outlined',
+  variant = 'soft',
   size = 'md',
   label,
   description,
@@ -488,7 +473,7 @@ export interface AssistChipProps
 }
 
 export function AssistChip({
-  variant = 'outlined',
+  variant = 'soft',
   size = 'md',
   startIcon,
   avatar,
@@ -558,7 +543,7 @@ export interface FilterChipProps
 }
 
 export function FilterChip({
-  variant = 'outlined',
+  variant = 'soft',
   size = 'md',
   startIcon,
   avatar,

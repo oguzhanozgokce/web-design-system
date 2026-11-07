@@ -11,7 +11,7 @@ import { Menu, MenuItem, MenuSeparator, MenuTrigger } from '@/registry/ds/ui/men
 export default function MenuLinks() {
   return (
     <MenuTrigger>
-      <Button variant="text" startIcon={<HelpIcon />} endIcon={<ArrowDropDownIcon />}>
+      <Button variant="ghost" startIcon={<HelpIcon />} endIcon={<ArrowDropDownIcon />}>
         Help
       </Button>
       <Menu>
@@ -23,13 +23,13 @@ export default function MenuLinks() {
         </MenuItem>
         <MenuSeparator />
         <MenuItem
-          href="https://m3.material.io/components/menus"
+          href="https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/"
           target="_blank"
           rel="noreferrer"
           startIcon={<NorthEastIcon />}
           description="Opens in a new tab"
         >
-          Material 3 menu spec
+          Menu button pattern
         </MenuItem>
         <MenuItem href="mailto:support@example.com" startIcon={<MailIcon />}>
           Email support

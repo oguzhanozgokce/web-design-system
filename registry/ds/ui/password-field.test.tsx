@@ -325,7 +325,13 @@ describe('PasswordField', () => {
         />
       );
     }
-    const screen = await renderWithDS(<Example />);
+    const screen = await renderWithDS(
+      <>
+        <span data-testid="success" className="bg-success-solid" />
+        <span data-testid="track" className="bg-neutral-soft" />
+        <Example />
+      </>,
+    );
     const input = screen.getByLabelText('New password', { exact: true });
     await expect.element(input).toHaveAttribute('autocomplete', 'new-password');
     const meter = screen.getByRole('meter', { name: 'Password strength' });
@@ -339,6 +345,24 @@ describe('PasswordField', () => {
     expect(getComputedStyle(value).visibility).toBe('visible');
     const filled = screen.container.querySelectorAll('[data-slot="strength-segment"][data-filled]');
     expect(filled).toHaveLength(3);
+    const colour = (testId: string) =>
+      getComputedStyle(screen.getByTestId(testId).element()).backgroundColor;
+    await expect.poll(() => getComputedStyle(filled[0]).backgroundColor).toBe(colour('success'));
+    const empty = screen.container.querySelector(
+      '[data-slot="strength-segment"]:not([data-filled])',
+    )!;
+    expect(getComputedStyle(empty).backgroundColor).toBe(colour('track'));
+  });
+
+  it('reports the variant', async () => {
+    const screen = await renderWithDS(
+      <div className="grid w-80 gap-4">
+        <PasswordField label="Outline" />
+        <PasswordField label="Soft" variant="soft" />
+      </div>,
+    );
+    const roots = [...screen.container.querySelectorAll('[data-slot="password-field"]')];
+    expect(roots.map((root) => root.getAttribute('data-variant'))).toEqual(['outline', 'soft']);
   });
 
   it('derives strength from rules and describes the input with the checklist', async () => {
@@ -514,8 +538,13 @@ describe('PasswordField', () => {
         <div className="grid w-96 gap-4 p-4">
           <PasswordField label="Password" startAdornment={<LockIcon />} />
           <PasswordField label="New password" rules={rules} defaultValue="Folder2026" />
-          <PasswordField label="Passphrase" strength={2} defaultValue="horse" variant="filled" />
-          <PasswordField label="API secret" defaultRevealed defaultValue="sk_live_51" size="lg" />
+          <PasswordField label="Passphrase" strength={2} defaultValue="horse" variant="soft" />
+          <PasswordField
+            label="API secret"
+            defaultRevealed
+            defaultValue="demo-secret-51"
+            size="lg"
+          />
           <PasswordField label="Current password" isInvalid errorMessage="Try again." />
           <PasswordField label="Recovery key" isDisabled size="sm" />
         </div>,

@@ -1,6 +1,6 @@
 ---
 title: Sheet
-description: Material 3 sheet that slides in from the start, end, top or bottom edge, with sizes per side, header, body and footer parts, and bottom sheets that drag to dismiss, rest at snap points or stay open beside the page.
+description: Panel that slides in from any edge or floats detached, with sizes per side, header, body and footer parts, and bottom sheets that drag to dismiss, rest at snap points or stay open beside the page.
 ---
 
 <ComponentPreview name="sheet-demo" />
@@ -21,7 +21,7 @@ import { Sheet, SheetBody, SheetFooter, SheetHeader, SheetTrigger } from '@/comp
     <SheetHeader title="Photo details" description="IMG_2048.jpg" />
     <SheetBody>JPEG image, 4032 × 3024.</SheetBody>
     <SheetFooter>
-      <Button variant="text" slot="close">
+      <Button variant="soft" slot="close">
         Cancel
       </Button>
       <Button onPress={download}>Download</Button>
@@ -42,16 +42,18 @@ details, a short form, a list of actions. Use a dialog for a decision that inter
 ### Sides
 
 `side` is `start`, `end`, `top` or `bottom`. `start` and `end` follow the reading direction, so an
-`end` sheet opens on the left in Arabic. Only the corners that face the page are rounded.
+`end` sheet opens on the left in Arabic. Side sheets are square, full height and drawn with a
+hairline on the edge that faces the page; top and bottom sheets round the two corners that face the
+page with the 24px dialog radius, so a dialog that becomes a sheet on a phone keeps its corners.
 
 <ComponentPreview name="sheet-sides" />
 
 ### Sizes
 
-On `start` and `end` sheets, `size` sets the width: `sm` 320px, `md` 400px (the default and the
-Material 3 width), `lg` 560px, `xl` 720px and `full`. Side sheets always leave 56px of the page
-visible, except at `full`. On `top` and `bottom` sheets, `size` caps the width on wide screens
-(480px, 640px, 896px, 1200px) and the height follows the content; `full` covers the screen.
+On `start` and `end` sheets, `size` sets the width: `sm` 320px, `md` 384px (the default), `lg`
+512px, `xl` 672px and `full`. Side sheets never take more than 85% of the screen, except at `full`.
+On `top` and `bottom` sheets, `size` caps the width on wide screens (448px, 576px, 768px, 1024px),
+the height follows the content up to 85% of the screen, and `full` covers it.
 
 <ComponentPreview name="sheet-sizes" />
 
@@ -75,9 +77,17 @@ focus to content below the visible part, the sheet grows to its largest snap poi
 
 <ComponentPreview name="sheet-snap-points" />
 
+### Detached
+
+`detached` lifts the sheet 8px off the edges of the screen and rounds every corner, so it reads as a
+floating panel rather than part of the window frame. It works on every side, with snap points and
+with the standard variant.
+
+<ComponentPreview name="sheet-detached" />
+
 ### Standard sheet
 
-`variant="standard"` is a non-modal sheet. It has no scrim, does not trap focus or block scrolling,
+`variant="standard"` is a non-modal sheet. It has no backdrop, does not trap focus or block scrolling,
 and stays open while people use the page; Escape, the close button or a drag down close it. Control
 it with `isOpen` and `onOpenChange` instead of `SheetTrigger`, which would hand its press handlers
 to every button in a non-modal sheet. Give the button that toggles it `aria-expanded` and
@@ -121,6 +131,7 @@ pressable component such as `Button`.
 | `side`                         | `'start' \| 'end' \| 'top' \| 'bottom'`                | `'end'`          |
 | `size`                         | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'full'`               | `'md'`           |
 | `variant`                      | `'modal' \| 'standard'`                                | `'modal'`        |
+| `detached`                     | `boolean`                                              | `false`          |
 | `isDismissable`                | `boolean`                                              | `true`           |
 | `isKeyboardDismissDisabled`    | `boolean`                                              | `false`          |
 | `shouldCloseOnInteractOutside` | `(element: Element) => boolean`                        |                  |
@@ -142,11 +153,9 @@ pressable component such as `Button`.
 | `children`                     | `ReactNode \| ((renderProps: { close }) => ReactNode)` |                  |
 
 `SheetSnapPoint` is `number | '${number}%' | '${number}px'`. Snap points, the drag handle and drag
-to dismiss apply to `side="bottom"` only. `isDismissable` covers a press on the scrim and a drag
-down; Escape follows `isKeyboardDismissDisabled`. `className` styles the sheet surface. The surface
-is `surface-container-low`, and the sheet says so through `SurfaceContext`, so a
-[Card](/docs/components/layout/card) inside it steps up from the sheet rather than from the page.
-Buttons inside it keep their own size and variant even when the trigger sits in a [Button
+to dismiss apply to `side="bottom"` only. `isDismissable` covers a press on the backdrop and a drag
+down; Escape follows `isKeyboardDismissDisabled`. `className` styles the sheet surface. Buttons
+inside it keep their own size and variant even when the trigger sits in a [Button
 Group](/docs/components/actions/button-group).
 
 ### SheetHeader
@@ -171,23 +180,39 @@ stays at the bottom with a divider and aligns its actions to the end.
 
 ### SheetClose
 
-The icon button in the header, named by the `close` label. It accepts every
+The close button in the header: a 32px ghost, neutral
+[Icon Button](/docs/components/actions/icon-button) named by the `close` label. It accepts every
 [React Aria Button](https://react-aria.adobe.com/Button) prop except `slot` and `children`.
+
+### Styling
+
+| Part        | Classes                                                                                  |
+| ----------- | ---------------------------------------------------------------------------------------- |
+| backdrop    | `bg-backdrop`                                                                            |
+| surface     | `bg-surface-overlay shadow-lg`                                                           |
+| side edges  | `border-s` or `border-e` in `border-outline-subtle` on the edge that faces the page      |
+| top, bottom | `rounded-b-dialog` or `rounded-t-dialog`                                                 |
+| detached    | 8px from the screen edges, `rounded-dialog`, no hairline                                 |
+| handle      | `h-1 w-9 rounded-full bg-outline-variant`, `bg-outline` while hovered                    |
+| title       | `text-base font-semibold text-on-surface`; description `text-sm text-on-surface-variant` |
+| body        | `px-6 pb-6 text-sm text-on-surface-variant`                                              |
+| footer      | `border-t border-outline-subtle px-6 py-4`                                               |
 
 ### Styles
 
 `sheetStyles` exposes the `overlay`, `root`, `surface`, `dialog`, `handleZone`, `handle`,
 `handleBar`, `header`, `heading`, `title`, `description`, `close`, `body` and `footer` slots, with
-the `side`, `size`, `variant`, `motion`, `hasHandle` and `isDraggable` variants. `SheetStyleProps`
-is its variant props type.
+the `side`, `size`, `detached`, `variant`, `motion`, `hasHandle` and `isDraggable` variants.
+`SheetStyleProps` is its variant props type.
 
 ### Data attributes
 
-Root: `data-slot="sheet"`, `data-side`, `data-size`, `data-variant`, `data-entering`,
-`data-exiting`. Surface: `data-slot="sheet-surface"`, `data-dragging`, `data-snap-point`. Parts:
-`data-slot="sheet-overlay"`, `"sheet-dialog"`, `"sheet-handle-zone"`, `"sheet-handle"`,
-`"sheet-header"`, `"sheet-heading"`, `"sheet-title"`, `"sheet-description"`, `"sheet-close"`,
-`"sheet-body"` (with `data-scrollable` when its content overflows), `"sheet-footer"`.
+Root: `data-slot="sheet"`, `data-side`, `data-size`, `data-variant`, `data-detached`,
+`data-entering`, `data-exiting`. Surface: `data-slot="sheet-surface"`, `data-dragging`,
+`data-snap-point`. Parts: `data-slot="sheet-overlay"`, `"sheet-dialog"`, `"sheet-handle-zone"`,
+`"sheet-handle"`, `"sheet-header"`, `"sheet-heading"`, `"sheet-title"`, `"sheet-description"`,
+`"sheet-body"` (with `data-scrollable` when its content overflows), `"sheet-footer"`. The close
+button is an Icon Button (`data-slot="icon-button"`) with `slot="close"`.
 
 ### Labels
 
@@ -204,7 +229,7 @@ button and drag handle, or set them for every sheet with `<DSProvider labels={{ 
 - Built on React Aria `ModalOverlay`, `Modal` and `Dialog`. The sheet is a modal dialog named by
   its title and described by its description; the trigger gets `aria-expanded`.
 - Focus moves into the sheet, stays inside while it is open and returns to the trigger on close.
-  Escape and a press on the scrim close it, and screen reader users get a hidden dismiss button.
+  Escape and a press on the backdrop close it, and screen reader users get a hidden dismiss button.
 - The page behind a modal sheet is hidden from assistive technology and does not scroll. A modal
   sheet fits the visual viewport, so the on-screen keyboard does not cover a field in it.
 - A body that scrolls is focusable, so it can be scrolled with the arrow keys.
@@ -212,10 +237,10 @@ button and drag handle, or set them for every sheet with `<DSProvider labels={{ 
   element that opened it when it closes, but nothing else on the page is blocked.
 - Dragging is never the only way to act. With snap points, the handle is a button with
   `aria-expanded` that steps through them with Enter or Space; without them it is hidden from
-  assistive technology, and the close button, Escape and the scrim still close the sheet. Tabbing
+  assistive technology, and the close button, Escape and the backdrop still close the sheet. Tabbing
   to content below the visible part grows the sheet so the focused element is never hidden.
 - The sheet takes its direction from the locale, so `start` and `end` and their slide animations
   are mirrored in Arabic.
-- Sheets slide in with the Material 3 emphasized easing. With reduced motion, from the system or
-  `DSProvider`, they fade instead and a released drag settles without a spring.
+- Sheets slide in from their edge and the backdrop fades with them. With reduced motion, from the
+  system or `DSProvider`, they fade instead and a released drag settles without a spring.
 - Contrast is checked with axe in light, dark and RTL by `sheet.test.tsx`.

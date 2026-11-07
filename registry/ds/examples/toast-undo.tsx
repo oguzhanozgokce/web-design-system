@@ -39,15 +39,15 @@ export default function ToastUndo() {
   return (
     <div className="w-full max-w-sm">
       {conversations.length ? (
-        <ul className="divide-y divide-outline-variant rounded-lg bg-surface-container-low text-on-surface">
+        <ul className="divide-y divide-outline-subtle rounded-container border border-outline-subtle bg-surface-raised text-on-surface">
           {conversations.map((conversation) => (
             <li key={conversation.id} className="flex items-center gap-3 py-2 ps-4 pe-2">
               <div className="min-w-0 flex-1">
-                <p className="text-title-sm">{conversation.subject}</p>
-                <p className="text-body-sm text-on-surface-variant">{conversation.from}</p>
+                <p className="text-sm font-medium">{conversation.subject}</p>
+                <p className="text-xs text-on-surface-variant">{conversation.from}</p>
               </div>
               <Button
-                variant="text"
+                variant="ghost"
                 size="sm"
                 startIcon={<ArchiveIcon />}
                 aria-label={`Archive ${conversation.subject}`}
@@ -59,7 +59,7 @@ export default function ToastUndo() {
           ))}
         </ul>
       ) : (
-        <p className="rounded-lg bg-surface-container-low p-4 text-center text-body-md text-on-surface-variant">
+        <p className="rounded-container border border-outline-subtle bg-surface-raised p-4 text-center text-sm text-on-surface-variant">
           Every conversation is archived.
         </p>
       )}

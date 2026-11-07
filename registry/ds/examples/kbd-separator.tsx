@@ -2,7 +2,7 @@ import { KbdCombo } from '@/registry/ds/ui/kbd';
 
 export default function KbdSeparator() {
   return (
-    <div className="flex flex-col items-center gap-3 text-body-md text-on-surface">
+    <div className="flex flex-col items-center gap-3 text-sm text-on-surface">
       <p>
         Copy the selection with <KbdCombo keys={['mod', 'C']} separator="+" />
       </p>

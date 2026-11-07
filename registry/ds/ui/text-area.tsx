@@ -44,6 +44,8 @@ export const textAreaStyles = tv({
 
 export type TextAreaStyleProps = VariantProps<typeof textAreaStyles>;
 
+export type TextAreaVariant = 'outline' | 'soft';
+
 function supportsFieldSizing() {
   return typeof CSS !== 'undefined' && CSS.supports('field-sizing', 'content');
 }
@@ -98,7 +100,7 @@ export function TextArea({
   errorMessage,
   necessityIndicator,
   size = 'md',
-  variant = 'outlined',
+  variant = 'outline',
   value: valueProp,
   defaultValue = '',
   onChange,

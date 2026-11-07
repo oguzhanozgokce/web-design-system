@@ -19,16 +19,25 @@ function deferred() {
 function DeleteFolder(props: Partial<AlertDialogProps>) {
   return (
     <DialogTrigger>
-      <Button tone="destructive">Delete folder</Button>
+      <Button tone="error">Delete folder</Button>
       <AlertDialog
-        title="Delete “Operating account”?"
-        description="All 1,284 entries and their attachments are removed. This cannot be undone."
-        tone="destructive"
+        title="Delete “Design assets”?"
+        description="All 1,284 photos and their comments are removed. This cannot be undone."
+        tone="error"
         confirmLabel="Delete folder"
         {...props}
       />
     </DialogTrigger>
   );
+}
+
+function roleBackground(className: string) {
+  const probe = document.createElement('div');
+  probe.className = className;
+  document.body.append(probe);
+  const color = getComputedStyle(probe).backgroundColor;
+  probe.remove();
+  return color;
 }
 
 function removeStaleLiveAnnouncements() {
@@ -49,28 +58,52 @@ describe('AlertDialog', () => {
     const screen = await renderWithDS(<DeleteFolder />);
     const dialog = await openDialog(screen);
 
-    await expect.element(dialog).toHaveAccessibleName('Delete “Operating account”?');
+    await expect.element(dialog).toHaveAccessibleName('Delete “Design assets”?');
     await expect
       .element(dialog)
       .toHaveAccessibleDescription(
-        'All 1,284 entries and their attachments are removed. This cannot be undone.',
+        'All 1,284 photos and their comments are removed. This cannot be undone.',
       );
-    await expect.element(dialog).toHaveAttribute('data-tone', 'destructive');
-    await expect
-      .element(dialog.getByRole('button', { name: 'Delete folder' }))
-      .toHaveAttribute('data-tone', 'destructive');
+    await expect.element(dialog).toHaveAttribute('data-tone', 'error');
+    const confirm = dialog.getByRole('button', { name: 'Delete folder' });
+    await expect.element(confirm).toHaveAttribute('data-variant', 'solid');
+    await expect.element(confirm).toHaveAttribute('data-tone', 'error');
+    const cancel = dialog.getByRole('button', { name: 'Cancel' });
+    await expect.element(cancel).toHaveAttribute('data-variant', 'soft');
+    await expect.element(cancel).toHaveAttribute('data-tone', 'neutral');
+  });
+
+  it('confirms with a solid primary button for every tone but error', async () => {
+    for (const tone of ['neutral', 'primary', 'success', 'warning', 'info'] as const) {
+      const screen = await renderWithDS(
+        <DialogTrigger>
+          <Button>Publish</Button>
+          <AlertDialog title="Publish the post?" tone={tone} confirmLabel="Publish" />
+        </DialogTrigger>,
+      );
+      await screen.getByRole('button', { name: 'Publish' }).click();
+      const dialog = page.getByRole('alertdialog');
+      await expect.element(dialog).toHaveAttribute('data-tone', tone);
+      const confirm = dialog.getByRole('button', { name: 'Publish' });
+      await expect.element(confirm).toHaveAttribute('data-variant', 'solid');
+      await expect.element(confirm).toHaveAttribute('data-tone', 'primary');
+      await expect.element(confirm).toHaveFocus();
+      await userEvent.keyboard('{Escape}');
+      await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
+      await screen.unmount();
+    }
   });
 
   it('uses English defaults whatever the locale', async () => {
     const screen = await renderWithDS(
       <DialogTrigger>
         <Button>Publish</Button>
-        <AlertDialog title="Publish the March report?" requireConfirmation="PUBLISH" />
+        <AlertDialog title="Publish the March update?" requireConfirmation="PUBLISH" />
       </DialogTrigger>,
       { locale: 'tr' },
     );
     await screen.getByRole('button', { name: 'Publish' }).click();
-    const dialog = page.getByRole('alertdialog', { name: 'Publish the March report?' });
+    const dialog = page.getByRole('alertdialog', { name: 'Publish the March update?' });
     await expect.element(dialog.getByRole('button', { name: 'Confirm' })).toBeInTheDocument();
     await expect.element(dialog.getByRole('button', { name: 'Cancel' })).toBeVisible();
     await expect
@@ -86,7 +119,7 @@ describe('AlertDialog', () => {
       <DialogTrigger>
         <Button>Yayınla</Button>
         <AlertDialog
-          title="Mart raporu yayınlansın mı?"
+          title="Mart güncellemesi yayınlansın mı?"
           confirmLabel="Yayınla"
           cancelLabel="Vazgeç"
           requireConfirmation="YAYINLA"
@@ -157,7 +190,7 @@ describe('AlertDialog', () => {
     const publish = await renderWithDS(
       <DialogTrigger>
         <Button>Publish</Button>
-        <AlertDialog title="Publish the March report?" confirmLabel="Publish" />
+        <AlertDialog title="Publish the March update?" confirmLabel="Publish" />
       </DialogTrigger>,
     );
     await publish.getByRole('button', { name: 'Publish' }).click();
@@ -219,7 +252,7 @@ describe('AlertDialog', () => {
     const onConfirm = vi.fn(async () => {
       attempt += 1;
       await new Promise((resolve) => setTimeout(resolve, 20));
-      if (attempt === 1) throw new Error('The folder has 3 unpaid projects.');
+      if (attempt === 1) throw new Error('The folder has 3 shared projects.');
     });
     const screen = await renderWithDS(<DeleteFolder onConfirm={onConfirm} />);
     const dialog = await openDialog(screen);
@@ -227,7 +260,8 @@ describe('AlertDialog', () => {
 
     await confirm.click();
     const alert = dialog.getByRole('alert');
-    await expect.element(alert).toHaveTextContent('The folder has 3 unpaid projects.');
+    await expect.element(alert).toHaveTextContent('The folder has 3 shared projects.');
+    expect(getComputedStyle(alert.element()).backgroundColor).toBe(roleBackground('bg-error-soft'));
     await expect.element(confirm).not.toHaveAttribute('data-pending');
     await expect.element(dialog.getByRole('button', { name: 'Cancel' })).toBeEnabled();
     await expect.element(page.getByRole('alertdialog')).toBeVisible();
@@ -334,7 +368,7 @@ describe('AlertDialog', () => {
     const publish = await renderWithDS(
       <DialogTrigger>
         <Button>Publish</Button>
-        <AlertDialog title="Publish the March report?" confirmLabel="Publish" isConfirmDisabled />
+        <AlertDialog title="Publish the March update?" confirmLabel="Publish" isConfirmDisabled />
       </DialogTrigger>,
     );
     await publish.getByRole('button', { name: 'Publish' }).click();
@@ -385,7 +419,7 @@ describe('AlertDialog', () => {
     await openDialog(screen);
     expect(document.querySelector('[data-slot="dialog-body"]')).toBeNull();
     expect(document.querySelector('[data-slot="alert-dialog-icon"]')).toBeNull();
-    expect(document.querySelector('[data-slot="dialog-header"]')).not.toHaveClass('text-center');
+    expect(document.querySelector('[data-slot="dialog-icon"]')).toBeNull();
   });
 
   it('ignores the scrim by default and can opt in to dismissal', async () => {
@@ -413,7 +447,7 @@ describe('AlertDialog', () => {
       const [isOpen, setOpen] = useState(false);
       return (
         <>
-          <Button variant="text" tone="destructive" onPress={() => setOpen(true)}>
+          <Button variant="ghost" tone="error" onPress={() => setOpen(true)}>
             Remove Ayşe Demir
           </Button>
           <AlertDialog
@@ -422,8 +456,8 @@ describe('AlertDialog', () => {
               onOpenChange(open);
               setOpen(open);
             }}
-            tone="destructive"
-            title="Remove Ayşe Demir from Finance?"
+            tone="error"
+            title="Remove Ayşe Demir from Design?"
             confirmLabel="Remove"
             onConfirm={async () => {}}
           />
@@ -433,19 +467,20 @@ describe('AlertDialog', () => {
 
     const screen = await renderWithDS(<RemoveMember />);
     await screen.getByRole('button', { name: 'Remove Ayşe Demir' }).click();
-    const dialog = page.getByRole('alertdialog', { name: 'Remove Ayşe Demir from Finance?' });
+    const dialog = page.getByRole('alertdialog', { name: 'Remove Ayşe Demir from Design?' });
     await expect.element(dialog).toBeVisible();
     await dialog.getByRole('button', { name: 'Remove' }).click();
     await expect.element(page.getByRole('alertdialog')).not.toBeInTheDocument();
     expect(onOpenChange).toHaveBeenLastCalledWith(false);
   });
 
-  it('colours the hero icon by tone', async () => {
+  it('tints the hero icon with the tone', async () => {
     const screen = await renderWithDS(<DeleteFolder icon={<DeleteIcon />} />);
     await openDialog(screen);
-    const icon = document.querySelector('[data-slot="alert-dialog-icon"]');
-    expect(icon).toHaveClass('text-error');
-    expect(document.querySelector('[data-slot="dialog-header"]')).toHaveClass('text-center');
+    expect(document.querySelector('[data-slot="alert-dialog-icon"] svg')).not.toBeNull();
+    const icon = document.querySelector<HTMLElement>('[data-slot="dialog-icon"]')!;
+    expect(icon).toHaveAttribute('data-tone', 'error');
+    expect(getComputedStyle(icon).backgroundColor).toBe(roleBackground('bg-error-soft'));
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {
@@ -455,7 +490,7 @@ describe('AlertDialog', () => {
         <DeleteFolder
           icon={<DeleteIcon />}
           requireConfirmation="DELETE"
-          onConfirm={() => Promise.reject(new Error('The folder has 3 unpaid projects.'))}
+          onConfirm={() => Promise.reject(new Error('The folder has 3 shared projects.'))}
         />,
         options,
       );

@@ -1,6 +1,6 @@
 ---
 title: Divider
-description: Material 3 divider on React Aria Separator, horizontal or vertical, full width or with a start or middle inset, and an optional centred label such as a localised “or”.
+description: A 1px separator, horizontal or vertical, subtle or strong, full width or inset, with an optional label such as a localised “or”.
 ---
 
 <ComponentPreview name="divider-demo" />
@@ -21,17 +21,31 @@ import { Divider, OrDivider } from '@/components/ds/divider';
 
 ## Examples
 
+### Variants
+
+`subtle`, the default, is the hairline used between list rows and inside cards: `outline-subtle`,
+a translucent tint of the text colour that reads on any surface. `strong` uses `outline-variant`
+for a separation that must hold on a busy layout, such as between two halves of a form.
+
+```tsx
+<Divider />;
+<Divider variant="strong" />;
+```
+
+Both are a 1px fill rather than a border, so an inset divider keeps its exact length and a label
+sits between two lines of the same colour.
+
 ### Insets
 
 `inset="start"` indents the divider from the start edge, which flips in RTL. `inset="middle"`
-indents both ends. The default is full width. Both insets are 16px, following Material 3.
+indents both ends. The default is full width. Both insets are 16px, the usual row padding.
 
 <ComponentPreview name="divider-inset" />
 
 ### Lists with leading content
 
 Set `--divider-inset` to line a start inset up with the text after an avatar or icon. Here the
-avatar is 40px and the row has 16px padding and a 16px gap, so the inset is 4.5rem.
+avatar is 36px and the row has 16px padding and a 12px gap, so the inset is 4rem.
 
 <ComponentPreview name="divider-list" />
 
@@ -51,8 +65,9 @@ Use it between two ways of doing the same thing, such as two sign-in methods.
 
 ### Label position
 
-Any children become a label. `labelPosition` puts it in the `center` (the default), at the `start`
-or at the `end`. A start label works as a light section heading in feeds and long lists.
+Any children become a label, set in `text-xs` and `on-surface-variant` with 12px on either side.
+`labelPosition` puts it in the `center` (the default), at the `start` or at the `end`. A start
+label works as a light section heading in feeds and long lists.
 
 <ComponentPreview name="divider-label-position" />
 
@@ -62,6 +77,7 @@ or at the `end`. A start label works as a light section heading in feeds and lon
 
 | Prop            | Type                            | Default        |
 | --------------- | ------------------------------- | -------------- |
+| `variant`       | `'subtle' \| 'strong'`          | `'subtle'`     |
 | `orientation`   | `'horizontal' \| 'vertical'`    | `'horizontal'` |
 | `inset`         | `'none' \| 'start' \| 'middle'` | `'none'`       |
 | `children`      | `ReactNode`                     |                |
@@ -81,7 +97,8 @@ for vertical ones.
 
 ### Data attributes
 
-`data-slot="divider"`, `data-orientation`, `data-inset` and, with a label, `data-label-position`.
+`data-slot="divider"`, `data-variant`, `data-orientation`, `data-inset` and, with a label,
+`data-label-position`.
 Parts of a labelled divider: `"divider-line"`, `"divider-label"`.
 
 ### Labels
@@ -100,8 +117,8 @@ Text `OrDivider` writes on its own. Pass `labels`, or set it app-wide with
   `aria-orientation="vertical"`, all from React Aria's `Separator`.
 - A labelled divider is named by its label through `aria-labelledby`, so "or" is announced even
   though a separator's children are presentational.
-- The colour is `outline-variant` and is drawn with a border, so it stays visible in Windows high
-  contrast mode.
+- The line is a background fill, so in forced-colours modes such as Windows high contrast it
+  switches to the system text colour instead of disappearing.
 - Use a divider to separate groups, not as the only structure: a list still needs `ul` and `li`,
   and a section still needs a heading.
 - Checked with axe in light, dark and RTL by `divider.test.tsx`.

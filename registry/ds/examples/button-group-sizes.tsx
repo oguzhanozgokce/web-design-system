@@ -4,12 +4,11 @@ import { ButtonGroup } from '@/registry/ds/ui/button-group';
 export default function ButtonGroupSizes() {
   return (
     <div className="flex flex-col items-center gap-4">
-      {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
+      {(['sm', 'md', 'lg'] as const).map((size) => (
         <ButtonGroup
           key={size}
           aria-label={`History, size ${size}`}
-          variant="connected"
-          buttonVariant="tonal"
+          buttonVariant="soft"
           size={size}
         >
           <Button>Undo</Button>

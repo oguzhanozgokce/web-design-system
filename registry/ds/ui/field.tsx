@@ -36,73 +36,65 @@ import { useIcons, useLabels } from '@/registry/ds/ui/ds-provider';
 
 export const fieldStyles = tv({
   slots: {
-    root: 'group/field flex min-w-0 flex-col gap-1.5',
+    root: 'group/field flex min-w-0 flex-col gap-1',
     label:
-      'flex w-fit cursor-default items-baseline gap-1 text-label-lg text-on-surface group-data-[disabled]/field:text-on-surface/38',
+      'flex w-fit cursor-default items-baseline gap-0.5 text-sm font-medium text-on-surface group-data-[disabled]/field:opacity-50',
     necessity: '',
     container: [
-      'group/control relative flex w-full min-w-0 cursor-text items-center text-on-surface',
-      'text-body-lg pointer-fine:text-body-md',
-      'transition-[border-color,background-color,box-shadow] duration-150 ease-standard motion-reduce:transition-none',
-      'data-[disabled]:cursor-default data-[disabled]:text-on-surface/38',
+      'group/control relative flex w-full min-w-0 cursor-text items-center rounded-field text-on-surface',
+      'text-base pointer-fine:text-sm',
+      'transition-[border-color,background-color,box-shadow] duration-150 ease-out motion-reduce:transition-none',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
     ],
     input: [
       'min-w-0 flex-1 self-stretch bg-transparent caret-primary focus:outline-hidden group-data-[invalid]/control:caret-error',
-      'placeholder:text-on-surface-variant disabled:cursor-default disabled:placeholder:text-current',
+      'placeholder:text-on-surface-variant disabled:cursor-not-allowed',
       '[&::-webkit-search-cancel-button]:appearance-none',
     ],
     adornment:
-      'flex shrink-0 items-center whitespace-nowrap text-on-surface-variant [unicode-bidi:plaintext] select-none group-data-[disabled]/control:text-current [&_svg]:size-(--icon-size)',
+      'flex shrink-0 items-center whitespace-nowrap text-on-surface-variant [unicode-bidi:plaintext] select-none [&_svg]:size-(--icon-size)',
     action:
-      'state-layer focus-ring ms-1 flex shrink-0 cursor-default items-center justify-center rounded-full text-on-surface-variant data-[disabled]:text-on-surface/38 [&_svg]:size-(--icon-size)',
-    supporting: 'flex items-start gap-3 text-body-sm',
+      'focus-ring transition-control ms-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full text-on-surface-variant data-[hovered]:bg-neutral-soft data-[pressed]:bg-neutral-soft-hover data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 [&_svg]:size-(--icon-size)',
+    supporting: 'flex items-start gap-3 text-xs',
     description: 'min-w-0 flex-1 text-on-surface-variant',
     error:
-      'flex min-w-0 flex-1 animate-ds-fade-in items-start gap-1 text-error motion-reduce:animate-none [&_svg]:size-4 [&_svg]:shrink-0',
+      'flex min-w-0 flex-1 animate-ds-fade-in items-start gap-1 text-error motion-reduce:animate-none [&_svg]:size-3.5 [&_svg]:shrink-0',
     counter: 'ms-auto shrink-0 text-on-surface-variant tabular-digits data-[over]:text-error',
   },
   variants: {
     size: {
       sm: {
         container:
-          'h-9 gap-0.5 px-(--field-px) [--field-gap:0.375rem] [--field-px:0.625rem] [--field-py:0.375rem] [--icon-size:1.125rem]',
+          'h-8 gap-0.5 px-(--field-px) [--field-gap:0.375rem] [--field-px:0.625rem] [--field-py:0.375rem] [--icon-size:1rem]',
         action: '-me-1 size-6',
       },
       md: {
         container:
-          'h-10 gap-0.5 px-(--field-px) [--field-gap:0.5rem] [--field-px:0.75rem] [--field-py:0.5rem] [--icon-size:1.25rem]',
+          'h-10 gap-0.5 px-(--field-px) [--field-gap:0.5rem] [--field-px:0.75rem] [--field-py:0.5rem] [--icon-size:1rem]',
         action: '-me-1.5 size-7',
       },
       lg: {
         container:
-          'h-12 gap-1 px-(--field-px) [--field-gap:0.625rem] [--field-px:1rem] [--field-py:0.75rem] [--icon-size:1.5rem] pointer-fine:text-body-lg',
+          'h-12 gap-1 px-(--field-px) [--field-gap:0.625rem] [--field-px:1rem] [--field-py:0.75rem] [--icon-size:1.25rem] pointer-fine:text-base',
         action: '-me-2 size-8',
       },
     },
     variant: {
-      outlined: {
+      outline: {
         container: [
-          'rounded-sm border border-outline bg-transparent ring-primary',
-          'data-[hovered]:not-focus-within:not-data-[invalid]:not-data-[readonly]:border-on-surface',
-          'focus-within:ring-1 focus-within:ring-inset focus-within:not-data-[invalid]:border-primary',
-          'data-[invalid]:ring-error data-[invalid]:not-data-[disabled]:border-error',
-          'data-[readonly]:bg-on-surface/4',
-          'data-[disabled]:border-on-surface/12',
+          'border border-outline-variant bg-surface-raised',
+          'data-[hovered]:not-focus-within:not-data-[invalid]:not-data-[readonly]:inset-ring-2 data-[hovered]:not-focus-within:not-data-[invalid]:not-data-[readonly]:inset-ring-outline-variant/40',
+          'focus-within:not-data-[invalid]:border-primary focus-within:not-data-[invalid]:inset-ring-2 focus-within:not-data-[invalid]:inset-ring-primary/20',
+          'data-[invalid]:border-error focus-within:data-[invalid]:inset-ring-2 focus-within:data-[invalid]:inset-ring-error/20',
+          'data-[readonly]:bg-neutral-soft',
         ],
       },
-      filled: {
+      soft: {
         container: [
-          'isolate rounded-t-sm rounded-b-none bg-surface-container-highest',
-          'before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-on-surface before:opacity-0 before:transition-opacity before:duration-150 before:ease-standard',
-          'data-[hovered]:not-data-[readonly]:before:opacity-8',
-          'after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-on-surface-variant after:transition-[height,background-color] after:duration-150 after:ease-standard',
-          'data-[hovered]:not-focus-within:not-data-[invalid]:not-data-[readonly]:after:bg-on-surface',
-          'focus-within:after:h-0.5 focus-within:not-data-[invalid]:after:bg-primary',
-          'data-[invalid]:not-data-[disabled]:after:bg-error',
-          'data-[readonly]:bg-surface-container data-[readonly]:after:bg-outline',
-          'data-[disabled]:bg-on-surface/4 data-[disabled]:after:bg-on-surface/38',
-          'motion-reduce:before:transition-none motion-reduce:after:transition-none',
-          'forced-colors:border-b',
+          'border border-transparent bg-neutral-soft',
+          'data-[hovered]:not-focus-within:not-data-[invalid]:not-data-[readonly]:bg-neutral-soft-hover',
+          'focus-within:not-data-[invalid]:border-primary focus-within:not-data-[invalid]:bg-surface-raised focus-within:not-data-[invalid]:inset-ring-2 focus-within:not-data-[invalid]:inset-ring-primary/20',
+          'data-[invalid]:border-error focus-within:data-[invalid]:inset-ring-2 focus-within:data-[invalid]:inset-ring-error/20',
         ],
       },
     },
@@ -117,9 +109,9 @@ export const fieldStyles = tv({
       },
     },
     necessityIndicator: {
-      icon: { necessity: 'text-error group-data-[disabled]/field:text-current' },
+      icon: { necessity: 'text-error' },
       label: {
-        necessity: 'text-body-md text-on-surface-variant group-data-[disabled]/field:text-current',
+        necessity: 'text-sm font-normal text-on-surface-variant',
       },
     },
     isLabelHidden: {
@@ -128,7 +120,7 @@ export const fieldStyles = tv({
   },
   defaultVariants: {
     size: 'md',
-    variant: 'outlined',
+    variant: 'outline',
     necessityIndicator: 'icon',
   },
 });
@@ -137,7 +129,7 @@ export type FieldStyleProps = VariantProps<typeof fieldStyles>;
 
 export type FieldSize = 'sm' | 'md' | 'lg';
 
-export type FieldVariant = 'outlined' | 'filled';
+export type FieldVariant = 'outline' | 'soft';
 
 export type NecessityIndicator = 'icon' | 'label';
 
@@ -175,7 +167,7 @@ export interface FieldContextValue {
 
 export const FieldContext = createContext<FieldContextValue>({
   size: 'md',
-  variant: 'outlined',
+  variant: 'outline',
   necessityIndicator: 'icon',
   isRequired: false,
   isLabelHidden: false,
@@ -284,7 +276,7 @@ export function Field({
   necessityIndicator = 'icon',
   isRequired = false,
   size = 'md',
-  variant = 'outlined',
+  variant = 'outline',
   counter,
   labels,
   children,

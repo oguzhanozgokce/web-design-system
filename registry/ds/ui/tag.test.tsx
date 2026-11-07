@@ -7,6 +7,15 @@ import { Tag, TagGroup, type TagTone } from '@/registry/ds/ui/tag';
 
 const tones: TagTone[] = ['neutral', 'primary', 'success', 'warning', 'error', 'info'];
 
+function probe(className: string, property: 'backgroundColor' | 'color' = 'backgroundColor') {
+  const element = document.createElement('span');
+  element.className = className;
+  document.querySelector('[data-testid="ds-root"]')!.append(element);
+  const value = getComputedStyle(element)[property];
+  element.remove();
+  return value;
+}
+
 function Labels({ initial }: { initial: string[] }) {
   const [labels, setLabels] = useState(initial.map((name) => ({ id: name, name })));
   return (
@@ -23,19 +32,42 @@ function Labels({ initial }: { initial: string[] }) {
 describe('Tag', () => {
   it('renders a static label with its tone, variant and size', async () => {
     const screen = await renderWithDS(
-      <Tag tone="success" variant="outlined" dot>
-        Paid
+      <Tag tone="success" variant="outline" dot>
+        Published
       </Tag>,
     );
-    const tag = screen.getByText('Paid').element().closest('[data-slot="tag"]')!;
+    const tag = screen.getByText('Published').element().closest('[data-slot="tag"]')!;
     expect(tag.tagName).toBe('SPAN');
     expect(tag.getAttribute('role')).toBeNull();
     expect(tag.getAttribute('data-tone')).toBe('success');
-    expect(tag.getAttribute('data-variant')).toBe('outlined');
+    expect(tag.getAttribute('data-variant')).toBe('outline');
     expect(tag.getAttribute('data-size')).toBe('md');
     expect(tag.getBoundingClientRect().height).toBe(24);
-    expect(getComputedStyle(tag).borderTopLeftRadius).toBe('4px');
-    expect(tag.querySelector('[data-slot="dot"]')?.getAttribute('aria-hidden')).toBe('true');
+    expect(getComputedStyle(tag).borderTopLeftRadius).toBe('9999px');
+    expect(getComputedStyle(tag).color).toBe(probe('text-on-surface', 'color'));
+    const dot = tag.querySelector('[data-slot="dot"]')!;
+    expect(dot.getAttribute('aria-hidden')).toBe('true');
+    expect(getComputedStyle(dot).backgroundColor).toBe(probe('bg-success'));
+  });
+
+  it('paints soft and solid tags from the tone roles', async () => {
+    const screen = await renderWithDS(
+      <div className="flex gap-2">
+        <Tag tone="warning">Soft</Tag>
+        <Tag tone="warning" variant="solid">
+          Solid
+        </Tag>
+        <Tag>Neutral</Tag>
+        <Tag variant="solid">Inverse</Tag>
+      </div>,
+    );
+    const background = (text: string) =>
+      getComputedStyle(screen.getByText(text).element().closest('[data-slot="tag"]')!)
+        .backgroundColor;
+    expect(background('Soft')).toBe(probe('bg-warning-soft'));
+    expect(background('Solid')).toBe(probe('bg-warning-solid'));
+    expect(background('Neutral')).toBe(probe('bg-neutral-soft'));
+    expect(background('Inverse')).toBe(probe('bg-inverse-surface'));
   });
 
   it('is 20px high at size sm and shows an icon instead of the dot', async () => {
@@ -88,13 +120,13 @@ describe('Tag', () => {
 
   it('passes HTML attributes to a static tag', async () => {
     const screen = await renderWithDS(
-      <Tag id="status" title="Paid on 12 May" data-testid="status">
-        Paid
+      <Tag id="status" title="Published on 12 May" data-testid="status">
+        Published
       </Tag>,
     );
     const tag = screen.getByTestId('status');
     await expect.element(tag).toHaveAttribute('id', 'status');
-    await expect.element(tag).toHaveAttribute('title', 'Paid on 12 May');
+    await expect.element(tag).toHaveAttribute('title', 'Published on 12 May');
   });
 });
 
@@ -115,19 +147,19 @@ describe('TagGroup', () => {
     await expect.element(grid).toHaveAccessibleDescription('Shown on the project');
     const urgent = screen.getByRole('row', { name: 'Urgent' });
     await expect.element(urgent).toHaveAttribute('data-tone', 'error');
-    await expect.element(urgent).toHaveAttribute('data-variant', 'tonal');
-    expect(urgent.element().className).not.toContain('state-layer');
+    await expect.element(urgent).toHaveAttribute('data-variant', 'soft');
+    expect(getComputedStyle(urgent.element()).cursor).toBe('default');
     expect(urgent.element().getBoundingClientRect().height).toBe(24);
   });
 
   it('removes a tag from its remove button and from the keyboard', async () => {
-    const screen = await renderWithDS(<Labels initial={['Sharing', 'Enterprise', 'Urgent']} />);
+    const screen = await renderWithDS(<Labels initial={['Sharing', 'Research', 'Urgent']} />);
     await screen.getByRole('button', { name: 'Remove Sharing' }).click();
     await expect.element(screen.getByRole('row', { name: 'Sharing' })).not.toBeInTheDocument();
 
-    screen.getByRole('row', { name: 'Enterprise' }).element().focus();
+    screen.getByRole('row', { name: 'Research' }).element().focus();
     await userEvent.keyboard('{Backspace}');
-    await expect.element(screen.getByRole('row', { name: 'Enterprise' })).not.toBeInTheDocument();
+    await expect.element(screen.getByRole('row', { name: 'Research' })).not.toBeInTheDocument();
     await expect.element(screen.getByRole('row', { name: 'Urgent' })).toHaveFocus();
   });
 
@@ -172,20 +204,22 @@ describe('TagGroup', () => {
     const screen = await renderWithDS(
       <TagGroup label="Project years" onRemove={() => {}}>
         <Tag id="2024">{2024}</Tag>
-        <Tag id="vip" textValue="VIP follower" icon={<ScheduleIcon />}>
-          <strong>VIP</strong> follower
+        <Tag id="pinned" textValue="Pinned folder" icon={<ScheduleIcon />}>
+          <strong>Pinned</strong> folder
         </Tag>
       </TagGroup>,
     );
     await expect.element(screen.getByRole('button', { name: 'Remove 2024' })).toBeVisible();
-    await expect.element(screen.getByRole('button', { name: 'Remove VIP follower' })).toBeVisible();
+    await expect
+      .element(screen.getByRole('button', { name: 'Remove Pinned folder' }))
+      .toBeVisible();
   });
 
   it('falls back to React Aria naming when a tag has no text label', async () => {
     const screen = await renderWithDS(
       <TagGroup label="Labels" onRemove={() => {}}>
-        <Tag id="vip">
-          <strong>VIP</strong>
+        <Tag id="pinned">
+          <strong>Pinned</strong>
         </Tag>
       </TagGroup>,
     );
@@ -195,10 +229,10 @@ describe('TagGroup', () => {
   });
 
   it('takes the remove and empty labels from DSProvider', async () => {
-    const screen = await renderWithDS(<Labels initial={['Fatura']} />, {
+    const screen = await renderWithDS(<Labels initial={['Tasarım']} />, {
       provider: { labels: { tag: { remove: '{label} etiketini kaldır', empty: 'Yok' } } },
     });
-    await screen.getByRole('button', { name: 'Fatura etiketini kaldır' }).click();
+    await screen.getByRole('button', { name: 'Tasarım etiketini kaldır' }).click();
     await expect.element(screen.getByText('Yok')).toBeVisible();
   });
 
@@ -210,7 +244,7 @@ describe('TagGroup', () => {
           onRemove={() => {}}
           labels={{ remove: '{label} etiketini kaldır' }}
         >
-          <Tag id="sharing">Fatura</Tag>
+          <Tag id="sharing">Tasarım</Tag>
           <Tag id="urgent" labels={{ remove: ({ label }) => `${label} etiketini sil` }}>
             Acil
           </Tag>
@@ -222,7 +256,7 @@ describe('TagGroup', () => {
       { provider: { labels: { tag: { remove: 'Kaldır: {label}', empty: 'Yok' } } } },
     );
     await expect
-      .element(screen.getByRole('button', { name: 'Fatura etiketini kaldır' }))
+      .element(screen.getByRole('button', { name: 'Tasarım etiketini kaldır' }))
       .toBeVisible();
     await expect.element(screen.getByRole('button', { name: 'Acil etiketini sil' })).toBeVisible();
     await expect.element(screen.getByText('Henüz kategori yok')).toBeVisible();
@@ -245,33 +279,32 @@ describe('TagGroup', () => {
         label="Email me when"
         selectionMode="multiple"
         tone="primary"
-        variant="outlined"
+        variant="outline"
         onSelectionChange={onSelectionChange}
       >
         <Tag id="message">Message received</Tag>
-        <Tag id="overdue">Project overdue</Tag>
+        <Tag id="shared">Project shared</Tag>
       </TagGroup>,
     );
     const message = screen.getByRole('row', { name: 'Message received' });
-    expect(message.element().className).toContain('state-layer');
+    expect(getComputedStyle(message.element()).cursor).toBe('pointer');
     expect(message.element().querySelector('[data-slot="check"]')).toBeNull();
-    const outlinedBackground = getComputedStyle(message.element()).backgroundColor;
+    const outlineBackground = getComputedStyle(message.element()).backgroundColor;
 
     await message.click();
     await expect.element(message).toHaveAttribute('aria-selected', 'true');
     expect([...onSelectionChange.mock.lastCall![0]]).toEqual(['message']);
     expect(message.element().querySelector('[data-slot="check"]')).not.toBeNull();
-    const probe = document.createElement('span');
-    probe.className = 'bg-primary';
-    screen.getByTestId('ds-root').element().append(probe);
-    const primary = getComputedStyle(probe).backgroundColor;
-    expect(outlinedBackground).toBe('rgba(0, 0, 0, 0)');
-    await expect.poll(() => getComputedStyle(message.element()).backgroundColor).toBe(primary);
+    expect(outlineBackground).toBe('rgba(0, 0, 0, 0)');
+    await userEvent.unhover(message);
+    await expect
+      .poll(() => getComputedStyle(message.element()).backgroundColor)
+      .toBe(probe('bg-primary-solid'));
 
     await userEvent.keyboard('{ArrowRight}');
     await userEvent.keyboard(' ');
     await expect
-      .element(screen.getByRole('row', { name: 'Project overdue' }))
+      .element(screen.getByRole('row', { name: 'Project shared' }))
       .toHaveAttribute('aria-selected', 'true');
   });
 
@@ -287,7 +320,7 @@ describe('TagGroup', () => {
             onSelectionChange={setSelected}
           >
             <Tag id="message">Message received</Tag>
-            <Tag id="overdue">Project overdue</Tag>
+            <Tag id="shared">Project shared</Tag>
           </TagGroup>
           <button type="button" onClick={() => setSelected(new Set())}>
             Clear
@@ -297,26 +330,26 @@ describe('TagGroup', () => {
     }
     const screen = await renderWithDS(<Controlled />);
     const message = screen.getByRole('row', { name: 'Message received' });
-    const overdue = screen.getByRole('row', { name: 'Project overdue' });
+    const shared = screen.getByRole('row', { name: 'Project shared' });
     await expect.element(message).toHaveAttribute('aria-selected', 'true');
-    await overdue.click();
-    await expect.element(overdue).toHaveAttribute('aria-selected', 'true');
+    await shared.click();
+    await expect.element(shared).toHaveAttribute('aria-selected', 'true');
     await expect.element(message).toHaveAttribute('aria-selected', 'false');
     await screen.getByRole('button', { name: 'Clear' }).click();
-    await expect.element(overdue).toHaveAttribute('aria-selected', 'false');
+    await expect.element(shared).toHaveAttribute('aria-selected', 'false');
   });
 
   it('moves focus with ArrowLeft to the next tag in RTL', async () => {
     const screen = await renderWithDS(
       <TagGroup label="الوسوم" selectionMode="single">
-        <Tag id="paid">مدفوع</Tag>
-        <Tag id="due">مستحق</Tag>
+        <Tag id="design">تصميم</Tag>
+        <Tag id="research">بحث</Tag>
       </TagGroup>,
       { locale: 'ar' },
     );
-    screen.getByRole('row', { name: 'مدفوع' }).element().focus();
+    screen.getByRole('row', { name: 'تصميم' }).element().focus();
     await userEvent.keyboard('{ArrowLeft}');
-    await expect.element(screen.getByRole('row', { name: 'مستحق' })).toHaveFocus();
+    await expect.element(screen.getByRole('row', { name: 'بحث' })).toHaveFocus();
   });
 
   it('shows the error message instead of the description when invalid', async () => {
@@ -348,6 +381,8 @@ describe('TagGroup', () => {
     );
     const backups = screen.getByRole('row', { name: 'Backups' });
     await expect.element(backups).toHaveAttribute('data-disabled', 'true');
+    expect(getComputedStyle(backups.element()).opacity).toBe('0.5');
+    expect(getComputedStyle(backups.element()).cursor).toBe('not-allowed');
     const remove = screen.getByRole('button', { name: 'Remove Backups' });
     await expect.element(remove).toBeDisabled();
     await remove.click({ force: true });
@@ -373,16 +408,17 @@ describe('TagGroup', () => {
   it('lets a tag override the group tone and size', async () => {
     const screen = await renderWithDS(
       <TagGroup label="Labels" tone="info" size="sm">
-        <Tag id="a">Enterprise</Tag>
+        <Tag id="a">Research</Tag>
         <Tag id="b" tone="warning" size="md">
           Needs review
         </Tag>
       </TagGroup>,
     );
-    const enterprise = screen.getByRole('row', { name: 'Enterprise' });
+    const research = screen.getByRole('row', { name: 'Research' });
     const review = screen.getByRole('row', { name: 'Needs review' });
-    await expect.element(enterprise).toHaveAttribute('data-tone', 'info');
-    await expect.element(enterprise).toHaveAttribute('data-size', 'sm');
+    await expect.element(research).toHaveAttribute('data-tone', 'info');
+    await expect.element(research).toHaveAttribute('data-size', 'sm');
+    expect(research.element().getBoundingClientRect().height).toBe(20);
     await expect.element(review).toHaveAttribute('data-tone', 'warning');
     expect(review.element().getBoundingClientRect().height).toBe(24);
   });
@@ -393,7 +429,7 @@ describe('Tag accessibility', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          {(['tonal', 'outlined', 'filled'] as const).map((variant) => (
+          {(['soft', 'outline', 'solid'] as const).map((variant) => (
             <div key={variant} className="flex flex-wrap gap-2">
               {tones.map((tone) => (
                 <Tag key={tone} tone={tone} variant={variant} dot>
@@ -402,9 +438,9 @@ describe('Tag accessibility', () => {
               ))}
             </div>
           ))}
-          <div className="flex flex-wrap gap-2 bg-surface-container p-2">
+          <div className="flex flex-wrap gap-2 bg-surface-raised p-2">
             {tones.map((tone) => (
-              <Tag key={tone} tone={tone} variant="outlined" size="sm">
+              <Tag key={tone} tone={tone} variant="outline" size="sm">
                 {tone}
               </Tag>
             ))}
@@ -432,7 +468,7 @@ describe('Tag accessibility', () => {
         options,
       );
       await expectNoA11yViolations(screen.container);
-      screen.unmount();
+      await screen.unmount();
     }
   });
 });

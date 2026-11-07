@@ -8,6 +8,10 @@ function part(slot: string, root: ParentNode = document) {
   return root.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
 }
 
+function parts(slot: string, root: ParentNode = document) {
+  return [...root.querySelectorAll<HTMLElement>(`[data-slot="${slot}"]`)];
+}
+
 class CaughtError extends Component<{ children: ReactNode }, { message: string | null }> {
   state = { message: null };
 
@@ -28,69 +32,117 @@ describe('Checkbox', () => {
   it('renders an accessible checkbox that toggles on click', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
-      <Checkbox onChange={onChange}>Email me when an project is overdue</Checkbox>,
+      <Checkbox onChange={onChange}>Email me when a project is due</Checkbox>,
     );
-    const checkbox = screen.getByRole('checkbox', { name: 'Email me when an project is overdue' });
+    const checkbox = screen.getByRole('checkbox', { name: 'Email me when a project is due' });
     await expect.element(checkbox).not.toBeChecked();
 
-    await screen.getByText('Email me when an project is overdue').click();
+    await screen.getByText('Email me when a project is due').click();
     await expect.element(checkbox).toBeChecked();
     expect(onChange).toHaveBeenLastCalledWith(true);
     expect(part('checkbox')?.hasAttribute('data-selected')).toBe(true);
+    expect(part('checkbox')?.getAttribute('data-size')).toBe('md');
   });
 
-  it('toggles from anywhere in the 40px state layer', async () => {
+  it('gives an unlabelled checkbox a target larger than its box', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
-      <div className="p-6">
-        <Checkbox aria-label="Select DOC-2041" onChange={onChange} />
+      <div data-testid="frame" className="w-fit p-6">
+        <Checkbox aria-label="Select Photo.jpg" onChange={onChange} />
       </div>,
     );
-    const layer = part('state-layer')!;
-    expect(layer.getBoundingClientRect().width).toBe(40);
-    expect(part('box')!.getBoundingClientRect().width).toBe(18);
+    const box = part('box')!.getBoundingClientRect();
+    expect(box.width).toBe(18);
+    const frame = screen.getByTestId('frame');
+    const origin = frame.element().getBoundingClientRect();
 
-    await page.elementLocator(layer).click({ position: { x: 4, y: 20 } });
-    await expect.element(screen.getByRole('checkbox', { name: 'Select DOC-2041' })).toBeChecked();
+    await frame.click({
+      position: { x: box.left - origin.left - 3, y: box.top - origin.top + box.height / 2 },
+    });
+    await expect.element(screen.getByRole('checkbox', { name: 'Select Photo.jpg' })).toBeChecked();
     expect(onChange).toHaveBeenLastCalledWith(true);
   });
 
-  it('toggles with the keyboard', async () => {
-    const screen = await renderWithDS(<Checkbox>Send message reminders</Checkbox>);
-    const checkbox = screen.getByRole('checkbox', { name: 'Send message reminders' });
+  it('sizes the box at 16 and 18 pixels and takes the size from its group', async () => {
+    const screen = await renderWithDS(
+      <>
+        <Checkbox size="sm">Compact</Checkbox>
+        <Checkbox>Default</Checkbox>
+        <CheckboxGroup label="Columns" size="sm">
+          <Checkbox value="name">Name</Checkbox>
+        </CheckboxGroup>
+      </>,
+    );
+    await expect.element(screen.getByRole('checkbox', { name: 'Name' })).toBeInTheDocument();
+    expect(parts('box').map((box) => box.getBoundingClientRect().width)).toEqual([16, 18, 16]);
+    expect(parts('checkbox').map((root) => root.getAttribute('data-size'))).toEqual([
+      'sm',
+      'md',
+      'sm',
+    ]);
+  });
+
+  it('toggles with the keyboard and rings the box', async () => {
+    const screen = await renderWithDS(<Checkbox>Send reminders</Checkbox>);
+    const checkbox = screen.getByRole('checkbox', { name: 'Send reminders' });
 
     await userEvent.tab();
     await expect.element(checkbox).toHaveFocus();
     await userEvent.keyboard('[Space]');
     await expect.element(checkbox).toBeChecked();
-    expect(part('state-layer')?.hasAttribute('data-focus-visible')).toBe(true);
+    const box = part('box')!;
+    expect(box.hasAttribute('data-focus-visible')).toBe(true);
+    expect(getComputedStyle(box).outlineWidth).toBe('2px');
+    expect(getComputedStyle(box).outlineOffset).toBe('2px');
+  });
+
+  it('fills a checked box with the solid primary and an invalid one with the solid error', async () => {
+    const screen = await renderWithDS(
+      <>
+        <span data-testid="primary" className="bg-primary-solid" />
+        <span data-testid="error" className="bg-error-solid" />
+        <Checkbox defaultSelected>Photos</Checkbox>
+        <Checkbox defaultSelected isInvalid>
+          Videos
+        </Checkbox>
+        <Checkbox>Music</Checkbox>
+      </>,
+      { provider: { motion: 'disabled' } },
+    );
+    const fill = (testId: string) =>
+      getComputedStyle(screen.getByTestId(testId).element()).backgroundColor;
+    const [photos, videos, music] = parts('box');
+    expect(getComputedStyle(photos, '::before').backgroundColor).toBe(fill('primary'));
+    expect(getComputedStyle(photos, '::before').opacity).toBe('1');
+    expect(getComputedStyle(videos, '::before').backgroundColor).toBe(fill('error'));
+    expect(getComputedStyle(music, '::before').opacity).toBe('0');
   });
 
   it('keeps the description out of the name and announces it as a description', async () => {
     const screen = await renderWithDS(
-      <Checkbox description="Followers get a reminder three days before the due date.">
-        Send message reminders
+      <Checkbox description="Members get a reminder three days before the due date.">
+        Send reminders
       </Checkbox>,
     );
     const checkbox = screen.getByRole('checkbox');
-    await expect.element(checkbox).toHaveAccessibleName('Send message reminders');
+    await expect.element(checkbox).toHaveAccessibleName('Send reminders');
     await expect
       .element(checkbox)
-      .toHaveAccessibleDescription('Followers get a reminder three days before the due date.');
+      .toHaveAccessibleDescription('Members get a reminder three days before the due date.');
 
-    await screen.getByText('Followers get a reminder three days before the due date.').click();
+    await screen.getByText('Members get a reminder three days before the due date.').click();
     await expect.element(checkbox).toBeChecked();
   });
 
   it('keeps an explicit aria-label when a description is present', async () => {
     const screen = await renderWithDS(
-      <Checkbox aria-label="Message reminders for Riverside" description="Three days before.">
+      <Checkbox aria-label="Reminders for the Design team" description="Three days before.">
         Reminders
       </Checkbox>,
     );
     await expect
       .element(screen.getByRole('checkbox'))
-      .toHaveAccessibleName('Message reminders for Riverside');
+      .toHaveAccessibleName('Reminders for the Design team');
   });
 
   it('supports controlled and indeterminate state', async () => {
@@ -126,7 +178,18 @@ describe('Checkbox', () => {
     expect(getComputedStyle(path).strokeDashoffset).toBe('0px');
   });
 
-  it('does not toggle when disabled or read-only', async () => {
+  it.each([
+    ['system', '0.95'],
+    ['reduced', '1'],
+  ] as const)('presses the box in with motion %s', async (motion, scale) => {
+    await renderWithDS(<Checkbox>Photos</Checkbox>, { provider: { motion } });
+    await userEvent.tab();
+    await userEvent.keyboard('{Space>}');
+    await expect.poll(() => getComputedStyle(part('box')!).scale).toBe(scale);
+    await userEvent.keyboard('{/Space}');
+  });
+
+  it('does not toggle when disabled or read-only, and dims when disabled', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <>
@@ -134,42 +197,42 @@ describe('Checkbox', () => {
           Archive closed folders
         </Checkbox>
         <Checkbox isReadOnly onChange={onChange}>
-          Lock the March period
+          Lock shared folders
         </Checkbox>
       </>,
     );
     const disabled = screen.getByRole('checkbox', { name: 'Archive closed folders' });
     await expect.element(disabled).toBeDisabled();
     await screen.getByText('Archive closed folders').click({ force: true });
-    await screen.getByText('Lock the March period').click();
+    await screen.getByText('Lock shared folders').click();
     expect(onChange).not.toHaveBeenCalled();
     await expect.element(disabled).not.toBeChecked();
     await expect
-      .element(screen.getByRole('checkbox', { name: 'Lock the March period' }))
+      .element(screen.getByRole('checkbox', { name: 'Lock shared folders' }))
       .not.toBeChecked();
+    const [disabledTarget, readOnlyTarget] = parts('target');
+    expect(getComputedStyle(disabledTarget).opacity).toBe('0.5');
+    expect(getComputedStyle(disabledTarget).cursor).toBe('not-allowed');
+    expect(getComputedStyle(readOnlyTarget).cursor).toBe('default');
   });
 
   it('keeps the click target to the box and its text', async () => {
     const onChange = vi.fn();
     await renderWithDS(
       <div style={{ width: 600 }}>
-        <Checkbox onChange={onChange}>Send message reminders</Checkbox>
+        <Checkbox onChange={onChange}>Send reminders</Checkbox>
       </div>,
     );
     expect(part('target')!.getBoundingClientRect().width).toBeLessThan(300);
+    expect(getComputedStyle(part('target')!).cursor).toBe('pointer');
 
-    await page.elementLocator(part('checkbox')!).click({ position: { x: 580, y: 12 } });
+    await page.elementLocator(part('checkbox')!).click({ position: { x: 580, y: 10 } });
     expect(onChange).not.toHaveBeenCalled();
   });
 
   it('marks a required checkbox without adding the asterisk to its name', async () => {
-    const screen = await renderWithDS(
-      <Checkbox isRequired>I accept the data processing agreement</Checkbox>,
-    );
-    const checkbox = screen.getByRole('checkbox', {
-      name: 'I accept the data processing agreement',
-      exact: true,
-    });
+    const screen = await renderWithDS(<Checkbox isRequired>I accept the terms</Checkbox>);
+    const checkbox = screen.getByRole('checkbox', { name: 'I accept the terms', exact: true });
     await expect.element(checkbox).toBeRequired();
     expect(part('required')?.getAttribute('aria-hidden')).toBe('true');
   });
@@ -177,44 +240,40 @@ describe('Checkbox', () => {
   it('works as the selection checkbox of a React Aria GridList', async () => {
     const onSelectionChange = vi.fn();
     const screen = await renderWithDS(
-      <GridList
-        aria-label="Open projects"
-        selectionMode="multiple"
-        onSelectionChange={onSelectionChange}
-      >
-        <GridListItem id="DOC-2041" textValue="DOC-2041">
+      <GridList aria-label="Photos" selectionMode="multiple" onSelectionChange={onSelectionChange}>
+        <GridListItem id="beach" textValue="Beach">
           <Checkbox slot="selection" />
-          DOC-2041
+          Beach
         </GridListItem>
-        <GridListItem id="DOC-2042" textValue="DOC-2042">
+        <GridListItem id="forest" textValue="Forest">
           <Checkbox slot="selection" />
-          DOC-2042
+          Forest
         </GridListItem>
       </GridList>,
     );
     const checkboxes = screen.getByRole('checkbox');
     expect(checkboxes.elements()).toHaveLength(2);
 
-    await screen.getByText('DOC-2042').click();
+    await screen.getByText('Forest').click();
     await expect.element(checkboxes.nth(1)).toBeChecked();
     await expect.element(checkboxes.nth(0)).not.toBeChecked();
 
     await checkboxes.nth(0).click({ force: true });
     await expect.element(checkboxes.nth(0)).toBeChecked();
-    expect([...onSelectionChange.mock.lastCall![0]].sort()).toEqual(['DOC-2041', 'DOC-2042']);
+    expect([...onSelectionChange.mock.lastCall![0]].sort()).toEqual(['beach', 'forest']);
   });
 
   it('shows an error message when invalid', async () => {
     const screen = await renderWithDS(
-      <Checkbox isInvalid isRequired errorMessage="Accept the agreement to continue.">
-        I accept the data processing agreement
+      <Checkbox isInvalid isRequired errorMessage="Accept the terms to continue.">
+        I accept the terms
       </Checkbox>,
     );
     const checkbox = screen.getByRole('checkbox');
     await expect.element(checkbox).toHaveAttribute('aria-invalid', 'true');
-    await expect.element(screen.getByText('Accept the agreement to continue.')).toBeVisible();
-    await expect.element(checkbox).toHaveAccessibleDescription('Accept the agreement to continue.');
-    await expect.element(checkbox).toHaveAccessibleName('I accept the data processing agreement');
+    await expect.element(screen.getByText('Accept the terms to continue.')).toBeVisible();
+    await expect.element(checkbox).toHaveAccessibleDescription('Accept the terms to continue.');
+    await expect.element(checkbox).toHaveAccessibleName('I accept the terms');
     expect(part('checkbox')?.hasAttribute('data-invalid')).toBe(true);
   });
 });
@@ -230,17 +289,17 @@ describe('CheckboxGroup', () => {
         onChange={onChange}
       >
         <Checkbox value="uploads">Uploads</Checkbox>
-        <Checkbox value="refunds">Refunds</Checkbox>
+        <Checkbox value="comments">Comments</Checkbox>
       </CheckboxGroup>,
     );
     const group = screen.getByRole('group', { name: 'Weekly digest' });
     await expect.element(group).toHaveAccessibleDescription('Sent every Monday.');
     await expect.element(group).toHaveAttribute('data-orientation', 'vertical');
 
-    await screen.getByText('Refunds').click();
-    expect(onChange).toHaveBeenLastCalledWith(['uploads', 'refunds']);
+    await screen.getByText('Comments').click();
+    expect(onChange).toHaveBeenLastCalledWith(['uploads', 'comments']);
     await screen.getByText('Uploads').click();
-    expect(onChange).toHaveBeenLastCalledWith(['refunds']);
+    expect(onChange).toHaveBeenLastCalledWith(['comments']);
   });
 
   it('supports a controlled value', async () => {
@@ -248,7 +307,7 @@ describe('CheckboxGroup', () => {
       const [value, setValue] = useState<string[]>(['email']);
       return (
         <>
-          <CheckboxGroup label="Upload alerts" value={value} onChange={setValue}>
+          <CheckboxGroup label="Alerts" value={value} onChange={setValue}>
             <Checkbox value="email">Email</Checkbox>
             <Checkbox value="sms">Text message</Checkbox>
           </CheckboxGroup>
@@ -267,7 +326,7 @@ describe('CheckboxGroup', () => {
   it('shows the group error and marks the group invalid', async () => {
     const screen = await renderWithDS(
       <CheckboxGroup
-        label="Upload alerts"
+        label="Alerts"
         isInvalid
         isRequired
         errorMessage="Pick at least one channel."
@@ -277,7 +336,7 @@ describe('CheckboxGroup', () => {
         <Checkbox value="sms">Text message</Checkbox>
       </CheckboxGroup>,
     );
-    const group = screen.getByRole('group', { name: 'Upload alerts' });
+    const group = screen.getByRole('group', { name: 'Alerts' });
     await expect.element(group).toHaveAttribute('data-invalid', 'true');
     await expect.element(group).toHaveAttribute('data-orientation', 'horizontal');
     await expect.element(screen.getByText('Pick at least one channel.')).toBeVisible();
@@ -286,18 +345,29 @@ describe('CheckboxGroup', () => {
     await expect.element(email).toHaveAccessibleDescription('Pick at least one channel.');
   });
 
+  it('dims the header of a disabled group once, not twice', async () => {
+    await renderWithDS(
+      <CheckboxGroup label="Alerts" isDisabled>
+        <Checkbox value="email">Email</Checkbox>
+      </CheckboxGroup>,
+    );
+    expect(getComputedStyle(part('header')!).opacity).toBe('0.5');
+    expect(getComputedStyle(part('items')!).opacity).toBe('1');
+    expect(getComputedStyle(part('target')!).opacity).toBe('0.5');
+  });
+
   it('selects and clears every enabled option with SelectAllCheckbox', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <CheckboxGroup label="Permissions" defaultValue={['view']} onChange={onChange}>
         <SelectAllCheckbox />
         <Checkbox value="view">View folders</Checkbox>
-        <Checkbox value="edit">Edit entries</Checkbox>
+        <Checkbox value="edit">Edit files</Checkbox>
         <Checkbox value="sharing" isDisabled>
           Manage sharing
         </Checkbox>
-        <Checkbox value="audit" isReadOnly>
-          Read the audit log
+        <Checkbox value="history" isReadOnly>
+          See version history
         </Checkbox>
       </CheckboxGroup>,
     );
@@ -308,12 +378,12 @@ describe('CheckboxGroup', () => {
     await screen.getByText('Select all').click();
     expect(onChange).toHaveBeenLastCalledWith(['view', 'edit']);
     await expect.element(selectAll).toBeChecked();
-    await expect.element(screen.getByRole('checkbox', { name: 'Edit entries' })).toBeChecked();
+    await expect.element(screen.getByRole('checkbox', { name: 'Edit files' })).toBeChecked();
     await expect
       .element(screen.getByRole('checkbox', { name: 'Manage sharing' }))
       .not.toBeChecked();
     await expect
-      .element(screen.getByRole('checkbox', { name: 'Read the audit log' }))
+      .element(screen.getByRole('checkbox', { name: 'See version history' }))
       .not.toBeChecked();
 
     await screen.getByText('Select all').click();
@@ -326,7 +396,7 @@ describe('CheckboxGroup', () => {
 
   it('turns SelectAllCheckbox to the error colour with its group', async () => {
     const screen = await renderWithDS(
-      <CheckboxGroup label="Upload alerts" isInvalid errorMessage="Pick at least one channel.">
+      <CheckboxGroup label="Alerts" isInvalid errorMessage="Pick at least one channel.">
         <SelectAllCheckbox />
         <Checkbox value="email">Email</Checkbox>
       </CheckboxGroup>,
@@ -376,9 +446,9 @@ describe('CheckboxGroup', () => {
         </CheckboxGroup>
         <CheckboxGroup label="Columns">
           <SelectAllCheckbox labels={{ selectAll: 'Show every column' }} />
-          <Checkbox value="amount">Amount</Checkbox>
+          <Checkbox value="size">Size</Checkbox>
         </CheckboxGroup>
-        <CheckboxGroup label="Upload alerts">
+        <CheckboxGroup label="Alerts">
           <SelectAllCheckbox labels={{ selectAll: 'Show every column' }}>
             Every channel
           </SelectAllCheckbox>
@@ -407,11 +477,11 @@ describe('CheckboxGroup', () => {
     const screen = await renderWithDS(
       <div className="flex flex-col gap-6 p-6">
         <Checkbox defaultSelected description="Three days before the due date.">
-          Send message reminders
+          Send reminders
         </Checkbox>
-        <Checkbox isIndeterminate>Sync every team account</Checkbox>
-        <Checkbox isInvalid errorMessage="Accept the agreement to continue.">
-          I accept the agreement
+        <Checkbox isIndeterminate>Sync every team folder</Checkbox>
+        <Checkbox isInvalid errorMessage="Accept the terms to continue.">
+          I accept the terms
         </Checkbox>
         <Checkbox isDisabled defaultSelected>
           Two-factor sign-in
@@ -425,13 +495,14 @@ describe('CheckboxGroup', () => {
         >
           <SelectAllCheckbox />
           <Checkbox value="uploads">Uploads</Checkbox>
-          <Checkbox value="refunds" description="Includes disputes.">
-            Refunds
+          <Checkbox value="comments" description="Includes replies.">
+            Comments
           </Checkbox>
         </CheckboxGroup>
         <CheckboxGroup
-          label="Upload alerts"
+          label="Alerts"
           orientation="horizontal"
+          size="sm"
           isInvalid
           errorMessage="Pick at least one channel."
         >

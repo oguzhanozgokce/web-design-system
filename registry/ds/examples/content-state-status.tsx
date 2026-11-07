@@ -40,11 +40,11 @@ export default function ContentStateStatus() {
         onRetry={() => setStatus('content')}
         emptyTitle="No members yet"
         emptyDescription="People you invite appear here."
-        className="rounded-lg border border-outline-variant bg-surface"
+        className="rounded-container border border-outline-subtle bg-surface-raised"
       >
         <ul className="flex flex-col p-2">
           {members.map((member) => (
-            <li key={member} className="px-2 py-3 text-body-md text-on-surface">
+            <li key={member} className="px-2 py-3 text-sm text-on-surface">
               {member}
             </li>
           ))}

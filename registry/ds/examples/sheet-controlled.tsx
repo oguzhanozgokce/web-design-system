@@ -14,8 +14,8 @@ export default function SheetControlled() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-title-md text-on-surface">{name}</span>
-      <Button variant="text" size="sm" startIcon={<EditIcon />} onPress={() => setOpen(true)}>
+      <span className="text-base font-semibold text-on-surface">{name}</span>
+      <Button variant="ghost" size="sm" startIcon={<EditIcon />} onPress={() => setOpen(true)}>
         Edit name
       </Button>
       <Sheet
@@ -47,7 +47,7 @@ export default function SheetControlled() {
               <TextField label="Name" name="name" defaultValue={name} isRequired autoFocus />
             </SheetBody>
             <SheetFooter>
-              <Button variant="text" onPress={close} isDisabled={isSaving}>
+              <Button variant="soft" onPress={close} isDisabled={isSaving}>
                 Cancel
               </Button>
               <Button type="submit" isPending={isSaving}>

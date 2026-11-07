@@ -8,7 +8,7 @@ export default function ListBoxEmpty() {
     <ListBox
       aria-label="Archive"
       items={archived}
-      variant="outlined"
+      variant="outline"
       className="w-full max-w-xs"
       renderEmptyState={() => (
         <ListBoxStatus icon={<ArchiveIcon />}>Archived items show up here</ListBoxStatus>

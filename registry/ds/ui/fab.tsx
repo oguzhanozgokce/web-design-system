@@ -25,7 +25,7 @@ import {
   useLocale,
 } from 'react-aria-components';
 import { useControllableState } from '@/registry/ds/hooks/use-controllable-state';
-import { tv, type VariantProps } from '@/registry/ds/lib/utils';
+import { tv } from '@/registry/ds/lib/utils';
 import {
   useDirection,
   useIcons,
@@ -36,32 +36,32 @@ import { Spinner } from '@/registry/ds/ui/spinner';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
 
 const fabBase = [
-  'state-layer focus-ring group/fab relative inline-flex shrink-0 cursor-default items-center justify-center select-none',
-  'shadow-elevation-3 data-[hovered]:shadow-elevation-4 data-[pressed]:shadow-elevation-3',
-  '[transition:background-color_150ms_var(--ease-standard),color_150ms_var(--ease-standard),box-shadow_150ms_var(--ease-standard),border-radius_var(--fab-morph,150ms)_var(--ds-ease-spatial)]',
-  'data-[reduced-motion]:transition-none',
-  'data-[disabled]:bg-on-surface/12 data-[disabled]:text-on-surface/38 data-[disabled]:shadow-none',
+  'focus-ring transition-control no-tap-highlight group/fab relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control font-medium whitespace-nowrap select-none',
+  'shadow-sm data-[hovered]:shadow-lg data-[pressed]:scale-[0.96] data-[pressed]:shadow-sm',
+  'starting:scale-90 starting:opacity-0',
+  'motion-reduce:starting:scale-100 motion-reduce:data-[pressed]:scale-100',
+  'data-[reduced-motion]:transition-none data-[reduced-motion]:data-[pressed]:scale-100',
+  'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
 ];
 
-const fabColors = {
-  primary: 'bg-primary-container text-on-primary-container',
-  secondary: 'bg-secondary-container text-on-secondary-container',
-  tertiary: 'bg-tertiary-container text-on-tertiary-container',
-  surface: 'bg-surface-container-high text-primary',
+const fabTones = {
+  primary:
+    'bg-primary-solid text-on-primary-solid data-[hovered]:bg-primary-solid-hover data-[pressed]:bg-primary-solid-hover',
+  neutral:
+    'bg-surface-overlay text-on-surface data-[hovered]:bg-surface-overlay-hover data-[pressed]:bg-surface-overlay-hover',
 };
 
 export const fabStyles = tv({
   base: fabBase,
   variants: {
-    color: fabColors,
+    tone: fabTones,
     size: {
-      sm: 'size-10 rounded-md [--icon-size:1.5rem] pointer-coarse:after:absolute pointer-coarse:after:-inset-1',
-      md: 'size-14 rounded-lg [--icon-size:1.5rem]',
-      lg: 'size-24 rounded-xl [--icon-size:2.25rem]',
+      md: 'size-12 [--icon-size:1.25rem]',
+      lg: 'size-14 [--icon-size:1.5rem]',
     },
   },
   defaultVariants: {
-    color: 'primary',
+    tone: 'primary',
     size: 'md',
   },
 });
@@ -70,20 +70,23 @@ export const extendedFabStyles = tv({
   slots: {
     base: fabBase,
     label:
-      'grid grid-cols-[1fr] [transition:grid-template-columns_var(--ds-duration-spatial)_var(--ds-ease-spatial),opacity_150ms_var(--ease-standard)] group-data-[reduced-motion]/fab:transition-none motion-reduce:transition-none',
+      'grid grid-cols-[1fr] transition-[grid-template-columns,opacity] duration-250 ease-fluid group-data-[reduced-motion]/fab:transition-none motion-reduce:transition-none',
     labelText: 'overflow-hidden',
     labelInner: 'block whitespace-nowrap',
   },
   variants: {
-    color: { primary: {}, secondary: {}, tertiary: {}, surface: {} },
+    tone: {
+      primary: { base: fabTones.primary },
+      neutral: { base: fabTones.neutral },
+    },
     size: {
       md: {
-        base: 'h-14 rounded-lg px-4 text-title-md [--icon-size:1.5rem]',
-        labelInner: 'ps-3 pe-1',
+        base: 'h-12 px-3.5 text-sm [--icon-size:1.25rem]',
+        labelInner: 'ps-2 pe-1.5',
       },
       lg: {
-        base: 'h-24 rounded-xl px-[1.875rem] text-headline-sm [--icon-size:2.25rem]',
-        labelInner: 'ps-4',
+        base: 'h-14 px-4 text-base [--icon-size:1.5rem]',
+        labelInner: 'ps-2 pe-2',
       },
     },
     isExtended: {
@@ -91,12 +94,8 @@ export const extendedFabStyles = tv({
       false: { label: 'grid-cols-[0fr] opacity-0' },
     },
   },
-  compoundVariants: (Object.keys(fabColors) as (keyof typeof fabColors)[]).map((color) => ({
-    color,
-    class: { base: fabColors[color] },
-  })),
   defaultVariants: {
-    color: 'primary',
+    tone: 'primary',
     size: 'md',
     isExtended: true,
   },
@@ -117,43 +116,21 @@ const fabMenuStagger = [
 
 export const fabMenuStyles = tv({
   slots: {
-    trigger: [
-      '[--fab-morph:var(--ds-duration-spatial)] motion-reduce:[--fab-morph:0ms]',
-      'data-[open]:rounded-[50%] data-[open]:data-[pressed]:before:opacity-0',
-    ],
     glyph:
-      'inline-flex items-center justify-center transition-[opacity,rotate] duration-[150ms,var(--ds-duration-spatial)] ease-spatial group-data-[reduced-motion]/fab:transition-none',
+      'inline-flex items-center justify-center transition-[opacity,rotate] duration-200 ease-fluid group-data-[reduced-motion]/fab:transition-none',
     popover: 'group/fab-menu outline-none data-[exiting]:animate-ds-fade-out',
     menu: ['flex flex-col gap-2 outline-none', fabMenuStagger],
     item: [
-      'state-layer focus-ring relative inline-flex h-14 cursor-default items-center gap-2 rounded-full ps-4 pe-6 text-title-md select-none',
-      'shadow-elevation-1 data-[hovered]:shadow-elevation-2',
-      'transition-[opacity,translate,box-shadow] delay-[var(--fab-menu-delay,0ms),var(--fab-menu-delay,0ms),0ms] duration-[250ms,var(--ds-duration-spatial),150ms] ease-spatial',
-      'starting:opacity-0 motion-safe:starting:translate-y-4 group-data-[placement=bottom]/fab-menu:motion-safe:starting:-translate-y-4',
-      'group-data-[reduced-motion]/fab-menu:transition-none',
-      'data-[disabled]:bg-on-surface/12 data-[disabled]:text-on-surface/38 data-[disabled]:shadow-none',
+      'focus-ring no-tap-highlight relative inline-flex h-12 cursor-pointer items-center gap-2 rounded-control bg-surface-overlay ps-4 pe-5 text-sm font-medium text-on-surface shadow-md select-none',
+      'data-[hovered]:bg-surface-overlay-hover data-[pressed]:scale-[0.97] data-[pressed]:bg-surface-overlay-hover motion-reduce:data-[pressed]:scale-100',
+      'transition-[opacity,translate,scale,background-color] delay-[var(--fab-menu-delay,0ms),var(--fab-menu-delay,0ms),0ms,0ms] duration-[150ms,250ms,250ms,100ms] ease-fluid',
+      'starting:opacity-0 motion-safe:starting:translate-y-2 group-data-[placement=bottom]/fab-menu:motion-safe:starting:-translate-y-2',
+      'group-data-[reduced-motion]/fab-menu:transition-none group-data-[reduced-motion]/fab-menu:data-[pressed]:scale-100',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
     ],
-    icon: 'inline-flex shrink-0 items-center justify-center text-[1.5rem] [&_svg]:size-[1em]',
+    icon: 'inline-flex shrink-0 items-center justify-center text-[1.25rem] text-on-surface-variant [&_svg]:size-[1em]',
   },
   variants: {
-    color: {
-      primary: {
-        trigger: 'data-[open]:bg-primary data-[open]:text-on-primary',
-        item: fabColors.primary,
-      },
-      secondary: {
-        trigger: 'data-[open]:bg-secondary data-[open]:text-on-secondary',
-        item: fabColors.secondary,
-      },
-      tertiary: {
-        trigger: 'data-[open]:bg-tertiary data-[open]:text-on-tertiary',
-        item: fabColors.tertiary,
-      },
-      surface: {
-        trigger: 'data-[open]:bg-primary data-[open]:text-on-primary',
-        item: fabColors.surface,
-      },
-    },
     align: {
       start: { menu: 'items-start' },
       center: { menu: 'items-center' },
@@ -161,14 +138,17 @@ export const fabMenuStyles = tv({
     },
   },
   defaultVariants: {
-    color: 'primary',
     align: 'end',
   },
 });
 
-export type FabStyleProps = VariantProps<typeof fabStyles>;
+export type FabTone = 'primary' | 'neutral';
+export type FabSize = 'md' | 'lg';
 
-export type FabColor = keyof typeof fabColors;
+export interface FabStyleProps {
+  tone?: FabTone;
+  size?: FabSize;
+}
 
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   return value != null && typeof (value as PromiseLike<unknown>).then === 'function';
@@ -244,8 +224,8 @@ export interface FabProps
 }
 
 export function Fab({
-  color,
-  size,
+  tone = 'primary',
+  size = 'md',
   icon,
   labels,
   className,
@@ -255,6 +235,7 @@ export function Fab({
 }: FabProps) {
   const [isPending, track] = usePending(isPendingProp);
   const reducedMotion = useReducedMotionAttribute();
+  const style = { tone, size };
 
   return (
     <AriaButton
@@ -262,26 +243,20 @@ export function Fab({
       onPress={(event) => track(onPress?.(event))}
       isPending={isPending}
       data-slot="fab"
-      data-color={color ?? 'primary'}
-      data-size={size ?? 'md'}
+      data-tone={style.tone}
+      data-size={style.size}
       data-reduced-motion={reducedMotion}
-      className={composeRenderProps(className, (className) =>
-        fabStyles({ color, size, className }),
-      )}
+      className={composeRenderProps(className, (className) => fabStyles({ ...style, className }))}
     >
       <FabIcon icon={icon} isPending={isPending} labels={labels} />
     </AriaButton>
   );
 }
 
-export interface ExtendedFabProps extends Omit<
-  AriaButtonProps,
-  'onPress' | 'children' | 'className'
-> {
+export interface ExtendedFabProps
+  extends Omit<AriaButtonProps, 'onPress' | 'children' | 'className'>, FabStyleProps {
   icon: ReactNode;
   children: ReactNode;
-  color?: FabColor;
-  size?: 'md' | 'lg';
   isExtended?: boolean;
   onPress?: (event: PressEvent) => void | Promise<unknown>;
   labels?: Partial<FabLabels>;
@@ -290,8 +265,8 @@ export interface ExtendedFabProps extends Omit<
 }
 
 export function ExtendedFab({
-  color,
-  size,
+  tone = 'primary',
+  size = 'md',
   icon,
   children,
   isExtended = true,
@@ -303,7 +278,8 @@ export function ExtendedFab({
 }: ExtendedFabProps) {
   const [isPending, track] = usePending(isPendingProp);
   const reducedMotion = useReducedMotionAttribute();
-  const styles = extendedFabStyles({ color, size, isExtended });
+  const style = { tone, size };
+  const styles = extendedFabStyles({ ...style, isExtended });
 
   return (
     <AriaButton
@@ -311,8 +287,8 @@ export function ExtendedFab({
       onPress={(event) => track(onPress?.(event))}
       isPending={isPending}
       data-slot="extended-fab"
-      data-color={color ?? 'primary'}
-      data-size={size ?? 'md'}
+      data-tone={style.tone}
+      data-size={style.size}
       data-extended={isExtended}
       data-reduced-motion={reducedMotion}
       className={composeRenderProps(className, (className) => styles.base({ className }))}
@@ -328,12 +304,10 @@ export function ExtendedFab({
 }
 
 interface FabMenuContextValue {
-  color: FabColor;
   track: (result: unknown) => void;
 }
 
 const FabMenuContext = createContext<FabMenuContextValue>({
-  color: 'primary',
   track: () => {},
 });
 
@@ -376,8 +350,8 @@ export function FabMenu({
   isPending: isPendingProp,
   isDisabled,
   placement = 'top end',
-  color,
-  size,
+  tone = 'primary',
+  size = 'md',
   labels,
   className,
 }: FabMenuProps) {
@@ -388,9 +362,9 @@ export function FabMenu({
   const themeScope = useThemeScopeProps();
   const [isOpen, setOpen] = useControllableState(isOpenProp, defaultOpen, onOpenChange);
   const [isPending, track] = usePending(isPendingProp);
-  const resolvedColor = color ?? 'primary';
-  const styles = fabMenuStyles({ color: resolvedColor, align: menuAlignment(placement) });
-  const context = useMemo(() => ({ color: resolvedColor, track }), [resolvedColor, track]);
+  const style = { tone, size };
+  const styles = fabMenuStyles({ align: menuAlignment(placement) });
+  const context = useMemo(() => ({ track }), [track]);
 
   return (
     <FabMenuContext value={context}>
@@ -400,12 +374,12 @@ export function FabMenu({
           isDisabled={isDisabled}
           isPending={isPending}
           data-slot="fab-menu-trigger"
-          data-color={resolvedColor}
-          data-size={size ?? 'md'}
+          data-tone={style.tone}
+          data-size={style.size}
           data-open={isOpen || undefined}
           data-reduced-motion={reducedMotion}
           className={composeRenderProps(className, (className) =>
-            fabStyles({ color, size, className: styles.trigger({ className }) }),
+            fabStyles({ ...style, className }),
           )}
         >
           <FabIcon
@@ -474,8 +448,8 @@ export function FabMenuItem({
   className,
   ...props
 }: FabMenuItemProps) {
-  const { color, track } = use(FabMenuContext);
-  const styles = fabMenuStyles({ color });
+  const { track } = use(FabMenuContext);
+  const styles = fabMenuStyles();
 
   return (
     <MenuItem

@@ -40,10 +40,10 @@ export default function SearchFieldPending() {
         onChange={search}
         isPending={isPending}
       />
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {results.length === 1 ? '1 member' : `${results.length} members`}
       </p>
-      <ul className="grid gap-1 text-body-md text-on-surface">
+      <ul className="grid gap-1 text-sm text-on-surface">
         {results.map((member) => (
           <li key={member}>{member}</li>
         ))}

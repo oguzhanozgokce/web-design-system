@@ -30,66 +30,88 @@ import { useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
 export const checkboxStyles = tv({
   slots: {
     root: 'group/checkbox flex flex-col items-start gap-1',
-    target:
-      'inline-flex max-w-full cursor-default items-start gap-3 text-on-surface select-none data-[disabled]:text-on-surface/38',
-    control: 'relative grid size-4.5 shrink-0 place-items-center',
-    stateLayer: 'state-layer focus-ring absolute -inset-2.75 rounded-full',
-    box: 'relative size-4.5 rounded-[2px] border-2 transition-[background-color,border-color] duration-150 ease-standard motion-reduce:transition-none',
-    mark: 'absolute -inset-0.5 size-4.5 fill-none stroke-current stroke-2',
+    target: [
+      'group/checkbox-target no-tap-highlight inline-flex max-w-full cursor-pointer items-start gap-3 text-sm text-on-surface select-none',
+      'data-[readonly]:cursor-default',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+    ],
+    control:
+      "relative grid shrink-0 place-items-center after:absolute after:-inset-1 after:content-['']",
+    box: [
+      'focus-ring relative grid size-(--checkbox-size) place-items-center rounded-md border border-outline bg-surface-raised text-on-primary-solid',
+      'transition-[border-color,scale] duration-200 ease-out motion-reduce:transition-none',
+      "before:pointer-events-none before:absolute before:-inset-px before:scale-70 before:rounded-[inherit] before:bg-primary-solid before:opacity-0 before:content-['']",
+      'before:transition-[scale,opacity,background-color] before:duration-[100ms,200ms,100ms] before:ease-out motion-reduce:before:transition-none',
+      'data-[state=checked]:border-primary-solid data-[state=checked]:before:scale-100 data-[state=checked]:before:opacity-100',
+      'data-[state=indeterminate]:border-primary-solid data-[state=indeterminate]:before:scale-100 data-[state=indeterminate]:before:opacity-100',
+    ],
+    mark: 'relative size-(--checkbox-mark) fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]',
     content: 'flex min-w-0 flex-col gap-0.5',
-    label: 'text-body-lg',
+    label: '',
     required: 'ms-0.5 text-error',
-    description:
-      'text-body-md text-on-surface-variant group-data-[disabled]/checkbox:text-on-surface/38',
-    error: 'text-body-sm text-error',
+    description: 'text-xs text-on-surface-variant',
+    error: 'text-xs text-error',
   },
   variants: {
-    tone: {
-      default: '',
-      invalid: '',
-      disabled: '',
-    },
-    filled: {
-      true: '',
-      false: { box: 'bg-transparent' },
+    size: {
+      sm: { root: '[--checkbox-mark:0.625rem] [--checkbox-size:1rem]' },
+      md: { root: '[--checkbox-mark:0.75rem] [--checkbox-size:1.125rem]' },
     },
     hasContent: {
-      true: { control: 'mt-0.75', error: 'ps-7.5' },
+      true: {
+        control: 'mt-[calc((1.25rem-var(--checkbox-size))/2)]',
+        error: 'ps-[calc(var(--checkbox-size)+0.75rem)]',
+      },
+      false: '',
+    },
+    interactive: {
+      true: {
+        box: 'group-data-[pressed]/checkbox-target:scale-95 motion-reduce:group-data-[pressed]/checkbox-target:scale-100',
+      },
+      false: '',
+    },
+    invalid: {
+      true: {
+        box: [
+          'border-error text-on-error-solid [--focus-color:var(--error)] before:bg-error-solid',
+          'data-[state=checked]:border-error-solid data-[state=indeterminate]:border-error-solid',
+        ],
+      },
       false: '',
     },
     instant: {
-      true: { box: 'transition-none' },
+      true: { box: 'transition-none before:transition-none' },
       false: '',
     },
   },
   compoundVariants: [
     {
-      tone: 'default',
-      filled: false,
-      class: { box: 'border-on-surface-variant', stateLayer: 'text-on-surface' },
+      interactive: true,
+      instant: true,
+      class: { box: 'group-data-[pressed]/checkbox-target:scale-100' },
     },
     {
-      tone: 'default',
-      filled: true,
-      class: { box: 'border-primary bg-primary text-on-primary', stateLayer: 'text-primary' },
+      interactive: true,
+      invalid: false,
+      class: {
+        box: [
+          'group-data-[hovered]/checkbox-target:border-on-surface-variant',
+          'group-data-[hovered]/checkbox-target:data-[state=checked]:border-primary-solid-hover group-data-[hovered]/checkbox-target:data-[state=indeterminate]:border-primary-solid-hover',
+          'group-data-[hovered]/checkbox-target:before:bg-primary-solid-hover',
+        ],
+      },
     },
-    { tone: 'invalid', filled: false, class: { box: 'border-error', stateLayer: 'text-error' } },
     {
-      tone: 'invalid',
-      filled: true,
-      class: { box: 'border-error bg-error text-on-error', stateLayer: 'text-error' },
-    },
-    { tone: 'disabled', filled: false, class: { box: 'border-on-surface/38' } },
-    {
-      tone: 'disabled',
-      filled: true,
-      class: { box: 'border-transparent bg-on-surface/38 text-surface' },
+      interactive: true,
+      invalid: true,
+      class: { box: 'group-data-[hovered]/checkbox-target:before:bg-error-solid-hover' },
     },
   ],
   defaultVariants: {
-    tone: 'default',
-    filled: false,
+    size: 'md',
     hasContent: true,
+    interactive: true,
+    invalid: false,
     instant: false,
   },
 });
@@ -98,7 +120,7 @@ const checkMarkStyles = tv({
   base: '[stroke-dasharray:1] transition-[stroke-dashoffset] motion-reduce:transition-none',
   variants: {
     visible: {
-      true: '[stroke-dashoffset:0] duration-(--ds-duration-effect) ease-effect',
+      true: '[stroke-dashoffset:0] delay-15 duration-150 ease-linear',
       false: '[stroke-dashoffset:1] duration-0',
     },
     instant: {
@@ -115,13 +137,12 @@ const checkMarkStyles = tv({
 export const checkboxGroupStyles = tv({
   slots: {
     root: 'group/checkbox-group flex flex-col gap-3',
-    header: 'flex flex-col gap-0.5',
-    label: 'text-title-sm text-on-surface group-data-[disabled]/checkbox-group:text-on-surface/38',
+    header: 'flex flex-col gap-1 group-data-[disabled]/checkbox-group:opacity-50',
+    label: 'text-sm font-medium text-on-surface',
     required: 'ms-0.5 text-error',
-    description:
-      'text-body-sm text-on-surface-variant group-data-[disabled]/checkbox-group:text-on-surface/38',
+    description: 'text-xs text-on-surface-variant',
     items: 'flex',
-    error: 'text-body-sm text-error',
+    error: 'text-xs text-error',
   },
   variants: {
     orientation: {
@@ -136,6 +157,8 @@ export const checkboxGroupStyles = tv({
 
 export type CheckboxGroupStyleProps = VariantProps<typeof checkboxGroupStyles>;
 
+export type CheckboxSize = 'sm' | 'md';
+
 export interface CheckboxLabels {
   selectAll: string;
 }
@@ -144,12 +167,11 @@ export const defaultCheckboxLabels: CheckboxLabels = {
   selectAll: 'Select all',
 };
 
-type CheckboxTone = 'default' | 'invalid' | 'disabled';
-
 type ErrorMessage = ReactNode | ((validation: ValidationResult) => ReactNode);
 
 const CheckboxGroupRegisterContext = createContext<((value: string) => () => void) | null>(null);
 const CheckboxGroupValuesContext = createContext<readonly string[]>([]);
+const CheckboxSizeContext = createContext<CheckboxSize | null>(null);
 
 function useCheckboxValueRegistry() {
   const [values, setValues] = useState<readonly string[]>([]);
@@ -194,58 +216,52 @@ function RequiredMark({ className }: { className: string }) {
   );
 }
 
-function checkboxTone({ isDisabled, isInvalid }: CheckboxButtonRenderProps): CheckboxTone {
-  if (isDisabled) return 'disabled';
-  return isInvalid ? 'invalid' : 'default';
+function checkState(state: CheckboxButtonRenderProps) {
+  if (state.isIndeterminate) return 'indeterminate';
+  return state.isSelected ? 'checked' : 'unchecked';
 }
 
 interface CheckboxControlProps {
   state: CheckboxButtonRenderProps;
+  size: CheckboxSize;
   hasContent: boolean;
   instant: boolean;
 }
 
-function CheckboxControl({ state, hasContent, instant }: CheckboxControlProps) {
-  const filled = state.isSelected || state.isIndeterminate;
-  const styles = checkboxStyles({ tone: checkboxTone(state), filled, hasContent, instant });
+function CheckboxControl({ state, size, hasContent, instant }: CheckboxControlProps) {
+  const styles = checkboxStyles({
+    size,
+    hasContent,
+    interactive: !state.isDisabled && !state.isReadOnly,
+    invalid: state.isInvalid,
+    instant,
+  });
+  const current = checkState(state);
 
   return (
     <span data-slot="control" className={styles.control()}>
       <span
-        aria-hidden="true"
-        data-slot="state-layer"
-        data-hovered={state.isHovered || undefined}
-        data-pressed={state.isPressed || undefined}
-        data-focus-visible={state.isFocusVisible || undefined}
-        data-disabled={state.isDisabled || state.isReadOnly || undefined}
-        className={styles.stateLayer()}
-      />
-      <span
         data-slot="box"
-        data-state={
-          state.isIndeterminate ? 'indeterminate' : state.isSelected ? 'checked' : 'unchecked'
-        }
+        data-state={current}
+        data-focus-visible={state.isFocusVisible || undefined}
         className={styles.box()}
       >
         <svg
-          viewBox="0 0 18 18"
+          viewBox="0 0 12 12"
           aria-hidden="true"
           focusable="false"
           data-slot="mark"
           className={styles.mark()}
         >
           <path
-            d="M4.5 9.5 7.5 12.5 13.5 6.5"
+            d="M2.5 6.25 4.75 8.5 9.5 3.5"
             pathLength={1}
-            className={checkMarkStyles({
-              visible: state.isSelected && !state.isIndeterminate,
-              instant,
-            })}
+            className={checkMarkStyles({ visible: current === 'checked', instant })}
           />
           <path
-            d="M5 9h8"
+            d="M3 6h6"
             pathLength={1}
-            className={checkMarkStyles({ visible: state.isIndeterminate, instant })}
+            className={checkMarkStyles({ visible: current === 'indeterminate', instant })}
           />
         </svg>
       </span>
@@ -257,6 +273,7 @@ export interface CheckboxProps extends Omit<CheckboxFieldProps, 'children' | 'cl
   children?: ReactNode;
   description?: ReactNode;
   errorMessage?: ErrorMessage;
+  size?: CheckboxSize;
   className?: CheckboxFieldProps['className'];
   ref?: Ref<HTMLDivElement>;
 }
@@ -265,29 +282,33 @@ export function Checkbox({
   children,
   description,
   errorMessage,
+  size: sizeProp,
   className,
   ...props
 }: CheckboxProps) {
   const labelId = useId();
   const instant = useInstantMotion();
+  const groupSize = use(CheckboxSizeContext);
   useGroupItemRegistration(props.value, Boolean(props.isDisabled || props.isReadOnly));
 
+  const size = sizeProp ?? groupSize ?? 'md';
   const hasLabel = children != null;
   const hasDescription = description != null;
   const hasContent = hasLabel || hasDescription;
-  const styles = checkboxStyles({ hasContent });
+  const styles = checkboxStyles({ size, hasContent });
 
   return (
     <CheckboxField
       {...props}
       aria-labelledby={labelledByWithDescription(props, labelId, hasLabel, hasDescription)}
       data-slot="checkbox"
+      data-size={size}
       className={composeRenderProps(className, (className) => styles.root({ className }))}
     >
       <CheckboxButton data-slot="target" className={styles.target()}>
         {(state) => (
           <>
-            <CheckboxControl state={state} hasContent={hasContent} instant={instant} />
+            <CheckboxControl state={state} size={size} hasContent={hasContent} instant={instant} />
             {hasContent ? (
               <span data-slot="content" className={styles.content()}>
                 {hasLabel ? (
@@ -318,6 +339,7 @@ export interface CheckboxGroupProps
   label?: ReactNode;
   description?: ReactNode;
   errorMessage?: ErrorMessage;
+  size?: CheckboxSize;
   children?: ReactNode;
   className?: AriaCheckboxGroupProps['className'];
   ref?: Ref<HTMLDivElement>;
@@ -328,6 +350,7 @@ export function CheckboxGroup({
   description,
   errorMessage,
   orientation,
+  size,
   children,
   className,
   ...props
@@ -344,27 +367,29 @@ export function CheckboxGroup({
     >
       <CheckboxGroupRegisterContext value={register}>
         <CheckboxGroupValuesContext value={values}>
-          {label != null || description != null ? (
-            <span data-slot="header" className={styles.header()}>
-              {label != null ? (
-                <Label data-slot="label" className={styles.label()}>
-                  {label}
-                  {props.isRequired ? <RequiredMark className={styles.required()} /> : null}
-                </Label>
-              ) : null}
-              {description != null ? (
-                <Text slot="description" data-slot="description" className={styles.description()}>
-                  {description}
-                </Text>
-              ) : null}
-            </span>
-          ) : null}
-          <div data-slot="items" className={styles.items()}>
-            {children}
-          </div>
-          <FieldError data-slot="error" className={styles.error()}>
-            {errorMessage}
-          </FieldError>
+          <CheckboxSizeContext value={size ?? null}>
+            {label != null || description != null ? (
+              <span data-slot="header" className={styles.header()}>
+                {label != null ? (
+                  <Label data-slot="label" className={styles.label()}>
+                    {label}
+                    {props.isRequired ? <RequiredMark className={styles.required()} /> : null}
+                  </Label>
+                ) : null}
+                {description != null ? (
+                  <Text slot="description" data-slot="description" className={styles.description()}>
+                    {description}
+                  </Text>
+                ) : null}
+              </span>
+            ) : null}
+            <div data-slot="items" className={styles.items()}>
+              {children}
+            </div>
+            <FieldError data-slot="error" className={styles.error()}>
+              {errorMessage}
+            </FieldError>
+          </CheckboxSizeContext>
         </CheckboxGroupValuesContext>
       </CheckboxGroupRegisterContext>
     </AriaCheckboxGroup>

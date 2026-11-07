@@ -95,7 +95,7 @@ describe('NumberField', () => {
     const screen = await renderWithDS(
       <div>
         <NumberField
-          label="Project total"
+          label="Ticket price"
           defaultValue={1250.5}
           formatOptions={{ style: 'currency', currency: 'EUR' }}
         />
@@ -108,7 +108,7 @@ describe('NumberField', () => {
       </div>,
     );
     await expect
-      .element(screen.getByRole('textbox', { name: 'Project total' }))
+      .element(screen.getByRole('textbox', { name: 'Ticket price' }))
       .toHaveValue('€1,250.50');
     await expect.element(screen.getByRole('textbox', { name: 'Discount' })).toHaveValue('15%');
     await expect
@@ -119,19 +119,21 @@ describe('NumberField', () => {
   it('formats the number for the locale and names the steppers from labels', async () => {
     const screen = await renderWithDS(
       <NumberField
-        label="Betrag"
+        label="Ticketpreis"
         defaultValue={1250.5}
         formatOptions={{ style: 'currency', currency: 'EUR' }}
         labels={{ increase: '{label} erhöhen', decrease: '{label} verringern' }}
       />,
       { locale: 'de' },
     );
-    await expect.element(screen.getByRole('textbox', { name: 'Betrag' })).toHaveValue('1.250,50 €');
     await expect
-      .element(screen.getByRole('button', { name: 'Betrag erhöhen' }))
+      .element(screen.getByRole('textbox', { name: 'Ticketpreis' }))
+      .toHaveValue('1.250,50 €');
+    await expect
+      .element(screen.getByRole('button', { name: 'Ticketpreis erhöhen' }))
       .toBeInTheDocument();
     await expect
-      .element(screen.getByRole('button', { name: 'Betrag verringern' }))
+      .element(screen.getByRole('button', { name: 'Ticketpreis verringern' }))
       .toBeInTheDocument();
   });
 
@@ -227,7 +229,7 @@ describe('NumberField', () => {
   it('names the steppers from aria-label and keeps explicit stepper labels', async () => {
     const screen = await renderWithDS(
       <div>
-        <NumberField aria-label="Quantity, linen tote bag" defaultValue={1} />
+        <NumberField aria-label="Copies, poster" defaultValue={1} />
         <NumberField label="Guests" isLabelHidden defaultValue={2} />
         <NumberField
           label="Nights"
@@ -238,7 +240,7 @@ describe('NumberField', () => {
       </div>,
     );
     await expect
-      .element(screen.getByRole('button', { name: 'Increase Quantity, linen tote bag' }))
+      .element(screen.getByRole('button', { name: 'Increase Copies, poster' }))
       .toBeInTheDocument();
     await expect.element(screen.getByRole('textbox', { name: 'Guests' })).toBeInTheDocument();
     await expect
@@ -256,13 +258,13 @@ describe('NumberField', () => {
       return (
         <>
           <NumberField label="Nights" value={nights} onChange={setNights} minValue={1} />
-          <output>{nights * 180} total</output>
+          <output>{nights * 24} hours</output>
         </>
       );
     }
     const screen = await renderWithDS(<Example />);
     await screen.getByRole('button', { name: 'Increase Nights' }).click();
-    await expect.element(screen.getByText('540 total')).toBeInTheDocument();
+    await expect.element(screen.getByText('72 hours')).toBeInTheDocument();
     await expect.element(screen.getByRole('textbox', { name: 'Nights' })).toHaveValue('3');
   });
 
@@ -282,61 +284,83 @@ describe('NumberField', () => {
     expect(onChange).toHaveBeenLastCalledWith(4);
   });
 
-  it('draws a compact pill with the buttons against the value', async () => {
+  it('sizes the field at 32, 40 and 48 pixels with full-height steppers inside it', async () => {
     const screen = await renderWithDS(
       <div className="w-96">
-        <NumberField
-          label="Quantity"
-          shape="pill"
-          layout="inline"
-          variant="filled"
-          defaultValue={5}
-        />
+        <NumberField label="Small" size="sm" defaultValue={9} />
+        <NumberField label="Medium" defaultValue={9} />
+        <NumberField label="Large" size="lg" defaultValue={9} />
       </div>,
     );
-    const root = screen.container.querySelector('[data-slot="number-field"]')!;
-    expect(root.getAttribute('data-shape')).toBe('pill');
-    expect(root.getAttribute('data-layout')).toBe('stepper');
-    expect(root.hasAttribute('data-variant')).toBe(false);
-    const container = root.querySelector<HTMLElement>('[data-slot="container"]')!;
-    expect([...container.children].map((child) => child.getAttribute('data-slot'))).toEqual([
-      'decrement',
-      'value',
-      'increment',
-    ]);
-    const box = container.getBoundingClientRect();
-    const style = getComputedStyle(container);
-    expect(box.height).toBe(40);
-    expect(style.borderTopWidth).toBe('0px');
-    expect(parseFloat(style.borderTopLeftRadius)).toBeGreaterThanOrEqual(box.height / 2);
-    expect(box.width).toBeLessThan(120);
-    await expect
-      .element(screen.getByRole('button', { name: 'Increase Quantity' }))
-      .toBeInTheDocument();
-  });
-
-  it('sizes the pill at 36, 40 and 48 pixels and widens it as the number gains digits', async () => {
-    const screen = await renderWithDS(
-      <div className="w-96">
-        <NumberField label="Small" shape="pill" size="sm" defaultValue={9} />
-        <NumberField label="Medium" shape="pill" defaultValue={9} />
-        <NumberField label="Large" shape="pill" size="lg" defaultValue={9} />
-      </div>,
-    );
+    const roots = [...screen.container.querySelectorAll('[data-slot="number-field"]')];
+    expect(roots.map((root) => root.getAttribute('data-size'))).toEqual(['sm', 'md', 'lg']);
     const containers = [...screen.container.querySelectorAll('[data-slot="container"]')];
     expect(containers.map((element) => element.getBoundingClientRect().height)).toEqual([
-      36, 40, 48,
+      32, 40, 48,
     ]);
-    const small = containers[0];
-    const narrow = small.getBoundingClientRect().width;
-    await screen.getByRole('button', { name: 'Increase Small' }).click();
-    await expect.element(screen.getByRole('textbox', { name: 'Small' })).toHaveValue('10');
-    await expect.poll(() => small.getBoundingClientRect().width).toBeGreaterThan(narrow);
+    containers.forEach((container) => {
+      const frame = container.getBoundingClientRect();
+      for (const slot of ['decrement', 'increment']) {
+        const stepper = container.querySelector(`[data-slot="${slot}"]`)!.getBoundingClientRect();
+        expect(stepper.height).toBe(frame.height - 2);
+        expect(stepper.width).toBe(frame.height);
+        expect(stepper.left).toBeGreaterThanOrEqual(frame.left);
+        expect(stepper.right).toBeLessThanOrEqual(frame.right);
+      }
+    });
   });
 
-  it('rolls the digits in a pill', async () => {
+  it('separates the steppers with hairlines and fills them on hover', async () => {
     const screen = await renderWithDS(
-      <NumberField label="Quantity" shape="pill" defaultValue={3} isAnimated />,
+      <>
+        <span data-testid="neutral" className="bg-neutral-soft" />
+        <NumberField label="Copies" defaultValue={2} />
+        <NumberField label="Retries" layout="inline" defaultValue={2} />
+      </>,
+    );
+    const decrease = screen.getByRole('button', { name: 'Decrease Copies' });
+    const increase = screen.getByRole('button', { name: 'Increase Copies' });
+    expect(getComputedStyle(decrease.element()).borderInlineEndWidth).toBe('1px');
+    expect(getComputedStyle(increase.element()).borderInlineStartWidth).toBe('1px');
+    const steppers = screen.container.querySelector('[data-slot="steppers"]')!;
+    expect(getComputedStyle(steppers).borderInlineStartWidth).toBe('1px');
+    expect(
+      getComputedStyle(screen.getByRole('button', { name: 'Increase Retries' }).element())
+        .borderBottomWidth,
+    ).toBe('1px');
+
+    await userEvent.hover(increase);
+    await expect.element(increase).toHaveAttribute('data-hovered', 'true');
+    await expect
+      .poll(() => getComputedStyle(increase.element()).backgroundColor)
+      .toBe(getComputedStyle(screen.getByTestId('neutral').element()).backgroundColor);
+  });
+
+  it('dims a stepper at its bound, and a disabled field only once', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <NumberField label="Copies" defaultValue={1} minValue={1} />
+        <NumberField label="Licences" defaultValue={8} isDisabled />
+      </div>,
+    );
+    const atBound = screen.getByRole('button', { name: 'Decrease Copies' }).element();
+    expect(atBound).toHaveAttribute('data-disabled', 'true');
+    expect(getComputedStyle(atBound).opacity).toBe('0.5');
+    expect(getComputedStyle(atBound).cursor).toBe('not-allowed');
+    const free = screen.getByRole('button', { name: 'Increase Copies' }).element();
+    expect(getComputedStyle(free).opacity).toBe('1');
+    expect(getComputedStyle(free).cursor).toBe('pointer');
+
+    const disabled = screen.getByRole('button', { name: 'Increase Licences' }).element();
+    expect(disabled).toHaveAttribute('data-disabled', 'true');
+    expect(getComputedStyle(disabled).opacity).toBe('1');
+    const frame = disabled.closest('[data-slot="container"]')!;
+    expect(getComputedStyle(frame).opacity).toBe('0.5');
+  });
+
+  it('rolls the digits in the soft variant', async () => {
+    const screen = await renderWithDS(
+      <NumberField label="Quantity" variant="soft" defaultValue={3} isAnimated />,
     );
     const input = screen.getByRole('textbox', { name: 'Quantity' });
     await expect.element(input).toHaveAttribute('data-rolling', 'true');
@@ -345,18 +369,18 @@ describe('NumberField', () => {
     await expect.element(input).toHaveValue('4');
   });
 
-  it('keeps the pill outlined in forced colours mode', async () => {
+  it('keeps the soft field outlined in forced colours mode', async () => {
     const screen = await renderWithDS(
-      <NumberField label="Quantity" shape="pill" defaultValue={1} />,
+      <NumberField label="Quantity" variant="soft" defaultValue={1} />,
     );
-    const pill = screen.container.querySelector('[data-slot="container"]')!;
-    expect(getComputedStyle(pill).borderTopWidth).toBe('0px');
+    const soft = screen.container.querySelector('[data-slot="container"]')!;
+    expect(getComputedStyle(soft).borderTopColor).toBe('rgba(0, 0, 0, 0)');
     await cdp().send('Emulation.setEmulatedMedia', {
       features: [{ name: 'forced-colors', value: 'active' }],
     });
     try {
       const canvas = getComputedStyle(document.body).backgroundColor;
-      const style = getComputedStyle(pill);
+      const style = getComputedStyle(soft);
       expect(style.borderTopStyle).toBe('solid');
       expect(style.borderTopWidth).toBe('1px');
       expect(style.borderTopColor).not.toBe(canvas);
@@ -463,7 +487,7 @@ describe('NumberField', () => {
       <div>
         <NumberField label="المقاعد" defaultValue={5} isAnimated />
         <NumberField
-          label="المبلغ"
+          label="سعر التذكرة"
           defaultValue={120}
           isAnimated
           formatOptions={{ style: 'currency', currency: 'SAR' }}
@@ -516,16 +540,16 @@ describe('NumberField', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="grid gap-4 p-4">
-          <NumberField label="Seats" defaultValue={5} minValue={1} description="Billed monthly." />
-          <NumberField label="Seats" defaultValue={5} variant="filled" isAnimated />
+          <NumberField label="Seats" defaultValue={5} minValue={1} description="Up to 50 people." />
+          <NumberField label="Seats" defaultValue={5} variant="soft" isAnimated />
           <NumberField
-            label="Project total"
+            label="Ticket price"
             layout="inline"
             defaultValue={1250.5}
             formatOptions={{ style: 'currency', currency: 'EUR' }}
           />
-          <NumberField label="Quantity" size="display" defaultValue={1} minValue={1} />
-          <NumberField label="Quantity" size="display" variant="filled" defaultValue={2} />
+          <NumberField label="Quantity" size="lg" defaultValue={1} minValue={1} />
+          <NumberField label="Quantity" size="lg" variant="soft" defaultValue={2} />
           <NumberField label="Licences" size="sm" defaultValue={8} isDisabled />
           <NumberField
             label={
@@ -534,7 +558,7 @@ describe('NumberField', () => {
               </>
             }
             layout="inline"
-            size="display"
+            size="lg"
             defaultValue={3}
             isReadOnly
           />
@@ -544,9 +568,10 @@ describe('NumberField', () => {
             isInvalid
             errorMessage="Enter at least one guest."
           />
-          <NumberField label="Quantity" shape="pill" size="sm" defaultValue={1} minValue={1} />
-          <NumberField label="Copies" shape="pill" defaultValue={12} isAnimated />
-          <NumberField label="Tickets" shape="pill" size="lg" defaultValue={2} isReadOnly />
+          <NumberField label="Quantity" variant="soft" size="sm" defaultValue={1} minValue={1} />
+          <NumberField label="Copies" variant="soft" defaultValue={12} isAnimated />
+          <NumberField label="Tickets" variant="soft" size="lg" defaultValue={2} isReadOnly />
+          <NumberField label="Retries" variant="soft" layout="inline" size="sm" defaultValue={2} />
         </div>,
         options,
       );

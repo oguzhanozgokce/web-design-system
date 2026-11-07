@@ -31,7 +31,7 @@ function uploadPhotos() {
 export default function ToastUpdate() {
   return (
     <>
-      <Button variant="tonal" startIcon={<UploadIcon />} onPress={uploadPhotos}>
+      <Button variant="soft" startIcon={<UploadIcon />} onPress={uploadPhotos}>
         Upload photos
       </Button>
       <Toaster toasterId={toasterId} />

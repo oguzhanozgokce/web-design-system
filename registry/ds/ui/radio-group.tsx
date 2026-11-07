@@ -20,13 +20,12 @@ import { useMotionPreference } from '@/registry/ds/ui/ds-provider';
 export const radioGroupStyles = tv({
   slots: {
     root: 'group/radio-group flex flex-col gap-3',
-    header: 'flex flex-col gap-0.5',
-    label: 'text-title-sm text-on-surface group-data-[disabled]/radio-group:text-on-surface/38',
+    header: 'flex flex-col gap-1 group-data-[disabled]/radio-group:opacity-50',
+    label: 'text-sm font-medium text-on-surface',
     required: 'ms-0.5 text-error',
-    description:
-      'text-body-sm text-on-surface-variant group-data-[disabled]/radio-group:text-on-surface/38',
+    description: 'text-xs text-on-surface-variant',
     items: '',
-    error: 'text-body-sm text-error',
+    error: 'text-xs text-error',
   },
   variants: {
     variant: {
@@ -60,28 +59,38 @@ export const radioGroupStyles = tv({
 export const radioStyles = tv({
   slots: {
     root: 'group/radio flex flex-col',
-    target: 'cursor-default select-none',
-    control: 'relative grid size-5 shrink-0 place-items-center',
-    stateLayer: 'state-layer focus-ring absolute -inset-2.5 rounded-full',
-    ring: 'relative grid size-5 place-items-center rounded-full border-2 border-current transition-colors duration-150 ease-standard motion-reduce:transition-none',
-    dot: 'size-2.5 rounded-full bg-current transition-[scale] duration-(--ds-duration-spatial-fast) ease-spatial-fast motion-reduce:transition-none',
-    icon: 'grid size-10 shrink-0 place-items-center rounded-full transition-colors duration-150 ease-standard motion-reduce:transition-none [&_svg]:size-6',
+    target: [
+      'group/radio-target no-tap-highlight cursor-pointer text-on-surface select-none',
+      'data-[readonly]:cursor-default',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+    ],
+    control:
+      "relative grid size-[18px] shrink-0 place-items-center after:absolute after:-inset-[3px] after:content-['']",
+    ring: [
+      'relative grid size-[18px] place-items-center rounded-full border border-outline bg-surface-raised',
+      'transition-[background-color,border-color,scale] duration-200 ease-out motion-reduce:transition-none',
+    ],
+    dot: 'absolute inset-0 rounded-full bg-surface-raised transition-[scale,background-color] duration-200 ease-out motion-reduce:transition-none',
+    icon: 'grid size-10 shrink-0 place-items-center rounded-full transition-colors duration-150 ease-out motion-reduce:transition-none [&_svg]:size-5',
     content: 'flex min-w-0 flex-col gap-0.5',
     label: '',
-    description: 'text-body-md',
+    description: '',
   },
   variants: {
     variant: {
       default: {
         root: 'items-start',
-        target:
-          'inline-flex max-w-full items-start gap-3 text-on-surface data-[disabled]:text-on-surface/38',
-        label: 'text-body-lg',
+        target: 'inline-flex max-w-full items-start gap-3 text-sm',
+        ring: 'focus-ring',
+        description: 'text-xs text-on-surface-variant',
       },
       card: {
-        target:
-          'focus-ring relative h-full rounded-md border p-4 transition-[background-color,border-color,color] duration-150 ease-standard motion-reduce:transition-none',
-        label: 'text-title-md',
+        target: [
+          'focus-ring relative h-full rounded-container border p-4',
+          'transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out motion-reduce:transition-none',
+        ],
+        label: 'text-sm font-medium',
+        description: 'text-sm text-on-surface-variant',
       },
     },
     interactive: {
@@ -96,14 +105,13 @@ export const radioStyles = tv({
       true: '',
       false: '',
     },
-    tone: {
-      default: '',
-      invalid: '',
-      disabled: '',
+    invalid: {
+      true: '',
+      false: '',
     },
     selected: {
-      true: { dot: 'scale-100' },
-      false: { dot: 'scale-0' },
+      true: { dot: 'scale-[0.4375]' },
+      false: { dot: 'scale-100' },
     },
     hasContent: {
       true: '',
@@ -115,18 +123,55 @@ export const radioStyles = tv({
     },
   },
   compoundVariants: [
-    { hasContent: true, class: { control: 'mt-0.5' } },
-    { variant: 'card', interactive: true, class: { target: 'state-layer' } },
+    { hasContent: true, class: { control: 'mt-px' } },
+    {
+      interactive: true,
+      class: {
+        ring: 'group-data-[pressed]/radio-target:scale-95 motion-reduce:group-data-[pressed]/radio-target:scale-100',
+      },
+    },
+    {
+      interactive: true,
+      selected: true,
+      class: {
+        dot: 'group-data-[pressed]/radio-target:scale-[0.5625] motion-reduce:group-data-[pressed]/radio-target:scale-[0.4375]',
+      },
+    },
+    {
+      interactive: true,
+      selected: false,
+      invalid: false,
+      class: { ring: 'group-data-[hovered]/radio-target:border-on-surface-variant' },
+    },
+    {
+      selected: true,
+      invalid: false,
+      class: { ring: 'border-primary-solid bg-primary-solid', dot: 'bg-on-primary-solid' },
+    },
+    {
+      interactive: true,
+      selected: true,
+      invalid: false,
+      class: {
+        ring: 'group-data-[hovered]/radio-target:border-primary-solid-hover group-data-[hovered]/radio-target:bg-primary-solid-hover',
+      },
+    },
+    { invalid: true, class: { ring: 'border-error [--focus-color:var(--error)]' } },
+    {
+      invalid: true,
+      selected: true,
+      class: { ring: 'border-error-solid bg-error-solid', dot: 'bg-on-error-solid' },
+    },
     {
       variant: 'card',
       layout: 'inline',
-      class: { target: 'flex items-start gap-4', content: 'flex-1' },
+      class: { target: 'flex items-start gap-3', content: 'flex-1' },
     },
     {
       variant: 'card',
       layout: 'stacked',
       class: {
-        target: 'grid grid-cols-[1fr_auto] content-start items-start gap-x-4 gap-y-3',
+        target: 'grid grid-cols-[1fr_auto] content-start items-start gap-x-3 gap-y-3',
         icon: 'col-start-1 row-start-1',
         control: 'col-start-2 row-start-1',
       },
@@ -135,7 +180,7 @@ export const radioStyles = tv({
       variant: 'card',
       layout: 'stacked',
       hasIcon: true,
-      class: { content: 'col-span-2 row-start-2', control: 'mt-2.5' },
+      class: { content: 'col-span-2 row-start-2', control: 'mt-[11px]' },
     },
     {
       variant: 'card',
@@ -144,58 +189,63 @@ export const radioStyles = tv({
       class: { content: 'col-start-1 row-start-1' },
     },
     {
-      tone: 'default',
-      selected: false,
-      class: { ring: 'text-on-surface-variant', stateLayer: 'text-on-surface' },
-    },
-    {
-      tone: 'default',
-      selected: true,
-      class: { ring: 'text-primary', stateLayer: 'text-primary' },
-    },
-    { tone: 'invalid', class: { ring: 'text-error', stateLayer: 'text-error' } },
-    { tone: 'disabled', class: { ring: 'text-on-surface/38' } },
-    {
-      variant: 'default',
-      tone: ['default', 'invalid'],
-      class: { description: 'text-on-surface-variant' },
-    },
-    { variant: 'default', tone: 'disabled', class: { description: 'text-on-surface/38' } },
-    {
       variant: 'card',
-      tone: ['default', 'invalid'],
       selected: false,
       class: {
-        target: 'border-outline-variant bg-surface-container-low text-on-surface',
-        description: 'text-on-surface-variant',
-        icon: 'bg-surface-container-highest text-on-surface-variant',
+        target: 'border-outline-subtle bg-surface-raised',
+        icon: 'bg-neutral-soft text-on-surface-variant',
       },
     },
-    { variant: 'card', tone: 'invalid', selected: false, class: { target: 'border-error' } },
     {
       variant: 'card',
-      tone: ['default', 'invalid'],
+      selected: false,
+      interactive: true,
+      class: { target: 'data-[hovered]:border-outline-variant' },
+    },
+    {
+      variant: 'card',
+      interactive: true,
+      class: {
+        target: 'data-[pressed]:scale-[0.99] motion-reduce:data-[pressed]:scale-100',
+      },
+    },
+    { variant: 'card', selected: false, invalid: true, class: { target: 'border-error' } },
+    {
+      variant: 'card',
       selected: true,
       class: {
-        target: 'border-secondary bg-secondary-container text-on-secondary-container',
-        description: 'text-on-secondary-container',
-        icon: 'bg-primary text-on-primary',
+        target: 'border-primary bg-primary-soft inset-ring-1 inset-ring-primary',
+        icon: 'bg-surface-raised text-primary',
       },
     },
     {
       variant: 'card',
-      tone: 'disabled',
+      selected: true,
+      invalid: true,
       class: {
-        target: 'border-on-surface/12 bg-transparent text-on-surface/38',
-        description: 'text-on-surface/38',
-        icon: 'bg-on-surface/12 text-on-surface/38',
+        target: 'border-error bg-error-soft inset-ring-error [--focus-color:var(--error)]',
+        icon: 'text-error',
       },
+    },
+    {
+      interactive: true,
+      instant: true,
+      class: {
+        target: 'data-[pressed]:scale-100',
+        ring: 'group-data-[pressed]/radio-target:scale-100',
+      },
+    },
+    {
+      interactive: true,
+      instant: true,
+      selected: true,
+      class: { dot: 'group-data-[pressed]/radio-target:scale-[0.4375]' },
     },
   ],
   defaultVariants: {
     variant: 'default',
     layout: 'inline',
-    tone: 'default',
+    invalid: false,
     selected: false,
     hasContent: true,
     hasIcon: false,
@@ -210,8 +260,6 @@ interface RadioGroupLayout {
   variant: NonNullable<RadioGroupStyleProps['variant']>;
   orientation: NonNullable<RadioGroupStyleProps['orientation']>;
 }
-
-type RadioTone = 'default' | 'invalid' | 'disabled';
 
 const RadioGroupLayoutContext = createContext<RadioGroupLayout>({
   variant: 'default',
@@ -228,11 +276,6 @@ function labelledByWithDescription(
     return props['aria-labelledby'];
   }
   return hasLabel && hasDescription ? labelId : undefined;
-}
-
-function radioTone({ isDisabled, isInvalid }: RadioButtonRenderProps): RadioTone {
-  if (isDisabled) return 'disabled';
-  return isInvalid ? 'invalid' : 'default';
 }
 
 export interface RadioGroupProps
@@ -323,9 +366,9 @@ export function Radio({ children, description, icon, className, ...props }: Radi
       variant,
       layout: variant === 'card' && orientation === 'horizontal' ? 'stacked' : 'inline',
       hasIcon: variant === 'card' && icon != null,
-      tone: radioTone(state),
+      invalid: state.isInvalid,
       selected: state.isSelected,
-      interactive: !state.isReadOnly,
+      interactive: !state.isReadOnly && !state.isDisabled,
       hasContent,
       instant,
     });
@@ -344,18 +387,11 @@ export function Radio({ children, description, icon, className, ...props }: Radi
           const styles = stylesFor(state);
           const indicator = (
             <span data-slot="control" className={styles.control()}>
-              {variant === 'default' ? (
-                <span
-                  aria-hidden="true"
-                  data-slot="state-layer"
-                  data-hovered={state.isHovered || undefined}
-                  data-pressed={state.isPressed || undefined}
-                  data-focus-visible={state.isFocusVisible || undefined}
-                  data-disabled={state.isDisabled || state.isReadOnly || undefined}
-                  className={styles.stateLayer()}
-                />
-              ) : null}
-              <span data-slot="ring" className={styles.ring()}>
+              <span
+                data-slot="ring"
+                data-focus-visible={(variant === 'default' && state.isFocusVisible) || undefined}
+                className={styles.ring()}
+              >
                 <span data-slot="dot" className={styles.dot()} />
               </span>
             </span>

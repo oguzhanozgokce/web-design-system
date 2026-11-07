@@ -8,11 +8,11 @@ import { DialogTrigger } from '@/registry/ds/ui/dialog';
 export default function AlertDialogDemo() {
   return (
     <DialogTrigger>
-      <Button tone="destructive" variant="tonal" startIcon={<DeleteIcon />}>
+      <Button tone="error" variant="soft" startIcon={<DeleteIcon />}>
         Delete file
       </Button>
       <AlertDialog
-        tone="destructive"
+        tone="error"
         title="Delete “Notes.txt”?"
         description="The file is deleted for everyone it is shared with. This cannot be undone."
         confirmLabel="Delete"

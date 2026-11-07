@@ -4,27 +4,32 @@ import { useState, type ComponentProps, type ReactNode } from 'react';
 import { cn, tv } from '@/registry/ds/lib/utils';
 import { useMotionPreference } from '@/registry/ds/ui/ds-provider';
 
-export type SkeletonShape = 'text' | 'circle' | 'rect';
+export type SkeletonShape = 'text' | 'block' | 'circle';
+
+export type SkeletonAnimation = 'shimmer' | 'pulse' | 'none';
 
 export const skeletonStyles = tv({
   slots: {
     root: 'max-w-full',
-    block: 'bg-surface-container-highest',
-    line: 'my-[0.2lh] block h-[0.6lh] w-full shrink-0 rounded-xs',
+    block: 'relative overflow-hidden bg-neutral-soft',
+    line: 'my-[0.2lh] block h-[0.6lh] w-full shrink-0',
     content: 'contents',
   },
   variants: {
     shape: {
-      text: { root: 'flex w-full flex-col', block: 'rounded-xs' },
-      circle: { root: 'block size-10 shrink-0 rounded-full', block: 'rounded-full' },
-      rect: { root: 'block h-24 w-full rounded-md', block: 'rounded-md' },
+      text: { root: 'flex w-full flex-col', block: 'rounded-sm' },
+      block: { root: 'block h-24 w-full', block: 'rounded-container' },
+      circle: { root: 'block size-10 shrink-0', block: 'rounded-full' },
     },
-    motion: {
-      full: {
-        block:
-          'skeleton-shimmer animate-ds-shimmer rtl:[animation-direction:reverse] motion-reduce:animate-ds-pulse motion-reduce:bg-none',
+    animation: {
+      shimmer: {
+        block: [
+          'after:absolute after:inset-0 after:bg-linear-to-r after:from-transparent after:via-on-surface/6 after:to-transparent',
+          'after:animate-ds-shimmer',
+          'motion-reduce:animate-ds-pulse motion-reduce:after:hidden',
+        ],
       },
-      reduced: { block: 'animate-ds-pulse' },
+      pulse: { block: 'animate-ds-pulse' },
       none: { block: '' },
     },
     isLoaded: {
@@ -33,16 +38,16 @@ export const skeletonStyles = tv({
     },
   },
   defaultVariants: {
-    shape: 'rect',
-    motion: 'full',
+    shape: 'block',
+    animation: 'shimmer',
     isLoaded: false,
   },
 });
 
-function useSkeletonMotion() {
+function useSkeletonAnimation(requested: SkeletonAnimation): SkeletonAnimation {
   const { spatialEnabled, effectsEnabled } = useMotionPreference();
-  if (spatialEnabled) return 'full';
-  return effectsEnabled ? 'reduced' : 'none';
+  if (requested === 'none' || (!spatialEnabled && !effectsEnabled)) return 'none';
+  return spatialEnabled ? requested : 'pulse';
 }
 
 function hasContent(children: ReactNode) {
@@ -51,36 +56,42 @@ function hasContent(children: ReactNode) {
 
 export interface SkeletonProps extends ComponentProps<'div'> {
   shape?: SkeletonShape;
+  animation?: SkeletonAnimation;
   lines?: number;
   isLoaded?: boolean;
   children?: ReactNode;
 }
 
 export function Skeleton({
-  shape = 'rect',
+  shape = 'block',
+  animation: animationProp = 'shimmer',
   lines = 1,
   isLoaded = false,
   className,
   children,
   ...props
 }: SkeletonProps) {
-  const motion = useSkeletonMotion();
+  const animation = useSkeletonAnimation(animationProp);
   const [wasLoading, setWasLoading] = useState(!isLoaded);
   if (!isLoaded && !wasLoading) setWasLoading(true);
-  const styles = skeletonStyles({ shape, motion, isLoaded });
+  const styles = skeletonStyles({ shape, animation, isLoaded });
+  const dataProps = {
+    'data-slot': 'skeleton',
+    'data-shape': shape,
+    'data-animation': animation,
+  };
 
   if (hasContent(children)) {
     return (
       <div
         {...props}
+        {...dataProps}
         aria-hidden={isLoaded ? undefined : true}
-        data-slot="skeleton"
-        data-shape={shape}
         data-loaded={isLoaded ? 'true' : undefined}
         className={
           isLoaded
-            ? cn(wasLoading && motion !== 'none' && 'animate-ds-fade-in', className)
-            : styles.block({ className: ['relative', className] })
+            ? cn(wasLoading && animation !== 'none' && 'animate-ds-fade-in', className)
+            : styles.block({ className })
         }
       >
         <div data-slot="skeleton-content" inert={!isLoaded} className={styles.content()}>
@@ -95,13 +106,7 @@ export function Skeleton({
   if (shape === 'text') {
     const count = Math.max(1, Math.floor(lines));
     return (
-      <div
-        {...props}
-        aria-hidden="true"
-        data-slot="skeleton"
-        data-shape={shape}
-        className={styles.root({ className })}
-      >
+      <div {...props} {...dataProps} aria-hidden="true" className={styles.root({ className })}>
         {Array.from({ length: count }, (_, index) => (
           <span
             key={index}
@@ -118,9 +123,8 @@ export function Skeleton({
   return (
     <div
       {...props}
+      {...dataProps}
       aria-hidden="true"
-      data-slot="skeleton"
-      data-shape={shape}
       className={styles.root({ className: [styles.block(), className] })}
     />
   );

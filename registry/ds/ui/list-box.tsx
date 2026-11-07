@@ -21,53 +21,48 @@ import { Spinner } from '@/registry/ds/ui/spinner';
 export const listBoxStyles = tv({
   slots: {
     root: [
-      'group/list-box focus-ring-inset flex min-h-0 flex-col gap-0.5 overflow-auto rounded-md p-1 text-on-surface not-data-[focus-visible]:outline-none',
+      'group/list-box focus-ring-inset flex min-h-0 flex-col gap-0.5 overflow-auto p-1 text-sm text-on-surface not-data-[focus-visible]:outline-none',
       'data-[empty]:justify-center',
     ],
     section: [
       'flex flex-col gap-0.5',
-      'not-first:mt-1 not-first:border-t not-first:border-outline-variant not-first:pt-1',
+      'not-first:mt-1 not-first:border-t not-first:border-outline-subtle not-first:pt-1',
     ],
-    header: 'px-(--list-box-item-px) pt-2 pb-1 text-label-md text-on-surface-variant select-none',
+    header:
+      'px-(--list-box-item-px) pt-2 pb-1 text-xs font-medium text-on-surface-variant select-none',
     item: [
-      'group/item state-layer focus-ring-inset relative flex min-h-(--list-box-item-height) shrink-0 cursor-default items-center gap-(--list-box-item-gap) rounded-sm px-(--list-box-item-px) py-(--list-box-item-py)',
-      'text-start text-on-surface no-underline select-none not-data-[focus-visible]:outline-none',
-      'transition-colors duration-150 ease-standard motion-reduce:transition-none',
-      'data-[selected]:bg-secondary-container data-[selected]:text-on-secondary-container',
-      'data-[disabled]:text-on-surface/38 data-[disabled]:data-[selected]:bg-on-surface/12 data-[disabled]:data-[selected]:text-on-surface/38',
+      'group/item focus-ring-inset transition-control no-tap-highlight relative flex min-h-(--list-box-item-height) shrink-0 cursor-pointer items-center gap-(--list-box-item-gap) rounded-item px-(--list-box-item-px) py-(--list-box-item-py)',
+      'text-start text-on-surface no-underline select-none not-data-[focus-visible]:outline-none motion-reduce:transition-none',
+      'data-[hovered]:bg-neutral-soft data-[focus-visible]:bg-neutral-soft',
+      'data-[pressed]:scale-[0.98] motion-reduce:data-[pressed]:scale-100',
+      'group-data-[variant=outline]/list-box:data-[selected]:bg-primary-soft group-data-[variant=outline]/list-box:data-[selected]:data-[hovered]:bg-primary-soft-hover group-data-[variant=outline]/list-box:data-[selected]:data-[focus-visible]:bg-primary-soft-hover',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
       'forced-colors:data-[focus-visible]:outline-[Highlight] forced-colors:data-[selected]:outline-1 forced-colors:data-[selected]:outline-[Highlight]',
     ],
     avatar:
-      'flex size-(--list-box-avatar-size) shrink-0 items-center justify-center group-data-[disabled]/control:opacity-38 group-data-[disabled]/item:opacity-38 [&>*]:size-full!',
-    icon: [
-      'inline-flex shrink-0 items-center justify-center text-(length:--icon-size) text-on-surface-variant [&_svg]:size-[1em]',
-      'group-data-[selected]/item:text-current group-data-[disabled]/control:text-current group-data-[disabled]/item:text-current',
-    ],
+      'flex size-(--list-box-avatar-size) shrink-0 items-center justify-center [&>*]:size-full!',
+    icon: 'inline-flex shrink-0 items-center justify-center text-(length:--icon-size) text-on-surface-variant [&_svg]:size-[1em]',
     content: 'flex min-w-0 flex-1 flex-col',
-    label: 'text-body-lg [overflow-wrap:anywhere] pointer-fine:text-body-md',
-    description: [
-      'text-body-sm [overflow-wrap:anywhere] text-on-surface-variant',
-      'group-data-[selected]/item:text-current group-data-[disabled]/item:text-current',
-    ],
-    check:
-      'inline-flex size-(--icon-size) shrink-0 items-center justify-center text-(length:--icon-size) [&_svg]:size-[1em]',
+    label: '[overflow-wrap:anywhere]',
+    description: 'text-xs [overflow-wrap:anywhere] text-on-surface-variant',
+    check: 'inline-flex size-4 shrink-0 items-center justify-center text-primary [&_svg]:size-4',
     status:
-      'flex min-h-(--list-box-item-height) items-center justify-center gap-2 px-(--list-box-item-px) py-4 text-center text-body-md text-on-surface-variant [&_svg]:size-(--icon-size) [&_svg]:shrink-0',
+      'flex min-h-(--list-box-item-height) items-center justify-center gap-2 px-2.5 py-2 text-center text-sm text-on-surface-variant [&_svg]:size-4 [&_svg]:shrink-0',
     loader:
-      'flex min-h-(--list-box-item-height) items-center justify-center gap-2 px-(--list-box-item-px) text-body-md text-on-surface-variant outline-none',
+      'flex min-h-(--list-box-item-height) items-center justify-center gap-2 px-2.5 text-sm text-on-surface-variant outline-none',
   },
   variants: {
     density: {
       sm: {
-        root: '[--icon-size:1.125rem] [--list-box-avatar-size:1.5rem] [--list-box-item-gap:0.5rem] [--list-box-item-height:2rem] [--list-box-item-px:0.625rem] [--list-box-item-py:0.25rem]',
+        root: '[--icon-size:1rem] [--list-box-avatar-size:1.5rem] [--list-box-item-gap:0.5rem] [--list-box-item-height:2rem] [--list-box-item-px:0.5rem] [--list-box-item-py:0.25rem]',
       },
       md: {
-        root: '[--icon-size:1.25rem] [--list-box-avatar-size:2rem] [--list-box-item-gap:0.75rem] [--list-box-item-height:2.5rem] [--list-box-item-px:0.75rem] [--list-box-item-py:0.5rem]',
+        root: '[--icon-size:1rem] [--list-box-avatar-size:2rem] [--list-box-item-gap:0.625rem] [--list-box-item-height:2.25rem] [--list-box-item-px:0.625rem] [--list-box-item-py:0.375rem]',
       },
     },
     variant: {
-      plain: {},
-      outlined: { root: 'border border-outline-variant bg-surface' },
+      plain: { root: 'rounded-overlay' },
+      outline: { root: 'rounded-container border border-outline-subtle bg-surface-raised' },
     },
   },
   defaultVariants: {
@@ -80,7 +75,7 @@ export type ListBoxStyleProps = VariantProps<typeof listBoxStyles>;
 
 export type ListBoxDensity = 'sm' | 'md';
 
-export type ListBoxVariant = 'plain' | 'outlined';
+export type ListBoxVariant = 'plain' | 'outline';
 
 export interface ListBoxLabels {
   empty: string;
@@ -112,7 +107,8 @@ export function ListBoxStatus({ icon, className, children, ...props }: ListBoxSt
 }
 
 export interface ListBoxProps<T extends object>
-  extends Omit<AriaListBoxProps<T>, 'className'>, ListBoxStyleProps {
+  extends Omit<AriaListBoxProps<T>, 'className'>, Omit<ListBoxStyleProps, 'variant'> {
+  variant?: ListBoxVariant;
   isLoading?: boolean;
   onLoadMore?: () => void;
   labels?: Partial<ListBoxLabels>;
@@ -163,7 +159,7 @@ export function ListBox<T extends object>({
             data-slot="list-box-loader"
             className={styles.loader()}
           >
-            <Spinner className="text-(length:--icon-size) text-primary" />
+            <Spinner className="text-(length:--icon-size)" />
             <span>{t.loading}</span>
           </ListBoxLoadMoreItem>
         </>

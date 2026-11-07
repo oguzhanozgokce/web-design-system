@@ -19,9 +19,9 @@ The reference implementation is Button. Before writing anything, read:
    `standout`, `apiNotes`, `borrow` and `avoid` entry that mentions it.
 2. Read the React Aria Components docs page for the primitive you build on
    (`https://react-aria.adobe.com/<Component>` or `node_modules/react-aria-components/dist/types.d.ts`).
-3. Read the Compose counterpart if one exists:
-   `~/AndroidStudioProjects/mobile-design-system/designsystem-core/src/commonMain/kotlin/app/oguzhanozgokce/designsystem/component/DS<Name>.kt`.
-   Keep its variant names, sizes and behaviours where they make sense on the web.
+3. Read `docs/research/web-style.md`: section 1 (foundations), section 3 (variant API), section 4
+   (tokens), its section 2 entry for the component, and the Decisions list at the end, which is
+   settled.
 4. Free-tier MIT sources (BoardUI, Astryx, EasyUI, ObsidianUI's own blocks, Bencho's free blocks,
    shadcn/ui) may be read with `gh api repos/<owner>/<repo>/contents/<path>` and adapted. Record each
    adapted source in the item's `credits`. Never copy from React Bits, 21st.dev, Aceternity or a paid
@@ -52,16 +52,32 @@ shared file blocks you, say so in your final report instead of editing it.
   `thingStyles` (or a `slots` object for multi-part components).
 - Multi-part components use `tv({ slots: {...} })` and export each part as its own component
   (`Card`, `CardHeader`, `CardTitle`...). Every part gets `data-slot="<part>"`.
-- Put `data-variant`, `data-size` and other variant values on the root. Read RAC state from its data
-  attributes in classes: `data-[selected]:`, `data-[disabled]:`, `data-[focus-visible]:`,
-  `data-[pressed]:`, `data-[invalid]:`, `data-[open]:`/`data-[entering]:`/`data-[exiting]:`.
-- Interactive surfaces use `state-layer` (hover, press and focus overlay in `currentColor`) and
-  `focus-ring` (or `focus-ring-inset` inside lists and tables).
-- Colours: only Material 3 roles. Containers pair with their `on-` role. Disabled is
-  `text-on-surface/38` and `bg-on-surface/12`.
-- Type: `text-body-md`, `text-label-lg`, `text-title-md` and the rest of the M3 scale.
-- Corners: `rounded-xs` 4, `-sm` 8, `-md` 12, `-lg` 16, `-xl` 28, `-full`. Elevation:
-  `shadow-elevation-1`…`5` only for floating surfaces.
+- Variants: `variant` is how much ink (`solid | soft | outline | ghost`, or the component's own set
+  from the spec), `tone` is which role paints it (`primary | neutral | error`, plus
+  `success | warning | info` on status components), `size` is `sm | md | lg` at 32/40/48px. Use
+  `tv` `compoundVariants` for variant × tone, as Button does. `solid` defaults to `primary`, the
+  quieter variants to `neutral`.
+- Put `data-variant`, `data-tone`, `data-size` and other variant values on the root. Read RAC state
+  from its data attributes in classes: `data-[selected]:`, `data-[disabled]:`,
+  `data-[focus-visible]:`, `data-[pressed]:`, `data-[invalid]:`,
+  `data-[open]:`/`data-[entering]:`/`data-[exiting]:`.
+- Interaction: hover swaps the fill to its `-hover` role (`data-[hovered]:bg-neutral-soft`,
+  `data-[hovered]:bg-primary-solid-hover`), press keeps it and scales (0.98 sm, 0.97 md, 0.96 lg),
+  `transition-control` times both. Disabled is `opacity-50` plus `cursor-not-allowed` on the root,
+  never per-part colours. Focus is `focus-ring` (or `focus-ring-inset` inside lists and menus);
+  error-tone controls set `[--focus-color:var(--error)]`.
+- Colours: layers `bg-canvas`, `bg-surface-raised`, `bg-surface-overlay`, `bg-surface-segment`,
+  `bg-surface-thumb`; solid fills `bg-{tone}-solid text-on-{tone}-solid` for every filled accent;
+  soft fills `bg-{tone}-soft text-on-{tone}-soft` and `bg-neutral-soft text-on-surface`; hairlines
+  `border-outline-subtle`, field borders `border-outline-variant`. Text-coloured accents keep
+  `text-primary`. The full list is the `@theme inline` block of `theme.css`.
+- Type: Tailwind sizes with explicit weights. Control labels `text-sm font-medium`, small controls
+  `text-xs font-medium`, descriptions `text-xs text-on-surface-variant`, card titles
+  `text-sm font-semibold`, dialog titles `text-base font-semibold`.
+- Corners: the radius families `rounded-control` (pills), `rounded-field`, `rounded-item`,
+  `rounded-overlay`, `rounded-container`, `rounded-dialog`. Tailwind's `rounded-sm` (4px),
+  `-md` (6px), `-lg` (8px) and `-xl` (12px) are for small parts such as checkboxes and key caps.
+  Shadows: `shadow-xs`…`shadow-lg`, only for raised and floating things.
 - Directions: logical utilities only (`ms-`, `pe-`, `inset-s-`, `rounded-e-`, `border-s`,
   `text-start`). Directional glyphs (arrows, chevrons pointing forward/back) get
   `rtl:-scale-x-100`.
@@ -93,13 +109,14 @@ shared file blocks you, say so in your final report instead of editing it.
 
 - Formatting: numbers, dates and currencies go through `Intl` or React Aria with the locale from
   `useLocale()`. Never `toFixed` for display.
-- Motion: CSS transitions with `ease-standard`, `ease-emphasized-decelerate`, `ease-spatial` (spring
-  as `linear()`), durations 150/250/400ms. `motion/react` only for physics, drag and layout, with
-  `spatialSpring()`/`effectSpring()` from `@/registry/ds/lib/motion`, gated by
-  `useMotionPreference()`. Every animation has `motion-reduce:` handling.
+- Motion: CSS transitions with `ease-fluid` (sliding indicators, thumbs, sheets), `ease-out-quad`
+  (dialogs, disclosure height) or `ease-out` (colours), over 100–350ms. `motion/react` only for
+  physics, drag and layout, with `spatialSpring()`/`effectSpring()` or `fluidTween()` from
+  `@/registry/ds/lib/motion`, gated by `useMotionPreference()`. Every animation has
+  `motion-reduce:` handling.
 - Overlays animate with RAC's state attributes and the keyframes in `theme.css`:
   `data-[entering]:animate-ds-popover-in data-[exiting]:animate-ds-popover-out` for popovers, menus
-  and tooltips; `animate-ds-dialog-in/out` for dialogs; `animate-ds-sheet-in-{bottom,top,start,end}`
+  and tooltips (set `[--ds-popover-scale:0.9]` for the larger grow of popovers and tooltips); `animate-ds-dialog-in/out` for dialogs; `animate-ds-sheet-in-{bottom,top,start,end}`
   and `-out-` for sheets (start/end follow `dir`); `animate-ds-fade-in/out` for scrims;
   `animate-ds-toast-in/out` for toasts. Reduced motion turns all of them into fades globally.
 - Async: callbacks that start work (`onPress`, `onConfirm`, `onSubmit`, `onAction`) may return a

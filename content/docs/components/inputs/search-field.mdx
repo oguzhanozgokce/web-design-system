@@ -1,6 +1,6 @@
 ---
 title: Search field
-description: Search input on the shared Field contract, with a clear button and Escape to clear, submit on Enter, a pending spinner for async search, a focus shortcut with its key hint and a Material 3 pill shape for top bars.
+description: Search input with a clear button, submit on Enter, a pending spinner, a focus shortcut and a soft variant for header search bars.
 ---
 
 <ComponentPreview name="search-field-demo" />
@@ -26,23 +26,24 @@ what is being searched. Label, description, errors, sizes and variants follow th
 
 ### Variants
 
-`outlined` and `filled` match the other inputs in a form. `shape="pill"` is the Material 3 search
-bar: a fully rounded `surface-container-high` bar with no border, for app bars and page headers. It
-replaces the variant's border or underline, so `variant` has no effect on a pill.
+`outline` (the default) matches the other inputs in a form. `soft` is a borderless neutral tint
+that turns white with a primary border on focus; use it for the search bar in a header or toolbar,
+where a bordered box would add one more line to an already busy edge.
 
 <ComponentPreview name="search-field-variants" />
 
 ### Sizes
 
-`md` (40px) is the default. `sm` suits table toolbars and filters. `lg` suits a help centre or a
-landing page where search is the main action.
+`md` (40 px) is the default. `sm` (32 px) suits table toolbars and filters. `lg` (48 px) suits a
+help centre or a landing page where search is the main action. The shortcut hint grows with the
+field.
 
 <ComponentPreview name="search-field-sizes" />
 
 ### Keyboard shortcut
 
 `shortcut` binds a key that focuses the field from anywhere on the page and selects its text, and
-shows the key as a small hint while the field is empty and not focused. Use a single key such as
+shows the key as a small key cap on a neutral tint while the field is empty and not focused. Use a single key such as
 `"/"` or `"p"`, or join modifiers with `+`: `"Mod+K"` is ⌘K on Apple devices and Ctrl+K elsewhere. A
 single key is ignored while someone is typing in another field or moving through a list, menu or grid
 that jumps to items by letter, but speech input can still trigger it, so WCAG 2.1.4 asks for a
@@ -70,8 +71,9 @@ flash. Announce the result count yourself in a polite live region; the field doe
 
 ### In a top bar
 
-`endAdornment` holds trailing actions such as a filter button. They sit after the clear button and
-do not inherit its clear behaviour; a button passed as `icon` keeps its own action too. Give a pill without a label an `aria-label` that names the scope.
+`endAdornment` holds trailing actions such as a ghost filter button. They sit after the clear button
+and do not inherit its clear behaviour; a button passed as `icon` keeps its own action too. Give a
+search bar without a label an `aria-label` that names the scope.
 
 <ComponentPreview name="search-field-top-bar" />
 
@@ -88,7 +90,6 @@ do not inherit its clear behaviour; a button passed as `icon` keeps its own acti
 | `onClear`      | `() => void`                                  |                                  |
 | `isPending`    | `boolean`                                     | automatic                        |
 | `shortcut`     | `string`                                      |                                  |
-| `shape`        | `'field' \| 'pill'`                           | `'field'`                        |
 | `placeholder`  | `string`                                      | "Search" without a visible label |
 | `icon`         | `ReactNode`                                   | the `search` icon                |
 | `endAdornment` | `ReactNode`                                   |                                  |
@@ -106,12 +107,13 @@ physical key too, so `Mod+K` works on Cyrillic and Greek layouts.
 
 ### searchFieldStyles
 
-`searchFieldStyles({ shape, size })` returns one class function per slot: `root`, `container`
-(added to the Field container), `icon`, `glyph`, `pending` and `shortcut`.
+`searchFieldStyles({ size })` returns one class function per slot: `root`, `icon`, `glyph`,
+`pending`, `clear` (the fade-in of the clear button) and `shortcut` (the key cap, sized to the
+field).
 
 ### Data attributes
 
-The root has `data-slot="search-field"`, `data-size`, `data-shape`, `data-variant` (not on a pill),
+The root has `data-slot="search-field"`, `data-size`, `data-variant` (`outline` or `soft`),
 `data-pending`, `data-empty`, `data-invalid`, `data-disabled`, `data-readonly` and `data-required`.
 Parts:
 `data-slot="start-adornment"` holds `"search-icon"` and, while pending, `"pending"`; then
@@ -142,7 +144,8 @@ sets under `field`.
 
 - Built on React Aria `SearchField`: the input has the `searchbox` role, Escape clears it, and once it
   is empty Escape passes through so it can close a dialog.
-- The clear button is named by the `clear` label, stays out of the tab order like the browser's
+- The clear button appears only while there is text to clear, fading in over 150 ms (no fade with
+  reduced motion). It is named by the `clear` label, stays out of the tab order like the browser's
   own, and keeps focus in the input.
 - While pending, a progress bar named by the `searching` label replaces the glyph. Focus never
   moves.
@@ -150,5 +153,6 @@ sets under `field`.
   `aria-keyshortcuts` on the input.
 - The glyph and the clear button sit on the logical start and end, so they swap sides in
   right-to-left languages.
-- The pill has no border, so in forced-colours mode, where its tint disappears, it gets one.
+- The soft variant's border is transparent, so in forced-colours mode, where its tint disappears,
+  the border takes the system colour and the bar stays visible.
 - Contrast is checked with axe in light, dark and RTL by `search-field.test.tsx`.

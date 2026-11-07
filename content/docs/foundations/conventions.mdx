@@ -7,8 +7,11 @@ description: The rules every component follows, so they read the same wherever t
 
 - **Props follow React Aria.** `isDisabled`, `isPending`, `isSelected`, `onPress`, `value`,
   `defaultValue`, `onChange`. Controlled and uncontrolled both work.
-- **Variants are named after Material 3.** `variant`: `filled`, `tonal`, `outlined`, `text`,
-  `elevated`. `size`: `xs` to `xl`. `tone`: `default` or `destructive`.
+- **One variant vocabulary.** `variant` says how much ink: `solid`, `soft`, `outline`, `ghost`
+  (or the component's own set, such as `underline` and `pill` tabs). `tone` says which role paints
+  it: `primary`, `neutral` or `error` on actions, plus `success`, `warning` and `info` on status
+  components. `size` is `sm`, `md` or `lg` at 32, 40 and 48px. `solid` defaults to `primary`; the
+  quieter variants default to `neutral`.
 - **A different look is a variant. A different behaviour is a new component** named after what it
   does: `HoldToConfirmButton`, `SplitButton`. Never `ButtonV2`.
 - **Async actions are promises.** `onPress`, `onConfirm` and `onSubmit` may return a promise and the

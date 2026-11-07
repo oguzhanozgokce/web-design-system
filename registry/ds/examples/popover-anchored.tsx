@@ -12,11 +12,11 @@ export default function PopoverAnchored() {
     <div className="flex w-full max-w-sm flex-col gap-3">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-title-sm text-on-surface">Storage</p>
-          <p className="text-body-sm text-on-surface-variant">41 of 50 GB used</p>
+          <p className="text-sm font-semibold text-on-surface">Storage</p>
+          <p className="text-xs text-on-surface-variant">41 of 50 GB used</p>
         </div>
         <Button
-          variant="text"
+          variant="ghost"
           size="sm"
           aria-haspopup="dialog"
           aria-expanded={isOpen}
@@ -25,8 +25,8 @@ export default function PopoverAnchored() {
           Details
         </Button>
       </div>
-      <div ref={meter} className="h-2 overflow-hidden rounded-full bg-surface-container-highest">
-        <div className="h-full w-[82%] rounded-full bg-primary" />
+      <div ref={meter} className="h-2 overflow-hidden rounded-full bg-neutral-soft">
+        <div className="h-full w-[82%] rounded-full bg-primary-solid" />
       </div>
       <Popover triggerRef={meter} isOpen={isOpen} onOpenChange={setOpen} showArrow>
         <PopoverDialog title="What uses your storage" showCloseButton>

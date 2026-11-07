@@ -19,16 +19,16 @@ export default function DynamicThemeStyles() {
           key={paletteStyle}
           seed={seed}
           paletteStyle={paletteStyle}
-          className="flex flex-col gap-2 rounded-lg bg-surface-container p-3 text-on-surface"
+          className="flex flex-col gap-2 rounded-container border border-outline-subtle bg-surface-raised p-3 text-on-surface"
         >
-          <p className="text-label-lg">{paletteStyle}</p>
+          <p className="text-sm font-medium">{paletteStyle}</p>
           <div className="flex gap-1" aria-hidden>
             <span className="h-8 flex-1 rounded-s-sm bg-primary" />
             <span className="h-8 flex-1 bg-secondary" />
             <span className="h-8 flex-1 rounded-e-sm bg-tertiary" />
           </div>
-          <span className="self-start rounded-full bg-primary-container px-3 py-1 text-label-md text-on-primary-container">
-            Container
+          <span className="self-start rounded-control bg-primary-soft px-3 py-1 text-xs font-medium text-on-primary-soft">
+            Soft
           </span>
         </DynamicTheme>
       ))}

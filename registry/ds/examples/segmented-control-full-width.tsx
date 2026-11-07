@@ -8,24 +8,19 @@ export default function SegmentedControlFullWidth() {
   const weekStartId = useId();
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-4 rounded-lg bg-surface-container-low p-4 text-on-surface">
-      <h3 className="text-title-md">Date and time</h3>
+    <div className="flex w-full max-w-sm flex-col gap-4 rounded-container border border-outline-subtle bg-surface-raised p-4 text-on-surface">
+      <h3 className="text-sm font-semibold">Date and time</h3>
       <div className="flex flex-col gap-2">
-        <span id={timeFormatId} className="text-label-lg">
+        <span id={timeFormatId} className="text-sm font-medium">
           Time format
         </span>
-        <SegmentedControl
-          aria-labelledby={timeFormatId}
-          variant="thumb"
-          fullWidth
-          defaultSelectedKeys={['24h']}
-        >
+        <SegmentedControl aria-labelledby={timeFormatId} fullWidth defaultSelectedKeys={['24h']}>
           <SegmentedControlItem id="12h">12-hour</SegmentedControlItem>
           <SegmentedControlItem id="24h">24-hour</SegmentedControlItem>
         </SegmentedControl>
       </div>
       <div className="flex flex-col gap-2">
-        <span id={weekStartId} className="text-label-lg">
+        <span id={weekStartId} className="text-sm font-medium">
           Week starts on
         </span>
         <SegmentedControl aria-labelledby={weekStartId} fullWidth defaultSelectedKeys={['monday']}>

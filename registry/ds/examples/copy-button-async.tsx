@@ -10,10 +10,10 @@ async function createShareLink() {
 export default function CopyButtonAsync() {
   return (
     <div className="flex flex-col items-center gap-2 text-center">
-      <CopyButton value={createShareLink} variant="filled">
+      <CopyButton value={createShareLink} variant="solid">
         Copy share link
       </CopyButton>
-      <p className="text-body-sm text-on-surface-variant">Creates a link that anyone can view.</p>
+      <p className="text-xs text-on-surface-variant">Creates a link that anyone can view.</p>
     </div>
   );
 }

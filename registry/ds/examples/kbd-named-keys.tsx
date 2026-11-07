@@ -13,7 +13,7 @@ const keys = [
 
 export default function KbdNamedKeys() {
   return (
-    <dl className="grid w-full max-w-md grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2.5 text-body-md">
+    <dl className="grid w-full max-w-md grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2.5 text-sm">
       {keys.map((item) => (
         <div key={item.key} className="contents">
           <dt className="justify-self-start">

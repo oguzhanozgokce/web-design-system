@@ -22,7 +22,7 @@ export const paletteStyleOptions: PaletteStyleOption[] = [
   {
     id: 'tonal-spot',
     name: 'Tonal spot',
-    description: 'Material’s default: calm, low-chroma accents',
+    description: 'Calm, low-chroma accents',
   },
   { id: 'vibrant', name: 'Vibrant', description: 'Saturated accents; the catalogue default' },
   { id: 'expressive', name: 'Expressive', description: 'Shifts hues for playful palettes' },
@@ -124,18 +124,4 @@ export function tokensCss(schemes: SchemeSet) {
 
 export function configJson(seed: string, style: PaletteStyle) {
   return `${JSON.stringify({ ...tokenConfig, seed: formatSeed(seed), style }, null, 2)}\n`;
-}
-
-function kotlinEnum(value: string) {
-  return value.toUpperCase().replaceAll('-', '_');
-}
-
-export function composeCall(seed: string, style: PaletteStyle, contrast: ContrastLevel) {
-  return [
-    'rememberDSBrandColors(',
-    `    seed = Color(0xFF${formatSeed(seed).slice(1)}),`,
-    `    style = DSPaletteStyle.${kotlinEnum(style)},`,
-    `    contrast = DSContrast.${kotlinEnum(contrast)},`,
-    ')',
-  ].join('\n');
 }

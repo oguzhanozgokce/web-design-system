@@ -1,12 +1,12 @@
 # Web design system
 
 React component library for every web project: marketing sites, admin panels and signed-in user
-panels. It is a web library in its own right, separate from the mobile design system: never argue a
-web decision from Material 3 or from the Compose library. Its look follows the web component
-libraries in `docs/research/` — HeroUI's shapes and liveliness on Astryx's neutral surfaces, with
-40px controls by default — and its colours are roles generated from one seed colour, which is what
-makes dynamic colour possible. Treat it as an SDK: every public name, default and behaviour is a
-promise to several apps.
+panels. It is a web library in its own right: argue every decision from the web references in
+`docs/research/`, never from another platform's design system. Its look is HeroUI's shapes and
+liveliness on Astryx's neutral surfaces and calm density, with 40px controls by default
+(`docs/research/web-style.md` is the spec and its Decisions list is settled), and its colours are
+roles generated from one seed colour, which is what makes dynamic colour possible. Treat it as an
+SDK: every public name, default and behaviour is a promise to several apps.
 
 Components ship as a shadcn registry (`@ds` namespace). A project installs a component and owns the
 copy, so the source in `registry/ds` must work after the shadcn CLI copies it somewhere else.
@@ -38,17 +38,31 @@ copy, so the source in `registry/ds` must work after the shadcn CLI copies it so
 
 ## Rules for every change
 
-- Material 3 roles only (`bg-surface-container-low`, `text-on-primary`), in matching pairs. No hex,
-  no Tailwind palette colours, no `white`/`black`, no `dark:`. `check:ds` enforces this. The one
-  hex literal allowed is a seed handed to the colour engine (`seed: '#0B8F6A'`, `seed="#0B8F6A"`):
-  it is input to a scheme, not a colour anything is painted with.
+- Colour roles only, each fill with its text role: layers `bg-canvas` (page), `bg-surface-raised`
+  (cards, fields), `bg-surface-overlay` (menus, popovers, dialogs); solid fills
+  `bg-primary-solid text-on-primary-solid` (and `error`, `success`, `warning`, `info`) for every
+  filled accent, which stay vivid in dark mode; soft fills `bg-primary-soft text-on-primary-soft`
+  and `bg-neutral-soft text-on-surface`; hairlines `border-outline-subtle`. Text-coloured accents
+  (links, ghost labels, the focus ring) use `text-primary`. No hex, no Tailwind palette colours, no
+  `white`/`black`, no `dark:`. `check:ds` enforces this. The one hex literal allowed is a seed
+  handed to the colour engine (`seed: '#0B8F6A'`, `seed="#0B8F6A"`): it is input to a scheme, not a
+  colour anything is painted with.
+- Shape and type: corners come from the radius families (`rounded-control` for pills,
+  `rounded-field`, `rounded-item`, `rounded-overlay`, `rounded-container`, `rounded-dialog`);
+  Tailwind's own `rounded-sm`…`rounded-3xl` keep their default values for small parts. Text uses
+  Tailwind sizes with explicit weights (`text-sm font-medium`); there is no named type scale.
+  Shadows are `shadow-xs`…`shadow-lg`. Hover swaps to a `-hover` fill, press scales, disabled is
+  `opacity-50` with `cursor-not-allowed`.
 - Logical directions only: `ms-`/`me-`, `ps-`/`pe-`, `inset-s-`/`inset-e-`, `rounded-s-`, `border-e`,
   `text-start`. Flip directional glyphs with `rtl:-scale-x-100`.
 - Interactive components are built on React Aria Components. Never hand-roll focus management,
   keyboard handling or ARIA patterns that RAC provides.
 - Props follow React Aria naming (`isDisabled`, `onPress`, `value`/`defaultValue`/`onChange`).
-  Variants follow Material 3 (`filled`, `tonal`, `outlined`, `text`, `elevated`; sizes `xs`–`xl`;
-  `tone: 'default' | 'destructive'`). A new behaviour is a new component, never `V2`.
+  Variants use one vocabulary: `variant` is how much ink (`solid`, `soft`, `outline`, `ghost`, or
+  the component's own set from the spec), `tone` is which role paints it (`primary`, `neutral`,
+  `error`; status components add `success`, `warning`, `info`), `size` is `sm`, `md`, `lg` at
+  32/40/48px. `solid` defaults to `primary`, the quieter variants to `neutral`. The root reports
+  `data-variant`, `data-tone` and `data-size`. A new behaviour is a new component, never `V2`.
 - Async actions are promises: the component owns the pending state.
 - Icon-only actions are `IconButton`, with a required `aria-label`. Glyphs come from `useIcons()`.
 - The library ships no translations. Every string a component writes on its own (an accessible
@@ -57,7 +71,9 @@ copy, so the source in `registry/ds` must work after the shadcn CLI copies it so
   prop or app-wide through `<DSProvider labels={{ <namespace>: {...} }}>`. Content the consumer
   always supplies (titles, descriptions, button text) stays an ordinary prop. Dates, numbers and
   right-to-left layout still follow `DSProvider locale` through React Aria.
-- Animation respects `useMotionPreference()` and `motion-reduce:`. Springs come from `lib/motion`.
+- Animation respects `useMotionPreference()` and `motion-reduce:`. Transitions use `ease-fluid`,
+  `ease-out-quad` or `ease-out` over 100–350ms; overlays use the `animate-ds-*` keyframes. Springs
+  from `lib/motion` are for gestures only.
 - Registry files import each other only through `@/registry/ds/...`. No relative imports, no
   `next/*`, `next-intl` or `lucide-react` in `registry/`.
 - Example and docs copy is neutral and fits any product (Save, Search, Settings, Photos). Nothing

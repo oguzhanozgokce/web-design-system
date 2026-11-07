@@ -2,7 +2,7 @@
 
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
-import { effectSpring, spatialSpring } from '@/registry/ds/lib/motion';
+import { entrance } from '@/components/showcase/motion';
 
 export function Reveal({
   children,
@@ -20,13 +20,10 @@ export function Reveal({
     <Element
       data-reveal
       className={className}
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '0px 0px -10% 0px' }}
-      transition={{
-        y: { ...spatialSpring('medium'), delay },
-        opacity: { ...effectSpring('medium'), delay },
-      }}
+      transition={entrance(delay)}
     >
       {children}
     </Element>

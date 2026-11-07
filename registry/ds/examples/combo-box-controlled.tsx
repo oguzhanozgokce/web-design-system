@@ -21,7 +21,7 @@ export default function ComboBoxControlled() {
       <ComboBox label="Colour" defaultItems={colours} value={colour} onChange={setColour}>
         {(item) => <ListBoxItem>{item.name}</ListBoxItem>}
       </ComboBox>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {chosen ? `Selected: ${chosen.name}.` : 'Nothing selected.'}
       </p>
     </div>

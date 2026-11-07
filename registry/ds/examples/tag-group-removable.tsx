@@ -29,8 +29,8 @@ export default function TagGroupRemovable() {
         )}
       </TagGroup>
       <Button
-        size="xs"
-        variant="text"
+        size="sm"
+        variant="ghost"
         isDisabled={labels.length === initialLabels.length}
         onPress={() => setLabels(initialLabels)}
       >

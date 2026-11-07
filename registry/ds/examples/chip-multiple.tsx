@@ -26,7 +26,7 @@ export default function ChipMultiple() {
       >
         {(channel) => <Chip id={channel.id}>{channel.name}</Chip>}
       </ChipGroup>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {names.length ? names.map(({ name }) => name).join(', ') : 'Notifications are off'}
       </p>
     </div>

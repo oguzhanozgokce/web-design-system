@@ -7,25 +7,25 @@ function parts(slot: string, root: ParentNode = document) {
   return [...root.querySelectorAll<HTMLElement>(`[data-slot="${slot}"]`)];
 }
 
-const usd = { style: 'currency', currency: 'USD', maximumFractionDigits: 0 } as const;
+const gigabytes = { style: 'unit', unit: 'gigabyte', maximumFractionDigits: 0 } as const;
 
 describe('Slider', () => {
   it('renders a labelled slider with a formatted value', async () => {
     const screen = await renderWithDS(
       <Slider
-        label="Monthly spending limit"
-        description="Messages above this are declined."
+        label="Storage limit"
+        description="Uploads above this are paused."
         defaultValue={1500}
         maxValue={5000}
         step={100}
-        formatOptions={usd}
+        formatOptions={gigabytes}
       />,
     );
-    const slider = screen.getByRole('slider', { name: 'Monthly spending limit' });
-    await expect.element(slider).toHaveAttribute('aria-valuetext', '$1,500');
-    await expect.element(slider).toHaveAccessibleDescription('Messages above this are declined.');
-    await expect.element(screen.getByRole('status')).toHaveTextContent('$1,500');
-    await expect.element(screen.getByRole('group')).toHaveAttribute('data-size', 'sm');
+    const slider = screen.getByRole('slider', { name: 'Storage limit' });
+    await expect.element(slider).toHaveAttribute('aria-valuetext', '1,500 GB');
+    await expect.element(slider).toHaveAccessibleDescription('Uploads above this are paused.');
+    await expect.element(screen.getByRole('status')).toHaveTextContent('1,500 GB');
+    await expect.element(screen.getByRole('group')).toHaveAttribute('data-size', 'md');
     await expect
       .element(screen.getByRole('group'))
       .toHaveAttribute('data-orientation', 'horizontal');
@@ -75,7 +75,7 @@ describe('Slider', () => {
       const [value, setValue] = useState(20);
       return (
         <>
-          <Slider label="Discount" value={value} onChange={setValue} step={5} />
+          <Slider label="Opacity" value={value} onChange={setValue} step={5} />
           <p data-testid="echo">{value}</p>
         </>
       );
@@ -90,19 +90,19 @@ describe('Slider', () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <Slider
-        label="Order total"
+        label="File size"
         defaultValue={[120, 480]}
         maxValue={1000}
         step={10}
-        formatOptions={usd}
+        formatOptions={gigabytes}
         onChange={onChange}
       />,
     );
-    const minimum = screen.getByRole('slider', { name: 'Minimum Order total' });
-    const maximum = screen.getByRole('slider', { name: 'Maximum Order total' });
-    await expect.element(minimum).toHaveAttribute('aria-valuetext', '$120');
-    await expect.element(maximum).toHaveAttribute('aria-valuetext', '$480');
-    expect(parts('output')[0].textContent).toMatch(/^\$120\s*–\s*\$480$/);
+    const minimum = screen.getByRole('slider', { name: 'Minimum File size' });
+    const maximum = screen.getByRole('slider', { name: 'Maximum File size' });
+    await expect.element(minimum).toHaveAttribute('aria-valuetext', '120 GB');
+    await expect.element(maximum).toHaveAttribute('aria-valuetext', '480 GB');
+    expect(parts('output')[0].textContent).toMatch(/^120\s*(GB)?\s*–\s*480\s*GB$/);
     await expect.element(minimum).toHaveAttribute('max', '480');
 
     await userEvent.tab();
@@ -116,17 +116,17 @@ describe('Slider', () => {
   });
 
   it('names range thumbs Minimum and Maximum by default', async () => {
-    const screen = await renderWithDS(<Slider label="Price" defaultValue={[10, 90]} />);
-    await expect.element(screen.getByRole('slider', { name: 'Minimum Price' })).toBeInTheDocument();
-    await expect.element(screen.getByRole('slider', { name: 'Maximum Price' })).toBeInTheDocument();
+    const screen = await renderWithDS(<Slider label="Size" defaultValue={[10, 90]} />);
+    await expect.element(screen.getByRole('slider', { name: 'Minimum Size' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('slider', { name: 'Maximum Size' })).toBeInTheDocument();
   });
 
   it('takes the thumb names from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <>
-        <Slider label="Price" defaultValue={[10, 90]} />
+        <Slider label="Size" defaultValue={[10, 90]} />
         <Slider
-          label="Order total"
+          label="File size"
           defaultValue={[120, 480]}
           maxValue={1000}
           labels={{ minimum: 'From' }}
@@ -134,13 +134,13 @@ describe('Slider', () => {
       </>,
       { provider: { labels: { slider: { minimum: 'Lowest', maximum: 'Highest' } } } },
     );
-    await expect.element(screen.getByRole('slider', { name: 'Lowest Price' })).toBeInTheDocument();
-    await expect.element(screen.getByRole('slider', { name: 'Highest Price' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('slider', { name: 'Lowest Size' })).toBeInTheDocument();
+    await expect.element(screen.getByRole('slider', { name: 'Highest Size' })).toBeInTheDocument();
     await expect
-      .element(screen.getByRole('slider', { name: 'From Order total' }))
+      .element(screen.getByRole('slider', { name: 'From File size' }))
       .toBeInTheDocument();
     await expect
-      .element(screen.getByRole('slider', { name: 'Highest Order total' }))
+      .element(screen.getByRole('slider', { name: 'Highest File size' }))
       .toBeInTheDocument();
   });
 
@@ -166,8 +166,8 @@ describe('Slider', () => {
       <>
         <p id="plan-note">Your plan allows up to 5,000.</p>
         <Slider
-          label="Monthly spending limit"
-          description="Messages above this are declined."
+          label="Storage limit"
+          description="Uploads above this are paused."
           aria-describedby="plan-note"
           defaultValue={1500}
           maxValue={5000}
@@ -176,16 +176,14 @@ describe('Slider', () => {
     );
     await expect
       .element(screen.getByRole('slider'))
-      .toHaveAccessibleDescription(
-        'Messages above this are declined. Your plan allows up to 5,000.',
-      );
+      .toHaveAccessibleDescription('Uploads above this are paused. Your plan allows up to 5,000.');
   });
 
   it('moves the closest thumb of a range when the track is clicked', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <div className="w-80">
-        <Slider label="Order total" defaultValue={[20, 60]} onChange={onChange} />
+        <Slider label="File size" defaultValue={[20, 60]} onChange={onChange} />
       </div>,
     );
     const track = screen.getByRole('group').element().querySelector('[data-slot="track"]')!;
@@ -204,7 +202,7 @@ describe('Slider', () => {
       </>,
     );
     const [hidden, forced] = screen.getByRole('group').elements();
-    expect(parts('stop', hidden)).toHaveLength(1);
+    expect(parts('stop', hidden)).toHaveLength(0);
     expect(parts('stop', forced)).toHaveLength(11);
   });
 
@@ -220,7 +218,7 @@ describe('Slider', () => {
     expect(parts('stop', discrete).filter((stop) => stop.dataset.tone === 'active')).toHaveLength(
       4,
     );
-    expect(parts('stop', continuous)).toHaveLength(1);
+    expect(parts('stop', continuous)).toHaveLength(0);
   });
 
   it('renders mark labels formatted like the value and custom labels', async () => {
@@ -253,12 +251,12 @@ describe('Slider', () => {
 
   it('shows one value, without a tilde, when both range thumbs meet', async () => {
     await renderWithDS(
-      <Slider label="Price" defaultValue={[480, 480]} maxValue={1000} formatOptions={usd} />,
+      <Slider label="Size" defaultValue={[480, 480]} maxValue={1000} formatOptions={gigabytes} />,
     );
-    expect(parts('output')[0].textContent).toBe('$480');
+    expect(parts('output')[0].textContent).toBe('480 GB');
   });
 
-  it('draws no stop on the seam of a centred slider', async () => {
+  it('marks the fill offset of a centred slider with a stop', async () => {
     await renderWithDS(
       <div className="w-80">
         <Slider
@@ -268,25 +266,23 @@ describe('Slider', () => {
           maxValue={0.2}
           step={0.01}
           fillOffset={0}
-          marks={[-0.2, 0, 0.2]}
+          showValueIndicator={false}
           formatOptions={{ style: 'percent', signDisplay: 'exceptZero' }}
         />
       </div>,
     );
     const rail = parts('rail')[0].getBoundingClientRect();
-    const seam = rail.left + rail.width / 2;
     const stops = parts('stop');
-    expect(stops).toHaveLength(2);
-    for (const stop of stops) {
-      const { left, right } = stop.getBoundingClientRect();
-      expect(right < seam - 1 || left > seam + 1).toBe(true);
-    }
+    expect(stops).toHaveLength(1);
+    const stop = stops[0].getBoundingClientRect();
+    expect(stop.left + stop.width / 2).toBeCloseTo(rail.left + rail.width / 2, 0);
+    expect(stops[0].dataset.tone).toBe('active');
   });
 
   it('fills from the offset for a centred slider', async () => {
     await renderWithDS(
       <Slider
-        label="Price adjustment"
+        label="Exposure"
         defaultValue={-0.1}
         minValue={-0.2}
         maxValue={0.2}
@@ -307,37 +303,118 @@ describe('Slider', () => {
     expect(active.width).toBeGreaterThan(0);
   });
 
-  it('keeps the gap around the handle when it sits on or beside the fill offset', async () => {
-    const centred = {
-      minValue: -0.2,
-      maxValue: 0.2,
-      step: 0.001,
-      fillOffset: 0,
-      showValueIndicator: false,
-    };
+  it('draws a thin rail whose fill meets the centre of a round thumb', async () => {
     const screen = await renderWithDS(
       <div className="flex w-80 flex-col gap-6">
-        <Slider label="At the offset" defaultValue={0} {...centred} />
-        <Slider label="Beside the offset" defaultValue={0.002} {...centred} />
+        <Slider label="Small" size="sm" defaultValue={25} />
+        <Slider label="Medium" defaultValue={25} />
+        <Slider label="Large" size="lg" defaultValue={25} />
       </div>,
+      { provider: { motion: 'disabled' } },
     );
-    const [atOffset, besideOffset] = screen.getByRole('group').elements();
+    const sliders = screen.getByRole('group').elements();
+    const geometry = sliders.map((slider) => {
+      const rail = parts('rail', slider)[0].getBoundingClientRect();
+      const thumb = parts('thumb', slider)[0].getBoundingClientRect();
+      return { rail: rail.height, thumb: [thumb.width, thumb.height] };
+    });
+    expect(geometry).toEqual([
+      { rail: 4, thumb: [16, 16] },
+      { rail: 4, thumb: [20, 20] },
+      { rail: 6, thumb: [24, 24] },
+    ]);
+    const medium = sliders[1];
+    const [active] = parts('segment', medium);
+    const thumb = parts('thumb', medium)[0].getBoundingClientRect();
+    expect(active.dataset.tone).toBe('active');
+    expect(active.getBoundingClientRect().right).toBeCloseTo(thumb.left + thumb.width / 2, 0);
+    const rail = parts('rail', medium)[0].getBoundingClientRect();
+    expect(
+      parseFloat(getComputedStyle(parts('thumb', medium)[0]).borderRadius),
+    ).toBeGreaterThanOrEqual(thumb.width / 2);
+    expect(thumb.top + thumb.height / 2).toBeCloseTo(rail.top + rail.height / 2, 0);
+  });
 
-    const atSegments = parts('segment', atOffset);
-    expect(atSegments.map((segment) => segment.dataset.tone)).toEqual(['inactive', 'inactive']);
-    const atThumb = parts('thumb', atOffset)[0].getBoundingClientRect();
-    const atCentre = atThumb.left + atThumb.width / 2;
-    expect(atSegments[0].getBoundingClientRect().right).toBeLessThanOrEqual(atCentre - 7);
-    expect(atSegments[1].getBoundingClientRect().left).toBeGreaterThanOrEqual(atCentre + 7);
-
-    const besideThumb = parts('thumb', besideOffset)[0].getBoundingClientRect();
-    const besideCentre = besideThumb.left + besideThumb.width / 2;
-    for (const segment of parts('segment', besideOffset)) {
-      const { left, right, width } = segment.getBoundingClientRect();
-      if (width === 0) continue;
-      const clearOfHandle = right <= besideCentre - 7 || left >= besideCentre + 7;
-      expect(clearOfHandle).toBe(true);
+  it.each([
+    ['system', '0.9'],
+    ['reduced', '1'],
+  ] as const)('shrinks the thumb while it is dragged with motion %s', async (motion, scale) => {
+    await renderWithDS(
+      <div className="w-80">
+        <Slider label="Opacity" defaultValue={40} />
+      </div>,
+      { provider: { motion } },
+    );
+    const thumb = parts('thumb')[0];
+    const box = thumb.getBoundingClientRect();
+    const point = {
+      x: box.left + box.width / 2,
+      y: box.top + box.height / 2,
+      button: 'left' as const,
+    };
+    await cdp().send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...point });
+    await cdp().send('Input.dispatchMouseEvent', { type: 'mousePressed', clickCount: 1, ...point });
+    try {
+      await expect.poll(() => thumb.hasAttribute('data-dragging')).toBe(true);
+      await expect.poll(() => getComputedStyle(thumb).scale).toBe(scale);
+    } finally {
+      await cdp().send('Input.dispatchMouseEvent', {
+        type: 'mouseReleased',
+        clickCount: 1,
+        ...point,
+      });
     }
+    await expect.poll(() => thumb.hasAttribute('data-dragging')).toBe(false);
+  });
+
+  it('fills the range with the solid primary on a grey rail', async () => {
+    const screen = await renderWithDS(
+      <>
+        <span data-testid="primary" className="bg-primary-solid" />
+        <span data-testid="grey" className="bg-outline-variant" />
+        <span data-testid="thumb" className="bg-surface-thumb" />
+        <Slider label="Opacity" defaultValue={40} />
+      </>,
+    );
+    const fill = (testId: string) =>
+      getComputedStyle(screen.getByTestId(testId).element()).backgroundColor;
+    const [active, inactive] = parts('segment');
+    expect(getComputedStyle(active).backgroundColor).toBe(fill('primary'));
+    expect(getComputedStyle(inactive).backgroundColor).toBe(fill('grey'));
+    expect(getComputedStyle(parts('thumb')[0]).backgroundColor).toBe(fill('thumb'));
+  });
+
+  it.each([
+    ['en', {}],
+    ['ar', { locale: 'ar' }],
+  ])('keeps the value bubble inside the slider at both ends in %s', async (_, options) => {
+    const screen = await renderWithDS(
+      <div style={{ width: 240 }}>
+        <Slider
+          aria-label="Upload size"
+          defaultValue={0}
+          maxValue={2048}
+          formatOptions={{ style: 'unit', unit: 'kilobyte', unitDisplay: 'long' }}
+        />
+      </div>,
+      { ...options, provider: { motion: 'disabled' } },
+    );
+    const slider = screen.getByRole('slider');
+    const root = parts('slider')[0].getBoundingClientRect();
+    const bubble = parts('bubble')[0];
+    await userEvent.tab();
+    await expect.element(slider).toHaveFocus();
+    for (const key of ['{Home}', '{End}']) {
+      await userEvent.keyboard(key);
+      const box = bubble.getBoundingClientRect();
+      expect(box.width).toBeGreaterThan(parts('thumb')[0].getBoundingClientRect().width * 2);
+      expect(box.left).toBeGreaterThanOrEqual(root.left - 0.5);
+      expect(box.right).toBeLessThanOrEqual(root.right + 0.5);
+    }
+    await userEvent.keyboard('{PageDown}');
+    const thumb = parts('thumb')[0].getBoundingClientRect();
+    const box = bubble.getBoundingClientRect();
+    expect(box.bottom).toBeLessThanOrEqual(thumb.top);
   });
 
   it('fills from the inline start in RTL', async () => {
@@ -359,11 +436,13 @@ describe('Slider', () => {
 
   it('shows the value indicator while focused from the keyboard', async () => {
     const screen = await renderWithDS(
-      <Slider
-        label="Discount"
-        defaultValue={40}
-        formatOptions={{ style: 'unit', unit: 'percent' }}
-      />,
+      <div className="w-80">
+        <Slider
+          label="Opacity"
+          defaultValue={50}
+          formatOptions={{ style: 'unit', unit: 'percent' }}
+        />
+      </div>,
       { provider: { motion: 'disabled' } },
     );
     const bubble = parts('bubble')[0];
@@ -371,25 +450,26 @@ describe('Slider', () => {
     await userEvent.tab();
     await expect.element(screen.getByRole('slider')).toHaveFocus();
     expect(getComputedStyle(bubble).opacity).toBe('1');
-    expect(bubble.textContent).toBe('40%');
-    expect(bubble.getBoundingClientRect().width).toBeGreaterThan(
-      parts('thumb')[0].getBoundingClientRect().width * 10,
-    );
+    expect(bubble.textContent).toBe('50%');
+    const box = bubble.getBoundingClientRect();
+    const thumb = parts('thumb')[0].getBoundingClientRect();
+    expect(box.left + box.width / 2).toBeCloseTo(thumb.left + thumb.width / 2, 0);
+    expect(box.bottom).toBeLessThanOrEqual(thumb.top);
   });
 
   it('follows the DSProvider motion preference', async () => {
     for (const motion of ['system', 'reduced', 'disabled'] as const) {
-      const screen = await renderWithDS(<Slider label="Discount" defaultValue={40} />, {
+      const screen = await renderWithDS(<Slider label="Opacity" defaultValue={40} />, {
         provider: { motion },
       });
       await expect.element(screen.getByRole('slider')).toBeInTheDocument();
       const bubble = parts('bubble', screen.container)[0];
       const thumb = parts('thumb', screen.container)[0];
       const style = getComputedStyle(bubble);
-      expect(style.scale).toBe(motion === 'reduced' ? '1' : '0.75');
+      expect(style.scale).toBe(motion === 'reduced' ? '1' : '0.9');
       expect(style.transitionProperty).toBe(motion === 'disabled' ? 'none' : 'opacity, scale');
       expect(getComputedStyle(thumb).transitionProperty).toBe(
-        motion === 'system' ? 'width, height' : 'none',
+        motion === 'system' ? 'scale, box-shadow' : 'none',
       );
       await screen.unmount();
     }
@@ -421,11 +501,11 @@ describe('Slider', () => {
   it('submits every thumb under the given name', async () => {
     await renderWithDS(
       <form aria-label="Filters">
-        <Slider label="Order total" name="total" defaultValue={[120, 480]} maxValue={1000} />
+        <Slider label="File size" name="size" defaultValue={[120, 480]} maxValue={1000} />
       </form>,
     );
     const form = document.querySelector('form')!;
-    expect(new FormData(form).getAll('total')).toEqual(['120', '480']);
+    expect(new FormData(form).getAll('size')).toEqual(['120', '480']);
   });
 
   it('submits to a form outside its own tree through form', async () => {
@@ -433,8 +513,8 @@ describe('Slider', () => {
       <>
         <form id="filters" aria-label="Filters" />
         <Slider
-          label="Order total"
-          name="total"
+          label="File size"
+          name="size"
           form="filters"
           defaultValue={[120, 480]}
           maxValue={1000}
@@ -442,7 +522,7 @@ describe('Slider', () => {
       </>,
     );
     const form = document.querySelector<HTMLFormElement>('#filters')!;
-    expect(new FormData(form).getAll('total')).toEqual(['120', '480']);
+    expect(new FormData(form).getAll('size')).toEqual(['120', '480']);
   });
 
   it('can hide the value label and indicator', async () => {
@@ -481,7 +561,7 @@ describe('Slider', () => {
       features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
     });
     try {
-      await renderWithDS(<Slider label="Discount" defaultValue={40} />);
+      await renderWithDS(<Slider label="Opacity" defaultValue={40} />);
       expect(getComputedStyle(parts('thumb')[0]).transitionProperty).toBe('none');
       expect(getComputedStyle(parts('bubble')[0]).scale).toBe('1');
     } finally {
@@ -496,8 +576,8 @@ describe('Slider', () => {
     try {
       await renderWithDS(
         <div className="flex flex-col gap-6">
-          <Slider label="Order total" defaultValue={[20, 60]} />
-          <Slider isDisabled label="Discount window" defaultValue={40} />
+          <Slider label="File size" defaultValue={[20, 60]} />
+          <Slider isDisabled label="Quiet hours" defaultValue={40} />
         </div>,
       );
       const canvas = getComputedStyle(document.body).backgroundColor;
@@ -538,6 +618,8 @@ describe('Slider', () => {
     const slider = screen.getByRole('slider', { name: 'API requests per minute' });
     await expect.element(slider).toBeDisabled();
     await expect.element(screen.getByRole('group')).toHaveAttribute('data-disabled', 'true');
+    expect(getComputedStyle(parts('slider')[0]).opacity).toBe('0.5');
+    expect(getComputedStyle(parts('track')[0]).cursor).toBe('not-allowed');
     const track = parts('track')[0];
     await userEvent.click(track, { force: true });
     expect(onChange).not.toHaveBeenCalled();
@@ -548,14 +630,14 @@ describe('Slider', () => {
       const screen = await renderWithDS(
         <div className="flex w-96 flex-col gap-6 p-4">
           <Slider
-            label="Monthly spending limit"
-            description="Messages above this are declined."
+            label="Storage limit"
+            description="Uploads above this are paused."
             defaultValue={1500}
             maxValue={5000}
             step={100}
-            formatOptions={usd}
+            formatOptions={gigabytes}
           />
-          <Slider label="Order total" defaultValue={[120, 480]} maxValue={1000} size="md" />
+          <Slider label="File size" defaultValue={[120, 480]} maxValue={1000} size="sm" />
           <Slider
             label="Log retention"
             defaultValue={30}
@@ -567,13 +649,13 @@ describe('Slider', () => {
           />
           <Slider
             isDisabled
-            label="Discount window"
+            label="Quiet hours"
             defaultValue={[20, 60]}
-            description="Set by your plan."
+            description="Set by your administrator."
           />
           <Slider orientation="vertical" label="Email" defaultValue={60} marks={[0, 50, 100]} />
           <Slider
-            label="Price adjustment"
+            label="Exposure"
             defaultValue={0}
             minValue={-0.2}
             maxValue={0.2}

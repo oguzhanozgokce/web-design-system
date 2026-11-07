@@ -23,7 +23,7 @@ export default function SliderControlled() {
         The quick brown fox
       </p>
       <Button
-        variant="text"
+        variant="ghost"
         size="sm"
         onPress={() => setSize(defaultSize)}
         isDisabled={size === defaultSize}

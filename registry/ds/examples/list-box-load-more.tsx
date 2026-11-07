@@ -43,7 +43,7 @@ export default function ListBoxLoadMore() {
       items={items}
       isLoading={isLoading}
       onLoadMore={loadMore}
-      variant="outlined"
+      variant="outline"
       className="h-72 w-full max-w-xs"
     >
       {(photo) => (

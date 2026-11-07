@@ -1,6 +1,6 @@
 ---
 title: Popover
-description: Material 3 popover surface anchored to a trigger, with placement, an optional arrow, motion that grows from the trigger, and a dialog part with a title and close button for small forms.
+description: Floating panel anchored to a trigger, with placement, an optional arrow, motion that grows from the trigger, and a dialog part with a title, a close button and two paddings.
 ---
 
 <ComponentPreview name="popover-demo" />
@@ -48,6 +48,11 @@ it closes. Keep popover forms to one or two fields; anything longer belongs in a
 
 <ComponentPreview name="popover-form" />
 
+### Padding
+
+`PopoverDialog` pads its content 16px. `padding="sm"` brings it to 12px for a single line of help
+text or a compact list.
+
 ### Anchored to another element
 
 Without a `PopoverTrigger`, pass `triggerRef` and control `isOpen` yourself. The popover then
@@ -84,9 +89,7 @@ pressable component such as `Button`.
 | `isOpen`           | `boolean`                                                  | from the trigger   |
 | `onOpenChange`     | `(isOpen: boolean) => void`                                |                    |
 
-Every other [React Aria Popover](https://react-aria.adobe.com/Popover) prop is passed through. The
-surface is `surface-container-high`, and the popover says so through `SurfaceContext`, so a
-[Card](/docs/components/layout/card) inside it steps up from the popover rather than from the page.
+Every other [React Aria Popover](https://react-aria.adobe.com/Popover) prop is passed through.
 Buttons inside it keep their own size and variant even when the trigger sits in a [Button
 Group](/docs/components/actions/button-group).
 
@@ -96,13 +99,15 @@ Group](/docs/components/actions/button-group).
 | ----------------- | ------------------------------------------------------------------ | ------- |
 | `title`           | `ReactNode`                                                        |         |
 | `showCloseButton` | `boolean`                                                          | `false` |
+| `padding`         | `'sm' \| 'md'`                                                     | `'md'`  |
 | `labels`          | `Partial<PopoverLabels>`                                           |         |
 | `children`        | `ReactNode \| ((renderProps: { close: () => void }) => ReactNode)` |         |
 | `aria-label`      | `string`                                                           |         |
 | `className`       | `string`                                                           |         |
 
 Without a `title`, the dialog takes its accessible name from the trigger. A standalone popover
-without a trigger needs `title` or `aria-label`.
+without a trigger needs `title` or `aria-label`. The close button is a 28px ghost, neutral
+[Icon Button](/docs/components/actions/icon-button).
 
 ### PopoverArrow
 
@@ -111,17 +116,29 @@ The arrow `Popover` renders with `showArrow`. Use it in custom overlays; set its
 
 ### Styles for other overlays
 
-`popoverStyles({ motion, className })` returns the surface classes: `surface-container-high`,
-`rounded-md`, `shadow-elevation-2`, the transform origin at the trigger and the enter and exit
-animations. `usePopoverMotion()` returns `'spatial'`, `'fade'` or `'none'` from the `DSProvider`
-motion setting and the system preference, so a custom overlay animates the same way.
-`popoverDialogStyles` exposes the `base`, `header`, `title`, `close` and `body` slots.
+### Styling
+
+| Part    | Classes                                                                |
+| ------- | ---------------------------------------------------------------------- |
+| surface | `rounded-overlay bg-surface-overlay text-sm text-on-surface shadow-md` |
+| arrow   | `fill-current text-surface-overlay`                                    |
+| dialog  | `p-4 gap-2`, `p-3 gap-1.5` with `padding="sm"`                         |
+| title   | `text-sm font-semibold text-on-surface`                                |
+| body    | `text-sm text-on-surface-variant`                                      |
+| close   | a 28px ghost, neutral Icon Button                                      |
+
+`popoverStyles({ motion, className })` returns the surface classes above, the transform origin at
+the trigger and the enter and exit animations. Select, ComboBox and Menu build their lists on it.
+`usePopoverMotion()` returns `'spatial'`, `'fade'` or `'none'` from the `DSProvider` motion setting
+and the system preference, so a custom overlay animates the same way. `popoverDialogStyles({
+padding })` exposes the `base`, `header`, `title`, `close` and `body` slots.
 
 ### Data attributes
 
 Popover: `data-slot="popover"`, `data-placement`, `data-arrow`, `data-entering`, `data-exiting`,
-`data-trigger`. Parts: `data-slot="arrow"`, `"popover-dialog"`, `"header"`, `"title"`, `"close"`,
-`"body"`.
+`data-trigger`. Dialog: `data-slot="popover-dialog"` with `data-padding`. Parts:
+`data-slot="arrow"`, `"header"`, `"title"`, `"body"`. The close button is an Icon Button
+(`data-slot="icon-button"`) with `slot="close"`.
 
 ### Labels
 

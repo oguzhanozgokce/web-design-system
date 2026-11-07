@@ -10,10 +10,10 @@ export default function BannerForm() {
   const [isSubmitted, setSubmitted] = useState(false);
 
   return (
-    <div className="flex w-full max-w-md flex-col gap-4 rounded-lg bg-surface-container-low p-5">
+    <div className="flex w-full max-w-md flex-col gap-4 rounded-container border border-outline-subtle bg-surface-raised p-5">
       <div>
-        <p className="text-title-md text-on-surface">Edit profile</p>
-        <p className="text-body-md text-on-surface-variant">Shown to people you work with</p>
+        <p className="text-base font-semibold text-on-surface">Edit profile</p>
+        <p className="text-sm text-on-surface-variant">Shown to people you work with</p>
       </div>
       {isSubmitted ? (
         <Banner tone="error" announce title={`Fix ${problems.length} fields to save your profile`}>
@@ -25,7 +25,7 @@ export default function BannerForm() {
         </Banner>
       ) : null}
       <div className="flex flex-wrap justify-end gap-2">
-        <Button variant="text" onPress={() => setSubmitted(false)}>
+        <Button variant="ghost" onPress={() => setSubmitted(false)}>
           Reset
         </Button>
         <Button onPress={() => setSubmitted(true)}>Save</Button>

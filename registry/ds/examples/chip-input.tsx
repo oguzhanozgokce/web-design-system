@@ -29,7 +29,7 @@ export default function ChipInput() {
         )}
       </ChipGroup>
       <Button
-        variant="text"
+        variant="ghost"
         size="sm"
         isDisabled={people.length === collaborators.length}
         onPress={() => setPeople(collaborators)}

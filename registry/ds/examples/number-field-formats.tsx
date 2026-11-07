@@ -4,20 +4,20 @@ export default function NumberFieldFormats() {
   return (
     <div className="grid w-full max-w-sm gap-5">
       <NumberField
-        label="Amount"
+        label="Ticket price"
         layout="inline"
-        defaultValue={1250}
+        defaultValue={24}
         minValue={0}
-        step={10}
+        step={1}
         formatOptions={{ style: 'currency', currency: 'EUR' }}
       />
       <NumberField
-        label="Discount"
+        label="Opacity"
         layout="inline"
-        defaultValue={0.05}
+        defaultValue={0.8}
         minValue={0}
-        maxValue={0.5}
-        step={0.01}
+        maxValue={1}
+        step={0.05}
         formatOptions={{ style: 'percent' }}
       />
       <NumberField

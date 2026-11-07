@@ -2,7 +2,7 @@
   "name": "alert-dialog",
   "type": "registry:ui",
   "title": "Alert Dialog",
-  "description": "Confirmation dialog with confirm and cancel actions, a destructive tone, an async onConfirm that stays open while pending and shows failures inline, and an optional type-to-confirm phrase.",
+  "description": "Confirmation dialog with confirm and cancel actions, a tone for the icon and the confirm button, an async onConfirm that shows failures inline, and an optional type-to-confirm phrase.",
   "category": "overlays",
   "files": ["ui/alert-dialog.tsx"]
 }

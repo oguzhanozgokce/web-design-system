@@ -9,17 +9,11 @@ export default function DisclosureVariants() {
           Include hidden files and keep the original folder structure in the download.
         </DisclosurePanel>
       </Disclosure>
-      <Disclosure variant="outlined">
+      <Disclosure variant="surface">
         <DisclosureTrigger>System requirements</DisclosureTrigger>
         <DisclosurePanel>
           Any current desktop or mobile browser with JavaScript turned on, and a screen at least
           320px wide.
-        </DisclosurePanel>
-      </Disclosure>
-      <Disclosure variant="filled">
-        <DisclosureTrigger>Keyboard shortcuts</DisclosureTrigger>
-        <DisclosurePanel>
-          Press / to search, N to create something new and ? to see every shortcut.
         </DisclosurePanel>
       </Disclosure>
     </div>

@@ -32,7 +32,7 @@ export default function ChipAsync() {
           Remind me tomorrow
         </AssistChip>
       </div>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {status}
       </p>
     </div>

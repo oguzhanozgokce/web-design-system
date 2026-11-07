@@ -2,7 +2,7 @@
   "name": "menu",
   "type": "registry:ui",
   "title": "Menu",
-  "description": "Material 3 menu that opens from a button or a right click, with icons, descriptions, shortcut hints that follow the platform, sections, check-mark selection, nested submenus, link items and a destructive tone.",
+  "description": "A menu that opens from a button or a right click, with icons, descriptions, platform-aware shortcuts, sections, selection, submenus and links.",
   "category": "overlays",
   "files": ["ui/menu.tsx"]
 }

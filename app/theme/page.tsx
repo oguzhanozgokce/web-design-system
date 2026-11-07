@@ -7,7 +7,7 @@ import { DSProvider } from '@/registry/ds/ui/ds-provider';
 export const metadata: Metadata = {
   title: 'Theme builder',
   description:
-    'Generate a Material 3 scheme from one seed colour, preview it on an admin screen and export tokens.css, tokens/config.json or the Compose call.',
+    'Generate a colour scheme from one seed colour, preview it on an admin screen and export tokens.css or tokens/config.json.',
 };
 
 export default function ThemePage() {

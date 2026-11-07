@@ -2,7 +2,7 @@
   "name": "tabs",
   "type": "registry:ui",
   "title": "Tabs",
-  "description": "Material 3 primary and secondary tabs plus a pill variant, with a spring indicator that follows the selection, icons, badges, scrolling with fade edges and a vertical layout.",
+  "description": "Underline and pill tabs with a sliding indicator, icons, badges, scroll buttons for long lists and a vertical layout.",
   "category": "navigation",
   "files": ["ui/tabs.tsx"]
 }

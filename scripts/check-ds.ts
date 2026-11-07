@@ -12,18 +12,18 @@ const palette =
 const rules: { pattern: RegExp; message: string; skip?: (file: string) => boolean }[] = [
   {
     pattern: /(?<![sS]eed\w*\s*[:=]\s*\{?\s*['"])#[0-9a-fA-F]{3,8}\b(?![\w-])/,
-    message: 'raw hex colour; use a Material 3 role',
+    message: 'raw hex colour; use a colour role',
     skip: (file) => file.endsWith('styles/tokens.css'),
   },
   {
     pattern: new RegExp(
       `(?<![\\w-])(?:[a-z-]+:)*(?:bg|text|border|ring|fill|stroke|from|via|to|outline|decoration|shadow|accent|caret|divide|placeholder)-(?:${palette})-\\d{2,3}\\b`,
     ),
-    message: 'Tailwind palette colour; use a Material 3 role',
+    message: 'Tailwind palette colour; use a colour role',
   },
   {
     pattern: /(?<![\w-])(?:[a-z-]+:)*(?:bg|text|border|fill|stroke)-(?:white|black)\b/,
-    message: 'white or black; use a Material 3 role',
+    message: 'white or black; use a colour role',
   },
   {
     pattern:

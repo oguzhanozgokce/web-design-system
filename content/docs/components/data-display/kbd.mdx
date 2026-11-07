@@ -56,15 +56,16 @@ both.
 
 ### Variants
 
-`outlined` is a keycap with a heavier bottom edge, for help text and onboarding. `tonal` drops the
-border for dense toolbars and search fields. `text` has no container and takes the colour around
-it, for menu items and tooltips.
+`soft`, the default, is a small rounded key on the translucent neutral fill, with medium-weight
+12px text in the sans font even inside monospaced text. It reads on the page, a card or an overlay.
+`ghost` has no fill and takes the colour around it, for menu items, tooltips and inline hints.
 
 <ComponentPreview name="kbd-variants" />
 
 ### Sizes
 
-`md` is 24px and matches `body-md` text. `sm` is 20px for menus, table toolbars and `body-sm` text.
+`md` is 24px with an 8px corner and 12px text, and sits beside `text-sm` copy. `sm` is 20px with a
+6px corner and 11px text, for menus, table toolbars and `text-xs` copy.
 
 <ComponentPreview name="kbd-sizes" />
 
@@ -94,8 +95,9 @@ Screen readers always hear "plus" between keys, with or without it.
 
 ### In a list of actions
 
-Use `variant="text"` for shortcuts at the end of a row, so the keys take the row's colour. Items in
-a [Menu](/docs/components/overlays/menu) take a `shortcut` prop that renders the hint for you.
+Use `variant="ghost"` for shortcuts at the end of a row, so the keys take the row's colour. Items in
+a [Menu](/docs/components/overlays/menu) take a `shortcut` prop that renders the hint with a ghost
+`KbdCombo` for you.
 
 <ComponentPreview name="kbd-menu" />
 
@@ -111,26 +113,26 @@ A hint only describes a shortcut; the control that owns it should announce it to
 
 ### Kbd
 
-| Prop       | Type                                | Default      |
-| ---------- | ----------------------------------- | ------------ |
-| `children` | `ReactNode`; a key name is resolved |              |
-| `variant`  | `'outlined' \| 'tonal' \| 'text'`   | `'outlined'` |
-| `size`     | `'sm' \| 'md'`                      | `'md'`       |
-| `platform` | `'apple' \| 'other'`                | detected     |
-| `labels`   | `Partial<KbdLabels>`                |              |
+| Prop       | Type                                | Default  |
+| ---------- | ----------------------------------- | -------- |
+| `children` | `ReactNode`; a key name is resolved |          |
+| `variant`  | `'soft' \| 'ghost'`                 | `'soft'` |
+| `size`     | `'sm' \| 'md'`                      | `'md'`   |
+| `platform` | `'apple' \| 'other'`                | detected |
+| `labels`   | `Partial<KbdLabels>`                |          |
 
 Every other HTML attribute is passed to the `<kbd>` element.
 
 ### KbdCombo
 
-| Prop        | Type                                | Default      |
-| ----------- | ----------------------------------- | ------------ |
-| `keys`      | `KbdKey[]`, in the order pressed    |              |
-| `separator` | `ReactNode`                         |              |
-| `variant`   | `'outlined' \| 'tonal' \| 'text'`   | `'outlined'` |
-| `size`      | `'sm' \| 'md'`                      | `'md'`       |
-| `platform`  | `'apple' \| 'other'`                | detected     |
-| `labels`    | `Partial<KbdLabels>`, for every key |              |
+| Prop        | Type                                | Default  |
+| ----------- | ----------------------------------- | -------- |
+| `keys`      | `KbdKey[]`, in the order pressed    |          |
+| `separator` | `ReactNode`                         |          |
+| `variant`   | `'soft' \| 'ghost'`                 | `'soft'` |
+| `size`      | `'sm' \| 'md'`                      | `'md'`   |
+| `platform`  | `'apple' \| 'other'`                | detected |
+| `labels`    | `Partial<KbdLabels>`, for every key |          |
 
 `KbdCombo` renders a `<kbd dir="ltr">` with one nested `<kbd>` per key, the HTML pattern for a key
 combination.

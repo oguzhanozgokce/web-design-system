@@ -10,11 +10,14 @@ export default function ContentStateSizes() {
   return (
     <div className="grid w-full gap-3 sm:grid-cols-3">
       {panels.map((panel) => (
-        <section key={panel.title} className="rounded-lg border border-outline-variant bg-surface">
-          <h3 className="px-4 pt-3 text-title-sm text-on-surface">{panel.title}</h3>
+        <section
+          key={panel.title}
+          className="rounded-container border border-outline-subtle bg-surface-raised"
+        >
+          <h3 className="px-4 pt-3 text-sm font-semibold text-on-surface">{panel.title}</h3>
           <ContentState
             status={panel.status}
-            size="compact"
+            size="sm"
             headingLevel={4}
             onRetry={() => new Promise((resolve) => setTimeout(resolve, 1200))}
           />

@@ -8,7 +8,7 @@ function StatusList({ density }: { density: 'sm' | 'md' }) {
       selectionMode="single"
       defaultSelectedKeys={['review']}
       density={density}
-      variant="outlined"
+      variant="outline"
       className="w-full"
     >
       <ListBoxItem id="draft" startIcon={<ScheduleIcon />}>

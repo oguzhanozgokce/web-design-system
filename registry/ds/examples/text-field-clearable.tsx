@@ -25,7 +25,7 @@ export default function TextFieldClearable() {
         startAdornment={<SearchIcon />}
         isClearable
       />
-      <ul className="grid gap-1 text-body-md text-on-surface-variant" aria-live="polite">
+      <ul className="grid gap-1 text-sm text-on-surface-variant" aria-live="polite">
         {matches.map((file) => (
           <li key={file}>{file}</li>
         ))}

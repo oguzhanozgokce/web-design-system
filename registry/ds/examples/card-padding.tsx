@@ -17,11 +17,11 @@ export default function CardPadding() {
   return (
     <div className="grid w-full gap-4 sm:grid-cols-2">
       {paddings.map(({ padding, description }) => (
-        <Card key={padding} variant="outlined" padding={padding}>
+        <Card key={padding} padding={padding}>
           <CardHeader title={`Padding ${padding}`} description={description} />
         </Card>
       ))}
-      <Card variant="outlined" padding="none">
+      <Card padding="none">
         <CardHeader title="Padding none" className="px-4 pt-4 pb-2" />
         <CardContent className="flex flex-col pb-2">
           {folders.map((folder, index) => (

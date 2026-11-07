@@ -19,11 +19,17 @@ import {
   type EmptyStateHeadingLevel,
   type EmptyStateSize,
 } from '@/registry/ds/ui/empty-state';
-import { Spinner } from '@/registry/ds/ui/spinner';
+import { Spinner, type SpinnerSize } from '@/registry/ds/ui/spinner';
 
 export type ContentStatus = 'loading' | 'error' | 'empty' | 'content';
 
 export type ContentStateSize = EmptyStateSize;
+
+const spinnerSizes: Record<ContentStateSize, SpinnerSize> = {
+  sm: 'md',
+  md: 'lg',
+  lg: 'xl',
+};
 
 export interface ContentStateLabels {
   loading: string;
@@ -51,36 +57,28 @@ export const contentStateStyles = tv({
   },
   variants: {
     size: {
-      compact: { refreshError: 'mb-3' },
-      default: { refreshError: 'mb-4' },
-      page: { refreshError: 'mb-6' },
+      sm: { refreshError: 'mb-3' },
+      md: { refreshError: 'mb-4' },
+      lg: { refreshError: 'mb-6' },
     },
     hasCustomLoading: {
-      false: { loading: 'flex items-center justify-center text-primary' },
+      false: { loading: 'flex items-center justify-center text-on-surface-variant' },
     },
     isAnimated: {
       true: { view: 'animate-ds-fade-in' },
     },
   },
   compoundVariants: [
+    { size: 'sm', hasCustomLoading: false, class: { loading: 'min-h-24 py-6' } },
+    { size: 'md', hasCustomLoading: false, class: { loading: 'min-h-48 py-10' } },
     {
-      size: 'compact',
+      size: 'lg',
       hasCustomLoading: false,
-      class: { loading: 'min-h-24 py-6 text-[1.5rem]' },
-    },
-    {
-      size: 'default',
-      hasCustomLoading: false,
-      class: { loading: 'min-h-48 py-10 text-[2rem]' },
-    },
-    {
-      size: 'page',
-      hasCustomLoading: false,
-      class: { loading: 'min-h-[min(32rem,70dvh)] py-16 text-[3rem]' },
+      class: { loading: 'min-h-[min(32rem,70dvh)] py-16' },
     },
   ],
   defaultVariants: {
-    size: 'default',
+    size: 'md',
     hasCustomLoading: false,
     isAnimated: false,
   },
@@ -170,7 +168,7 @@ export function ContentState<T>({
   isEmpty = defaultIsEmpty,
   isRefreshing = false,
   onRetry,
-  size = 'default',
+  size = 'md',
   headingLevel = 2,
   loadingLabel,
   loadingContent,
@@ -253,7 +251,7 @@ export function ContentState<T>({
               data-slot="loading"
               className={styles.loading()}
             >
-              {loadingContent ?? <Spinner className={styles.spinner()} />}
+              {loadingContent ?? <Spinner size={spinnerSizes[size]} className={styles.spinner()} />}
             </ProgressBar>
           </StateView>
         );

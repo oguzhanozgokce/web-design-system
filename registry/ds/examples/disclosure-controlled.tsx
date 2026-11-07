@@ -37,9 +37,9 @@ export default function DisclosureControlled() {
   return (
     <div className="flex w-full max-w-xl flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-title-md text-on-surface">What’s new in 2.4</h2>
+        <h2 className="text-base font-semibold text-on-surface">What’s new in 2.4</h2>
         <Button
-          variant="text"
+          variant="ghost"
           size="sm"
           onPress={() => setExpanded(new Set(allOpen ? [] : allKeys))}
         >

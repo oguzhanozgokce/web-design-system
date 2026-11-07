@@ -10,23 +10,29 @@ const tones: BannerTone[] = ['info', 'success', 'warning', 'error', 'neutral'];
 describe('Banner', () => {
   it('renders a polite status with the tone, title, description and default glyph', async () => {
     const screen = await renderWithDS(
-      <Banner
-        tone="warning"
-        title="Card ending 4242 expires soon"
-        description="Update it before the project on 1 December."
-      />,
+      <>
+        <Banner
+          tone="warning"
+          title="Storage almost full"
+          description="Free up space before 1 December to keep syncing."
+        />
+        <span data-testid="reference" className="bg-warning-soft text-on-warning-soft" />
+      </>,
     );
     const status = screen.getByRole('status');
     await expect
       .element(status)
       .toHaveTextContent(
-        'Warning: Card ending 4242 expires soonUpdate it before the project on 1 December.',
+        'Warning: Storage almost fullFree up space before 1 December to keep syncing.',
       );
-    const banner = screen.container.querySelector('[data-slot="banner"]')!;
+    const banner = screen.container.querySelector<HTMLElement>('[data-slot="banner"]')!;
     expect(banner.getAttribute('data-tone')).toBe('warning');
-    expect(banner.getAttribute('data-variant')).toBe('tonal');
+    expect(banner.getAttribute('data-variant')).toBe('soft');
     expect(banner.getAttribute('data-layout')).toBe('inline');
-    expect(banner.className).toMatch(/bg-warning-container/);
+    const reference = getComputedStyle(screen.getByTestId('reference').element());
+    expect(getComputedStyle(banner).backgroundColor).toBe(reference.backgroundColor);
+    expect(getComputedStyle(banner).color).toBe(reference.color);
+    expect(getComputedStyle(banner).borderRadius).toBe('20px');
     const icon = banner.querySelector('[data-slot="icon"]')!;
     expect(icon.getAttribute('aria-hidden')).toBe('true');
     expect(icon.querySelector('svg')).not.toBeNull();
@@ -62,7 +68,25 @@ describe('Banner', () => {
     expect(screen.getByTestId('plain').element().querySelector('[data-slot="icon"]')).toBeNull();
   });
 
-  it('gives actions small text buttons that a caller can override', async () => {
+  it('draws the surface variant on the raised surface with only the icon in the tone', async () => {
+    const screen = await renderWithDS(
+      <>
+        <Banner variant="surface" tone="error" title="Sync failed" data-testid="banner" />
+        <span data-testid="raised" className="bg-surface-raised text-error" />
+      </>,
+      { dark: true },
+    );
+    const banner = screen.getByTestId('banner').element();
+    const raised = getComputedStyle(screen.getByTestId('raised').element());
+    expect(banner.getAttribute('data-variant')).toBe('surface');
+    expect(getComputedStyle(banner).backgroundColor).toBe(raised.backgroundColor);
+    expect(getComputedStyle(banner).borderTopWidth).toBe('1px');
+    const icon = banner.querySelector('[data-slot="icon"]')!;
+    expect(getComputedStyle(icon).color).toBe(raised.color);
+    expect(getComputedStyle(banner).color).not.toBe(raised.color);
+  });
+
+  it('gives actions small ghost buttons that a caller can override', async () => {
     const onRetry = vi.fn();
     const screen = await renderWithDS(
       <Banner
@@ -71,31 +95,35 @@ describe('Banner', () => {
         actions={
           <>
             <Button onPress={onRetry}>Retry</Button>
-            <Button variant="filled">Reconnect</Button>
+            <Button variant="solid">Reconnect</Button>
           </>
         }
       />,
     );
     const retry = screen.getByRole('button', { name: 'Retry' });
-    await expect.element(retry).toHaveAttribute('data-variant', 'text');
+    await expect.element(retry).toHaveAttribute('data-variant', 'ghost');
     await expect.element(retry).toHaveAttribute('data-size', 'sm');
+    expect(retry.element().getBoundingClientRect().height).toBe(32);
+    expect(getComputedStyle(retry.element()).color).toBe(
+      getComputedStyle(screen.container.querySelector('[data-slot="banner"]')!).color,
+    );
     await expect
       .element(screen.getByRole('button', { name: 'Reconnect' }))
-      .toHaveAttribute('data-variant', 'filled');
+      .toHaveAttribute('data-variant', 'solid');
     await retry.click();
     expect(onRetry).toHaveBeenCalledOnce();
   });
 
-  it('lines wrapped text actions up with each other and with the title', async () => {
+  it('lines wrapped ghost actions up with each other and with the title', async () => {
     for (const locale of ['en', 'ar']) {
       const screen = await renderWithDS(
         <div className="w-64">
           <Banner
             tone="warning"
-            title="Card ending 4242 expires on 30 November"
+            title="Your shared folder is almost full"
             actions={
               <>
-                <Button>Update card</Button>
+                <Button>Review storage</Button>
                 <Button>Remind me later</Button>
               </>
             }
@@ -107,7 +135,7 @@ describe('Banner', () => {
         const rect = element.getBoundingClientRect();
         return locale === 'ar' ? rect.right : rect.left;
       };
-      const [first, second] = ['Update card', 'Remind me later'].map((name) =>
+      const [first, second] = ['Review storage', 'Remind me later'].map((name) =>
         screen.getByRole('button', { name }).element(),
       );
       const title = screen.container.querySelector('[data-slot="title"]')!;
@@ -153,7 +181,7 @@ describe('Banner', () => {
             isDismissable
             isOpen={isOpen}
             onOpenChange={() => setCount((value) => value + 1)}
-            title="Usage at 92% of plan"
+            title="Storage at 92%"
           />
           <p>Dismissed {count}</p>
           <Button onPress={() => setOpen((value) => !value)}>Toggle</Button>
@@ -170,7 +198,7 @@ describe('Banner', () => {
     await screen.getByRole('button', { name: 'Toggle' }).click();
     await expect
       .element(screen.getByRole('status'))
-      .toHaveTextContent('Information: Usage at 92% of plan');
+      .toHaveTextContent('Information: Storage at 92%');
   });
 
   it('keeps focus on Dismiss while a controlled banner stays open', async () => {
@@ -178,7 +206,7 @@ describe('Banner', () => {
       const [isOpen, setOpen] = useState(true);
       return (
         <>
-          <Banner isDismissable isOpen={isOpen} title="Usage at 92% of plan" />
+          <Banner isDismissable isOpen={isOpen} title="Storage at 92%" />
           <Button onPress={() => setOpen(false)}>Hide banner</Button>
         </>
       );
@@ -261,15 +289,16 @@ describe('Banner', () => {
     const screen = await renderWithDS(
       <>
         <Banner defaultOpen={false} title="Hidden notice" />
-        <Banner layout="page" variant="outlined" tone="error" title="Webhook failing" />
+        <Banner layout="page" variant="surface" tone="error" title="Webhook failing" />
       </>,
     );
     await expect.element(screen.getByText('Hidden notice')).not.toBeInTheDocument();
-    const banner = screen.container.querySelector('[data-slot="banner"]')!;
+    const banner = screen.container.querySelector<HTMLElement>('[data-slot="banner"]')!;
     expect(banner.getAttribute('data-layout')).toBe('page');
-    expect(banner.getAttribute('data-variant')).toBe('outlined');
-    expect(banner.className).toMatch(/border-error\/50/);
-    expect(banner.className).toMatch(/rounded-none/);
+    expect(banner.getAttribute('data-variant')).toBe('surface');
+    expect(getComputedStyle(banner).borderRadius).toBe('0px');
+    expect(getComputedStyle(banner).borderTopWidth).toBe('0px');
+    expect(getComputedStyle(banner).borderBottomWidth).toBe('1px');
   });
 
   it('takes its dismiss and tone labels from labels, then DSProvider', async () => {
@@ -299,7 +328,7 @@ describe('Banner', () => {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-3 p-4">
           {tones.map((tone) =>
-            (['tonal', 'outlined'] as const).map((variant) => (
+            (['soft', 'surface'] as const).map((variant) => (
               <Banner
                 key={`${tone}-${variant}`}
                 tone={tone}
@@ -318,7 +347,7 @@ describe('Banner', () => {
             description="Scheduled maintenance on Sunday from 02:00 to 04:00 UTC."
             actions={<Button>Status page</Button>}
           />
-          <Banner layout="page" variant="outlined" tone="warning" title="Trial ends in 3 days" />
+          <Banner layout="page" variant="surface" tone="warning" title="Maintenance this weekend" />
         </div>,
         options,
       );

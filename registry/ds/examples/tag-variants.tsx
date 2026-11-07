@@ -10,10 +10,10 @@ const statuses: { tone: TagTone; label: string }[] = [
 export default function TagVariants() {
   return (
     <div className="flex flex-col items-center gap-3">
-      {(['tonal', 'outlined', 'filled'] as const).map((variant) => (
+      {(['soft', 'outline', 'solid'] as const).map((variant) => (
         <div key={variant} className="flex flex-wrap items-center justify-center gap-2">
           {statuses.map((status) => (
-            <Tag key={status.tone} variant={variant} tone={status.tone}>
+            <Tag key={status.tone} variant={variant} tone={status.tone} dot>
               {status.label}
             </Tag>
           ))}

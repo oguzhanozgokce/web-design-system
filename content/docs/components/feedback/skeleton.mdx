@@ -1,6 +1,6 @@
 ---
 title: Skeleton
-description: Loading placeholders in text, circle and rectangle shapes that follow the line height, shimmer in the reading direction and can wrap real content until it has loaded.
+description: Loading placeholders in text, block and circle shapes that follow the line height, shimmer or pulse, and can wrap real content until it has loaded.
 ---
 
 <ComponentPreview name="skeleton-demo" />
@@ -16,7 +16,7 @@ import { Skeleton } from '@/components/ds/skeleton';
 
 <section aria-label="Team members" aria-busy={isLoading}>
   <Skeleton shape="circle" />
-  <Skeleton shape="text" lines={2} className="text-body-md" />
+  <Skeleton shape="text" lines={2} className="text-sm" />
 </section>;
 ```
 
@@ -30,7 +30,7 @@ of the button instead; for a long job with a known size, use
 ### Text
 
 `shape="text"` draws one bar per line. Each line is exactly one line box tall and the bar sits in
-its middle, so a skeleton with `text-body-md` takes the same height as the paragraph it stands for
+its middle, so a skeleton with `text-sm` takes the same height as the paragraph it stands for
 and the page does not jump when the text arrives. `lines` adds lines; the last one is shorter, like
 the end of a paragraph. Set the width on the skeleton for headings and short values.
 
@@ -38,8 +38,9 @@ the end of a paragraph. Set the width on the skeleton for headings and short val
 
 ### Shapes
 
-`circle` is 40px by default, the size of an avatar; `rect` fills the width and is 96px tall, with
-the medium corner radius. Size both with `className`.
+`block`, the default, fills the width and is 96px tall with the 20px container radius, the same
+corner as a card. `circle` is 40px, the size of an avatar. Text lines have a 4px radius. Size any of
+them with `className`, and round a block that stands in for a button with `rounded-control`.
 
 <ComponentPreview name="skeleton-shapes" />
 
@@ -65,31 +66,42 @@ Without children, a loaded skeleton renders nothing.
 
 <ComponentPreview name="skeleton-loaded" />
 
+### Animation
+
+`animation="shimmer"`, the default, sweeps a faint highlight across the fill every two seconds,
+from the start edge to the end edge. `pulse` fades the fill in and out instead, which suits many
+small placeholders on one screen, and `none` keeps it still.
+
+```tsx
+<Skeleton animation="pulse" shape="circle" />
+```
+
 ## API
 
 ### Skeleton
 
-| Prop        | Type                           | Default  |
-| ----------- | ------------------------------ | -------- |
-| `shape`     | `'text' \| 'circle' \| 'rect'` | `'rect'` |
-| `lines`     | `number`                       | `1`      |
-| `isLoaded`  | `boolean`                      | `false`  |
-| `children`  | `ReactNode`                    |          |
-| `className` | `string`                       |          |
+| Prop        | Type                             | Default     |
+| ----------- | -------------------------------- | ----------- |
+| `shape`     | `'text' \| 'block' \| 'circle'`  | `'block'`   |
+| `animation` | `'shimmer' \| 'pulse' \| 'none'` | `'shimmer'` |
+| `lines`     | `number`                         | `1`         |
+| `isLoaded`  | `boolean`                        | `false`     |
+| `children`  | `ReactNode`                      |             |
+| `className` | `string`                         |             |
 
 Every other `div` attribute is passed through.
 
 ### Styles
 
 `skeletonStyles` exposes the slots `root`, `block`, `line` and `content`, with the variants
-`shape`, `motion` (`full`, `reduced`, `none`) and `isLoaded`. The fill is
-`bg-surface-container-highest` with the theme's `skeleton-shimmer` utility and `animate-ds-shimmer`.
-Inside a surface of the same colour, such as a filled card, pass a different container role through
-`className`.
+`shape`, `animation` and `isLoaded`. The fill is `bg-neutral-soft`, a translucent grey that reads
+on the canvas, on raised cards and in overlays alike; the shimmer is an `::after` gradient that
+moves with `translate`, so it never repaints the fill.
 
 ### Data attributes
 
-`data-slot="skeleton"`, `data-shape`, and `data-loaded` once wrapped content has loaded. Parts:
+`data-slot="skeleton"`, `data-shape`, `data-animation` (the animation that actually runs after
+motion preferences), and `data-loaded` once wrapped content has loaded. Parts:
 `data-slot="skeleton-line"`, `"skeleton-content"`.
 
 ## Accessibility
@@ -102,5 +114,5 @@ Inside a surface of the same colour, such as a filled card, pass a different con
   or a named `LinearProgress` with `isIndeterminate`.
 - The shimmer runs from the start edge to the end edge, so it reverses in right-to-left languages.
   With reduced motion, from the operating system or `DSProvider motion="reduced"`, it becomes a slow
-  pulse; `motion="disabled"` keeps the placeholders still.
+  pulse that moves nothing; `motion="disabled"` keeps the placeholders still.
 - Structure is checked with axe in light, dark and RTL by `skeleton.test.tsx`.

@@ -28,7 +28,7 @@ export default function ToggleButtonGroupDemo() {
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
-      <p className="text-body-md text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         Showing the {view.label} view
       </p>
     </div>

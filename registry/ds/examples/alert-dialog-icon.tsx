@@ -8,7 +8,7 @@ import { DialogTrigger } from '@/registry/ds/ui/dialog';
 export default function AlertDialogIcon() {
   return (
     <DialogTrigger>
-      <Button variant="outlined" startIcon={<LogoutIcon />}>
+      <Button variant="outline" startIcon={<LogoutIcon />}>
         Sign out everywhere
       </Button>
       <AlertDialog

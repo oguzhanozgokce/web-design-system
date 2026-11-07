@@ -2,7 +2,7 @@
   "name": "card",
   "type": "registry:ui",
   "title": "Card",
-  "description": "Material 3 elevated, filled and outlined cards with header, media, content and footer parts, link and button cards, selectable checkbox and radio cards, and automatic surface steps when cards nest.",
+  "description": "Container in four variants with header, media, content and footer parts, link and button cards, and selectable checkbox and radio cards.",
   "category": "layout",
   "files": ["ui/card.tsx"]
 }

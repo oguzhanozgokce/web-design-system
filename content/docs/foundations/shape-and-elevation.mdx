@@ -1,38 +1,52 @@
 ---
 title: Shape and elevation
-description: The Material 3 corner scale, elevation shadows, state layers and the focus ring.
+description: Radius families, the shadow scale, hover, press and disabled states, and the focus ring.
 ---
 
 ## Corners
 
-Tailwind's radius names map to the Material 3 shape scale.
+Components take their corners from six radius families instead of a size. A theme makes the whole
+library squarer or rounder by changing these six variables.
 
-| Utility        | Radius | Material 3 name       | Typical use                |
-| -------------- | ------ | --------------------- | -------------------------- |
-| `rounded-xs`   | 4      | Extra small           | Badges, small chips        |
-| `rounded-sm`   | 8      | Small                 | Chips, menus, text fields  |
-| `rounded-md`   | 12     | Medium                | Cards, snackbars           |
-| `rounded-lg`   | 16     | Large                 | Navigation drawers, sheets |
-| `rounded-xl`   | 28     | Extra large           | Dialogs, large cards       |
-| `rounded-2xl`  | 32     | Extra large increased | Hero containers            |
-| `rounded-3xl`  | 48     | Extra extra large     | Expressive surfaces        |
-| `rounded-full` | full   | Full                  | Buttons, FABs, switches    |
+| Utility             | Radius | Used by                                                                   |
+| ------------------- | ------ | ------------------------------------------------------------------------- |
+| `rounded-control`   | full   | Buttons, icon buttons, toggles, FABs, chips, tags, badges, switches, tabs |
+| `rounded-field`     | 12     | Text fields, text areas, select and combo-box triggers                    |
+| `rounded-item`      | 12     | Menu, list-box and select rows                                            |
+| `rounded-overlay`   | 16     | Popovers, menus, select and combo-box lists                               |
+| `rounded-container` | 20     | Cards, banners, toasts, accordion surfaces                                |
+| `rounded-dialog`    | 24     | Dialogs, alert dialogs, bottom and detached sheets                        |
 
-Buttons are capsules and icon surfaces are circles, as in the Compose library.
+Tailwind's own scale keeps its default values (`rounded-sm` 4px, `rounded-md` 6px, `rounded-lg`
+8px, `rounded-xl` 12px) for small parts: checkboxes, key caps, skeleton lines. `cn()` and `tv()`
+know the families, so `cn('rounded-overlay', 'rounded-none')` keeps only the last one. Logical
+sides work too: `rounded-s-control`, `rounded-t-dialog`.
 
-## Elevation
+## Shadows
 
-`shadow-elevation-1` to `shadow-elevation-5` follow the Material 3 levels and use the `shadow` role.
-Prefer tonal elevation (a higher `surface-container`) and use shadows for things that float: menus,
-dialogs, FABs and dragged items.
+| Utility     | Used by                                                           |
+| ----------- | ----------------------------------------------------------------- |
+| `shadow-xs` | Segment indicator, switch thumb, slider thumb, focused soft field |
+| `shadow-sm` | Elevated cards, the FAB at rest                                   |
+| `shadow-md` | Popovers, menus, select lists, tooltips, toasts                   |
+| `shadow-lg` | Dialogs, sheets, the hovered FAB                                  |
 
-## State layers
+In dark mode a drop shadow does not read on a dark page, so `sm`, `md` and `lg` add a faint 1px
+rim in `on-surface`. Cards and fields otherwise separate from the page with a hairline border.
 
-`state-layer` draws Material's interaction overlay in the current text colour: 8% on hover, 10% on
-focus and press, 16% while dragging. It reads React Aria's `data-hovered`, `data-pressed` and
-`data-focus-visible` attributes, so touch never leaves a sticky hover.
+## Hover, press and disabled
+
+- **Hover** swaps the fill to its `-hover` role: `bg-primary-solid-hover`, `bg-neutral-soft-hover`.
+  React Aria's `data-hovered` only appears for a real mouse, so touch never leaves a sticky hover.
+- **Press** keeps the hover fill and scales the control: 0.98 at `sm`, 0.97 at `md`, 0.96 at `lg`,
+  0.98 for rows. Attached groups and reduced motion skip the scale.
+- **Disabled** keeps the colours and drops to `opacity-50` with `cursor-not-allowed`.
+- `transition-control` times all of it: the scale over 250ms, colours, borders and shadows over
+  100ms.
 
 ## Focus
 
-`focus-ring` draws a 3px `secondary` outline only for keyboard focus. `focus-ring-inset` draws it
-inside, for list rows and table cells.
+`focus-ring` draws a 2px `primary` outline with a 2px offset, only for keyboard focus. Controls in
+the `error` tone set `[--focus-color:var(--error)]` to ring in red. `focus-ring-inset` draws the
+ring inside, for list rows, menu items and table cells. Fields show focus with a `primary` border
+and a soft inner ring instead.

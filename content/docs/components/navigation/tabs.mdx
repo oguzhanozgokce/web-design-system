@@ -1,6 +1,6 @@
 ---
 title: Tabs
-description: Material 3 primary and secondary tabs plus a pill variant, with a spring indicator that follows the selection, icons, badges, scrolling with fade edges and a vertical layout.
+description: Underline and pill tabs with a sliding indicator, icons, badges, scroll buttons for long lists and a vertical layout.
 ---
 
 <ComponentPreview name="tabs-demo" align="start" />
@@ -31,18 +31,37 @@ the tabs switch between.
 
 ### Variants
 
-`primary` tabs sit at the top of a page or a large section; the 3px indicator is as wide as the
-label. `secondary` tabs split content inside a section; the 2px indicator spans the whole tab.
-`pill` is for compact filters inside a card or a toolbar. The indicator slides to the new tab on the
-spatial spring, mirrored in right-to-left languages, and jumps without motion under reduced motion.
+`underline`, the default, is a row of grey labels over a 1px hairline; the selected tab turns to
+full-strength text and gets a 2px primary line, the only place the accent appears. Hovering a tab
+gives it a neutral fill. `pill` puts the tabs in a neutral track, and the selected tab sits on a
+raised segment, white in light mode and a lighter grey in dark mode. Use it for compact filters in
+a card header or a toolbar; for switching a value rather than a view, use a
+[Segmented control](/docs/components/navigation/segmented-control).
+
+The indicator slides to the new tab over 250ms on the fluid curve, mirrored in right-to-left
+languages, and jumps without motion under reduced motion.
 
 <ComponentPreview name="tabs-variants" align="start" />
 
+### Sizes
+
+`size` sets the height of an underline tab, or of the whole pill track, at 32, 40 or 48px.
+
+| Size | Underline tab | Pill track and tab | Text                       | Icon             |
+| ---- | ------------- | ------------------ | -------------------------- | ---------------- |
+| `sm` | 32px          | 32px, tabs 24px    | `text-sm` (pill `text-xs`) | 16px (pill 14px) |
+| `md` | 40px          | 40px, tabs 32px    | `text-sm`                  | 16px             |
+| `lg` | 48px          | 48px, tabs 40px    | `text-base`                | 20px             |
+
+```tsx
+<Tabs variant="pill" size="sm">…</Tabs>
+```
+
 ### Icons
 
-`icon` takes any icon. Primary tabs stack it above the label, as Material 3 does; secondary and pill
-tabs put it before the label. Set `iconPlacement="start"` on `Tabs` to keep primary tabs at 48px.
-`fullWidth` shares the width equally, which suits three or four short tabs on a narrow screen.
+`icon` takes any icon and puts it before the label. Set `iconPlacement="top"` on `Tabs` to stack it
+above the label, which suits three or four short tabs on a narrow screen. `fullWidth` shares the
+width equally between the tabs.
 
 <ComponentPreview name="tabs-icons" align="start" />
 
@@ -50,15 +69,22 @@ tabs put it before the label. Set `iconPlacement="start"` on `Tabs` to keep prim
 
 `badge` takes a number, `true` for a dot, or your own [Badge](/docs/components/feedback/badge) for
 another tone or label. Numbers render as a Badge: they are formatted for the locale, cap at 99+,
-hide at zero and are announced as "12 new" in the reader's language. On a stacked primary tab or an
+hide at zero and are announced as "12 new" in the reader's language. On a stacked tab or an
 icon-only tab the badge sits on the icon.
 
 <ComponentPreview name="tabs-badges" align="start" />
 
 ### Scrolling
 
-When the tabs do not fit, the list scrolls and fades out at the edge that has more tabs. Selecting a
-tab, by pointer or keyboard, scrolls it fully into view. Use `items` for dynamic lists.
+When the tabs do not fit, the list scrolls and fades out at the edge that has more tabs, and a
+round scroll button appears over that edge. Pressing it pages the list by its visible width, less
+the faded edges. A button shows only while there is something to scroll towards, so at the start
+of the list only the end button is there. Both follow the reading direction: in right-to-left
+languages the end button sits on the left and pages leftwards. Swiping and the scroll wheel keep
+working.
+
+Selecting a tab, by pointer or keyboard, scrolls it fully into view, so keyboard users never need
+the buttons. Use `items` for dynamic lists.
 
 <ComponentPreview name="tabs-scrollable" align="start" />
 
@@ -72,15 +98,15 @@ Vertical tabs need width, so this example switches to horizontal below 40rem wit
 
 ### Pill filters
 
-`variant="pill"` has no divider, so it fits a card header. Keep the labels to one or two words.
+`variant="pill"` has no hairline, so it fits a card header. Keep the labels to one or two words.
 
 <ComponentPreview name="tabs-pill" />
 
 ### Disabled
 
 `disabledKeys` on `Tabs`, or `isDisabled` on a `Tab`, takes a tab out of the keyboard order. Say
-near the tabs why it is unavailable. `isDisabled` on `Tabs` disables them all and greys out the
-indicator.
+near the tabs why it is unavailable. A disabled tab keeps its colours at half opacity, indicator
+included, with a not-allowed cursor. `isDisabled` on `Tabs` disables them all.
 
 <ComponentPreview name="tabs-disabled" align="start" />
 
@@ -95,18 +121,19 @@ indicator.
 
 ### Tabs
 
-| Prop                 | Type                                 | Default                                        |
-| -------------------- | ------------------------------------ | ---------------------------------------------- |
-| `variant`            | `'primary' \| 'secondary' \| 'pill'` | `'primary'`                                    |
-| `orientation`        | `'horizontal' \| 'vertical'`         | `'horizontal'`                                 |
-| `iconPlacement`      | `'top' \| 'start'`                   | `'top'` for horizontal primary, else `'start'` |
-| `fullWidth`          | `boolean`                            | `false`                                        |
-| `selectedKey`        | `Key \| null`                        |                                                |
-| `defaultSelectedKey` | `Key`                                | first tab                                      |
-| `onSelectionChange`  | `(key: Key) => void`                 |                                                |
-| `disabledKeys`       | `Iterable<Key>`                      |                                                |
-| `isDisabled`         | `boolean`                            | `false`                                        |
-| `keyboardActivation` | `'automatic' \| 'manual'`            | `'automatic'`                                  |
+| Prop                 | Type                         | Default        |
+| -------------------- | ---------------------------- | -------------- |
+| `variant`            | `'underline' \| 'pill'`      | `'underline'`  |
+| `size`               | `'sm' \| 'md' \| 'lg'`       | `'md'`         |
+| `orientation`        | `'horizontal' \| 'vertical'` | `'horizontal'` |
+| `iconPlacement`      | `'top' \| 'start'`           | `'start'`      |
+| `fullWidth`          | `boolean`                    | `false`        |
+| `selectedKey`        | `Key \| null`                |                |
+| `defaultSelectedKey` | `Key`                        | first tab      |
+| `onSelectionChange`  | `(key: Key) => void`         |                |
+| `disabledKeys`       | `Iterable<Key>`              |                |
+| `isDisabled`         | `boolean`                    | `false`        |
+| `keyboardActivation` | `'automatic' \| 'manual'`    | `'automatic'`  |
 
 Every other [React Aria Tabs](https://react-aria.adobe.com/Tabs) prop is passed through. Vertical
 tabs always place icons at the start.
@@ -120,8 +147,8 @@ tabs always place icons at the start.
 | `children`   | `ReactNode \| (item: T) => ReactNode` |         |
 | `className`  | `string`                              |         |
 
-`className` styles the outer container that holds the divider and the scrolling area. `ref` points
-at the element with `role="tablist"`.
+`className` styles the outer container that holds the hairline or the pill track, the scrolling
+area and the scroll buttons. `ref` points at the element with `role="tablist"`.
 
 ### Tab
 
@@ -149,7 +176,7 @@ A panel fades in when it is selected, and is instant when motion is disabled in 
 
 ### Data attributes
 
-Tabs: `data-slot="tabs"`, `data-variant`, `data-orientation`, `data-icon-placement`,
+Tabs: `data-slot="tabs"`, `data-variant`, `data-size`, `data-orientation`, `data-icon-placement`,
 `data-full-width`, `data-disabled`.
 
 Tab: `data-selected`, `data-hovered`, `data-pressed`, `data-focus-visible`, `data-disabled`,
@@ -157,13 +184,15 @@ Tab: `data-selected`, `data-hovered`, `data-pressed`, `data-focus-visible`, `dat
 
 Parts: `data-slot="tab-list-container"`, `"tab-scroller"`, `"tab-list"`, `"tab"`, `"tab-content"`,
 `"icon"`, `"label"`, `"indicator-track"` (horizontal tabs), `"indicator"` and `"tab-panel"`. The
-scroller carries `data-overflow-start` and `data-overflow-end` while tabs are hidden on that side.
+scroller carries `data-overflow-start` and `data-overflow-end` while tabs are hidden on that side,
+and each scroll button is `data-slot="tab-scroll-button"` with `data-edge="start"` or `"end"`.
 Badges are Badge's own parts: `data-slot="badge"`, and `"badge-anchor"` when the badge sits on the
 icon.
 
 ### Labels
 
-Tabs writes no text of its own, so it takes no `labels`. A badge on a tab reads its hidden label
+Tabs writes no text of its own, so it takes no `labels`; the scroll buttons are icons that
+assistive technology does not see. A badge on a tab reads its hidden label
 from Badge's [labels](/docs/components/feedback/badge#labels), which you set app-wide with
 `<DSProvider labels={{ badge: { … } }}>`.
 
@@ -176,6 +205,9 @@ from Badge's [labels](/docs/components/feedback/badge#labels), which you set app
   focusable inside becomes focusable itself, so keyboard users can reach its content.
 - The indicator is decorative. Selection is announced through `aria-selected` and shown by the
   label colour as well as the indicator.
+- The scroll buttons are a pointer convenience. They are hidden from assistive technology, left out
+  of the tab order and do not take focus when pressed, because arrow keys, Home and End already
+  reach every tab and scroll it into view. Screen reader users read the whole list either way.
 - Badges carry a hidden, localised label ("12 new", or "New" for the dot) that is read after the
   tab's label, also on stacked tabs where the badge sits on the icon.
 - Contrast is checked with axe in light, dark and RTL by `tabs.test.tsx`.

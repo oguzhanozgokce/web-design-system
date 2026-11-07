@@ -39,7 +39,7 @@ export default function PasswordFieldSignIn() {
         errorMessage="Enter your password."
       />
       <Button type="submit">Sign in</Button>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {status}
       </p>
     </form>

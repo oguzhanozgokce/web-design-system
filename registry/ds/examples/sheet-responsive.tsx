@@ -13,7 +13,7 @@ export default function SheetResponsive() {
 
   return (
     <SheetTrigger>
-      <Button variant="outlined" startIcon={<FilterIcon />}>
+      <Button variant="outline" startIcon={<FilterIcon />}>
         Filters
       </Button>
       <Sheet side={isWide ? 'end' : 'bottom'} size="sm">
@@ -28,7 +28,7 @@ export default function SheetResponsive() {
           </ChipGroup>
         </SheetBody>
         <SheetFooter>
-          <Button variant="text" slot="close">
+          <Button variant="soft" slot="close">
             Cancel
           </Button>
           <Button slot="close">Apply</Button>

@@ -21,30 +21,36 @@ function StepProgress() {
 describe('LinearProgress', () => {
   it('renders a labelled progress bar with a formatted value', async () => {
     const screen = await renderWithDS(
-      <LinearProgress label="Uploading statements.csv" value={40} showValueLabel />,
+      <LinearProgress label="Uploading photos.zip" value={40} showValueLabel />,
     );
-    const bar = screen.getByRole('progressbar', { name: 'Uploading statements.csv' });
+    const bar = screen.getByRole('progressbar', { name: 'Uploading photos.zip' });
     await expect.element(bar).toHaveAttribute('aria-valuenow', '40');
     await expect.element(bar).toHaveAttribute('aria-valuetext', '40%');
     await expect.element(bar).toHaveAttribute('data-tone', 'primary');
-    await expect.element(bar).toHaveAttribute('data-thickness', '4');
+    await expect.element(bar).toHaveAttribute('data-size', 'md');
     await expect.element(screen.getByText('40%')).toBeVisible();
   });
 
   it('formats the value with formatOptions and the locale', async () => {
     const screen = await renderWithDS(
       <LinearProgress
-        label="Fundraising"
+        label="Storage"
         value={3200}
         maxValue={5000}
-        formatOptions={{ style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }}
+        formatOptions={{ style: 'unit', unit: 'megabyte', maximumFractionDigits: 0 }}
         showValueLabel
       />,
       { locale: 'de' },
     );
-    const bar = screen.getByRole('progressbar', { name: 'Fundraising' });
-    await expect.element(bar).toHaveAttribute('aria-valuetext', '3.200\u00a0€');
-    await expect.element(screen.getByText('3.200\u00a0€')).toBeVisible();
+    const expected = new Intl.NumberFormat('de', {
+      style: 'unit',
+      unit: 'megabyte',
+      maximumFractionDigits: 0,
+    }).format(3200);
+    expect(expected).toMatch(/^3\.200\sMB$/);
+    const bar = screen.getByRole('progressbar', { name: 'Storage' });
+    await expect.element(bar).toHaveAttribute('aria-valuetext', expected);
+    await expect.element(screen.getByText(expected)).toBeVisible();
   });
 
   it('uses a custom valueLabel for screen readers and the header', async () => {
@@ -63,22 +69,56 @@ describe('LinearProgress', () => {
     await expect.element(screen.getByText('128 of 300 files')).toBeVisible();
   });
 
-  it('sizes the indicator and leaves a gap before the track', async () => {
+  it('fills a share of a rounded neutral track', async () => {
     const screen = await renderWithDS(
       <div style={{ width: 200 }}>
         <LinearProgress aria-label="Storage" value={40} />
+        <span data-testid="track-ref" className="bg-neutral-soft" />
+        <span data-testid="fill-ref" className="bg-primary-solid" />
       </div>,
       { provider: { motion: 'disabled' } },
     );
     const root = screen.container;
-    const bar = slot(root, 'bar')!.getBoundingClientRect();
-    const fill = slot(root, 'fill')!.getBoundingClientRect();
-    const track = slot(root, 'track')!.getBoundingClientRect();
-    expect(bar.height).toBe(4);
-    expect(fill.width).toBeCloseTo(80, 0);
-    expect(track.left - fill.right).toBeCloseTo(4, 0);
-    expect(track.right).toBeCloseTo(bar.right, 0);
-    expect(slot(root, 'stop')).not.toBeNull();
+    const track = slot(root, 'track')!;
+    const indicator = slot(root, 'indicator')!;
+    expect(track.getBoundingClientRect().height).toBe(8);
+    expect(indicator.getBoundingClientRect().width).toBeCloseTo(80, 0);
+    expect(indicator.getBoundingClientRect().left).toBeCloseTo(
+      track.getBoundingClientRect().left,
+      0,
+    );
+    expect(getComputedStyle(track).borderRadius).not.toBe('0px');
+    const color = (testId: string) =>
+      getComputedStyle(screen.getByTestId(testId).element()).backgroundColor;
+    expect(getComputedStyle(track).backgroundColor).toBe(color('track-ref'));
+    expect(getComputedStyle(indicator).backgroundColor).toBe(color('fill-ref'));
+  });
+
+  it.each([
+    ['sm', 4],
+    ['md', 8],
+    ['lg', 12],
+  ] as const)('draws the %s track %ipx tall', async (size, height) => {
+    const screen = await renderWithDS(
+      <LinearProgress aria-label="Storage" value={72} size={size} />,
+    );
+    expect(slot(screen.container, 'track')!.getBoundingClientRect().height).toBe(height);
+  });
+
+  it.each([
+    ['dark', { dark: true }],
+    ['light', {}],
+  ])('keeps the solid fill saturated in %s mode', async (_, options) => {
+    const screen = await renderWithDS(
+      <div style={{ width: 200 }}>
+        <LinearProgress aria-label="Storage" value={50} tone="success" />
+        <span data-testid="reference" className="bg-success-solid" />
+      </div>,
+      options,
+    );
+    expect(getComputedStyle(slot(screen.container, 'indicator')!).backgroundColor).toBe(
+      getComputedStyle(screen.getByTestId('reference').element()).backgroundColor,
+    );
   });
 
   it('fills from the inline start in Arabic', async () => {
@@ -89,42 +129,10 @@ describe('LinearProgress', () => {
       { locale: 'ar', provider: { motion: 'disabled' } },
     );
     const root = screen.container;
-    const bar = slot(root, 'bar')!.getBoundingClientRect();
-    const fill = slot(root, 'fill')!.getBoundingClientRect();
-    expect(fill.right).toBeCloseTo(bar.right, 0);
-    expect(fill.width).toBeCloseTo(50, 0);
-  });
-
-  it('puts the track and the stop dot on the inline end in Arabic', async () => {
-    const screen = await renderWithDS(
-      <div style={{ width: 200 }}>
-        <LinearProgress aria-label="Storage" value={25} thickness={8} />
-      </div>,
-      { locale: 'ar', provider: { motion: 'disabled' } },
-    );
-    const root = screen.container;
-    const bar = slot(root, 'bar')!.getBoundingClientRect();
-    const fill = slot(root, 'fill')!.getBoundingClientRect();
     const track = slot(root, 'track')!.getBoundingClientRect();
-    const stop = slot(root, 'stop')!.getBoundingClientRect();
-    expect(fill.left - track.right).toBeCloseTo(4, 0);
-    expect(track.left).toBeCloseTo(bar.left, 0);
-    expect(stop.width).toBe(4);
-    expect(stop.left - bar.left).toBeCloseTo(2, 0);
-    expect(stop.top - bar.top).toBeCloseTo(2, 0);
-  });
-
-  it('centres the stop dot in the end cap of the track', async () => {
-    const screen = await renderWithDS(
-      <div style={{ width: 200 }}>
-        <LinearProgress aria-label="Storage" value={10} />
-      </div>,
-      { provider: { motion: 'disabled' } },
-    );
-    const bar = slot(screen.container, 'bar')!.getBoundingClientRect();
-    const stop = slot(screen.container, 'stop')!.getBoundingClientRect();
-    expect(stop.right).toBeCloseTo(bar.right, 0);
-    expect(stop.height).toBe(4);
+    const indicator = slot(root, 'indicator')!.getBoundingClientRect();
+    expect(indicator.right).toBeCloseTo(track.right, 0);
+    expect(indicator.width).toBeCloseTo(50, 0);
   });
 
   it('does not override aria-labelledby with the fallback name', async () => {
@@ -144,60 +152,57 @@ describe('LinearProgress', () => {
     await expect.element(bar).toHaveAttribute('aria-valuetext', '25%');
     await screen.getByRole('button', { name: 'Next' }).click();
     await expect.element(bar).toHaveAttribute('aria-valuetext', '50%');
-    expect(slot(screen.container, 'fill')!.getBoundingClientRect().width).toBeCloseTo(100, 0);
+    expect(slot(screen.container, 'indicator')!.getBoundingClientRect().width).toBeCloseTo(100, 0);
   });
 
-  it('renders the thicker track', async () => {
+  it('animates width changes over 300ms', async () => {
+    const screen = await renderWithDS(<LinearProgress aria-label="Storage" value={30} />);
+    const indicator = getComputedStyle(slot(screen.container, 'indicator')!);
+    expect(indicator.transitionProperty).toBe('width');
+    expect(indicator.transitionDuration).toBe('0.3s');
+  });
+
+  it('slides a short bar across the track when indeterminate', async () => {
     const screen = await renderWithDS(
-      <LinearProgress aria-label="Sales target" value={72} thickness={8} />,
+      <div style={{ width: 200 }}>
+        <LinearProgress label="Syncing team feed" isIndeterminate />
+      </div>,
     );
-    expect(slot(screen.container, 'bar')!.getBoundingClientRect().height).toBe(8);
-  });
-
-  it('leaves out the value and the stop dot when indeterminate', async () => {
-    const screen = await renderWithDS(<LinearProgress label="Syncing team feed" isIndeterminate />);
     const bar = screen.getByRole('progressbar', { name: 'Syncing team feed' });
     await expect.element(bar).not.toHaveAttribute('aria-valuenow');
     await expect.element(bar).toHaveAttribute('data-indeterminate', 'true');
-    expect(slot(screen.container, 'stop')).toBeNull();
-    expect(screen.container.querySelectorAll('[data-slot="indicator"]')).toHaveLength(2);
-    expect(getComputedStyle(slot(screen.container, 'bar')!).animationName).toContain(
-      'ds-progress-head-1',
-    );
+    const indicator = slot(screen.container, 'indicator')!;
+    expect(screen.container.querySelectorAll('[data-slot="indicator"]')).toHaveLength(1);
+    expect(getComputedStyle(indicator).animationName).toBe('ds-progress-slide');
+    expect(getComputedStyle(indicator).animationDuration).toBe('1.5s');
+    expect(indicator.getBoundingClientRect().width).toBeCloseTo(80, 0);
+  });
+
+  it.each([
+    ['en', '-100%'],
+    ['ar', '100%'],
+  ])('starts the slide off the start edge in %s', async (locale, start) => {
+    const screen = await renderWithDS(<LinearProgress aria-label="Syncing" isIndeterminate />, {
+      locale,
+    });
+    const indicator = slot(screen.container, 'indicator')!;
+    const [slide] = indicator.getAnimations();
+    slide.pause();
+    slide.currentTime = 0;
+    expect(getComputedStyle(indicator).translate).toBe(start);
   });
 
   it('becomes a pulse when motion is reduced and stops when it is disabled', async () => {
     const reduced = await renderWithDS(<LinearProgress aria-label="Syncing" isIndeterminate />, {
       provider: { motion: 'reduced' },
     });
-    expect(slot(reduced.container, 'lane')).toBeNull();
-    expect(getComputedStyle(slot(reduced.container, 'pulse')!).animationName).toBe('ds-pulse');
+    expect(getComputedStyle(slot(reduced.container, 'indicator')!).animationName).toBe('ds-pulse');
     await reduced.unmount();
 
     const disabled = await renderWithDS(<LinearProgress aria-label="Syncing" isIndeterminate />, {
       provider: { motion: 'disabled' },
     });
-    expect(getComputedStyle(slot(disabled.container, 'pulse')!).animationName).toBe('none');
-  });
-
-  it('draws a travelling wave in the wavy variant', async () => {
-    const screen = await renderWithDS(
-      <LinearProgress aria-label="Exporting orders" value={50} variant="wavy" />,
-    );
-    const wave = slot(screen.container, 'wave')!;
-    expect(getComputedStyle(wave).maskImage).toContain('data:image/svg+xml');
-    expect(getComputedStyle(wave).opacity).toBe('1');
-    expect(slot(screen.container, 'bar')!.getBoundingClientRect().height).toBe(10);
-    expect(getComputedStyle(slot(screen.container, 'bar')!).animationName).toBe('ds-progress-wave');
-  });
-
-  it('flattens the wave near the start', async () => {
-    const screen = await renderWithDS(
-      <LinearProgress aria-label="Exporting orders" value={5} variant="wavy" />,
-      { provider: { motion: 'disabled' } },
-    );
-    expect(getComputedStyle(slot(screen.container, 'wave')!).opacity).toBe('0');
-    expect(getComputedStyle(slot(screen.container, 'indicator')!).opacity).toBe('1');
+    expect(getComputedStyle(slot(disabled.container, 'indicator')!).animationName).toBe('none');
   });
 
   it('falls back to Loading or Progress without a label', async () => {
@@ -233,12 +238,11 @@ describe('LinearProgress', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex w-80 flex-col gap-4 p-4">
-          {(['primary', 'success', 'warning', 'error'] as const).map((tone) => (
+          {(['primary', 'neutral', 'success', 'warning', 'error', 'info'] as const).map((tone) => (
             <LinearProgress key={tone} label={tone} value={60} tone={tone} showValueLabel />
           ))}
           <LinearProgress label="Syncing" isIndeterminate />
-          <LinearProgress label="Exporting" value={45} variant="wavy" thickness={8} />
-          <LinearProgress label="Generating" variant="wavy" isIndeterminate />
+          <LinearProgress label="Exporting" value={45} size="lg" />
         </div>,
         options,
       );
@@ -257,34 +261,51 @@ describe('CircularProgress', () => {
     await expect.element(ring).toHaveAttribute('aria-valuenow', '75');
     await expect.element(ring).toHaveAttribute('data-size', 'xl');
     await expect.element(screen.getByText('75%')).toBeVisible();
-    expect(ring.element().getBoundingClientRect().width).toBe(64);
+    expect(ring.element().getBoundingClientRect().width).toBe(48);
     const indicator = slot(screen.container, 'indicator')!;
     expect(getComputedStyle(indicator).strokeDasharray).toBe('75px, 100px');
   });
 
-  it('opens a gap between the indicator and the track', async () => {
-    const screen = await renderWithDS(<CircularProgress aria-label="Upload" value={50} />);
-    const track = slot(screen.container, 'track')!;
-    const offset = Math.abs(parseFloat(getComputedStyle(track).strokeDashoffset));
-    const length = parseFloat(getComputedStyle(track).strokeDasharray);
-    expect(offset).toBeGreaterThan(50);
-    expect(length).toBeLessThan(50);
-    expect(length + (offset - 50) * 2).toBeCloseTo(50, 2);
+  it.each([
+    ['sm', 20],
+    ['md', 28],
+    ['lg', 36],
+    ['xl', 48],
+  ] as const)('draws the %s ring at %ipx', async (size, box) => {
+    const screen = await renderWithDS(
+      <CircularProgress aria-label="Upload" value={40} size={size} />,
+    );
+    const ring = screen.getByRole('progressbar', { name: 'Upload' });
+    expect(ring.element().getBoundingClientRect().width).toBe(box);
   });
 
-  it('hides the indicator at zero and the track when complete', async () => {
-    const empty = await renderWithDS(<CircularProgress aria-label="Upload" value={0} />);
-    expect(getComputedStyle(slot(empty.container, 'indicator')!).opacity).toBe('0');
-    await empty.unmount();
-    const full = await renderWithDS(<CircularProgress aria-label="Upload" value={100} />);
-    expect(getComputedStyle(slot(full.container, 'track')!).opacity).toBe('0');
+  it('lays the arc over a full neutral track', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <CircularProgress aria-label="Upload" value={50} tone="warning" />
+        <svg>
+          <circle data-testid="track-ref" className="stroke-neutral-soft" />
+          <circle data-testid="arc-ref" className="stroke-warning-solid" />
+        </svg>
+      </div>,
+    );
+    const track = getComputedStyle(slot(screen.container, 'track')!);
+    const indicator = getComputedStyle(slot(screen.container, 'indicator')!);
+    expect(track.strokeDasharray).toBe('none');
+    expect(track.stroke).toBe(getComputedStyle(screen.getByTestId('track-ref').element()).stroke);
+    expect(indicator.stroke).toBe(getComputedStyle(screen.getByTestId('arc-ref').element()).stroke);
   });
 
-  it('spins an arc when indeterminate', async () => {
+  it('hides the indicator at zero', async () => {
+    const screen = await renderWithDS(<CircularProgress aria-label="Upload" value={0} />);
+    expect(getComputedStyle(slot(screen.container, 'indicator')!).opacity).toBe('0');
+  });
+
+  it('spins an arc over the track when indeterminate', async () => {
     const screen = await renderWithDS(<CircularProgress isIndeterminate />);
     const ring = screen.getByRole('progressbar', { name: 'Loading' });
     await expect.element(ring).not.toHaveAttribute('aria-valuenow');
-    expect(slot(screen.container, 'track')).toBeNull();
+    expect(slot(screen.container, 'track')).not.toBeNull();
     expect(getComputedStyle(slot(screen.container, 'indicator')!).animationName).toBe(
       'ds-progress-arc',
     );
@@ -302,7 +323,7 @@ describe('CircularProgress', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex gap-4 p-4">
-          {(['primary', 'success', 'warning', 'error'] as const).map((tone) => (
+          {(['primary', 'neutral', 'success', 'warning', 'error', 'info'] as const).map((tone) => (
             <CircularProgress
               key={tone}
               aria-label={tone}

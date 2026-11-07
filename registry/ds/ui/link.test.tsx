@@ -2,27 +2,62 @@ import { userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { Link } from '@/registry/ds/ui/link';
 
+function roleStyle(className: string) {
+  const probe = document.createElement('span');
+  probe.className = className;
+  document.querySelector('[data-testid="ds-root"]')!.append(probe);
+  const style = getComputedStyle(probe);
+  const result = { color: style.color, decorationColor: style.textDecorationColor };
+  probe.remove();
+  return result;
+}
+
 describe('Link', () => {
-  it('renders an inline link with its label', async () => {
+  it('renders a neutral inline link with a quiet underline', async () => {
     const screen = await renderWithDS(
       <p>
-        Uploads settle in two business days. <Link href="/settings/uploads">Change schedule</Link>
+        Uploads finish in the background. <Link href="/settings/uploads">Change schedule</Link>
       </p>,
     );
     const link = screen.getByRole('link', { name: 'Change schedule' });
     await expect.element(link).toHaveAttribute('href', '/settings/uploads');
     await expect.element(link).toHaveAttribute('data-variant', 'inline');
+    await expect.element(link).toHaveAttribute('data-tone', 'neutral');
     await expect.element(link).not.toHaveAttribute('target');
-    expect(getComputedStyle(link.element()).textDecorationLine).toBe('underline');
+    const style = getComputedStyle(link.element());
+    expect(style.textDecorationLine).toBe('underline');
+    expect(style.textDecorationThickness).toBe('1.5px');
+    expect(style.textUnderlineOffset).toBe('4px');
+    expect(style.color).toBe(roleStyle('text-on-surface').color);
+    expect(style.textDecorationColor).toBe(roleStyle('decoration-outline-variant').decorationColor);
   });
 
-  it('thickens the underline on hover', async () => {
+  it('darkens the underline to the text colour on hover', async () => {
     const screen = await renderWithDS(<Link href="/projects">Projects</Link>);
     const link = screen.getByRole('link', { name: 'Projects' });
-    expect(getComputedStyle(link.element()).textDecorationThickness).toBe('1px');
     await link.hover();
     await expect.element(link).toHaveAttribute('data-hovered', 'true');
-    await expect.poll(() => getComputedStyle(link.element()).textDecorationThickness).toBe('2px');
+    const style = getComputedStyle(link.element());
+    await expect.poll(() => style.textDecorationColor).toBe(style.color);
+  });
+
+  it('paints the primary tone and inherits the colour around it', async () => {
+    const screen = await renderWithDS(
+      <p className="text-error">
+        <Link href="/a" tone="primary">
+          Primary
+        </Link>{' '}
+        <Link href="/b" tone="inherit">
+          Inherit
+        </Link>
+      </p>,
+    );
+    const primary = screen.getByRole('link', { name: 'Primary' });
+    await expect.element(primary).toHaveAttribute('data-tone', 'primary');
+    expect(getComputedStyle(primary.element()).color).toBe(roleStyle('text-primary').color);
+    expect(getComputedStyle(screen.getByRole('link', { name: 'Inherit' }).element()).color).toBe(
+      roleStyle('text-error').color,
+    );
   });
 
   it('shows a standalone link with a trailing arrow', async () => {
@@ -33,7 +68,23 @@ describe('Link', () => {
     );
     const link = screen.getByRole('link', { name: 'View all projects' });
     await expect.element(link).toHaveAttribute('data-variant', 'standalone');
+    const style = getComputedStyle(link.element());
+    expect(style.fontSize).toBe('14px');
+    expect(style.fontWeight).toBe('500');
     expect(link.element().querySelector('[data-slot="arrow"] svg')).not.toBeNull();
+  });
+
+  it('brings the trailing glyph from 60% to full opacity on hover', async () => {
+    const screen = await renderWithDS(
+      <Link href="https://example.com/help" variant="standalone" isExternal>
+        Help centre
+      </Link>,
+    );
+    const link = screen.getByRole('link', { name: 'Help centre (opens in a new tab)' });
+    const icon = link.element().querySelector('[data-slot="external-icon"] svg')!;
+    expect(getComputedStyle(icon).opacity).toBe('0.6');
+    await link.hover();
+    await expect.poll(() => getComputedStyle(icon).opacity).toBe('1');
   });
 
   it('opens external links in a new tab and says so', async () => {
@@ -107,7 +158,7 @@ describe('Link', () => {
     ];
     for (const { locale, before, label, after } of cases) {
       const screen = await renderWithDS(
-        <p className="text-body-lg">
+        <p className="text-base">
           {before}
           <Link href="https://example.com/docs" isExternal>
             {label}
@@ -127,11 +178,11 @@ describe('Link', () => {
 
   it('passes target and rel through on internal links', async () => {
     const screen = await renderWithDS(
-      <Link href="/statements/2026-10.pdf" target="_self" rel="nofollow" download>
-        October statement
+      <Link href="/archive/photos-2026.zip" target="_self" rel="nofollow" download>
+        Photo archive
       </Link>,
     );
-    const link = screen.getByRole('link', { name: 'October statement' });
+    const link = screen.getByRole('link', { name: 'Photo archive' });
     await expect.element(link).toHaveAttribute('target', '_self');
     await expect.element(link).toHaveAttribute('rel', 'nofollow');
     await expect.element(link).toHaveAttribute('download');
@@ -195,13 +246,16 @@ describe('Link', () => {
   it('does not navigate or fire when disabled', async () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
-      <Link href="/statements/2026-10.pdf" isDisabled onPress={onPress}>
-        Download statement
+      <Link href="/archive/photos-2026.zip" isDisabled onPress={onPress}>
+        Download archive
       </Link>,
     );
-    const link = screen.getByRole('link', { name: 'Download statement' });
+    const link = screen.getByRole('link', { name: 'Download archive' });
     await expect.element(link).toHaveAttribute('aria-disabled', 'true');
     await expect.element(link).not.toHaveAttribute('href');
+    const style = getComputedStyle(link.element());
+    expect(style.opacity).toBe('0.5');
+    expect(style.cursor).toBe('not-allowed');
     await link.click({ force: true });
     expect(onPress).not.toHaveBeenCalled();
   });
@@ -209,17 +263,17 @@ describe('Link', () => {
   it('leaves no anchor attributes on a disabled link', async () => {
     const screen = await renderWithDS(
       <Link
-        href="https://example.com/statements/2026-10.pdf"
+        href="https://example.com/archive/photos-2026.zip"
         isExternal
         isDisabled
-        download="statement.pdf"
+        download="photos.zip"
         rel="nofollow"
         referrerPolicy="no-referrer"
       >
-        Download statement
+        Download archive
       </Link>,
     );
-    const link = screen.getByRole('link', { name: /Download statement/ });
+    const link = screen.getByRole('link', { name: /Download archive/ });
     const element = link.element();
     expect(element.tagName).toBe('SPAN');
     for (const attribute of ['href', 'target', 'rel', 'download', 'referrerpolicy', 'tabindex']) {
@@ -245,10 +299,17 @@ describe('Link', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          <p className="text-body-md">
-            Refunds return to the original card. <Link href="/help/refunds">Refund policy</Link>
+          <p className="text-sm">
+            Shared albums stay private until you invite someone.{' '}
+            <Link href="/help/sharing">Sharing settings</Link>
           </p>
-          <p className="text-body-md">
+          <p className="text-sm">
+            <Link href="/help/storage" tone="primary">
+              Storage plans
+            </Link>{' '}
+            explain what counts toward your quota.
+          </p>
+          <p className="text-sm">
             See the{' '}
             <Link href="https://example.com/status" isExternal>
               status page

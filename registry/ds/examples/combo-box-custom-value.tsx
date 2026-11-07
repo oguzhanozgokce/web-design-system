@@ -24,7 +24,7 @@ export default function ComboBoxCustomValue() {
           </ListBoxItem>
         ))}
       </ComboBox>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {tag ? `Tagged “${tag}”.` : 'No tag yet.'}
       </p>
     </div>

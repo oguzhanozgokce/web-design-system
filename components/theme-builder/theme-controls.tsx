@@ -43,7 +43,7 @@ function SeedPicker({ seed, onPick }: { seed: string; onPick: (seed: string) => 
       value={seed}
       onChange={(event: ChangeEvent<HTMLInputElement>) => onPick(event.target.value)}
       className={cn(
-        'ms-2 block size-6 shrink-0 cursor-pointer appearance-none rounded-full border border-outline-variant bg-transparent p-0 focus-ring',
+        'ms-2 block size-6 shrink-0 cursor-pointer appearance-none rounded-full border border-outline-variant bg-transparent p-0 focus-ring transition-transform duration-150 ease-out hover:scale-110 motion-reduce:transition-none',
         '[&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch-wrapper]:p-0',
         '[&::-moz-color-swatch]:rounded-full [&::-moz-color-swatch]:border-0',
       )}
@@ -83,16 +83,16 @@ export function ThemeControls({
       aria-labelledby={headingId}
       data-slot="theme-controls"
       className={cn(
-        'flex flex-col gap-6 rounded-lg border border-outline-variant bg-surface-container-low p-4 sm:p-5',
+        'flex flex-col gap-6 rounded-container border border-outline-subtle bg-surface-raised p-4 sm:p-5',
         className,
       )}
     >
       <div className="flex items-center justify-between gap-3">
-        <h2 id={headingId} className="text-title-lg text-on-surface">
+        <h2 id={headingId} className="text-lg font-semibold text-on-surface">
           Scheme
         </h2>
         <Button
-          variant="text"
+          variant="ghost"
           size="sm"
           startIcon={<UndoIcon className="rtl:-scale-x-100" />}
           isDisabled={isDefault}
@@ -128,7 +128,7 @@ export function ThemeControls({
       </Select>
 
       <div className="flex flex-col gap-1.5">
-        <span id={contrastLabelId} className="text-label-lg text-on-surface">
+        <span id={contrastLabelId} className="text-sm font-medium text-on-surface">
           Contrast
         </span>
         <SegmentedControl
@@ -147,7 +147,7 @@ export function ThemeControls({
             </SegmentedControlItem>
           ))}
         </SegmentedControl>
-        <p id={contrastHintId} className="text-body-sm text-on-surface-variant">
+        <p id={contrastHintId} className="text-xs text-on-surface-variant">
           Changes the preview. The exported tokens carry all three levels.
         </p>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, use, useMemo, useSyncExternalStore, type ReactNode } from 'react';
+import { createContext, use, useMemo, type ReactNode } from 'react';
 import {
   Header as AriaHeader,
   Menu as AriaMenu,
@@ -23,17 +23,19 @@ import {
   type SeparatorProps as AriaSeparatorProps,
   type SubmenuTriggerProps as AriaSubmenuTriggerProps,
 } from 'react-aria-components';
+import { useKbdPlatform } from '@/registry/ds/hooks/use-kbd-platform';
+import { useMediaQuery } from '@/registry/ds/hooks/use-media-query';
 import { mergeLabels } from '@/registry/ds/lib/labels';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
 import { ButtonGroupContext } from '@/registry/ds/ui/button';
-import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useIcons, useLabels } from '@/registry/ds/ui/ds-provider';
-import { popoverStyles, usePopoverMotion } from '@/registry/ds/ui/popover';
+import { KbdCombo, type KbdKey, type KbdLabels } from '@/registry/ds/ui/kbd';
+import { popoverMotion, usePopoverMotion } from '@/registry/ds/ui/popover';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
 
 export type MenuSize = 'sm' | 'md';
 
-export type MenuItemTone = 'default' | 'destructive';
+export type MenuItemTone = 'neutral' | 'error';
 
 export interface MenuLabels {
   empty: string;
@@ -66,95 +68,95 @@ const MenuSizeContext = createContext<MenuSize>('md');
 const MenuLabelsContext = createContext<Partial<MenuLabels> | undefined>(undefined);
 
 export const menuPopoverStyles = tv({
-  extend: popoverStyles,
-  base: 'flex max-w-[min(17.5rem,calc(100vw-1.5rem))] min-w-28 flex-col overflow-hidden rounded-sm bg-surface-container',
+  base: [
+    'flex max-w-[min(20rem,calc(100vw-2rem))] min-w-[min(14rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-overlay bg-surface-overlay p-1 text-sm text-on-surface shadow-md outline-none',
+    'origin-(--trigger-anchor-point) forced-colors:border',
+  ],
+  variants: {
+    motion: popoverMotion,
+  },
+  defaultVariants: {
+    motion: 'spatial',
+  },
 });
 
 export const menuStyles = tv({
   slots: {
-    list: 'min-h-0 overflow-y-auto outline-none',
+    list: 'flex min-h-0 flex-col gap-0.5 overflow-y-auto outline-none',
     item: [
-      'state-layer focus-ring-inset group/menu-item flex w-full cursor-default items-center gap-3 px-3 text-start no-underline select-none',
-      'transition-colors duration-150 ease-standard',
-      'data-[open]:before:opacity-8',
+      'focus-ring-inset no-tap-highlight group/menu-item relative flex w-full cursor-pointer items-center rounded-item text-start text-sm no-underline select-none',
+      'transition-[background-color,scale] duration-100 ease-out motion-reduce:transition-none',
+      'data-[pressed]:scale-[0.98] motion-reduce:data-[pressed]:scale-100',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
       'forced-colors:data-[disabled]:text-[GrayText] forced-colors:data-[focused]:bg-[Highlight] forced-colors:data-[focused]:text-[HighlightText]',
     ],
-    icon: 'inline-flex shrink-0 items-center justify-center text-(length:--icon-size) [&_svg]:size-[1em]',
+    icon: 'inline-flex shrink-0 items-center justify-center text-(length:--icon-size) text-on-surface-variant [&_svg]:size-[1em]',
     content: 'flex min-w-0 flex-1 flex-col',
-    label: 'line-clamp-2 text-label-lg break-words',
-    description: 'text-body-sm text-on-surface-variant',
-    shortcut: 'ms-auto shrink-0 ps-3 font-[inherit] whitespace-nowrap text-on-surface-variant',
-    indicator:
-      'inline-flex size-5 shrink-0 items-center justify-center text-on-surface-variant [&_svg]:size-5',
-    section: 'flex flex-col',
-    header: 'px-3 pb-1 text-label-md text-on-surface-variant',
-    separator: 'h-px shrink-0 border-none bg-outline-variant',
-    empty: 'px-3 text-body-md text-on-surface-variant',
+    label: 'line-clamp-2 font-normal break-words',
+    description: 'text-xs text-on-surface-variant',
+    shortcut: 'ms-auto inline-flex shrink-0 ps-3 text-xs text-on-surface-variant',
+    check:
+      'pointer-events-none absolute inline-flex size-4 items-center justify-center text-primary [&_svg]:size-4',
+    submenu:
+      'ms-auto inline-flex shrink-0 items-center justify-center text-on-surface-variant [&_svg]:size-3.5',
+    section: 'flex flex-col gap-0.5',
+    header: 'pt-2 pb-1 text-xs font-medium text-on-surface-variant',
+    separator:
+      'mx-2 my-1 h-px shrink-0 border-none bg-outline-subtle forced-color-adjust-none forced-colors:bg-[CanvasText]',
+    empty: 'py-2 text-sm text-on-surface-variant',
   },
   variants: {
     size: {
       sm: {
-        list: 'py-1',
-        item: 'min-h-10 py-1.5 [--icon-size:1.25rem]',
-        shortcut: 'text-body-sm',
-        header: 'pt-2',
-        separator: 'my-1',
-        empty: 'py-2',
+        item: 'min-h-8 gap-2 px-2 py-1 [--icon-size:1rem]',
+        check: 'inset-s-2',
+        header: 'px-2',
+        empty: 'px-2',
       },
       md: {
-        list: 'py-2',
-        item: 'min-h-12 py-2 [--icon-size:1.5rem]',
-        shortcut: 'text-body-md',
-        header: 'pt-3',
-        separator: 'my-2',
-        empty: 'py-3',
+        item: 'min-h-9 gap-2.5 px-2.5 py-1.5 [--icon-size:1rem]',
+        check: 'inset-s-2.5',
+        header: 'px-2.5',
+        empty: 'px-2.5',
       },
     },
     tone: {
-      default: { item: 'text-on-surface', icon: 'text-on-surface-variant' },
-      destructive: { item: 'text-error', icon: 'text-error' },
-    },
-    isSelected: {
-      true: { item: 'text-primary', icon: 'text-primary', indicator: 'text-primary' },
-    },
-    isDisabled: {
-      true: {
-        item: 'text-on-surface/38',
-        icon: 'text-on-surface/38',
-        description: 'text-on-surface/38',
-        shortcut: 'text-on-surface/38',
-        indicator: 'text-on-surface/38',
+      neutral: {
+        item: 'text-on-surface data-[focused]:bg-neutral-soft data-[open]:bg-neutral-soft',
       },
+      error: {
+        item: 'text-error data-[focused]:bg-error-soft data-[open]:bg-error-soft',
+        icon: 'text-error',
+        check: 'text-error',
+      },
+    },
+    selectable: {
+      true: '',
+      false: '',
     },
   },
   compoundVariants: [
-    {
-      tone: 'destructive',
-      isSelected: true,
-      class: { item: 'text-error', icon: 'text-error', indicator: 'text-error' },
-    },
-    {
-      tone: 'destructive',
-      isSelected: true,
-      isDisabled: true,
-      class: {
-        item: 'text-on-surface/38',
-        icon: 'text-on-surface/38',
-        indicator: 'text-on-surface/38',
-      },
-    },
+    { size: 'sm', selectable: true, class: { item: 'ps-7' } },
+    { size: 'md', selectable: true, class: { item: 'ps-8' } },
   ],
   defaultVariants: {
     size: 'md',
-    tone: 'default',
+    tone: 'neutral',
+    selectable: false,
   },
 });
 
 export type MenuStyleProps = VariantProps<typeof menuStyles>;
 
-const submenuOffset = -4;
+const submenuOffset = -2;
 
-const submenuCrossOffset: Record<MenuSize, number> = { sm: -4, md: -8 };
+const submenuCrossOffset: Record<MenuSize, number> = { sm: -4, md: -4 };
+
+const stackedSubmenuOffset = 2;
+
+const stackedSubmenuIndent = 16;
+
+export const stackedSubmenuQuery = '(max-width: 30rem)';
 
 export type MenuTriggerProps = AriaMenuTriggerProps;
 
@@ -172,7 +174,17 @@ export interface MenuPopoverProps extends Omit<AriaPopoverProps, 'className'> {
   className?: AriaPopoverProps['className'];
 }
 
+function submenuPlacement(size: MenuSize, stacked: boolean, rtl: boolean) {
+  if (!stacked) return { offset: submenuOffset, crossOffset: submenuCrossOffset[size] };
+  return {
+    placement: 'bottom start' as const,
+    offset: stackedSubmenuOffset,
+    crossOffset: rtl ? -stackedSubmenuIndent : stackedSubmenuIndent,
+  };
+}
+
 export function MenuPopover({
+  placement,
   offset,
   crossOffset,
   className,
@@ -180,27 +192,29 @@ export function MenuPopover({
   ...props
 }: MenuPopoverProps) {
   const motion = usePopoverMotion();
-  const { locale } = useLocale();
+  const { locale, direction } = useLocale();
   const size = use(MenuSizeContext);
   const isSubmenu = useSlottedContext(PopoverContext)?.trigger === 'SubmenuTrigger';
+  const stacked = useMediaQuery(stackedSubmenuQuery);
   const themeScope = useThemeScopeProps();
+  const submenu = isSubmenu ? submenuPlacement(size, stacked, direction === 'rtl') : undefined;
 
   return (
     <AriaPopover
       lang={locale}
       {...themeScope}
       {...props}
-      offset={offset ?? (isSubmenu ? submenuOffset : undefined)}
-      crossOffset={crossOffset ?? (isSubmenu ? submenuCrossOffset[size] : undefined)}
+      placement={placement ?? submenu?.placement}
+      offset={offset ?? submenu?.offset}
+      crossOffset={crossOffset ?? submenu?.crossOffset}
       data-slot="menu-popover"
+      data-stacked={(isSubmenu && stacked) || undefined}
       className={composeRenderProps(className, (className) =>
         menuPopoverStyles({ motion, className }),
       )}
     >
       {composeRenderProps(children, (children) => (
-        <SurfaceContext value="surface-container">
-          <ButtonGroupContext value={null}>{children}</ButtonGroupContext>
-        </SurfaceContext>
+        <ButtonGroupContext value={null}>{children}</ButtonGroupContext>
       ))}
     </AriaPopover>
   );
@@ -288,145 +302,53 @@ export function Menu<T extends object = object>({
   );
 }
 
-export type MenuShortcutNamedKey =
-  | 'mod'
-  | 'command'
-  | 'control'
-  | 'option'
-  | 'alt'
-  | 'shift'
-  | 'enter'
-  | 'backspace'
-  | 'delete'
-  | 'escape'
-  | 'tab'
-  | 'space'
-  | 'up'
-  | 'down'
-  | 'left'
-  | 'right';
-
-export type MenuShortcutKey = MenuShortcutNamedKey | (string & {});
-
-type MenuShortcutPlatform = 'apple' | 'other';
-
-const namedKeys = new Map<string, MenuShortcutNamedKey>([
-  ['mod', 'mod'],
-  ['command', 'command'],
-  ['cmd', 'command'],
-  ['meta', 'command'],
-  ['control', 'control'],
-  ['ctrl', 'control'],
-  ['option', 'option'],
-  ['opt', 'option'],
-  ['alt', 'alt'],
-  ['shift', 'shift'],
-  ['enter', 'enter'],
-  ['return', 'enter'],
+const menuKeyLabels: [keyof MenuLabels, keyof KbdLabels][] = [
+  ['ctrl', 'controlShort'],
+  ['alt', 'altShort'],
+  ['shift', 'shiftShort'],
+  ['enter', 'enterShort'],
   ['backspace', 'backspace'],
-  ['delete', 'delete'],
-  ['del', 'delete'],
-  ['escape', 'escape'],
-  ['esc', 'escape'],
-  ['tab', 'tab'],
-  ['space', 'space'],
-  ['up', 'up'],
-  ['arrowup', 'up'],
-  ['down', 'down'],
-  ['arrowdown', 'down'],
-  ['left', 'left'],
-  ['arrowleft', 'left'],
-  ['right', 'right'],
-  ['arrowright', 'right'],
-]);
+  ['delete', 'deleteShort'],
+  ['escape', 'escapeShort'],
+  ['tab', 'tabShort'],
+  ['space', 'spaceShort'],
+];
 
-const appleModifierRank: Partial<Record<MenuShortcutNamedKey, number>> = {
-  control: 0,
-  option: 1,
-  alt: 1,
-  shift: 2,
-  command: 3,
-  mod: 3,
-};
+const noMenuLabels: Partial<MenuLabels> = {};
 
-function keyLabel(key: MenuShortcutKey, platform: MenuShortcutPlatform, t: MenuLabels) {
-  const named = namedKeys.get(key.toLowerCase());
-  if (!named) return key.length === 1 ? key.toUpperCase() : key;
-  const apple = platform === 'apple';
-  const labels: Record<MenuShortcutNamedKey, string> = {
-    mod: apple ? '⌘' : t.ctrl,
-    command: '⌘',
-    control: apple ? '⌃' : t.ctrl,
-    option: apple ? '⌥' : t.alt,
-    alt: apple ? '⌥' : t.alt,
-    shift: apple ? '⇧' : t.shift,
-    enter: apple ? '↩' : t.enter,
-    backspace: apple ? '⌫' : t.backspace,
-    delete: apple ? '⌦' : t.delete,
-    escape: apple ? '⎋' : t.escape,
-    tab: apple ? '⇥' : t.tab,
-    space: t.space,
-    up: '↑',
-    down: '↓',
-    left: '←',
-    right: '→',
-  };
-  return labels[named];
-}
-
-function shortcutRank(key: MenuShortcutKey) {
-  const named = namedKeys.get(key.toLowerCase());
-  return (named && appleModifierRank[named]) ?? 4;
-}
-
-function formatMenuShortcut(
-  keys: readonly MenuShortcutKey[],
-  platform: MenuShortcutPlatform,
-  t: MenuLabels,
-) {
-  if (platform !== 'apple') return keys.map((key) => keyLabel(key, platform, t)).join('+');
-  return keys
-    .map((key, index) => ({ key, index }))
-    .sort((a, b) => shortcutRank(a.key) - shortcutRank(b.key) || a.index - b.index)
-    .map(({ key }) => keyLabel(key, platform, t))
-    .join('');
-}
-
-interface NavigatorWithUAData extends Navigator {
-  userAgentData?: { platform?: string };
-}
-
-function subscribeToPlatform() {
-  return () => {};
-}
-
-function detectPlatform(): MenuShortcutPlatform {
-  const nav = navigator as NavigatorWithUAData;
-  const platform = nav.userAgentData?.platform || nav.userAgent;
-  return /mac|iphone|ipad|ipod/i.test(platform) ? 'apple' : 'other';
-}
-
-function serverPlatform(): MenuShortcutPlatform {
-  return 'other';
-}
-
-function useMenuShortcutPlatform() {
-  return useSyncExternalStore(subscribeToPlatform, detectPlatform, serverPlatform);
+function useShortcutKeyLabels() {
+  const menu = useLabels('menu', noMenuLabels, use(MenuLabelsContext));
+  return useMemo(() => {
+    const labels: Partial<KbdLabels> = {};
+    for (const [from, to] of menuKeyLabels) {
+      const value = menu[from];
+      if (typeof value === 'string') labels[to] = value;
+    }
+    return labels;
+  }, [menu]);
 }
 
 interface MenuShortcutProps {
-  keys: readonly MenuShortcutKey[];
+  keys: readonly KbdKey[];
   className: string;
 }
 
 function MenuShortcut({ keys, className }: MenuShortcutProps) {
-  const t = useLabels('menu', defaultMenuLabels, use(MenuLabelsContext));
-  const platform = useMenuShortcutPlatform();
+  const labels = useShortcutKeyLabels();
+  const platform = useKbdPlatform();
+  const shown = keys.map((key) => (key.length === 1 ? key.toUpperCase() : key));
 
   return (
-    <kbd dir="ltr" data-slot="shortcut" data-platform={platform} className={className}>
-      {formatMenuShortcut(keys, platform, t)}
-    </kbd>
+    <span data-slot="shortcut" data-platform={platform} className={className}>
+      <KbdCombo
+        keys={shown}
+        variant="ghost"
+        size="sm"
+        platform={platform}
+        labels={labels}
+        separator={platform === 'apple' ? undefined : '+'}
+      />
+    </span>
   );
 }
 
@@ -437,13 +359,13 @@ export interface MenuItemProps<T extends object = object> extends Omit<
   tone?: MenuItemTone;
   startIcon?: ReactNode;
   description?: ReactNode;
-  shortcut?: readonly MenuShortcutKey[];
+  shortcut?: readonly KbdKey[];
   children?: ReactNode;
   className?: AriaMenuItemProps<T>['className'];
 }
 
 export function MenuItem<T extends object = object>({
-  tone = 'default',
+  tone = 'neutral',
   startIcon,
   description,
   shortcut,
@@ -462,14 +384,19 @@ export function MenuItem<T extends object = object>({
       data-slot="menu-item"
       data-tone={tone}
       data-size={size}
-      className={composeRenderProps(className, (className, { isSelected, isDisabled }) =>
-        menuStyles({ size, tone, isSelected, isDisabled }).item({ className }),
+      className={composeRenderProps(className, (className, { selectionMode }) =>
+        menuStyles({ size, tone, selectable: selectionMode !== 'none' }).item({ className }),
       )}
     >
-      {({ isSelected, isDisabled, selectionMode, hasSubmenu }) => {
-        const styles = menuStyles({ size, tone, isSelected, isDisabled });
+      {({ isSelected, selectionMode, hasSubmenu }) => {
+        const styles = menuStyles({ size, tone, selectable: selectionMode !== 'none' });
         return (
           <>
+            {selectionMode !== 'none' ? (
+              <span data-slot="check" aria-hidden="true" className={styles.check()}>
+                {isSelected ? <icons.check /> : null}
+              </span>
+            ) : null}
             {startIcon ? (
               <span data-slot="start-icon" aria-hidden="true" className={styles.icon()}>
                 {startIcon}
@@ -489,12 +416,8 @@ export function MenuItem<T extends object = object>({
               <MenuShortcut keys={shortcut} className={styles.shortcut()} />
             ) : null}
             {hasSubmenu ? (
-              <span data-slot="submenu-indicator" aria-hidden="true" className={styles.indicator()}>
+              <span data-slot="submenu-indicator" aria-hidden="true" className={styles.submenu()}>
                 <icons.chevronRight className="rtl:-scale-x-100" />
-              </span>
-            ) : selectionMode !== 'none' ? (
-              <span data-slot="check" aria-hidden="true" className={styles.indicator()}>
-                {isSelected ? <icons.check /> : null}
               </span>
             ) : null}
           </>

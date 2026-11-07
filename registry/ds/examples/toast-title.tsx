@@ -9,7 +9,7 @@ export default function ToastTitle() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
       <Button
-        variant="tonal"
+        variant="soft"
         onPress={() => {
           toast.success('Ayşe Demir can now manage members and settings.', {
             toasterId,
@@ -21,7 +21,7 @@ export default function ToastTitle() {
         Make admin
       </Button>
       <Button
-        variant="outlined"
+        variant="outline"
         onPress={() => {
           toast.error('photo.jpg is larger than the 20 MB limit.', {
             toasterId,

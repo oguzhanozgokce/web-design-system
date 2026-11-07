@@ -6,6 +6,20 @@ import { Button } from '@/registry/ds/ui/button';
 import { ButtonGroup } from '@/registry/ds/ui/button-group';
 import { CopyButton } from '@/registry/ds/ui/copy-button';
 
+function roleStyle(className: string) {
+  const probe = document.createElement('span');
+  probe.className = className;
+  document.querySelector('[data-testid="ds-root"]')!.append(probe);
+  const style = getComputedStyle(probe);
+  const result = { backgroundColor: style.backgroundColor, color: style.color };
+  probe.remove();
+  return result;
+}
+
+function glyph(button: Element, state: 'idle' | 'copied' | 'failed') {
+  return button.querySelector(`[data-glyph="${state}"]`)!;
+}
+
 function mockClipboard() {
   const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
   const write = vi.spyOn(navigator.clipboard, 'write').mockResolvedValue(undefined);
@@ -18,13 +32,66 @@ afterEach(() => {
 });
 
 describe('CopyButton', () => {
-  it('renders an icon button named by its English copy label', async () => {
+  it('renders a small ghost icon button named by its English copy label', async () => {
     mockClipboard();
     const screen = await renderWithDS(<CopyButton value="ws_8f3a21c9" />);
     const button = screen.getByRole('button', { name: 'Copy' });
-    await expect.element(button).toHaveAttribute('data-variant', 'text');
+    await expect.element(button).toHaveAttribute('data-slot', 'icon-button');
+    await expect.element(button).toHaveAttribute('data-variant', 'ghost');
+    await expect.element(button).toHaveAttribute('data-tone', 'neutral');
+    await expect.element(button).toHaveAttribute('data-size', 'sm');
     await expect.element(button).toHaveAttribute('data-status', 'idle');
+    expect(button.element().getBoundingClientRect().width).toBe(32);
     await expect.element(page.getByRole('status')).toBeEmptyDOMElement();
+  });
+
+  it('morphs the copy glyph into a green check and back', async () => {
+    mockClipboard();
+    const screen = await renderWithDS(<CopyButton value="ws_8f3a21c9" timeout={400} />);
+    const button = screen.getByRole('button', { name: 'Copy' });
+    await expect.element(button).toBeVisible();
+    const copyGlyph = glyph(button.element(), 'idle');
+    const checkGlyph = glyph(button.element(), 'copied');
+    expect(getComputedStyle(copyGlyph).opacity).toBe('1');
+    expect(getComputedStyle(checkGlyph).opacity).toBe('0');
+    expect(getComputedStyle(checkGlyph).scale).toBe('0.5');
+    expect(getComputedStyle(checkGlyph).transitionDuration).toContain('0.15s');
+
+    await button.click();
+    await expect.element(button).toHaveAttribute('data-status', 'copied');
+    await expect.poll(() => getComputedStyle(checkGlyph).opacity).toBe('1');
+    await expect.poll(() => getComputedStyle(checkGlyph).scale).toBe('1');
+    await expect.poll(() => getComputedStyle(copyGlyph).scale).toBe('0.5');
+    expect(getComputedStyle(checkGlyph).color).toBe(roleStyle('text-success').color);
+
+    await expect.element(button).toHaveAttribute('data-status', 'idle');
+    await expect.poll(() => getComputedStyle(copyGlyph).opacity).toBe('1');
+  });
+
+  it('keeps the check in the label colour on a solid button', async () => {
+    mockClipboard();
+    const screen = await renderWithDS(<CopyButton value="ws_8f3a21c9" variant="solid" />);
+    const button = screen.getByRole('button', { name: 'Copy' });
+    await button.click();
+    await expect.element(button).toHaveAttribute('data-status', 'copied');
+    expect(getComputedStyle(glyph(button.element(), 'copied')).color).toBe(
+      roleStyle('text-on-primary-solid').color,
+    );
+  });
+
+  it('cross-fades without scaling when motion is reduced', async () => {
+    mockClipboard();
+    const screen = await renderWithDS(<CopyButton value="ws_8f3a21c9" />, {
+      provider: { motion: 'reduced' },
+    });
+    const button = screen.getByRole('button', { name: 'Copy' });
+    await expect.element(button).toBeVisible();
+    const checkGlyph = glyph(button.element(), 'copied');
+    expect(getComputedStyle(checkGlyph).scale).not.toBe('0.5');
+    expect(getComputedStyle(checkGlyph).transitionProperty).toBe('opacity');
+    await button.click();
+    await expect.poll(() => getComputedStyle(checkGlyph).opacity).toBe('1');
+    expect(getComputedStyle(glyph(button.element(), 'idle')).scale).not.toBe('0.5');
   });
 
   it('copies a string, shows the check and announces it', async () => {
@@ -90,6 +157,10 @@ describe('CopyButton', () => {
       'data-status',
       'failed',
     );
+    await expect.element(button).toHaveAttribute('data-tone', 'error');
+    await expect
+      .poll(() => getComputedStyle(button.element()).color)
+      .toBe(roleStyle('text-error').color);
   });
 
   it('does not treat an error thrown by onCopy as a failed copy', async () => {
@@ -143,7 +214,11 @@ describe('CopyButton', () => {
       </CopyButton>,
     );
     const button = screen.getByRole('button', { name: 'Copy invite link' });
-    await expect.element(button).toHaveAttribute('data-variant', 'outlined');
+    await expect.element(button).toHaveAttribute('data-slot', 'button');
+    await expect.element(button).toHaveAttribute('data-variant', 'soft');
+    await expect.element(button).toHaveAttribute('data-tone', 'neutral');
+    await expect.element(button).toHaveAttribute('data-size', 'sm');
+    expect(button.element().getBoundingClientRect().height).toBe(32);
 
     await button.click();
     await expect.element(screen.getByRole('button', { name: 'Copied' })).toBeInTheDocument();
@@ -170,14 +245,14 @@ describe('CopyButton', () => {
     await button.click({ force: true });
     expect(value).toHaveBeenCalledOnce();
 
-    finish('https://app.example.com/s/q3-report');
+    finish('https://app.example.com/s/photos-2026');
     await expect.element(button).not.toHaveAttribute('data-pending');
     await expect.element(button).toHaveAttribute('data-status', 'copied');
-    expect(onCopy).toHaveBeenCalledWith('https://app.example.com/s/q3-report');
+    expect(onCopy).toHaveBeenCalledWith('https://app.example.com/s/photos-2026');
 
     const item = write.mock.calls[0][0][0];
     const blob = await item.getType('text/plain');
-    expect(await blob.text()).toBe('https://app.example.com/s/q3-report');
+    expect(await blob.text()).toBe('https://app.example.com/s/photos-2026');
   });
 
   it('falls back to writeText when a clipboard item cannot be written', async () => {
@@ -237,9 +312,13 @@ describe('CopyButton', () => {
     );
     await screen.getByRole('button', { name: 'Copy ID' }).click();
     await expect.element(page.getByRole('status')).toHaveTextContent('Couldn’t copy');
+    const failed = screen.getByRole('button', { name: 'Couldn’t copy' });
+    await expect.element(failed).toHaveAttribute('data-status', 'failed');
+    await expect.element(failed).toHaveAttribute('data-tone', 'error');
+    await failed.unhover();
     await expect
-      .element(screen.getByRole('button', { name: 'Couldn’t copy' }))
-      .toHaveAttribute('data-status', 'failed');
+      .poll(() => getComputedStyle(failed.element()).backgroundColor)
+      .toBe(roleStyle('bg-error-soft').backgroundColor);
     expect(onCopyError).toHaveBeenCalledWith(error);
     expect(onCopy).not.toHaveBeenCalled();
   });
@@ -317,8 +396,8 @@ describe('CopyButton', () => {
     await renderWithDS(
       <ModalOverlay isOpen>
         <Modal>
-          <Dialog aria-label="Share report">
-            <CopyButton value="https://app.example.com/s/q3" aria-label="Copy share link" />
+          <Dialog aria-label="Share album">
+            <CopyButton value="https://app.example.com/s/photos" aria-label="Copy share link" />
           </Dialog>
         </Modal>
       </ModalOverlay>,
@@ -329,16 +408,17 @@ describe('CopyButton', () => {
     expect(status.element().closest('[aria-hidden="true"], [inert]')).toBeNull();
   });
 
-  it('fits a connected button group and follows its variant', async () => {
+  it('fits an attached button group and follows its variant and size', async () => {
     mockClipboard();
     const screen = await renderWithDS(
-      <ButtonGroup variant="connected" buttonVariant="tonal">
+      <ButtonGroup aria-label="Project" buttonVariant="soft" size="md">
         <Button>Open project</Button>
         <CopyButton value="DOC-2041" aria-label="Copy project number" />
       </ButtonGroup>,
     );
     const button = screen.getByRole('button', { name: 'Copy project number' });
-    await expect.element(button).toHaveAttribute('data-variant', 'tonal');
+    await expect.element(button).toHaveAttribute('data-variant', 'soft');
+    await expect.element(button).toHaveAttribute('data-size', 'md');
     expect(button.element().nextElementSibling).toBeNull();
     const end = getComputedStyle(button.element()).borderTopRightRadius;
     const start = getComputedStyle(button.element()).borderTopLeftRadius;
@@ -353,11 +433,11 @@ describe('CopyButton', () => {
     }[]) {
       const screen = await renderWithDS(
         <div className="flex flex-wrap items-center gap-3 p-4">
-          {(['text', 'outlined', 'tonal', 'filled', 'elevated'] as const).map((variant) => (
+          {(['ghost', 'outline', 'soft', 'solid'] as const).map((variant) => (
             <CopyButton key={variant} value="ws_8f3a21c9" variant={variant} />
           ))}
           <CopyButton value="https://app.example.com/invite/7Q4M">Copy invite link</CopyButton>
-          <CopyButton value="ws_8f3a21c9" variant="tonal" size="sm">
+          <CopyButton value="ws_8f3a21c9" variant="outline" size="md">
             Copy ID
           </CopyButton>
           <CopyButton value="ws_8f3a21c9" isDisabled />

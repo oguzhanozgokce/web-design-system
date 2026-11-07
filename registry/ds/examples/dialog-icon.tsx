@@ -5,7 +5,7 @@ import { Dialog, DialogFooter, DialogHeader, DialogTrigger } from '@/registry/ds
 export default function DialogIcon() {
   return (
     <DialogTrigger>
-      <Button variant="tonal" startIcon={<SyncIcon />}>
+      <Button variant="soft" startIcon={<SyncIcon />}>
         Sync paused
       </Button>
       <Dialog size="sm">
@@ -15,7 +15,7 @@ export default function DialogIcon() {
           description="Files you changed while sync was paused upload as soon as it resumes."
         />
         <DialogFooter>
-          <Button slot="close" variant="text">
+          <Button slot="close" variant="soft">
             Later
           </Button>
           <Button slot="close">Resume</Button>

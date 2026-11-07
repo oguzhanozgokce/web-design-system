@@ -13,7 +13,6 @@ export default function SliderVertical() {
         <Slider
           key={band.label}
           orientation="vertical"
-          size="md"
           label={band.label}
           defaultValue={band.value}
           minValue={0}

@@ -2,7 +2,7 @@
   "name": "motion",
   "type": "registry:lib",
   "title": "Motion tokens",
-  "description": "Spatial and effect springs, durations and easings shared with the Compose design system.",
+  "description": "Springs for gestures, the fluid and out-quad easings and durations, and the motion preference types.",
   "category": "foundations",
   "files": ["lib/motion.ts"]
 }

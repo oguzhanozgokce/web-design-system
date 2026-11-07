@@ -1,6 +1,6 @@
 ---
 title: Checkbox
-description: Material 3 checkbox with an animated check mark, indeterminate state, labels and descriptions, plus a checkbox group with validation and a built-in select-all checkbox.
+description: Checkbox with an animated check, indeterminate state and descriptions, plus a group with validation and select-all.
 ---
 
 <ComponentPreview name="checkbox-demo" />
@@ -23,6 +23,13 @@ import { Checkbox, CheckboxGroup } from '@/components/ds/checkbox';
 ```
 
 ## Examples
+
+### Sizes
+
+`md` (an 18px box) is the default. `sm` (16px) fits tables, dense lists and the selection column of
+a grid. Set `size` on a `CheckboxGroup` to size every checkbox in it.
+
+<ComponentPreview name="checkbox-sizes" />
 
 ### Description
 
@@ -59,20 +66,22 @@ for a label that names what it selects.
 
 Outside a group, drive `isIndeterminate` yourself. This is the pattern for table headers: the
 header checkbox is mixed while some rows are selected. Checkboxes without a visible label need an
-`aria-label`.
+`aria-label`. The table uses `size="sm"`.
 
 <ComponentPreview name="checkbox-indeterminate" align="stretch" />
 
 ### Validation
 
 Set `isInvalid` and `errorMessage` on the group, or pass `validate` and let React Aria run it.
-The boxes turn to the error colour and the message is linked to every checkbox.
+The boxes take the error border, a checked box fills with the solid error colour, and the message is
+linked to every checkbox.
 
 <ComponentPreview name="checkbox-invalid" />
 
 ### Disabled
 
-`isDisabled` works on a single checkbox or on the whole group.
+`isDisabled` works on a single checkbox or on the whole group. A disabled checkbox is drawn at half
+opacity with a not-allowed cursor and keeps its checked state visible.
 
 <ComponentPreview name="checkbox-disabled" />
 
@@ -85,6 +94,7 @@ The boxes turn to the error colour and the message is linked to every checkbox.
 | `children`        | `ReactNode`                                                |         |
 | `description`     | `ReactNode`                                                |         |
 | `errorMessage`    | `ReactNode \| (validation: ValidationResult) => ReactNode` |         |
+| `size`            | `'sm' \| 'md'`                                             | `'md'`  |
 | `isSelected`      | `boolean`                                                  |         |
 | `defaultSelected` | `boolean`                                                  | `false` |
 | `onChange`        | `(isSelected: boolean) => void`                            |         |
@@ -106,6 +116,7 @@ through, such as `name`, `validate`, `inputRef` and `slot="selection"` inside a 
 | `description`  | `ReactNode`                                                |              |
 | `errorMessage` | `ReactNode \| (validation: ValidationResult) => ReactNode` |              |
 | `orientation`  | `'vertical' \| 'horizontal'`                               | `'vertical'` |
+| `size`         | `'sm' \| 'md'`                                             |              |
 | `value`        | `string[]`                                                 |              |
 | `defaultValue` | `string[]`                                                 | `[]`         |
 | `onChange`     | `(value: string[]) => void`                                |              |
@@ -114,8 +125,8 @@ through, such as `name`, `validate`, `inputRef` and `slot="selection"` inside a 
 | `isInvalid`    | `boolean`                                                  | `false`      |
 | `isRequired`   | `boolean`                                                  | `false`      |
 
-Every other [React Aria CheckboxGroup](https://react-aria.adobe.com/CheckboxGroup) prop is passed
-through.
+A checkbox's own `size` wins over the group's. Every other
+[React Aria CheckboxGroup](https://react-aria.adobe.com/CheckboxGroup) prop is passed through.
 
 ### SelectAllCheckbox
 
@@ -131,12 +142,12 @@ when rendered outside a `CheckboxGroup`.
 
 ### Data attributes
 
-Checkbox root (`data-slot="checkbox"`): `data-selected`, `data-indeterminate`, `data-disabled`,
-`data-invalid`, `data-required`, `data-readonly`; `data-select-all` on the select-all checkbox.
-The clickable part (`data-slot="target"`) also has `data-hovered`, `data-pressed` and
-`data-focus-visible`. Parts: `"control"`, `"state-layer"`, `"box"` (with
-`data-state="checked" | "indeterminate" | "unchecked"`), `"mark"`, `"content"`, `"label"`,
-`"required"`, `"description"`, `"error"`.
+Checkbox root (`data-slot="checkbox"`): `data-size`, `data-selected`, `data-indeterminate`,
+`data-disabled`, `data-invalid`, `data-required`, `data-readonly`; `data-select-all` on the
+select-all checkbox. The clickable part (`data-slot="target"`) also has `data-hovered`,
+`data-pressed` and `data-focus-visible`. Parts: `"control"`, `"box"` (with
+`data-state="checked" | "indeterminate" | "unchecked"` and `data-focus-visible`), `"mark"`,
+`"content"`, `"label"`, `"required"`, `"description"`, `"error"`.
 
 Group root (`data-slot="checkbox-group"`): `data-orientation`, `data-disabled`, `data-readonly`,
 `data-invalid`, `data-required`. Parts: `"header"`, `"label"`, `"required"`, `"description"`,
@@ -158,8 +169,11 @@ Text `SelectAllCheckbox` writes on its own. Pass `labels`, or set it app-wide wi
   toggle, and the label and description wired with `aria-labelledby` and `aria-describedby`. An
   explicit `aria-label` or `aria-labelledby` always wins over the visible label.
 - Indeterminate sets the input's `indeterminate` property, so screen readers announce "mixed".
-- The click target is the box, its 40px state layer, the label and the description. Empty space
+- The click target is the box, a 24px area around it, the label and the description. Empty space
   beside the label does not toggle the checkbox.
-- The check mark draws with the effect spring and appears instantly with reduced motion, from
-  either the system setting or `DSProvider motion`.
+- The focus ring is a 2px outline around the box, in the error colour while the checkbox is
+  invalid. The box border is the full `outline` role, so the unchecked box keeps a 3:1 edge.
+- On check, the fill scales in and the mark draws itself over 150ms; the box presses in slightly
+  while held. With reduced motion, from the system setting or `DSProvider motion`, the fill and the
+  mark appear instantly and the box does not press in.
 - Contrast is checked with axe in light, dark and RTL by `checkbox.test.tsx`.

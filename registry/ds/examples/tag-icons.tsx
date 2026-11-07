@@ -14,7 +14,7 @@ export default function TagIcons() {
         Expiring soon
       </Tag>
       <Tag icon={<LockIcon />}>Private</Tag>
-      <Tag tone="primary" variant="outlined" dot="pulse">
+      <Tag tone="primary" variant="outline" dot="pulse">
         Syncing
       </Tag>
     </div>

@@ -17,11 +17,12 @@ export default function CheckboxIndeterminate() {
   const allSelected = selected.length === files.length;
 
   return (
-    <table className="w-full max-w-md text-start text-body-md">
-      <thead className="text-label-lg text-on-surface-variant">
-        <tr className="border-b border-outline-variant">
-          <th className="w-12 py-3 ps-3 text-start">
+    <table className="w-full max-w-md text-start text-sm text-on-surface">
+      <thead className="text-xs font-medium text-on-surface-variant">
+        <tr className="border-b border-outline-subtle">
+          <th className="w-11 py-2.5 ps-3 text-start">
             <Checkbox
+              size="sm"
               aria-label="Select all files"
               isSelected={allSelected}
               isIndeterminate={selected.length > 0 && !allSelected}
@@ -30,16 +31,17 @@ export default function CheckboxIndeterminate() {
               }
             />
           </th>
-          <th className="py-3 pe-3 text-start font-medium">Name</th>
-          <th className="py-3 pe-3 text-start font-medium">Type</th>
-          <th className="py-3 pe-3 text-end font-medium">Size</th>
+          <th className="py-2.5 pe-3 text-start font-medium">Name</th>
+          <th className="py-2.5 pe-3 text-start font-medium">Type</th>
+          <th className="py-2.5 pe-3 text-end font-medium">Size</th>
         </tr>
       </thead>
       <tbody>
         {files.map((file) => (
-          <tr key={file.name} className="border-b border-outline-variant last:border-0">
-            <td className="py-3 ps-3">
+          <tr key={file.name} className="border-b border-outline-subtle last:border-0">
+            <td className="py-2.5 ps-3">
               <Checkbox
+                size="sm"
                 aria-label={`Select ${file.name}`}
                 isSelected={selected.includes(file.name)}
                 onChange={(isSelected) =>
@@ -51,9 +53,9 @@ export default function CheckboxIndeterminate() {
                 }
               />
             </td>
-            <td className="py-3 pe-3">{file.name}</td>
-            <td className="py-3 pe-3">{file.type}</td>
-            <td className="py-3 pe-3 text-end whitespace-nowrap tabular-digits">
+            <td className="py-2.5 pe-3">{file.name}</td>
+            <td className="py-2.5 pe-3 text-on-surface-variant">{file.type}</td>
+            <td className="py-2.5 pe-3 text-end whitespace-nowrap text-on-surface-variant tabular-digits">
               {megabytes.format(file.size)}
             </td>
           </tr>

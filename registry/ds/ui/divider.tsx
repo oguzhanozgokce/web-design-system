@@ -9,16 +9,22 @@ export type DividerInset = 'none' | 'start' | 'middle';
 
 export type DividerLabelPosition = 'center' | 'start' | 'end';
 
+export type DividerVariant = 'subtle' | 'strong';
+
 export const dividerStyles = tv({
   slots: {
-    root: 'shrink-0 self-stretch border-outline-variant',
-    line: 'shrink grow border-outline-variant',
-    label: 'shrink-0 text-label-md text-on-surface-variant',
+    root: 'shrink-0 self-stretch border-0',
+    line: 'shrink grow forced-color-adjust-none forced-colors:bg-[CanvasText]',
+    label: 'shrink-0 text-xs text-on-surface-variant',
   },
   variants: {
+    variant: {
+      subtle: { line: 'bg-outline-subtle' },
+      strong: { line: 'bg-outline-variant' },
+    },
     orientation: {
-      horizontal: { line: 'min-w-4 border-t' },
-      vertical: { line: 'min-h-2 border-s' },
+      horizontal: { line: 'h-px min-w-4' },
+      vertical: { line: 'min-h-2 w-px' },
     },
     inset: {
       none: '',
@@ -31,10 +37,16 @@ export const dividerStyles = tv({
     },
   },
   compoundVariants: [
-    { labelled: false, orientation: 'horizontal', class: { root: 'h-0 border-t' } },
-    { labelled: false, orientation: 'vertical', class: { root: 'w-0 border-s' } },
-    { labelled: true, orientation: 'horizontal', class: { root: 'flex-row gap-4' } },
-    { labelled: true, orientation: 'vertical', class: { root: 'flex-col gap-2' } },
+    { labelled: false, variant: 'subtle', class: { root: 'bg-outline-subtle' } },
+    { labelled: false, variant: 'strong', class: { root: 'bg-outline-variant' } },
+    {
+      labelled: false,
+      class: { root: 'forced-color-adjust-none forced-colors:bg-[CanvasText]' },
+    },
+    { labelled: false, orientation: 'horizontal', class: { root: 'h-px' } },
+    { labelled: false, orientation: 'vertical', class: { root: 'w-px' } },
+    { labelled: true, orientation: 'horizontal', class: { root: 'flex-row', label: 'px-3' } },
+    { labelled: true, orientation: 'vertical', class: { root: 'flex-col', label: 'py-2' } },
     {
       orientation: 'horizontal',
       inset: 'start',
@@ -57,6 +69,7 @@ export const dividerStyles = tv({
     },
   ],
   defaultVariants: {
+    variant: 'subtle',
     orientation: 'horizontal',
     inset: 'none',
     labelled: false,
@@ -67,6 +80,7 @@ export interface DividerProps extends Omit<
   SeparatorProps,
   'className' | 'elementType' | 'render' | 'children'
 > {
+  variant?: DividerVariant;
   inset?: DividerInset;
   labelPosition?: DividerLabelPosition;
   children?: ReactNode;
@@ -74,6 +88,7 @@ export interface DividerProps extends Omit<
 }
 
 export function Divider({
+  variant = 'subtle',
   orientation = 'horizontal',
   inset = 'none',
   labelPosition = 'center',
@@ -83,9 +98,10 @@ export function Divider({
 }: DividerProps) {
   const labelId = useId();
   const labelled = children != null && children !== false;
-  const styles = dividerStyles({ orientation, inset, labelled });
+  const styles = dividerStyles({ variant, orientation, inset, labelled });
   const rootProps = {
     'data-slot': 'divider',
+    'data-variant': variant,
     'data-orientation': orientation,
     'data-inset': inset,
     className: styles.root({ className }),

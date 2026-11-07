@@ -22,6 +22,9 @@ export const previewThemes: {
   { id: 'mono', name: 'Monochrome', seed: '#5b4bff', paletteStyle: 'monochrome' },
 ];
 
+export const swatchRadio =
+  'focus-ring grid shrink-0 cursor-pointer place-items-center rounded-full transition-shadow duration-150 ease-out data-[hovered]:not-data-[selected]:inset-ring-2 data-[hovered]:not-data-[selected]:inset-ring-outline-variant data-[selected]:inset-ring-2 data-[selected]:inset-ring-on-surface';
+
 export function usePreviewTheme() {
   const [id, setId] = useLocalStorageState('ds-preview-theme', 'indigo');
   const theme = previewThemes.find((item) => item.id === id) ?? previewThemes[0];
@@ -43,10 +46,16 @@ export function PreviewThemeScope({
   );
 }
 
-export function PreviewThemePicker({ size = 'md' }: { size?: 'sm' | 'md' }) {
+export function PreviewThemePicker({
+  size = 'md',
+  className,
+}: {
+  size?: 'sm' | 'md';
+  className?: string;
+}) {
   const [theme, setTheme] = usePreviewTheme();
   const outer = size === 'sm' ? 'size-7' : 'size-9';
-  const inner = size === 'sm' ? 'size-5' : 'size-7';
+  const inner = size === 'sm' ? 'size-4.5' : 'size-6';
 
   return (
     <RadioGroup
@@ -54,18 +63,15 @@ export function PreviewThemePicker({ size = 'md' }: { size?: 'sm' | 'md' }) {
       orientation="horizontal"
       value={theme.id}
       onChange={setTheme}
-      className="flex flex-wrap items-center gap-1.5"
+      className={cn('flex flex-wrap items-center', size === 'sm' ? 'gap-0' : 'gap-1', className)}
     >
       {previewThemes.map((item) => (
         <Radio
           key={item.id}
           value={item.id}
           aria-label={item.name}
-          className={cn(
-            'grid cursor-pointer place-items-center rounded-full focus-ring outline-offset-2',
-            'data-[selected]:ring-2 data-[selected]:ring-on-surface data-[selected]:ring-offset-2 data-[selected]:ring-offset-surface',
-            outer,
-          )}
+          data-theme-id={item.id}
+          className={cn(swatchRadio, outer)}
         >
           <DynamicTheme
             seed={item.seed}
@@ -74,7 +80,7 @@ export function PreviewThemePicker({ size = 'md' }: { size?: 'sm' | 'md' }) {
             className={cn(
               'overflow-clip rounded-full',
               item.paletteStyle === 'monochrome'
-                ? 'bg-[linear-gradient(135deg,var(--primary)_50%,var(--on-primary)_50%)] ring-1 ring-outline-variant'
+                ? 'bg-[linear-gradient(135deg,var(--primary)_50%,var(--on-primary)_50%)] inset-ring-1 inset-ring-outline-variant'
                 : 'bg-primary-container',
               inner,
             )}

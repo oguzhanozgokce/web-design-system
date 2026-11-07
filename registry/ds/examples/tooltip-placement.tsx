@@ -13,7 +13,7 @@ export default function TooltipPlacement() {
     <div className="flex flex-wrap items-center justify-center gap-3">
       {placements.map(({ placement, label }) => (
         <TooltipTrigger key={placement} delay={0}>
-          <Button variant="outlined">{label}</Button>
+          <Button variant="outline">{label}</Button>
           <Tooltip placement={placement} showArrow>
             Synced 2 minutes ago
           </Tooltip>

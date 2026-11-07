@@ -35,7 +35,7 @@ const questions = [
 export default function DisclosureFaq() {
   return (
     <section aria-labelledby="faq-heading" className="flex w-full max-w-2xl flex-col gap-6">
-      <h2 id="faq-heading" className="text-headline-sm text-on-surface">
+      <h2 id="faq-heading" className="text-2xl font-semibold tracking-tight text-on-surface">
         Frequently asked questions
       </h2>
       <Accordion variant="plain" size="lg">

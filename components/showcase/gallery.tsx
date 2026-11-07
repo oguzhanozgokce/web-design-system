@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { GalleryEntry } from '@/lib/gallery';
 import { SearchIcon } from '@/registry/ds/lib/icons';
-import { effectSpring, spatialSpring } from '@/registry/ds/lib/motion';
 import { cn } from '@/registry/ds/lib/utils';
 import { Chip, ChipGroup } from '@/registry/ds/ui/chip';
 import { EmptyState } from '@/registry/ds/ui/empty-state';
 import { SearchField } from '@/registry/ds/ui/search-field';
+import { entrance } from '@/components/showcase/motion';
 import { PreviewThemePicker, PreviewThemeScope } from '@/components/showcase/preview-theme';
 import { galleryPreviews } from '@/components/showcase/previews';
 
@@ -37,11 +37,9 @@ function FitPreview({ children }: { children: ReactNode }) {
   return (
     <div ref={ref} className="relative size-full overflow-clip">
       <div
-        className="absolute start-1/2 top-1/2 flex items-center justify-center rtl:translate-x-1/2"
-        style={{
-          width: stageWidth,
-          transform: `translate(-50%, -50%) scale(${scale})`,
-        }}
+        data-slot="gallery-stage"
+        className="absolute inset-s-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rtl:translate-x-1/2"
+        style={{ width: stageWidth, scale: String(scale) }}
       >
         {children}
       </div>
@@ -55,22 +53,24 @@ function GalleryTile({ entry }: { entry: GalleryEntry }) {
   return (
     <motion.li
       layout
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96 }}
+      exit={{ opacity: 0, scale: 0.97 }}
       transition={{
-        layout: spatialSpring('medium'),
-        y: spatialSpring('medium'),
-        opacity: effectSpring('medium'),
-        scale: effectSpring('fast'),
+        layout: entrance(0, 0.35),
+        y: entrance(0, 0.35),
+        opacity: { duration: 0.2, ease: 'easeOut' },
+        scale: { duration: 0.15, ease: 'easeOut' },
       }}
-      className="group relative flex flex-col gap-3"
+      data-gallery-tile={entry.name}
+      className="group relative flex flex-col gap-2.5"
     >
       <div
         inert
-        className="aspect-[16/11] overflow-clip rounded-xl border border-outline-variant bg-surface-container-low transition-[background-color,border-color,box-shadow] duration-200 ease-standard group-hover:border-outline group-hover:bg-surface-container group-hover:shadow-elevation-1 group-has-[a:focus-visible]:border-outline"
+        data-slot="gallery-frame"
+        className="aspect-[16/11] overflow-clip rounded-container border border-outline-subtle bg-surface-raised transition-[border-color,box-shadow] duration-200 ease-out group-hover:shadow-md group-has-[a:focus-visible]:border-outline-variant"
       >
-        <div className="size-full transition-transform duration-300 ease-standard motion-safe:group-hover:scale-[1.04]">
+        <div className="size-full transition-transform duration-300 ease-fluid motion-safe:group-hover:scale-[1.03]">
           <FitPreview>
             {Preview ? (
               <PreviewThemeScope>
@@ -82,7 +82,7 @@ function GalleryTile({ entry }: { entry: GalleryEntry }) {
       </div>
       <Link
         href={entry.href}
-        className="w-fit text-title-sm text-on-surface outline-none after:absolute after:inset-0 after:rounded-xl after:content-[''] focus-visible:after:outline-3 focus-visible:after:outline-offset-2 focus-visible:after:outline-secondary"
+        className="w-fit ps-1 text-sm font-medium text-on-surface outline-none after:absolute after:inset-0 after:rounded-container after:content-[''] focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
       >
         {entry.title}
       </Link>
@@ -98,7 +98,7 @@ export function GalleryGrid({
   className?: string;
 }) {
   return (
-    <ul className={cn('grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 lg:grid-cols-4', className)}>
+    <ul className={cn('grid grid-cols-2 gap-x-4 gap-y-5 md:grid-cols-3 lg:grid-cols-4', className)}>
       <AnimatePresence mode="popLayout" initial={false}>
         {entries.map((entry) => (
           <GalleryTile key={entry.name} entry={entry} />
@@ -125,7 +125,7 @@ export function ComponentGallery({
   );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <ChipGroup
           aria-label="Category"
@@ -152,15 +152,17 @@ export function ComponentGallery({
           className="w-full lg:w-72"
         />
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-label-lg text-on-surface-variant">Preview colour</span>
-        <PreviewThemePicker size="sm" />
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-outline-subtle pt-4">
+        <p role="status" className="text-sm text-on-surface-variant tabular-digits">
+          {visible.length === entries.length
+            ? `${entries.length} components`
+            : `${visible.length} of ${entries.length} components`}
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-on-surface-variant">Preview colour</span>
+          <PreviewThemePicker size="sm" />
+        </div>
       </div>
-      <p role="status" className="text-body-sm text-on-surface-variant">
-        {visible.length === entries.length
-          ? `${entries.length} components`
-          : `${visible.length} of ${entries.length} components`}
-      </p>
       {visible.length ? (
         <GalleryGrid entries={visible} />
       ) : (

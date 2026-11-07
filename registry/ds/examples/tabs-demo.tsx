@@ -8,13 +8,13 @@ export default function TabsDemo() {
         <Tab id="activity">Activity</Tab>
         <Tab id="settings">Settings</Tab>
       </TabList>
-      <TabPanel id="overview" className="text-body-md text-on-surface-variant">
+      <TabPanel id="overview" className="text-sm text-on-surface-variant">
         A summary of the project and the people working on it.
       </TabPanel>
-      <TabPanel id="activity" className="text-body-md text-on-surface-variant">
+      <TabPanel id="activity" className="text-sm text-on-surface-variant">
         Recent changes and comments, newest first.
       </TabPanel>
-      <TabPanel id="settings" className="text-body-md text-on-surface-variant">
+      <TabPanel id="settings" className="text-sm text-on-surface-variant">
         Rename the project, change who can see it or archive it.
       </TabPanel>
     </Tabs>

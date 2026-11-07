@@ -2,7 +2,7 @@
   "name": "popover",
   "type": "registry:ui",
   "title": "Popover",
-  "description": "Material 3 popover surface anchored to a trigger, with placement, an optional arrow, motion that grows from the trigger, and a dialog part with a title and close button for small forms.",
+  "description": "Floating panel anchored to a trigger, with placement, an optional arrow, motion that grows from the trigger, and a dialog part with a title, a close button and two paddings.",
   "category": "overlays",
   "files": ["ui/popover.tsx"]
 }

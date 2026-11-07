@@ -1,20 +1,57 @@
 ---
 title: Color
-description: The Material 3 colour roles and how to pair them.
+description: The colour roles, which layer each surface sits on, and where the accent may paint.
 ---
 
-Use the role names, never raw colours. A role always comes with its `on-` pair, which is the only
-colour guaranteed to be readable on it.
+Use the role names, never raw colours. Every fill comes with the text role that is readable on it,
+and every role switches with the theme, so components never need `dark:`.
 
 <PaletteSwatches />
 
+## Layers
+
+| Role              | Used for                                               |
+| ----------------- | ------------------------------------------------------ |
+| `canvas`          | The page                                               |
+| `surface-raised`  | Cards, fields, accordion surfaces, raised banners      |
+| `surface-overlay` | Popovers, menus, select lists, dialogs, sheets, toasts |
+| `surface-segment` | The selected pill of a segmented control or pill tabs  |
+| `surface-thumb`   | Switch and slider thumbs                               |
+
+A raised thing is white on a grey page in light mode and lighter than the page in dark mode, so
+the layers read the same way in both themes. Text on every layer is `on-surface`, with
+`on-surface-variant` for secondary text.
+
+## Fills
+
+- **Solid** (`bg-primary-solid text-on-primary-solid`, and the same for `error`, `success`,
+  `warning` and `info`): the main action, checked checkboxes, radios and switches, slider ranges,
+  progress bars and solid badges. Solid fills keep their saturated colour in dark mode.
+  `bg-{tone}-solid-hover` is the hovered and pressed fill.
+- **Soft** (`bg-primary-soft text-on-primary-soft`, `bg-neutral-soft text-on-surface`): quiet
+  actions, banners, tags and selected rows. They are translucent, so they work on any layer.
+  `-soft-hover` is one step stronger.
+- **Inverse** (`bg-inverse-surface text-inverse-on-surface`): tooltips and the neutral solid fill.
+
+## Lines
+
+- `outline-variant` borders fields and outline buttons.
+- `outline` borders checkboxes and radios, which need a 3:1 edge.
+- `outline-subtle` draws hairlines: card borders, dividers and the edges of sheets.
+- `backdrop` sits behind dialogs and sheets.
+
+## Where the accent paints
+
+`primary` appears on the main action, checked controls, slider and progress fills, the selected
+tab indicator, the focus ring, the focused field border, accent links and selected list rows.
+Everything else is neutral. Text-coloured accents (links, ghost and outline labels, the focus ring)
+use `text-primary`, which is lighter in dark mode and stays readable on dark surfaces.
+
 ## Rules
 
-- Pair roles: `bg-primary text-on-primary`, `bg-secondary-container text-on-secondary-container`.
-- Surfaces climb by emphasis: `surface-container-lowest` → `-low` → (default) → `-high` → `-highest`.
-  Cards and panels sit one level above what they are on.
-- `outline-variant` draws dividers and card borders, `outline` draws input borders.
-- Disabled content is `on-surface` at 38%, disabled containers `on-surface` at 12%.
-- `success`, `warning` and `info` are extensions harmonised with the seed. Use them for status, not
+- Pair a fill with its text role: `bg-error-soft` with `text-on-error-soft`, `bg-surface-raised`
+  with `text-on-surface`.
+- Disabled controls keep their colours and drop to 50% opacity with a not-allowed cursor.
+- `success`, `warning` and `info` are harmonised with the seed. Use them for status, not
   decoration.
 - No hex value appears outside `tokens.css`. `npm run check:ds` fails the build if one does.

@@ -6,12 +6,12 @@ import { ContentState, type ContentStatus } from '@/registry/ds/ui/content-state
 
 interface Project {
   id: string;
-  follower: string;
+  owner: string;
 }
 
 const projects: Project[] = [
-  { id: 'DOC-2048', follower: 'Nova Corp' },
-  { id: 'DOC-2049', follower: 'Globex' },
+  { id: 'Garden', owner: 'Ayşe' },
+  { id: 'Kitchen', owner: 'Jonas' },
 ];
 
 function ProjectList({ items }: { items: Project[] }) {
@@ -19,7 +19,7 @@ function ProjectList({ items }: { items: Project[] }) {
     <ul aria-label="Projects">
       {items.map((project) => (
         <li key={project.id}>
-          {project.id} · {project.follower}
+          {project.id} · {project.owner}
         </li>
       ))}
     </ul>
@@ -62,7 +62,7 @@ describe('ContentState', () => {
       <ContentState data={projects}>{(items) => <ProjectList items={items} />}</ContentState>,
     );
     await expect.element(screen.getByRole('list', { name: 'Projects' })).toBeVisible();
-    await expect.element(screen.getByText('DOC-2049 · Globex')).toBeVisible();
+    await expect.element(screen.getByText('Kitchen · Jonas')).toBeVisible();
   });
 
   it('respects a custom isEmpty and empty copy', async () => {
@@ -71,7 +71,7 @@ describe('ContentState', () => {
         data={{ total: 0, rows: [] as Project[] }}
         isEmpty={(page) => page.total === 0}
         emptyTitle="No projects yet"
-        emptyDescription="Projects you send appear here."
+        emptyDescription="Projects you create appear here."
         emptyAction={<Button>New project</Button>}
       >
         {(page) => <ProjectList items={page.rows} />}
@@ -82,7 +82,18 @@ describe('ContentState', () => {
       .toBeInTheDocument();
     await expect
       .element(screen.getByRole('button', { name: 'New project' }))
-      .toHaveAttribute('data-variant', 'filled');
+      .toHaveAttribute('data-variant', 'solid');
+  });
+
+  it.each([
+    ['sm', 24],
+    ['md', 32],
+    ['lg', 40],
+  ] as const)('sizes the loading spinner for size %s', async (size, box) => {
+    const screen = await renderWithDS(<ContentState status="loading" size={size} />);
+    expect(root(screen.container).getAttribute('data-size')).toBe(size);
+    const spinner = screen.container.querySelector('[data-slot="spinner"]')!;
+    expect(spinner.getBoundingClientRect().width).toBe(box);
   });
 
   it('shows an alert with an async retry that stays pending and ignores repeats', async () => {
@@ -287,9 +298,9 @@ describe('ContentState', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          <ContentState status="loading" size="compact" />
+          <ContentState status="loading" size="sm" />
           <ContentState status="error" headingLevel={3} onRetry={() => {}} />
-          <ContentState status="empty" size="compact" headingLevel={3} />
+          <ContentState status="empty" size="sm" headingLevel={3} />
           <ContentState data={projects} error={new Error('offline')} onRetry={() => {}}>
             {(items) => <ProjectList items={items} />}
           </ContentState>

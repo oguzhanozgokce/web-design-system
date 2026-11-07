@@ -21,8 +21,8 @@ describe('SearchField', () => {
     await expect.element(input).toHaveAttribute('placeholder', 'Search');
     await expect.element(input).toHaveAttribute('enterkeyhint', 'search');
     const root = screen.container.querySelector('[data-slot="search-field"]')!;
-    expect(root.getAttribute('data-shape')).toBe('field');
-    expect(root.getAttribute('data-variant')).toBe('outlined');
+    expect(root.hasAttribute('data-shape')).toBe(false);
+    expect(root.getAttribute('data-variant')).toBe('outline');
     expect(root.getAttribute('data-size')).toBe('md');
   });
 
@@ -37,7 +37,7 @@ describe('SearchField', () => {
 
   it('reports typed text and follows a controlled value', async () => {
     function Example() {
-      const [query, setQuery] = useState('inv');
+      const [query, setQuery] = useState('doc');
       return (
         <>
           <SearchField label="Projects" value={query} onChange={setQuery} />
@@ -47,7 +47,7 @@ describe('SearchField', () => {
     }
     const screen = await renderWithDS(<Example />);
     const input = screen.getByRole('searchbox', { name: 'Projects' });
-    await expect.element(input).toHaveValue('inv');
+    await expect.element(input).toHaveValue('doc');
     await input.fill('DOC-2041');
     await expect.element(screen.getByText('DOC-2041', { exact: true })).toBeInTheDocument();
   });
@@ -55,9 +55,9 @@ describe('SearchField', () => {
   it('clears from the clear button, keeps focus in the input and calls onClear', async () => {
     const onClear = vi.fn();
     const screen = await renderWithDS(
-      <SearchField label="Payees" defaultValue="Lisbon" onClear={onClear} />,
+      <SearchField label="People" defaultValue="Lisbon" onClear={onClear} />,
     );
-    const input = screen.getByRole('searchbox', { name: 'Payees' });
+    const input = screen.getByRole('searchbox', { name: 'People' });
     const clear = screen.getByRole('button', { name: 'Clear search' });
     await expect.element(clear).toHaveAttribute('tabindex', '-1');
     await clear.click();
@@ -73,10 +73,10 @@ describe('SearchField', () => {
     const onParentKeyDown = vi.fn();
     const screen = await renderWithDS(
       <div onKeyDown={(event) => onParentKeyDown(event.key)}>
-        <SearchField label="Payees" defaultValue="Lisbon" />
+        <SearchField label="People" defaultValue="Lisbon" />
       </div>,
     );
-    const input = screen.getByRole('searchbox', { name: 'Payees' });
+    const input = screen.getByRole('searchbox', { name: 'People' });
     await input.click();
     await userEvent.keyboard('{Escape}');
     await expect.element(input).toHaveValue('');
@@ -90,13 +90,13 @@ describe('SearchField', () => {
     const onFormSubmit = vi.fn((event: SubmitEvent) => event.preventDefault());
     const screen = await renderWithDS(
       <form onSubmit={(event) => onFormSubmit(event.nativeEvent as SubmitEvent)}>
-        <SearchField label="Orders" onSubmit={onSubmit} />
+        <SearchField label="Files" onSubmit={onSubmit} />
       </form>,
     );
-    const input = screen.getByRole('searchbox', { name: 'Orders' });
-    await input.fill('ORD-7731');
+    const input = screen.getByRole('searchbox', { name: 'Files' });
+    await input.fill('DOC-7731');
     await userEvent.keyboard('{Enter}');
-    expect(onSubmit).toHaveBeenCalledWith('ORD-7731');
+    expect(onSubmit).toHaveBeenCalledWith('DOC-7731');
     expect(onFormSubmit).not.toHaveBeenCalled();
   });
 
@@ -104,10 +104,10 @@ describe('SearchField', () => {
     const onFormSubmit = vi.fn((event: SubmitEvent) => event.preventDefault());
     const screen = await renderWithDS(
       <form onSubmit={(event) => onFormSubmit(event.nativeEvent as SubmitEvent)}>
-        <SearchField label="Orders" name="q" />
+        <SearchField label="Files" name="q" />
       </form>,
     );
-    await screen.getByRole('searchbox', { name: 'Orders' }).fill('ORD-7731');
+    await screen.getByRole('searchbox', { name: 'Files' }).fill('DOC-7731');
     await userEvent.keyboard('{Enter}');
     expect(onFormSubmit).toHaveBeenCalledOnce();
   });
@@ -115,10 +115,10 @@ describe('SearchField', () => {
   it('shows a spinner while an async onSubmit runs and ignores repeat submits', async () => {
     let finish: () => void = () => {};
     const onSubmit = vi.fn(() => new Promise<void>((resolve) => (finish = resolve)));
-    const screen = await renderWithDS(<SearchField label="Orders" onSubmit={onSubmit} />);
-    const input = screen.getByRole('searchbox', { name: 'Orders' });
+    const screen = await renderWithDS(<SearchField label="Files" onSubmit={onSubmit} />);
+    const input = screen.getByRole('searchbox', { name: 'Files' });
     const root = screen.container.querySelector('[data-slot="search-field"]')!;
-    await input.fill('ORD-7731');
+    await input.fill('DOC-7731');
     await userEvent.keyboard('{Enter}');
     await expect
       .element(screen.getByRole('progressbar', { name: 'Searching' }))
@@ -137,9 +137,9 @@ describe('SearchField', () => {
     const onSubmit = vi.fn(
       () => new Promise<void>((_, reject) => (fail = () => reject(new Error('offline')))),
     );
-    const screen = await renderWithDS(<SearchField label="Orders" onSubmit={onSubmit} />);
-    const input = screen.getByRole('searchbox', { name: 'Orders' });
-    await input.fill('ORD-7731');
+    const screen = await renderWithDS(<SearchField label="Files" onSubmit={onSubmit} />);
+    const input = screen.getByRole('searchbox', { name: 'Files' });
+    await input.fill('DOC-7731');
     await userEvent.keyboard('{Enter}');
     await expect.element(screen.getByRole('progressbar')).toBeInTheDocument();
     fail();
@@ -184,7 +184,7 @@ describe('SearchField', () => {
   });
 
   it('focuses from a Mod shortcut with the platform modifier', async () => {
-    const screen = await renderWithDS(<SearchField shortcut="Mod+K" defaultValue="rent" />);
+    const screen = await renderWithDS(<SearchField shortcut="Mod+K" defaultValue="beta" />);
     const input = screen.getByRole('searchbox', { name: 'Search' });
     await expect
       .element(input)
@@ -259,10 +259,10 @@ describe('SearchField', () => {
     const onFilters = vi.fn();
     const screen = await renderWithDS(
       <SearchField
-        label="Transactions"
-        defaultValue="Coffee"
+        label="Photos"
+        defaultValue="Beach"
         endAdornment={
-          <Button variant="text" size="xs" onPress={onFilters}>
+          <Button variant="ghost" size="sm" onPress={onFilters}>
             Filters
           </Button>
         }
@@ -270,9 +270,7 @@ describe('SearchField', () => {
     );
     await screen.getByRole('button', { name: 'Filters' }).click();
     expect(onFilters).toHaveBeenCalledOnce();
-    await expect
-      .element(screen.getByRole('searchbox', { name: 'Transactions' }))
-      .toHaveValue('Coffee');
+    await expect.element(screen.getByRole('searchbox', { name: 'Photos' })).toHaveValue('Beach');
     const container = screen.container.querySelector('[data-slot="container"]')!;
     expect([...container.children].map((child) => child.getAttribute('data-slot'))).toEqual([
       'start-adornment',
@@ -286,10 +284,10 @@ describe('SearchField', () => {
     const onBack = vi.fn();
     const screen = await renderWithDS(
       <SearchField
-        label="Transactions"
-        defaultValue="Coffee"
+        label="Photos"
+        defaultValue="Beach"
         icon={
-          <Button variant="text" size="xs" onPress={onBack}>
+          <Button variant="ghost" size="sm" onPress={onBack}>
             Back
           </Button>
         }
@@ -297,23 +295,35 @@ describe('SearchField', () => {
     );
     await screen.getByRole('button', { name: 'Back' }).click();
     expect(onBack).toHaveBeenCalledOnce();
-    await expect
-      .element(screen.getByRole('searchbox', { name: 'Transactions' }))
-      .toHaveValue('Coffee');
+    await expect.element(screen.getByRole('searchbox', { name: 'Photos' })).toHaveValue('Beach');
   });
 
-  it('renders the pill shape as an M3 search bar', async () => {
-    const screen = await renderWithDS(<SearchField shape="pill" variant="filled" />);
-    const root = screen.container.querySelector('[data-slot="search-field"]')!;
-    expect(root.getAttribute('data-shape')).toBe('pill');
-    expect(root.hasAttribute('data-variant')).toBe(false);
-    const container = root.querySelector<HTMLElement>('[data-slot="container"]')!;
-    const style = getComputedStyle(container);
-    expect(parseFloat(style.borderTopLeftRadius)).toBeGreaterThanOrEqual(20);
-    expect(parseFloat(style.borderBottomRightRadius)).toBeGreaterThanOrEqual(20);
-    expect(style.borderTopWidth).toBe('0px');
-    expect(style.paddingInlineStart).toBe('16px');
-    expect(getComputedStyle(container, '::after').content).toBe('none');
+  it('draws the soft variant as a tinted bar', async () => {
+    const screen = await renderWithDS(
+      <div className="grid gap-4">
+        <span data-testid="neutral" className="bg-neutral-soft" />
+        <SearchField aria-label="Soft" variant="soft" />
+        <SearchField aria-label="Large" variant="soft" size="lg" />
+      </div>,
+    );
+    const roots = [...screen.container.querySelectorAll('[data-slot="search-field"]')];
+    expect(roots.map((root) => root.getAttribute('data-variant'))).toEqual(['soft', 'soft']);
+    const neutral = getComputedStyle(screen.getByTestId('neutral').element()).backgroundColor;
+    for (const root of roots) {
+      const style = getComputedStyle(root.querySelector('[data-slot="container"]')!);
+      expect(style.backgroundColor).toBe(neutral);
+      expect(style.borderTopLeftRadius).toBe('12px');
+      expect(style.borderTopColor).toBe('rgba(0, 0, 0, 0)');
+    }
+  });
+
+  it('fades the clear button in once there is text to clear', async () => {
+    const screen = await renderWithDS(<SearchField label="Photos" />);
+    expect(screen.container.querySelector('[data-slot="clear-button"]')).toBeNull();
+    await screen.getByRole('searchbox', { name: 'Photos' }).fill('beach');
+    const clear = screen.getByRole('button', { name: 'Clear search' });
+    await expect.element(clear).toBeVisible();
+    expect(getComputedStyle(clear.element()).animationName).toBe('ds-fade-in');
   });
 
   it('hides the clear button when disabled or read only', async () => {
@@ -331,24 +341,24 @@ describe('SearchField', () => {
 
   it('marks an invalid search', async () => {
     const screen = await renderWithDS(
-      <SearchField label="Order number" isInvalid errorMessage="Use the ORD- prefix." />,
+      <SearchField label="File code" isInvalid errorMessage="Use the DOC- prefix." />,
     );
-    const input = screen.getByRole('searchbox', { name: 'Order number' });
+    const input = screen.getByRole('searchbox', { name: 'File code' });
     await expect.element(input).toHaveAttribute('aria-invalid', 'true');
-    await expect.element(input).toHaveAccessibleDescription('Use the ORD- prefix.');
+    await expect.element(input).toHaveAccessibleDescription('Use the DOC- prefix.');
   });
 
   it('takes its text and the Field text from labels, then DSProvider', async () => {
     const screen = await renderWithDS(
       <div>
-        <SearchField defaultValue="rent" />
+        <SearchField defaultValue="notes" />
         <SearchField
           defaultValue="Lisbon"
           isPending
           labels={{
-            search: 'Search payees',
-            clear: 'Clear payee search',
-            searching: 'Looking up payees',
+            search: 'Search people',
+            clear: 'Clear person search',
+            searching: 'Looking up people',
           }}
         />
         <SearchField label="Region" necessityIndicator="label" labels={{ optional: '(any)' }} />
@@ -359,11 +369,11 @@ describe('SearchField', () => {
     await expect.element(find).toHaveAttribute('placeholder', 'Find');
     await expect.element(screen.getByRole('button', { name: 'Clear the query' })).toBeVisible();
     await expect
-      .element(screen.getByRole('searchbox', { name: 'Search payees' }))
-      .toHaveAttribute('placeholder', 'Search payees');
-    await expect.element(screen.getByRole('button', { name: 'Clear payee search' })).toBeVisible();
+      .element(screen.getByRole('searchbox', { name: 'Search people' }))
+      .toHaveAttribute('placeholder', 'Search people');
+    await expect.element(screen.getByRole('button', { name: 'Clear person search' })).toBeVisible();
     await expect
-      .element(screen.getByRole('progressbar', { name: 'Looking up payees' }))
+      .element(screen.getByRole('progressbar', { name: 'Looking up people' }))
       .toBeInTheDocument();
     await expect
       .element(screen.getByRole('searchbox', { name: 'Region (any)' }))
@@ -373,7 +383,7 @@ describe('SearchField', () => {
   it('keeps the glyph at the start in RTL layouts', async () => {
     const screen = await renderWithDS(
       <div className="w-80">
-        <SearchField defaultValue="فاتورة" />
+        <SearchField defaultValue="صور" />
       </div>,
       { locale: 'ar' },
     );
@@ -382,10 +392,10 @@ describe('SearchField', () => {
     expect(glyph.getBoundingClientRect().left).toBeGreaterThan(input.getBoundingClientRect().left);
   });
 
-  it('keeps the pill outlined in forced colours mode', async () => {
-    const screen = await renderWithDS(<SearchField shape="pill" />);
+  it('keeps the soft bar outlined in forced colours mode', async () => {
+    const screen = await renderWithDS(<SearchField variant="soft" />);
     const pill = screen.container.querySelector('[data-slot="container"]')!;
-    expect(getComputedStyle(pill).borderTopWidth).toBe('0px');
+    expect(getComputedStyle(pill).borderTopColor).toBe('rgba(0, 0, 0, 0)');
     await cdp().send('Emulation.setEmulatedMedia', {
       features: [{ name: 'forced-colors', value: 'active' }],
     });
@@ -405,10 +415,11 @@ describe('SearchField', () => {
       const screen = await renderWithDS(
         <div className="grid w-96 gap-4 p-4">
           <SearchField label="Find a member" description="Search by name or email." />
-          <SearchField label="Payees" variant="filled" size="sm" defaultValue="Lisbon" />
-          <SearchField shape="pill" shortcut="/" />
-          <SearchField shape="pill" size="lg" isPending defaultValue="Q3 projects" />
-          <SearchField label="Order number" isInvalid errorMessage="Use the ORD- prefix." />
+          <SearchField label="People" variant="soft" size="sm" defaultValue="Lisbon" />
+          <SearchField variant="soft" shortcut="/" />
+          <SearchField variant="soft" size="lg" isPending defaultValue="Projects" />
+          <SearchField label="Files" size="lg" shortcut="Mod+K" />
+          <SearchField label="File code" isInvalid errorMessage="Use the DOC- prefix." />
           <SearchField label="Region" isDisabled defaultValue="eu-west-1" />
         </div>,
         options,

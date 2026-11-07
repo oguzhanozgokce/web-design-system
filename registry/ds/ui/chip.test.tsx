@@ -8,10 +8,19 @@ import { AssistChip, Chip, ChipGroup, FilterChip } from '@/registry/ds/ui/chip';
 const still = { provider: { motion: 'disabled' as const } };
 
 const statuses = [
-  { id: 'paid', name: 'Paid' },
-  { id: 'pending', name: 'Pending' },
-  { id: 'overdue', name: 'Overdue' },
+  { id: 'active', name: 'Active' },
+  { id: 'draft', name: 'Draft' },
+  { id: 'archived', name: 'Archived' },
 ];
+
+function probe(className: string, property: 'backgroundColor' | 'color' = 'backgroundColor') {
+  const element = document.createElement('span');
+  element.className = className;
+  document.querySelector('[data-testid="ds-root"]')!.append(element);
+  const value = getComputedStyle(element)[property];
+  element.remove();
+  return value;
+}
 
 function Labels({ initial }: { initial: string[] }) {
   const [labels, setLabels] = useState(initial.map((name) => ({ id: name, name })));
@@ -31,17 +40,21 @@ describe('ChipGroup', () => {
   it('renders a labelled grid of chips', async () => {
     const screen = await renderWithDS(
       <ChipGroup label="Status" description="Filter projects by status">
-        <Chip id="paid">Paid</Chip>
-        <Chip id="overdue">Overdue</Chip>
+        <Chip id="active">Active</Chip>
+        <Chip id="archived">Archived</Chip>
       </ChipGroup>,
     );
     const grid = screen.getByRole('grid', { name: 'Status' });
     await expect.element(grid).toBeVisible();
     await expect.element(grid).toHaveAccessibleDescription('Filter projects by status');
-    const chip = screen.getByRole('row', { name: 'Paid' });
-    await expect.element(chip).toHaveAttribute('data-variant', 'outlined');
+    const chip = screen.getByRole('row', { name: 'Active' });
+    await expect.element(chip).toHaveAttribute('data-variant', 'soft');
     await expect.element(chip).toHaveAttribute('data-size', 'md');
-    expect(chip.element().className).not.toContain('state-layer');
+    const style = getComputedStyle(chip.element());
+    expect(style.cursor).toBe('default');
+    expect(style.height).toBe('32px');
+    expect(style.borderTopLeftRadius).toBe('9999px');
+    expect(style.backgroundColor).toBe(probe('bg-neutral-soft'));
   });
 
   it('selects several chips in multiple mode and shows a check', async () => {
@@ -57,23 +70,29 @@ describe('ChipGroup', () => {
       </ChipGroup>,
       still,
     );
-    const paid = screen.getByRole('row', { name: 'Paid' });
-    const overdue = screen.getByRole('row', { name: 'Overdue' });
-    expect(paid.element().className).toContain('state-layer');
-    const check = paid.element().querySelector('[data-slot="start-icon"]');
+    const active = screen.getByRole('row', { name: 'Active' });
+    const archived = screen.getByRole('row', { name: 'Archived' });
+    expect(getComputedStyle(active.element()).cursor).toBe('pointer');
+    const check = active.element().querySelector('[data-slot="start-icon"]');
     expect(check?.getBoundingClientRect().width).toBe(0);
 
-    await paid.click();
-    await overdue.click();
-    await expect.element(paid).toHaveAttribute('aria-selected', 'true');
-    await expect.element(overdue).toHaveAttribute('aria-selected', 'true');
-    expect([...onSelectionChange.mock.lastCall![0]]).toEqual(['paid', 'overdue']);
-    expect(check?.getBoundingClientRect().width).toBeGreaterThan(17);
-    expect(getComputedStyle(paid.element()).paddingInlineStart).toBe('8px');
+    await active.click();
+    await archived.click();
+    await expect.element(active).toHaveAttribute('aria-selected', 'true');
+    await expect.element(archived).toHaveAttribute('aria-selected', 'true');
+    expect([...onSelectionChange.mock.lastCall![0]]).toEqual(['active', 'archived']);
+    expect(check?.getBoundingClientRect().width).toBe(22);
+    await expect
+      .poll(() => getComputedStyle(active.element()).color)
+      .toBe(probe('text-on-primary-soft', 'color'));
+    await userEvent.unhover(active);
+    await expect
+      .poll(() => getComputedStyle(active.element()).backgroundColor)
+      .toBe(probe('bg-primary-soft'));
 
-    await paid.click();
-    await expect.element(paid).toHaveAttribute('aria-selected', 'false');
-    expect(getComputedStyle(paid.element()).paddingInlineStart).toBe('16px');
+    await active.click();
+    await expect.element(active).toHaveAttribute('aria-selected', 'false');
+    expect(check?.getBoundingClientRect().width).toBe(0);
   });
 
   it('keeps one chip selected in single mode', async () => {
@@ -150,7 +169,7 @@ describe('ChipGroup', () => {
     await expect.element(list).toHaveTextContent('No labels');
     await expect.element(list).toHaveAttribute('data-focus-visible', 'true');
     expect(getComputedStyle(list.element()).outlineStyle).toBe('solid');
-    expect(getComputedStyle(list.element()).outlineWidth).toBe('3px');
+    expect(getComputedStyle(list.element()).outlineWidth).toBe('2px');
   });
 
   it('shows a check over the avatar of a selected chip', async () => {
@@ -205,13 +224,13 @@ describe('ChipGroup', () => {
         {(item) => <Chip id={item.id}>{item.name}</Chip>}
       </ChipGroup>,
     );
-    screen.getByRole('row', { name: 'Paid' }).element().focus();
+    screen.getByRole('row', { name: 'Active' }).element().focus();
     await userEvent.keyboard('{ArrowRight}');
-    await expect.element(screen.getByRole('row', { name: 'Pending' })).toHaveFocus();
+    await expect.element(screen.getByRole('row', { name: 'Draft' })).toHaveFocus();
     await userEvent.keyboard('{End}');
-    await expect.element(screen.getByRole('row', { name: 'Overdue' })).toHaveFocus();
+    await expect.element(screen.getByRole('row', { name: 'Archived' })).toHaveFocus();
     await userEvent.keyboard('{Home}');
-    await expect.element(screen.getByRole('row', { name: 'Paid' })).toHaveFocus();
+    await expect.element(screen.getByRole('row', { name: 'Active' })).toHaveFocus();
   });
 
   it('moves focus to the next chip with ArrowLeft in RTL', async () => {
@@ -221,9 +240,9 @@ describe('ChipGroup', () => {
       </ChipGroup>,
       { locale: 'ar' },
     );
-    screen.getByRole('row', { name: 'Paid' }).element().focus();
+    screen.getByRole('row', { name: 'Active' }).element().focus();
     await userEvent.keyboard('{ArrowLeft}');
-    await expect.element(screen.getByRole('row', { name: 'Pending' })).toHaveFocus();
+    await expect.element(screen.getByRole('row', { name: 'Draft' })).toHaveFocus();
   });
 
   it('disables every chip when the group is disabled', async () => {
@@ -235,12 +254,14 @@ describe('ChipGroup', () => {
         isDisabled
         onSelectionChange={onSelectionChange}
       >
-        <Chip id="paid">Paid</Chip>
+        <Chip id="active">Active</Chip>
       </ChipGroup>,
     );
-    const paid = screen.getByRole('row', { name: 'Paid' });
-    await expect.element(paid).toHaveAttribute('data-disabled', 'true');
-    await paid.click({ force: true });
+    const active = screen.getByRole('row', { name: 'Active' });
+    await expect.element(active).toHaveAttribute('data-disabled', 'true');
+    expect(getComputedStyle(active.element()).opacity).toBe('0.5');
+    expect(getComputedStyle(active.element()).cursor).toBe('not-allowed');
+    await active.click({ force: true });
     expect(onSelectionChange).not.toHaveBeenCalled();
   });
 
@@ -249,8 +270,8 @@ describe('ChipGroup', () => {
       <div className="flex flex-col gap-2">
         <button type="button">Before</button>
         <ChipGroup aria-label="Teams" selectionMode="multiple" isDisabled>
-          <Chip id="finance">Finance</Chip>
-          <Chip id="sales">Sales</Chip>
+          <Chip id="design">Design</Chip>
+          <Chip id="research">Research</Chip>
         </ChipGroup>
         <button type="button">After</button>
       </div>,
@@ -277,9 +298,9 @@ describe('ChipGroup', () => {
       );
     }
     const screen = await renderWithDS(<Filters />);
-    await screen.getByRole('button', { name: 'Remove Paid' }).click();
-    await expect.element(screen.getByRole('row', { name: 'Paid' })).not.toBeInTheDocument();
-    await expect.element(screen.getByRole('row', { name: 'Pending' })).toBeInTheDocument();
+    await screen.getByRole('button', { name: 'Remove Active' }).click();
+    await expect.element(screen.getByRole('row', { name: 'Active' })).not.toBeInTheDocument();
+    await expect.element(screen.getByRole('row', { name: 'Draft' })).toBeInTheDocument();
     expect(onSelectionChange).not.toHaveBeenCalled();
   });
 
@@ -319,33 +340,55 @@ describe('ChipGroup', () => {
     warn.mockRestore();
   });
 
-  it('runs onAction and shows a state layer on action chips', async () => {
+  it('runs onAction and takes a pointer cursor on action chips', async () => {
     const onAction = vi.fn();
     const screen = await renderWithDS(
       <ChipGroup aria-label="Suggestions">
-        <Chip id="overdue" onAction={onAction}>
-          Show overdue projects
+        <Chip id="recent" onAction={onAction}>
+          Show recent projects
         </Chip>
       </ChipGroup>,
     );
-    const chip = screen.getByRole('row', { name: 'Show overdue projects' });
-    expect(chip.element().className).toContain('state-layer');
+    const chip = screen.getByRole('row', { name: 'Show recent projects' });
+    expect(getComputedStyle(chip.element()).cursor).toBe('pointer');
     await chip.click();
     expect(onAction).toHaveBeenCalledOnce();
   });
 
   it('passes size and variant to its chips', async () => {
     const screen = await renderWithDS(
-      <ChipGroup aria-label="Status" size="sm" variant="tonal">
-        <Chip id="paid">Paid</Chip>
+      <ChipGroup aria-label="Status" size="sm" variant="outline">
+        <Chip id="active">Active</Chip>
       </ChipGroup>,
     );
-    const paid = screen.getByRole('row', { name: 'Paid' });
-    await expect.element(paid).toHaveAttribute('data-size', 'sm');
-    await expect.element(paid).toHaveAttribute('data-variant', 'tonal');
-    const box = paid.element().getBoundingClientRect();
-    expect(box.height).toBe(28);
-    expect(getComputedStyle(paid.element()).borderTopLeftRadius).toBe('8px');
+    const active = screen.getByRole('row', { name: 'Active' });
+    await expect.element(active).toHaveAttribute('data-size', 'sm');
+    await expect.element(active).toHaveAttribute('data-variant', 'outline');
+    const style = getComputedStyle(active.element());
+    expect(active.element().getBoundingClientRect().height).toBe(24);
+    expect(style.borderTopLeftRadius).toBe('9999px');
+    expect(style.borderTopWidth).toBe('1px');
+    expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+  });
+
+  it('gives the remove button a 24px hit area at both sizes', async () => {
+    const screen = await renderWithDS(
+      <div className="flex flex-col gap-2">
+        <ChipGroup aria-label="Small" size="sm" onRemove={() => {}}>
+          <Chip id="design">Design</Chip>
+        </ChipGroup>
+        <ChipGroup aria-label="Medium" onRemove={() => {}}>
+          <Chip id="research">Research</Chip>
+        </ChipGroup>
+      </div>,
+    );
+    const buttons = screen.container.querySelectorAll('[data-slot="remove"]');
+    expect(buttons).toHaveLength(2);
+    for (const remove of buttons) {
+      const hitArea = getComputedStyle(remove, '::after');
+      expect(hitArea.width).toBe('24px');
+      expect(hitArea.height).toBe('24px');
+    }
   });
 });
 
@@ -419,10 +462,10 @@ describe('AssistChip', () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
       <AssistChip isDisabled onPress={onPress}>
-        Share with client
+        Share with team
       </AssistChip>,
     );
-    const chip = screen.getByRole('button', { name: 'Share with client' });
+    const chip = screen.getByRole('button', { name: 'Share with team' });
     await expect.element(chip).toBeDisabled();
     await expect.element(chip).toHaveAttribute('data-disabled', 'true');
     await chip.click({ force: true });
@@ -435,10 +478,10 @@ describe('FilterChip', () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <FilterChip startIcon={<FilterIcon data-testid="icon" />} onChange={onChange}>
-        Overdue only
+        Starred only
       </FilterChip>,
     );
-    const chip = screen.getByRole('button', { name: 'Overdue only' });
+    const chip = screen.getByRole('button', { name: 'Starred only' });
     await expect.element(chip).toHaveAttribute('aria-pressed', 'false');
     await expect.element(screen.getByTestId('icon')).toBeInTheDocument();
     await chip.click();
@@ -451,13 +494,13 @@ describe('FilterChip', () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <div className="flex gap-2">
-        <FilterChip onChange={onChange}>Unpaid</FilterChip>
+        <FilterChip onChange={onChange}>Unread</FilterChip>
         <FilterChip isDisabled onChange={onChange}>
           Archived
         </FilterChip>
       </div>,
     );
-    screen.getByRole('button', { name: 'Unpaid' }).element().focus();
+    screen.getByRole('button', { name: 'Unread' }).element().focus();
     await userEvent.keyboard(' ');
     expect(onChange).toHaveBeenLastCalledWith(true);
     await screen.getByRole('button', { name: 'Archived' }).click({ force: true });
@@ -467,10 +510,10 @@ describe('FilterChip', () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <FilterChip isSelected={false} onChange={onChange}>
-        Overdue only
+        Starred only
       </FilterChip>,
     );
-    const chip = screen.getByRole('button', { name: 'Overdue only' });
+    const chip = screen.getByRole('button', { name: 'Starred only' });
     await chip.click();
     expect(onChange).toHaveBeenLastCalledWith(true);
     await expect.element(chip).toHaveAttribute('aria-pressed', 'false');
@@ -482,14 +525,14 @@ describe('Chip accessibility', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          {(['outlined', 'elevated', 'tonal'] as const).map((variant) => (
+          {(['soft', 'outline'] as const).map((variant) => (
             <ChipGroup
               key={variant}
               aria-label={`Status ${variant}`}
               variant={variant}
               selectionMode="multiple"
-              defaultSelectedKeys={['paid']}
-              disabledKeys={['overdue']}
+              defaultSelectedKeys={['active']}
+              disabledKeys={['archived']}
               items={statuses}
             >
               {(item) => <Chip id={item.id}>{item.name}</Chip>}
@@ -503,10 +546,13 @@ describe('Chip accessibility', () => {
           </ChipGroup>
           <div className="flex flex-wrap gap-2">
             <AssistChip startIcon={<CalendarIcon />}>Add to calendar</AssistChip>
-            <AssistChip variant="elevated">Share</AssistChip>
-            <FilterChip defaultSelected>Overdue only</FilterChip>
-            <FilterChip variant="tonal" defaultSelected>
+            <AssistChip variant="outline">Share</AssistChip>
+            <FilterChip defaultSelected>Starred only</FilterChip>
+            <FilterChip variant="outline" defaultSelected>
               Mine
+            </FilterChip>
+            <FilterChip variant="outline" size="sm">
+              Recent
             </FilterChip>
             <FilterChip isDisabled>Archived</FilterChip>
           </div>

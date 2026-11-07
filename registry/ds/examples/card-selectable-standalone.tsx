@@ -13,9 +13,9 @@ export default function CardSelectableStandalone() {
           title="Automatic backup"
           description="Save new photos and videos when you are on Wi-Fi."
         />
-        <CardContent className="text-title-sm tabular-digits">About 2 GB a month</CardContent>
+        <CardContent className="font-medium tabular-digits">About 2 GB a month</CardContent>
       </SelectableCard>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         Backup is {backup ? 'on' : 'off'}.
       </p>
     </div>

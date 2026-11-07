@@ -2,7 +2,7 @@
   "name": "dialog",
   "type": "registry:ui",
   "title": "Dialog",
-  "description": "Material 3 modal dialog with header, scrolling body and actions, five sizes, a centred hero icon, dismissal control and a full-screen layout with a top app bar on phones.",
+  "description": "Modal dialog with a header, a scrolling body and actions, five sizes, a hero icon, dismissal control and a full-screen layout for phones.",
   "category": "overlays",
   "files": ["ui/dialog.tsx"]
 }

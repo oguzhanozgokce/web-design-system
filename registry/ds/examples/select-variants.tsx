@@ -1,7 +1,7 @@
 import { ListBoxItem } from '@/registry/ds/ui/list-box';
 import { Select } from '@/registry/ds/ui/select';
 
-function Repeat({ variant }: { variant: 'outlined' | 'filled' }) {
+function Repeat({ variant }: { variant: 'outline' | 'soft' }) {
   return (
     <Select label={`Repeat, ${variant}`} variant={variant} defaultValue="weekly" className="w-full">
       <ListBoxItem id="never">Never</ListBoxItem>
@@ -17,8 +17,8 @@ function Repeat({ variant }: { variant: 'outlined' | 'filled' }) {
 export default function SelectVariants() {
   return (
     <div className="grid w-full max-w-lg grid-cols-1 gap-4 sm:grid-cols-2">
-      <Repeat variant="outlined" />
-      <Repeat variant="filled" />
+      <Repeat variant="outline" />
+      <Repeat variant="soft" />
     </div>
   );
 }

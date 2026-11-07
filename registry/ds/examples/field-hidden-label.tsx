@@ -13,7 +13,7 @@ export default function FieldHiddenLabel() {
         startAdornment={<SearchIcon />}
         isClearable
       />
-      <Button variant="tonal">Upload</Button>
+      <Button variant="soft">Upload</Button>
     </div>
   );
 }

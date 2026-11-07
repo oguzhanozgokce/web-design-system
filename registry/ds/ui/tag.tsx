@@ -29,72 +29,75 @@ import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-pr
 
 export type TagTone = 'neutral' | 'primary' | 'success' | 'warning' | 'error' | 'info';
 
-export type TagVariant = 'tonal' | 'outlined' | 'filled';
+export type TagVariant = 'soft' | 'solid' | 'outline';
 
 export type TagSize = 'sm' | 'md';
+
+const selectedSolid = {
+  neutral:
+    'data-[selected]:border-transparent data-[selected]:bg-inverse-surface data-[selected]:text-inverse-on-surface data-[selected]:data-[hovered]:bg-inverse-surface-hover',
+  primary:
+    'data-[selected]:border-transparent data-[selected]:bg-primary-solid data-[selected]:text-on-primary-solid data-[selected]:data-[hovered]:bg-primary-solid-hover',
+  success:
+    'data-[selected]:border-transparent data-[selected]:bg-success-solid data-[selected]:text-on-success-solid data-[selected]:data-[hovered]:bg-success-solid-hover',
+  warning:
+    'data-[selected]:border-transparent data-[selected]:bg-warning-solid data-[selected]:text-on-warning-solid data-[selected]:data-[hovered]:bg-warning-solid-hover',
+  error:
+    'data-[selected]:border-transparent data-[selected]:bg-error-solid data-[selected]:text-on-error-solid data-[selected]:data-[hovered]:bg-error-solid-hover',
+  info: 'data-[selected]:border-transparent data-[selected]:bg-info-solid data-[selected]:text-on-info-solid data-[selected]:data-[hovered]:bg-info-solid-hover',
+} satisfies Record<TagTone, string>;
 
 export const tagStyles = tv({
   slots: {
     root: [
-      'group/tag relative inline-flex max-w-full shrink-0 items-center rounded-xs border align-middle whitespace-nowrap no-underline',
-      'transition-[background-color,color,border-color] duration-150 ease-standard motion-reduce:transition-none',
-      'data-[disabled]:text-on-surface/38',
+      'group/tag relative inline-flex max-w-full shrink-0 cursor-default items-center rounded-control border font-medium align-middle whitespace-nowrap no-underline',
+      'transition-control motion-reduce:transition-none',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
     ],
+    interactiveRoot: '',
     leading:
       'inline-flex shrink-0 items-center justify-center text-(length:--icon-size) [&_svg]:size-[1em]',
-    dot: 'size-1.5 shrink-0 rounded-full group-data-[disabled]/tag:bg-current',
+    dot: 'size-1.5 shrink-0 rounded-full',
     label: 'min-w-0 truncate',
     remove: [
-      'state-layer focus-ring relative inline-flex shrink-0 cursor-default items-center justify-center rounded-full text-(length:--icon-size) after:absolute [&_svg]:size-[1em]',
+      'focus-ring no-tap-highlight relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full text-current after:absolute [&_svg]:size-(--remove-icon-size)',
+      'transition-[background-color] duration-100 ease-out data-[hovered]:bg-current/12 data-[pressed]:bg-current/16',
+      'data-[disabled]:cursor-not-allowed',
     ],
     group: 'flex min-w-0 flex-col gap-1.5',
-    groupLabel: 'w-fit cursor-default text-label-lg text-on-surface',
-    list: 'focus-ring flex flex-wrap items-center rounded-xs',
-    empty: 'text-body-md text-on-surface-variant',
-    description: 'text-body-sm text-on-surface-variant',
-    error: 'text-body-sm text-error',
+    groupLabel: 'w-fit cursor-default text-sm font-medium text-on-surface',
+    list: 'focus-ring flex flex-wrap items-center rounded-item',
+    empty: 'text-sm text-on-surface-variant',
+    description: 'text-xs text-on-surface-variant',
+    error: 'text-xs text-error',
   },
   variants: {
     variant: {
-      tonal: { root: 'border-transparent data-[disabled]:bg-on-surface/12' },
-      outlined: { root: 'bg-transparent data-[disabled]:border-on-surface/12' },
-      filled: { root: 'border-transparent data-[disabled]:bg-on-surface/12', dot: 'bg-current' },
+      soft: { root: 'border-transparent', dot: 'bg-current' },
+      solid: { root: 'border-transparent', dot: 'bg-current' },
+      outline: {
+        root: 'border-outline-variant bg-transparent text-on-surface',
+        interactiveRoot:
+          'data-[hovered]:not-data-[selected]:bg-neutral-soft data-[pressed]:not-data-[selected]:bg-neutral-soft-hover',
+      },
     },
     tone: {
-      neutral: {
-        root: 'data-[selected]:not-data-[disabled]:border-transparent data-[selected]:not-data-[disabled]:bg-inverse-surface data-[selected]:not-data-[disabled]:text-inverse-on-surface',
-        dot: 'bg-on-surface-variant',
-      },
-      primary: {
-        root: 'data-[selected]:not-data-[disabled]:border-transparent data-[selected]:not-data-[disabled]:bg-primary data-[selected]:not-data-[disabled]:text-on-primary',
-        dot: 'bg-primary',
-      },
-      success: {
-        root: 'data-[selected]:not-data-[disabled]:border-transparent data-[selected]:not-data-[disabled]:bg-success data-[selected]:not-data-[disabled]:text-on-success',
-        dot: 'bg-success',
-      },
-      warning: {
-        root: 'data-[selected]:not-data-[disabled]:border-transparent data-[selected]:not-data-[disabled]:bg-warning data-[selected]:not-data-[disabled]:text-on-warning',
-        dot: 'bg-warning',
-      },
-      error: {
-        root: 'data-[selected]:not-data-[disabled]:border-transparent data-[selected]:not-data-[disabled]:bg-error data-[selected]:not-data-[disabled]:text-on-error',
-        dot: 'bg-error',
-      },
-      info: {
-        root: 'data-[selected]:not-data-[disabled]:border-transparent data-[selected]:not-data-[disabled]:bg-info data-[selected]:not-data-[disabled]:text-on-info',
-        dot: 'bg-info',
-      },
+      neutral: { root: selectedSolid.neutral },
+      primary: { root: selectedSolid.primary },
+      success: { root: selectedSolid.success },
+      warning: { root: selectedSolid.warning },
+      error: { root: selectedSolid.error },
+      info: { root: selectedSolid.info },
     },
     size: {
       sm: {
-        root: 'h-5 gap-1 px-1.5 text-label-sm [--icon-size:0.75rem]',
-        remove: 'size-3.5 after:-inset-[0.3125rem]',
+        root: 'h-5 gap-1 px-1.5 text-xs [--icon-size:0.75rem]',
+        remove: '-me-0.5 size-3.5 after:-inset-[0.3125rem] [--remove-icon-size:0.625rem]',
         list: 'gap-1',
       },
       md: {
-        root: 'h-6 gap-1 px-2 text-label-sm [--icon-size:0.875rem]',
-        remove: 'size-4 after:-inset-1',
+        root: 'h-6 gap-1 px-2 text-xs [--icon-size:0.875rem]',
+        remove: '-me-0.5 size-4 after:-inset-1 [--remove-icon-size:0.75rem]',
         list: 'gap-1.5',
       },
     },
@@ -103,11 +106,13 @@ export const tagStyles = tv({
       false: '',
     },
     interactive: {
-      true: { root: 'state-layer' },
+      true: {
+        root: 'cursor-pointer data-[pressed]:scale-[0.97] motion-reduce:data-[pressed]:scale-100',
+      },
       false: '',
     },
     focusable: {
-      true: { root: 'focus-ring cursor-default select-none' },
+      true: { root: 'focus-ring no-tap-highlight select-none' },
       false: '',
     },
     removable: {
@@ -117,60 +122,149 @@ export const tagStyles = tv({
   },
   compoundVariants: [
     {
-      variant: 'tonal',
+      variant: 'soft',
       tone: 'neutral',
-      class: { root: 'bg-surface-container-highest text-on-surface' },
+      class: {
+        root: 'bg-neutral-soft text-on-surface',
+        interactiveRoot:
+          'data-[hovered]:not-data-[selected]:bg-neutral-soft-hover data-[pressed]:not-data-[selected]:bg-neutral-soft-hover',
+      },
     },
     {
-      variant: 'tonal',
+      variant: 'soft',
       tone: 'primary',
-      class: { root: 'bg-primary-container text-on-primary-container' },
+      class: {
+        root: 'bg-primary-soft text-on-primary-soft',
+        interactiveRoot:
+          'data-[hovered]:not-data-[selected]:bg-primary-soft-hover data-[pressed]:not-data-[selected]:bg-primary-soft-hover',
+      },
     },
     {
-      variant: 'tonal',
+      variant: 'soft',
       tone: 'success',
-      class: { root: 'bg-success-container text-on-success-container' },
+      class: {
+        root: 'bg-success-soft text-on-success-soft',
+        interactiveRoot:
+          'data-[hovered]:not-data-[selected]:bg-success-soft-hover data-[pressed]:not-data-[selected]:bg-success-soft-hover',
+      },
     },
     {
-      variant: 'tonal',
+      variant: 'soft',
       tone: 'warning',
-      class: { root: 'bg-warning-container text-on-warning-container' },
+      class: {
+        root: 'bg-warning-soft text-on-warning-soft',
+        interactiveRoot:
+          'data-[hovered]:not-data-[selected]:bg-warning-soft-hover data-[pressed]:not-data-[selected]:bg-warning-soft-hover',
+      },
     },
     {
-      variant: 'tonal',
+      variant: 'soft',
       tone: 'error',
-      class: { root: 'bg-error-container text-on-error-container' },
+      class: {
+        root: 'bg-error-soft text-on-error-soft',
+        interactiveRoot:
+          'data-[hovered]:not-data-[selected]:bg-error-soft-hover data-[pressed]:not-data-[selected]:bg-error-soft-hover',
+      },
     },
     {
-      variant: 'tonal',
+      variant: 'soft',
       tone: 'info',
-      class: { root: 'bg-info-container text-on-info-container' },
+      class: {
+        root: 'bg-info-soft text-on-info-soft',
+        interactiveRoot:
+          'data-[hovered]:not-data-[selected]:bg-info-soft-hover data-[pressed]:not-data-[selected]:bg-info-soft-hover',
+      },
     },
     {
-      variant: 'outlined',
+      variant: 'solid',
       tone: 'neutral',
-      class: { root: 'border-outline-variant text-on-surface-variant' },
+      class: {
+        root: 'bg-inverse-surface text-inverse-on-surface',
+        interactiveRoot:
+          'data-[hovered]:bg-inverse-surface-hover data-[pressed]:bg-inverse-surface-hover',
+      },
     },
-    { variant: 'outlined', tone: 'primary', class: { root: 'border-primary/40 text-primary' } },
-    { variant: 'outlined', tone: 'success', class: { root: 'border-success/40 text-success' } },
-    { variant: 'outlined', tone: 'warning', class: { root: 'border-warning/40 text-warning' } },
-    { variant: 'outlined', tone: 'error', class: { root: 'border-error/40 text-error' } },
-    { variant: 'outlined', tone: 'info', class: { root: 'border-info/40 text-info' } },
     {
-      variant: 'filled',
-      tone: 'neutral',
-      class: { root: 'bg-inverse-surface text-inverse-on-surface' },
+      variant: 'solid',
+      tone: 'primary',
+      class: {
+        root: 'bg-primary-solid text-on-primary-solid',
+        interactiveRoot:
+          'data-[hovered]:bg-primary-solid-hover data-[pressed]:bg-primary-solid-hover',
+      },
     },
-    { variant: 'filled', tone: 'primary', class: { root: 'bg-primary text-on-primary' } },
-    { variant: 'filled', tone: 'success', class: { root: 'bg-success text-on-success' } },
-    { variant: 'filled', tone: 'warning', class: { root: 'bg-warning text-on-warning' } },
-    { variant: 'filled', tone: 'error', class: { root: 'bg-error text-on-error' } },
-    { variant: 'filled', tone: 'info', class: { root: 'bg-info text-on-info' } },
-    { removable: true, size: 'sm', class: { root: 'pe-0.5' } },
+    {
+      variant: 'solid',
+      tone: 'success',
+      class: {
+        root: 'bg-success-solid text-on-success-solid',
+        interactiveRoot:
+          'data-[hovered]:bg-success-solid-hover data-[pressed]:bg-success-solid-hover',
+      },
+    },
+    {
+      variant: 'solid',
+      tone: 'warning',
+      class: {
+        root: 'bg-warning-solid text-on-warning-solid',
+        interactiveRoot:
+          'data-[hovered]:bg-warning-solid-hover data-[pressed]:bg-warning-solid-hover',
+      },
+    },
+    {
+      variant: 'solid',
+      tone: 'error',
+      class: {
+        root: 'bg-error-solid text-on-error-solid',
+        interactiveRoot: 'data-[hovered]:bg-error-solid-hover data-[pressed]:bg-error-solid-hover',
+      },
+    },
+    {
+      variant: 'solid',
+      tone: 'info',
+      class: {
+        root: 'bg-info-solid text-on-info-solid',
+        interactiveRoot: 'data-[hovered]:bg-info-solid-hover data-[pressed]:bg-info-solid-hover',
+      },
+    },
+    {
+      variant: 'outline',
+      tone: 'neutral',
+      class: {
+        dot: 'bg-on-surface-variant',
+        leading: 'text-on-surface-variant group-data-[selected]/tag:text-current',
+      },
+    },
+    {
+      variant: 'outline',
+      tone: 'primary',
+      class: { dot: 'bg-primary', leading: 'text-primary group-data-[selected]/tag:text-current' },
+    },
+    {
+      variant: 'outline',
+      tone: 'success',
+      class: { dot: 'bg-success', leading: 'text-success group-data-[selected]/tag:text-current' },
+    },
+    {
+      variant: 'outline',
+      tone: 'warning',
+      class: { dot: 'bg-warning', leading: 'text-warning group-data-[selected]/tag:text-current' },
+    },
+    {
+      variant: 'outline',
+      tone: 'error',
+      class: { dot: 'bg-error', leading: 'text-error group-data-[selected]/tag:text-current' },
+    },
+    {
+      variant: 'outline',
+      tone: 'info',
+      class: { dot: 'bg-info', leading: 'text-info group-data-[selected]/tag:text-current' },
+    },
+    { removable: true, size: 'sm', class: { root: 'pe-1' } },
     { removable: true, size: 'md', class: { root: 'pe-1' } },
   ],
   defaultVariants: {
-    variant: 'tonal',
+    variant: 'soft',
     tone: 'neutral',
     size: 'md',
     pulse: false,
@@ -300,7 +394,7 @@ function TagRemoveButton({ label, labels, className }: TagRemoveButtonProps) {
 
 function StaticTag({
   tone = 'neutral',
-  variant = 'tonal',
+  variant = 'soft',
   size = 'md',
   dot,
   icon,
@@ -371,10 +465,14 @@ function GroupTag({
     return tagStyles({
       ...resolved,
       pulse: dot === 'pulse' && decorativeEnabled,
-      interactive: selectionMode !== 'none' || hasAction,
+      interactive: isInteractive(selectionMode),
       focusable: true,
       removable: allowsRemoving,
     });
+  }
+
+  function isInteractive(selectionMode: 'none' | 'single' | 'multiple') {
+    return selectionMode !== 'none' || hasAction;
   }
 
   return (
@@ -388,9 +486,12 @@ function GroupTag({
       data-tone={resolved.tone}
       data-variant={resolved.variant}
       data-size={resolved.size}
-      className={({ selectionMode, allowsRemoving }) =>
-        slotsFor(selectionMode, allowsRemoving).root({ className })
-      }
+      className={({ selectionMode, allowsRemoving }) => {
+        const styles = slotsFor(selectionMode, allowsRemoving);
+        return styles.root({
+          className: [isInteractive(selectionMode) ? styles.interactiveRoot() : '', className],
+        });
+      }}
     >
       {({ selectionMode, allowsRemoving, isSelected }) => {
         const styles = slotsFor(selectionMode, allowsRemoving);
@@ -480,7 +581,7 @@ export interface TagGroupProps<T extends object>
 
 export function TagGroup<T extends object>({
   tone,
-  variant = 'tonal',
+  variant = 'soft',
   size = 'md',
   label,
   description,

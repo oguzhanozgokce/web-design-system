@@ -1,45 +1,54 @@
 ---
 title: Motion
-description: Springs and easings shared with the Compose library, and how reduced motion works.
+description: Easings, durations and keyframes, springs for gestures, and how reduced motion works.
 ---
-
-## Springs
-
-The Compose library animates with springs: spatial springs may overshoot, effect springs never
-bounce. The web uses the same damping ratios and stiffnesses.
-
-| Spec         | Expressive damping / stiffness | Productive damping / stiffness |
-| ------------ | ------------------------------ | ------------------------------ |
-| Spatial fast | 0.65 / 800                     | 0.9 / 1400                     |
-| Spatial      | 0.8 / 380                      | 0.9 / 700                      |
-| Spatial slow | 0.8 / 200                      | 0.9 / 300                      |
-| Effect fast  | 1 / 3800                       | 1 / 3800                       |
-| Effect       | 1 / 1600                       | 1 / 1600                       |
-| Effect slow  | 1 / 800                        | 1 / 800                        |
-
-In JavaScript, `spatialSpring('fast')` and `effectSpring()` from `@/lib/ds/motion` return transitions
-for the `motion` package.
-
-In CSS, the generator turns each spring into a `linear()` easing with its settle time:
-
-```tsx
-<div className="transition-transform duration-(--ds-duration-spatial) ease-spatial" />
-```
-
-`data-motion-profile="productive"` on any ancestor switches to the calmer productive springs, the
-right choice for dense admin screens.
 
 ## Easings and durations
 
-`ease-standard`, `ease-emphasized-decelerate` and `ease-emphasized-accelerate`, with 150, 250 and
-400 ms for short, medium and long, match `DSMotion`.
+| Utility         | Curve                                  | Used for                                             |
+| --------------- | -------------------------------------- | ---------------------------------------------------- |
+| `ease-fluid`    | `cubic-bezier(0.32, 0.72, 0, 1)`       | Sliding indicators, the switch thumb, sheets, toasts |
+| `ease-out-quad` | `cubic-bezier(0.25, 0.46, 0.45, 0.94)` | Dialog entrance, disclosure height                   |
+| `ease-out`      | Tailwind's default                     | Colour, border, shadow and background changes        |
+| `ease`          | The CSS keyword                        | Press scale, popover entrance and exit               |
+
+Durations are 100ms for colour, 150ms for popovers and chevrons, 200ms for exits, 250ms for
+presses, dialogs and indicators, 300ms for the switch thumb and 350ms for toasts.
+
+In JavaScript, `motionEasings` and `motionDurations` from `@/lib/ds/motion` carry the same values,
+and `fluidTween()` returns a `motion` transition on the fluid curve.
+
+## Keyframes
+
+Overlays animate on React Aria's `data-entering` and `data-exiting` attributes with the keyframes
+in `theme.css`:
+
+| Utility                                 | Motion                                                                               |
+| --------------------------------------- | ------------------------------------------------------------------------------------ |
+| `animate-ds-popover-in` / `-out`        | 150ms in from 95% (90% for popovers and tooltips), 4px toward the trigger; 100ms out |
+| `animate-ds-dialog-in` / `-out`         | 250ms in from 105% on `ease-out-quad`; 100ms out to 95%                              |
+| `animate-ds-sheet-in-{side}` / `-out-`  | 250ms in and 200ms out on `ease-fluid`; start and end follow `dir`                   |
+| `animate-ds-fade-in` / `-out`           | Scrims and reduced-motion fallbacks                                                  |
+| `animate-ds-spin`, `-shimmer`, `-pulse` | Spinners, skeleton shimmer, pulsing placeholders                                     |
+
+## Springs
+
+Springs are for gestures that carry velocity: dragging a sheet, swiping a toast, rolling digits.
+`spatialSpring('fast')` and `effectSpring()` from `@/lib/ds/motion` return transitions for the
+`motion` package, and the generator also writes each spring as a CSS `linear()` easing with its
+settle time (`--ds-ease-spatial`, `--ds-duration-spatial`).
+
+`data-motion-profile="productive"` on any ancestor switches to calmer, less bouncy springs, the
+right choice for dense admin screens.
 
 ## Reduced motion
 
-`DSProvider motion` accepts `system`, `reduced` or `disabled`, like `DSMotionPreference`.
+`DSProvider motion` accepts `system`, `reduced` or `disabled`.
 
 - `system` follows the operating system.
-- `reduced` removes spatial movement but keeps short fades.
-- `disabled` removes effects too.
+- `reduced` removes movement and scaling but keeps short fades.
+- `disabled` removes fades too.
 
-Components read it through `useMotionPreference()`. CSS animations use `motion-reduce:`.
+Components read it through `useMotionPreference()`. CSS animations use `motion-reduce:`, and a
+global rule turns every entering and exiting overlay into a fade when the system asks for less
+motion.

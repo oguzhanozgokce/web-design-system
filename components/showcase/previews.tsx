@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import {
   AddIcon,
   BookmarkIcon,
+  CheckIcon,
   CopyIcon,
   DeleteIcon,
   EditIcon,
@@ -57,13 +58,16 @@ import { Skeleton } from '@/registry/ds/ui/skeleton';
 import { Slider } from '@/registry/ds/ui/slider';
 import { Spinner } from '@/registry/ds/ui/spinner';
 import { Switch } from '@/registry/ds/ui/switch';
-import { Tab, TabList, Tabs } from '@/registry/ds/ui/tabs';
+import { Tab, TabList, TabPanel, Tabs } from '@/registry/ds/ui/tabs';
 import { Tag } from '@/registry/ds/ui/tag';
 import { TextArea } from '@/registry/ds/ui/text-area';
 import { TextField } from '@/registry/ds/ui/text-field';
 import { ToggleButton } from '@/registry/ds/ui/toggle-button';
 
-const surface = 'rounded-xl bg-surface-container-high text-on-surface shadow-elevation-3';
+const overlay =
+  'rounded-overlay border border-outline-subtle bg-surface-overlay text-on-surface shadow-md';
+
+const dialog = 'rounded-dialog bg-surface-overlay text-on-surface shadow-lg';
 
 function Shortcut({ keys }: { keys: string[] }) {
   return <KbdCombo keys={keys} size="sm" />;
@@ -72,20 +76,20 @@ function Shortcut({ keys }: { keys: string[] }) {
 export const galleryPreviews: Record<string, () => ReactNode> = {
   button: () => (
     <div className="flex items-center justify-center gap-1.5">
-      <Button size="xs">Primary</Button>
-      <Button size="xs" variant="tonal">
-        Tonal
+      <Button size="sm">Save</Button>
+      <Button size="sm" variant="soft">
+        Share
       </Button>
-      <Button size="xs" variant="outlined">
-        Outlined
+      <Button size="sm" variant="outline">
+        Edit
       </Button>
-      <Button size="xs" variant="text" tone="destructive">
+      <Button size="sm" variant="ghost" tone="error">
         Delete
       </Button>
     </div>
   ),
   'button-group': () => (
-    <ButtonGroup variant="connected" buttonVariant="tonal" size="sm" aria-label="Edit">
+    <ButtonGroup variant="attached" buttonVariant="outline" size="sm" aria-label="Edit">
       <Button startIcon={<CopyIcon />}>Copy</Button>
       <Button>Cut</Button>
       <Button>Paste</Button>
@@ -102,27 +106,27 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
     </div>
   ),
   'copy-button': () => (
-    <div className="flex items-center gap-2 rounded-full bg-surface-container py-1 ps-4 pe-1">
-      <code className="font-mono text-body-sm">npm install</code>
-      <CopyButton value="npm install" aria-label="Copy command" />
+    <div className="flex items-center gap-2 rounded-control border border-outline-subtle bg-surface-raised py-1 ps-4 pe-1 text-on-surface shadow-xs">
+      <code className="font-mono text-sm">npm install</code>
+      <CopyButton value="npm install" size="sm" aria-label="Copy command" />
     </div>
   ),
   fab: () => (
     <div className="flex items-end gap-4">
-      <Fab size="sm" aria-label="Edit" icon={<EditIcon />} color="surface" />
-      <Fab aria-label="Create" icon={<AddIcon />} />
+      <Fab aria-label="Edit" icon={<EditIcon />} tone="neutral" />
+      <Fab aria-label="Create" icon={<AddIcon />} size="lg" />
     </div>
   ),
   'icon-button': () => (
     <div className="flex items-center gap-1">
       <IconButton aria-label="Favourite" icon={<FavoriteIcon />} />
-      <IconButton aria-label="Share" icon={<ShareIcon />} variant="tonal" />
-      <IconButton aria-label="Settings" icon={<SettingsIcon />} variant="outlined" />
-      <IconButton aria-label="More" icon={<MoreHorizontalIcon />} variant="filled" />
+      <IconButton aria-label="Share" icon={<ShareIcon />} variant="soft" />
+      <IconButton aria-label="Settings" icon={<SettingsIcon />} variant="outline" />
+      <IconButton aria-label="More" icon={<MoreHorizontalIcon />} variant="solid" />
     </div>
   ),
   link: () => (
-    <div className="flex flex-col items-center gap-2 text-body-md">
+    <div className="flex flex-col items-center gap-2 text-sm">
       <Link href="#">Documentation</Link>
       <Link href="#" variant="standalone">
         Learn more
@@ -152,7 +156,7 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
       className="w-64"
       aria-label="Search"
       placeholder="Search"
-      shape="pill"
+      variant="soft"
       shortcut="/"
     />
   ),
@@ -186,7 +190,7 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
       aria-label="Folders"
       selectionMode="single"
       defaultSelectedKeys={['inbox']}
-      variant="outlined"
+      variant="outline"
       className="w-52"
     >
       <ListBoxItem id="inbox" startIcon={<InboxIcon />}>
@@ -215,12 +219,21 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
     </ComboBox>
   ),
   tabs: () => (
-    <Tabs className="w-72">
+    <Tabs className="w-72 gap-3">
       <TabList aria-label="Media">
         <Tab id="photos">Photos</Tab>
         <Tab id="videos">Videos</Tab>
         <Tab id="music">Music</Tab>
       </TabList>
+      {[
+        ['photos', '128 photos'],
+        ['videos', '12 videos'],
+        ['music', '40 songs'],
+      ].map(([id, label]) => (
+        <TabPanel key={id} id={id} className="px-3 text-sm text-on-surface-variant">
+          {label}
+        </TabPanel>
+      ))}
     </Tabs>
   ),
   'segmented-control': () => (
@@ -237,9 +250,9 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
     </SegmentedControl>
   ),
   card: () => (
-    <Card variant="outlined" className="w-64">
+    <Card variant="outline" className="w-64">
       <CardHeader title="Card title" description="Supporting text" />
-      <CardContent className="text-body-sm text-on-surface-variant">
+      <CardContent className="text-on-surface-variant">
         Cards group related content and actions.
       </CardContent>
       <CardFooter>
@@ -249,7 +262,7 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
   ),
   divider: () => (
     <div className="flex w-56 flex-col gap-3">
-      <Button size="sm" variant="outlined" fullWidth>
+      <Button size="sm" variant="outline" fullWidth>
         Continue with a passkey
       </Button>
       <OrDivider />
@@ -271,11 +284,11 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
     </Accordion>
   ),
   dialog: () => (
-    <div className={cn(surface, 'flex w-64 flex-col gap-3 p-5')}>
-      <p className="text-title-md">Edit profile</p>
-      <p className="text-body-sm text-on-surface-variant">Changes apply everywhere you sign in.</p>
-      <div className="flex justify-end gap-2">
-        <Button size="sm" variant="text">
+    <div className={cn(dialog, 'flex w-64 flex-col gap-2 p-5')}>
+      <p className="text-base font-semibold">Edit profile</p>
+      <p className="text-sm text-on-surface-variant">Changes apply everywhere you sign in.</p>
+      <div className="mt-2 flex justify-end gap-2">
+        <Button size="sm" variant="ghost">
           Cancel
         </Button>
         <Button size="sm">Save</Button>
@@ -283,30 +296,32 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
     </div>
   ),
   'alert-dialog': () => (
-    <div className={cn(surface, 'flex w-64 flex-col items-center gap-3 p-5 text-center')}>
-      <DeleteIcon className="text-2xl text-error" />
-      <p className="text-title-md">Delete file?</p>
-      <p className="text-body-sm text-on-surface-variant">This cannot be undone.</p>
-      <div className="flex gap-2">
-        <Button size="sm" variant="text">
+    <div className={cn(dialog, 'flex w-64 flex-col items-center gap-2 p-5 text-center')}>
+      <span className="grid size-10 place-items-center rounded-full bg-error-soft text-on-error-soft">
+        <DeleteIcon className="text-xl" />
+      </span>
+      <p className="mt-1 text-base font-semibold">Delete file?</p>
+      <p className="text-sm text-on-surface-variant">This cannot be undone.</p>
+      <div className="mt-2 flex gap-2">
+        <Button size="sm" variant="soft">
           Cancel
         </Button>
-        <Button size="sm" tone="destructive">
+        <Button size="sm" tone="error">
           Delete
         </Button>
       </div>
     </div>
   ),
   sheet: () => (
-    <div className="flex h-40 w-64 flex-col justify-end overflow-clip rounded-lg bg-scrim/20">
-      <div className="flex flex-col gap-2 rounded-t-xl bg-surface-container-low px-4 pt-2 pb-4">
-        <span className="mx-auto h-1 w-8 rounded-full bg-on-surface-variant/40" />
-        <p className="text-title-sm text-on-surface">Share</p>
+    <div className="flex h-40 w-64 flex-col justify-end overflow-clip rounded-overlay bg-backdrop">
+      <div className="flex flex-col gap-2 rounded-t-dialog bg-surface-overlay px-4 pt-2 pb-4 text-on-surface shadow-lg">
+        <span className="mx-auto h-1 w-8 rounded-full bg-outline-variant" />
+        <p className="text-sm font-semibold">Share</p>
         <div className="flex gap-2">
           {[MailIcon, CopyIcon, ShareIcon].map((Icon, index) => (
             <span
               key={index}
-              className="grid size-10 place-items-center rounded-full bg-secondary-container text-on-secondary-container"
+              className="grid size-10 place-items-center rounded-full bg-neutral-soft text-on-surface"
             >
               <Icon />
             </span>
@@ -317,31 +332,37 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
   ),
   popover: () => (
     <div className="flex flex-col items-center gap-2">
-      <Button size="sm" variant="tonal">
+      <Button size="sm" variant="soft">
         Details
       </Button>
-      <div className={cn(surface, 'w-52 p-3 text-body-sm text-on-surface-variant')}>
-        <p className="text-title-sm text-on-surface">Shortcut</p>
+      <div className={cn(overlay, 'w-52 px-4 py-3 text-sm text-on-surface-variant')}>
+        <p className="font-semibold text-on-surface">Shortcut</p>
         Rich content anchored to a trigger.
       </div>
     </div>
   ),
   tooltip: () => (
     <div className="flex flex-col items-center gap-1.5">
-      <span className="rounded-xs bg-inverse-surface px-2 py-1 text-body-sm text-inverse-on-surface">
+      <span className="rounded-item bg-inverse-surface px-2.5 py-1.5 text-xs text-inverse-on-surface shadow-md">
         Share
       </span>
-      <IconButton aria-label="Share" icon={<ShareIcon />} variant="tonal" />
+      <IconButton aria-label="Share" icon={<ShareIcon />} variant="soft" />
     </div>
   ),
   menu: () => (
-    <div className={cn(surface, 'flex w-52 flex-col py-2 text-body-md')}>
+    <div className={cn(overlay, 'flex w-52 flex-col p-1 text-sm')}>
       {[
         { label: 'Copy', keys: ['mod', 'C'] },
         { label: 'Cut', keys: ['mod', 'X'] },
         { label: 'Paste', keys: ['mod', 'V'] },
-      ].map((item) => (
-        <span key={item.label} className="flex h-10 items-center justify-between gap-6 px-3">
+      ].map((item, index) => (
+        <span
+          key={item.label}
+          className={cn(
+            'flex min-h-9 items-center justify-between gap-6 rounded-item px-3',
+            index === 0 && 'bg-neutral-soft',
+          )}
+        >
           {item.label}
           <Shortcut keys={item.keys} />
         </span>
@@ -349,9 +370,16 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
     </div>
   ),
   toast: () => (
-    <div className="flex w-64 items-center justify-between gap-3 rounded-xs bg-inverse-surface py-2 ps-4 pe-2 text-body-md text-inverse-on-surface shadow-elevation-3">
-      Message sent
-      <span className="rounded-full px-3 py-2 text-label-lg text-inverse-primary">Undo</span>
+    <div className="flex w-64 items-center justify-between gap-3 rounded-container border border-outline-subtle bg-surface-overlay py-2.5 ps-4 pe-2.5 text-sm text-on-surface shadow-md">
+      <span className="flex items-center gap-2.5">
+        <span className="grid size-5 place-items-center rounded-full bg-success-solid text-on-success-solid">
+          <CheckIcon className="text-sm" />
+        </span>
+        Message sent
+      </span>
+      <Button size="sm" variant="soft">
+        Undo
+      </Button>
     </div>
   ),
   badge: () => (
@@ -382,14 +410,14 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
   ),
   'empty-state': () => (
     <EmptyState
-      size="compact"
+      size="sm"
       icon={<SearchIcon />}
       title="No results"
       description="Try a different search."
     />
   ),
   'content-state': () => (
-    <ContentState status="error" size="compact" onRetry={() => {}} className="w-64" />
+    <ContentState status="error" size="sm" onRetry={() => {}} className="w-64" />
   ),
   progress: () => (
     <div className="flex w-60 items-center gap-5">
@@ -398,18 +426,18 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
     </div>
   ),
   spinner: () => (
-    <div className="flex items-center gap-5 text-primary">
-      <Spinner size="1.25rem" />
-      <Spinner size="2rem" />
-      <Spinner size="2.75rem" />
+    <div className="flex items-center gap-5 text-on-surface-variant">
+      <Spinner size="sm" />
+      <Spinner size="lg" tone="primary" />
+      <Spinner size="xl" />
     </div>
   ),
   skeleton: () => (
     <div className="flex w-60 items-center gap-3">
       <Skeleton shape="circle" className="size-10" />
       <div className="flex-1">
-        <Skeleton shape="text" className="w-3/5 text-title-sm" />
-        <Skeleton shape="text" className="w-4/5 text-body-sm" />
+        <Skeleton shape="text" className="w-3/5 text-sm" />
+        <Skeleton shape="text" className="w-4/5 text-xs" />
       </div>
     </div>
   ),
@@ -430,12 +458,14 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
       <Tag tone="warning" dot>
         Pending
       </Tag>
-      <Tag tone="info">New</Tag>
-      <Tag>Archived</Tag>
+      <Tag tone="primary" variant="solid">
+        New
+      </Tag>
+      <Tag variant="outline">Archived</Tag>
     </div>
   ),
   kbd: () => (
-    <div className="flex items-center gap-4 text-body-md text-on-surface-variant">
+    <div className="flex items-center gap-4 text-sm text-on-surface-variant">
       <KbdCombo keys={['mod', 'K']} />
       <Kbd>Esc</Kbd>
       <KbdCombo keys={['shift', 'Enter']} />

@@ -10,10 +10,10 @@ import { Menu, MenuItem, MenuSeparator, MenuTrigger } from '@/registry/ds/ui/men
 
 export default function MenuDisabled() {
   return (
-    <div className="flex w-full max-w-md items-center gap-3 rounded-lg bg-surface-container-low py-2 ps-4 pe-2">
+    <div className="flex w-full max-w-md items-center gap-3 rounded-container border border-outline-subtle bg-surface-raised py-2 ps-4 pe-2">
       <div className="min-w-0 flex-1">
-        <p className="truncate text-title-sm text-on-surface">Mert Kaya</p>
-        <p className="truncate text-body-sm text-on-surface-variant">Editor, joined 3 Nov</p>
+        <p className="truncate text-sm font-semibold text-on-surface">Mert Kaya</p>
+        <p className="truncate text-xs text-on-surface-variant">Editor, joined 3 Nov</p>
       </div>
       <MenuTrigger>
         <IconButton aria-label="Actions for Mert Kaya" icon={<MoreVerticalIcon />} />
@@ -32,7 +32,7 @@ export default function MenuDisabled() {
             Make owner
           </MenuItem>
           <MenuSeparator />
-          <MenuItem id="remove" startIcon={<PersonIcon />} tone="destructive">
+          <MenuItem id="remove" startIcon={<PersonIcon />} tone="error">
             Remove
           </MenuItem>
         </Menu>

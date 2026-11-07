@@ -4,16 +4,15 @@ import { ButtonGroup } from '@/registry/ds/ui/button-group';
 export default function ButtonGroupButtonVariants() {
   return (
     <div className="flex flex-col items-center gap-4">
-      {(['filled', 'tonal', 'outlined', 'elevated'] as const).map((buttonVariant) => (
+      {(['solid', 'soft', 'outline', 'ghost'] as const).map((buttonVariant) => (
         <ButtonGroup
           key={buttonVariant}
-          aria-label={`Export, ${buttonVariant}`}
-          variant="connected"
+          aria-label={`Period, ${buttonVariant}`}
           buttonVariant={buttonVariant}
         >
-          <Button>CSV</Button>
-          <Button>PDF</Button>
-          <Button>XLSX</Button>
+          <Button>Day</Button>
+          <Button>Week</Button>
+          <Button>Month</Button>
         </ButtonGroup>
       ))}
     </div>

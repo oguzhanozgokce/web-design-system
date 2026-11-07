@@ -55,7 +55,7 @@ export function TextField({
   errorMessage,
   necessityIndicator,
   size = 'md',
-  variant = 'outlined',
+  variant = 'outline',
   value: valueProp,
   defaultValue = '',
   onChange,

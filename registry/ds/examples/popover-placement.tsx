@@ -13,7 +13,7 @@ export default function PopoverPlacement() {
     <div className="flex flex-wrap items-center justify-center gap-3">
       {placements.map(({ placement, label }) => (
         <PopoverTrigger key={placement}>
-          <Button variant="outlined">{label}</Button>
+          <Button variant="outline">{label}</Button>
           <Popover placement={placement} showArrow>
             <PopoverDialog>
               <p className="max-w-48">Your changes are saved and synced every few minutes.</p>

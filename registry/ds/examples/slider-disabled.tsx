@@ -11,10 +11,10 @@ export default function SliderDisabled() {
       />
       <Slider
         isDisabled
-        label="Price range"
+        label="Photo size"
         defaultValue={[100, 500]}
         maxValue={1000}
-        formatOptions={{ style: 'currency', currency: 'USD', maximumFractionDigits: 0 }}
+        formatOptions={{ style: 'unit', unit: 'megabyte', maximumFractionDigits: 0 }}
       />
     </div>
   );

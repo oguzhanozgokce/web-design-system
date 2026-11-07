@@ -22,14 +22,14 @@ export default function TagGroupValidation() {
           setCategories((current) => current.filter((category) => !keys.has(category.id)))
         }
         renderEmptyState={() => (
-          <span className="text-body-md text-on-surface-variant">No categories yet</span>
+          <span className="text-sm text-on-surface-variant">No categories yet</span>
         )}
       >
         {(category) => <Tag id={category.id}>{category.name}</Tag>}
       </TagGroup>
       <Button
-        size="xs"
-        variant="text"
+        size="sm"
+        variant="ghost"
         isDisabled={!isEmpty}
         onPress={() => setCategories(initialCategories)}
       >

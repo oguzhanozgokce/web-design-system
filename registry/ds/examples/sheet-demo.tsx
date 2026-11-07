@@ -22,7 +22,7 @@ export default function SheetDemo() {
 
   return (
     <SheetTrigger>
-      <Button variant="tonal">View details</Button>
+      <Button variant="soft">View details</Button>
       <Sheet>
         <SheetHeader title="Photo details" description="IMG_2048.jpg" />
         <SheetBody>
@@ -36,7 +36,7 @@ export default function SheetDemo() {
           </dl>
         </SheetBody>
         <SheetFooter>
-          <Button variant="outlined" startIcon={<DownloadIcon />}>
+          <Button variant="outline" startIcon={<DownloadIcon />}>
             Download
           </Button>
           <Button slot="close">Done</Button>

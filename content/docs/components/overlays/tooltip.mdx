@@ -1,6 +1,6 @@
 ---
 title: Tooltip
-description: Material 3 plain and rich tooltips that open on hover and keyboard focus, with keyboard shortcut hints, a shared group for toolbars and an interactive rich variant with an action.
+description: Dark plain tooltips and light rich tooltips that open on hover and keyboard focus, with keyboard shortcut hints, a shared group for toolbars and an interactive rich variant.
 ---
 
 <ComponentPreview name="tooltip-demo" />
@@ -26,6 +26,10 @@ import { ArchiveIcon } from '@/lib/ds/icons';
 tooltip adds a description; it never replaces the trigger's own label, so icon-only buttons still
 need `aria-label`.
 
+A plain tooltip is inverted: the dark `inverse-surface` in a light theme and the light one in a
+dark theme, with 12px text, so it reads against white cards and overlays alike. A rich tooltip
+uses the same light overlay surface as a popover.
+
 ## Examples
 
 ### Toolbar with shortcuts
@@ -44,15 +48,15 @@ always run left to right.
 ### Placement and arrow
 
 `placement` defaults to `top`. `start` and `end` follow the reading direction, and the tooltip
-flips when it does not fit. Plain Material 3 tooltips have no arrow; add `showArrow` when the
-trigger is small or sits among other targets.
+flips when it does not fit. Tooltips have no arrow by default; add `showArrow` when the trigger is
+small or sits among other targets.
 
 <ComponentPreview name="tooltip-placement" />
 
 ### Rich tooltip
 
 `RichTooltip` explains a control, a term or a number with a `title` and a body on the
-`surface-container` role. Without an action it is still a tooltip: it describes the trigger and
+`surface-overlay` role. Without an action it is still a tooltip: it describes the trigger and
 holds nothing interactive. Put it on a control that does something on its own, as here, so people
 on touch screens, who never see tooltips, lose nothing.
 
@@ -116,10 +120,8 @@ Every other [React Aria Tooltip](https://react-aria.adobe.com/Tooltip) prop is p
 | `containerPadding` | `number`                                 | `12`               |
 | `className`        | `string`                                 |                    |
 
-The surface is `surface-container`, and the rich tooltip says so through `SurfaceContext`, so a
-[Card](/docs/components/layout/card) inside it steps up from the tooltip rather than from the page.
 Its action keeps its own size and variant even when the trigger sits in a [Button
-Group](/docs/components/actions/button-group).
+Group](/docs/components/actions/button-group). A `ghost` button lines its label up with the text.
 
 ### TooltipGroup
 
@@ -131,6 +133,16 @@ Group](/docs/components/actions/button-group).
 | `isDisabled` | `boolean`          | `false` |
 
 Groups nest; an inner group inherits what it does not set.
+
+### Styling
+
+| Part         | Classes                                                                                            |
+| ------------ | -------------------------------------------------------------------------------------------------- |
+| tooltip      | `max-w-xs rounded-item bg-inverse-surface px-2.5 py-1.5 text-xs text-inverse-on-surface shadow-md` |
+| shortcut key | a ghost `Kbd` on `bg-inverse-on-surface/15`, `rounded-sm`                                          |
+| rich tooltip | `rounded-overlay bg-surface-overlay px-4 py-3 text-sm text-on-surface-variant shadow-md`           |
+| rich title   | `text-sm font-semibold text-on-surface`                                                            |
+| arrow        | the surface colour of its tooltip                                                                  |
 
 ### Data attributes
 

@@ -17,18 +17,18 @@ export default function DynamicThemeTenants() {
         <DynamicTheme
           key={team.name}
           seed={team.seed}
-          className="flex flex-col gap-4 rounded-lg bg-surface-container-low p-4 text-on-surface"
+          className="flex flex-col gap-4 rounded-container border border-outline-subtle bg-surface-raised p-4 text-on-surface"
         >
           <div className="flex items-center gap-3">
             <span
               aria-hidden
-              className="grid size-10 shrink-0 place-items-center rounded-md bg-primary-container text-title-md text-on-primary-container"
+              className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-base font-semibold text-on-primary-soft"
             >
               {team.name[0]}
             </span>
             <div className="min-w-0">
-              <p className="truncate text-title-sm">{team.name}</p>
-              <p className="text-body-sm text-on-surface-variant">{team.members} members</p>
+              <p className="truncate text-sm font-semibold">{team.name}</p>
+              <p className="text-xs text-on-surface-variant">{team.members} members</p>
             </div>
           </div>
           <Meter
@@ -39,19 +39,25 @@ export default function DynamicThemeTenants() {
           >
             {({ percentage, valueText }) => (
               <>
-                <div className="h-1.5 overflow-hidden rounded-full bg-surface-container-highest">
+                <div className="h-1.5 overflow-hidden rounded-full bg-neutral-soft">
                   <div
-                    className="h-full rounded-full bg-primary"
+                    className="h-full rounded-full bg-primary-solid"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
-                <span className="text-body-sm text-on-surface-variant tabular-digits">
+                <span className="text-xs text-on-surface-variant tabular-digits">
                   Storage {valueText}
                 </span>
               </>
             )}
           </Meter>
-          <Button variant="tonal" size="sm" aria-label={`Open ${team.name}`} className="self-start">
+          <Button
+            variant="soft"
+            tone="primary"
+            size="sm"
+            aria-label={`Open ${team.name}`}
+            className="self-start"
+          >
             Open
           </Button>
         </DynamicTheme>

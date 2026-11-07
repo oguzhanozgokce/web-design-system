@@ -8,9 +8,9 @@ const people = [
 ];
 
 const tones = [
-  'bg-primary-container text-on-primary-container',
-  'bg-primary text-on-primary',
-  'bg-tertiary-container text-on-tertiary-container',
+  'bg-neutral-soft text-on-surface',
+  'bg-primary-soft text-on-primary-soft',
+  'bg-info-soft text-on-info-soft',
 ];
 
 function Initials({ name, index }: { name: string; index: number }) {
@@ -21,7 +21,7 @@ function Initials({ name, index }: { name: string; index: number }) {
     .slice(0, 2);
   return (
     <span
-      className={`flex items-center justify-center rounded-full text-label-md ${tones[index % tones.length]}`}
+      className={`flex items-center justify-center rounded-full text-xs font-medium ${tones[index % tones.length]}`}
     >
       {initials}
     </span>
@@ -35,7 +35,7 @@ export default function ListBoxAvatars() {
       items={people}
       selectionMode="single"
       defaultSelectedKeys={['hiroshi']}
-      variant="outlined"
+      variant="outline"
       className="w-full max-w-xs"
     >
       {(person) => (

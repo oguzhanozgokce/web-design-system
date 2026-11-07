@@ -4,7 +4,6 @@ import { page, userEvent } from 'vitest/browser';
 import { expectNoA11yViolations, renderWithDS } from '@/test/utils';
 import { ArchiveIcon, CopyIcon, UndoIcon } from '@/registry/ds/lib/icons';
 import { Button } from '@/registry/ds/ui/button';
-import { Card } from '@/registry/ds/ui/card';
 import {
   RichTooltip,
   Tooltip,
@@ -28,6 +27,15 @@ function PointerRest() {
       Projects
     </p>
   );
+}
+
+function roleColor(className: string, property: 'backgroundColor' | 'color') {
+  const probe = document.createElement('div');
+  probe.className = className;
+  document.body.append(probe);
+  const color = getComputedStyle(probe)[property];
+  probe.remove();
+  return color;
 }
 
 function stubPlatform(platform: string) {
@@ -184,7 +192,8 @@ describe('Tooltip', () => {
     expect(keys).toHaveLength(2);
     expect(keys[0]).toHaveAttribute('data-key', 'command');
     expect(keys[0].querySelector('[data-slot="kbd-glyph"]')).toHaveTextContent('⌘');
-    expect(keys[0]).toHaveClass('bg-inverse-on-surface/12');
+    expect(getComputedStyle(keys[0]).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+    expect(getComputedStyle(keys[0]).color).toBe(roleColor('text-inverse-on-surface', 'color'));
     expect(document.querySelector('[data-slot="shortcut"]')).toHaveAttribute('dir', 'ltr');
     await expect
       .element(screen.getByRole('button', { name: 'Undo' }))
@@ -341,7 +350,7 @@ describe('Tooltip', () => {
             <ArchiveIcon />
           </IconTrigger>
           <Tooltip placement="bottom" showArrow>
-            أرشفة الفاتورة
+            أرشفة المشروع
           </Tooltip>
         </TooltipTrigger>
       </div>,
@@ -372,11 +381,31 @@ describe('Tooltip', () => {
     );
 
     await expect.element(page.getByRole('tooltip')).toBeVisible();
+    await Promise.all(document.getAnimations().map((animation) => animation.finished));
     const tooltip = document.querySelector('[role="tooltip"]')!.getBoundingClientRect();
     const label = document.querySelector('[data-slot="label"]')!.getBoundingClientRect();
     const shortcut = document.querySelector('[data-slot="shortcut"]')!.getBoundingClientRect();
-    expect(label.right).toBeCloseTo(tooltip.right - 8, 0);
-    expect(shortcut.left).toBeCloseTo(tooltip.left + 8, 0);
+    expect(label.right).toBeCloseTo(tooltip.right - 10, 0);
+    expect(shortcut.left).toBeCloseTo(tooltip.left + 10, 0);
+  });
+
+  it('is dark on a light page: the inverse surface, 12px text and a shadow', async () => {
+    await renderWithDS(
+      <TooltipTrigger defaultOpen>
+        <IconTrigger label="Archive">
+          <ArchiveIcon />
+        </IconTrigger>
+        <Tooltip>Archive project</Tooltip>
+      </TooltipTrigger>,
+    );
+    const tooltip = page.getByRole('tooltip');
+    await expect.element(tooltip).toBeVisible();
+    const style = getComputedStyle(tooltip.element());
+    expect(style.backgroundColor).toBe(roleColor('bg-inverse-surface', 'backgroundColor'));
+    expect(style.color).toBe(roleColor('text-inverse-on-surface', 'color'));
+    expect(style.fontSize).toBe('12px');
+    expect(style.borderTopLeftRadius).toBe('12px');
+    expect(style.boxShadow).not.toBe('none');
   });
 
   it('turns the motion off through the motion variant', () => {
@@ -389,10 +418,8 @@ describe('RichTooltip', () => {
   it('renders a title and body as a tooltip when it has no action', async () => {
     const screen = await renderWithDS(
       <TooltipTrigger defaultOpen>
-        <Button variant="text">Net traffic</Button>
-        <RichTooltip title="Net traffic">
-          Gross sales minus refunds, discounts and fees.
-        </RichTooltip>
+        <Button variant="ghost">Storage</Button>
+        <RichTooltip title="Storage">Photos, videos and backups count toward it.</RichTooltip>
       </TooltipTrigger>,
     );
 
@@ -400,49 +427,49 @@ describe('RichTooltip', () => {
     await expect.element(tooltip).toBeVisible();
     await expect.element(tooltip).toHaveAttribute('data-slot', 'rich-tooltip');
     await expect
-      .element(screen.getByRole('button', { name: 'Net traffic' }))
-      .toHaveAccessibleDescription('Net traffic Gross sales minus refunds, discounts and fees.');
+      .element(screen.getByRole('button', { name: 'Storage' }))
+      .toHaveAccessibleDescription('Storage Photos, videos and backups count toward it.');
   });
 
-  it('raises cards inside it above its own surface', async () => {
+  it('sits on the overlay surface, not the inverse one', async () => {
     await renderWithDS(
       <TooltipTrigger defaultOpen>
-        <Button variant="text">Net traffic</Button>
-        <RichTooltip title="Net traffic">
-          <Card variant="outlined">Gross sales minus refunds</Card>
-        </RichTooltip>
+        <Button variant="ghost">Storage</Button>
+        <RichTooltip title="Storage">Photos, videos and backups count toward it.</RichTooltip>
       </TooltipTrigger>,
     );
 
-    await expect.element(page.getByRole('tooltip')).toBeVisible();
-    expect(document.querySelector('[data-slot="rich-tooltip"] [data-slot="card"]')).toHaveAttribute(
-      'data-surface',
-      'surface-container-high',
-    );
+    const tooltip = page.getByRole('tooltip');
+    await expect.element(tooltip).toBeVisible();
+    const style = getComputedStyle(tooltip.element());
+    expect(style.backgroundColor).toBe(roleColor('bg-surface-overlay', 'backgroundColor'));
+    expect(style.borderTopLeftRadius).toBe('16px');
+    const title = document.querySelector('[data-slot="rich-tooltip"] [data-slot="title"]')!;
+    expect(getComputedStyle(title).fontWeight).toBe('600');
   });
 
   it('becomes a non-modal dialog the keyboard can enter when it has an action', async () => {
     const onLearnMore = vi.fn();
     const screen = await renderWithDS(
       <TooltipTrigger delay={100}>
-        <Button variant="text">Net traffic</Button>
+        <Button variant="ghost">Storage</Button>
         <RichTooltip
-          title="Net traffic"
+          title="Storage"
           action={
-            <Button variant="text" size="sm" onPress={onLearnMore}>
+            <Button variant="ghost" size="sm" onPress={onLearnMore}>
               How we calculate it
             </Button>
           }
         >
-          Gross sales minus refunds, discounts and fees.
+          Photos, videos and backups count toward it.
         </RichTooltip>
       </TooltipTrigger>,
     );
-    const trigger = screen.getByRole('button', { name: 'Net traffic' });
+    const trigger = screen.getByRole('button', { name: 'Storage' });
 
     await userEvent.keyboard('{Tab}');
     await expect.element(trigger).toHaveFocus();
-    const dialog = page.getByRole('dialog', { name: 'Net traffic' });
+    const dialog = page.getByRole('dialog', { name: 'Storage' });
     await expect.element(dialog).toBeVisible();
     await expect.element(dialog).toHaveAttribute('data-trigger', 'PreviewTrigger');
     await expect.element(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -459,26 +486,26 @@ describe('RichTooltip', () => {
   });
 
   it('still becomes a dialog when the rich tooltip is wrapped in another component', async () => {
-    function RevenueHelp() {
+    function StorageHelp() {
       return (
-        <RichTooltip title="Net traffic" action={<Button variant="text">Details</Button>}>
-          Gross sales minus refunds.
+        <RichTooltip title="Storage" action={<Button variant="ghost">Details</Button>}>
+          Photos, videos and backups count toward it.
         </RichTooltip>
       );
     }
 
     const screen = await renderWithDS(
       <TooltipTrigger delay={100}>
-        <Button variant="text">Net traffic</Button>
-        <RevenueHelp />
+        <Button variant="ghost">Storage</Button>
+        <StorageHelp />
       </TooltipTrigger>,
     );
-    const trigger = screen.getByRole('button', { name: 'Net traffic' });
+    const trigger = screen.getByRole('button', { name: 'Storage' });
 
     await userEvent.keyboard('{Tab}');
     await expect.element(trigger).toHaveFocus();
     await expect.element(trigger).toHaveAttribute('aria-haspopup', 'dialog');
-    await expect.element(page.getByRole('dialog', { name: 'Net traffic' })).toBeVisible();
+    await expect.element(page.getByRole('dialog', { name: 'Storage' })).toBeVisible();
     await userEvent.keyboard('{Tab}');
     await expect.element(page.getByRole('button', { name: 'Details' })).toHaveFocus();
     await userEvent.keyboard('{Escape}');
@@ -491,16 +518,16 @@ describe('RichTooltip', () => {
       <>
         <PointerRest />
         <TooltipTrigger isDisabled delay={50} onOpenChange={onOpenChange}>
-          <Button variant="text">Net traffic</Button>
-          <RichTooltip title="Net traffic" action={<Button variant="text">Details</Button>}>
-            Gross sales minus refunds.
+          <Button variant="ghost">Storage</Button>
+          <RichTooltip title="Storage" action={<Button variant="ghost">Details</Button>}>
+            Photos, videos and backups count toward it.
           </RichTooltip>
         </TooltipTrigger>
         <TooltipGroup isDisabled delay={50}>
           <TooltipTrigger>
-            <Button variant="text">Refunds</Button>
-            <RichTooltip title="Refunds" action={<Button variant="text">Open refunds</Button>}>
-              Money returned to followers this month.
+            <Button variant="ghost">Backups</Button>
+            <RichTooltip title="Backups" action={<Button variant="ghost">Open backups</Button>}>
+              Copies of your devices from the last 30 days.
             </RichTooltip>
           </TooltipTrigger>
         </TooltipGroup>
@@ -508,16 +535,16 @@ describe('RichTooltip', () => {
     );
 
     await userEvent.keyboard('{Tab}');
-    await expect.element(screen.getByRole('button', { name: 'Net traffic' })).toHaveFocus();
+    await expect.element(screen.getByRole('button', { name: 'Storage' })).toHaveFocus();
     await wait(300);
     expect(document.querySelector('[role="dialog"]')).toBeNull();
 
     await userEvent.keyboard('{Tab}');
-    await expect.element(screen.getByRole('button', { name: 'Refunds' })).toHaveFocus();
+    await expect.element(screen.getByRole('button', { name: 'Backups' })).toHaveFocus();
     await wait(300);
     expect(document.querySelector('[role="dialog"]')).toBeNull();
 
-    await hover(screen.getByRole('button', { name: 'Net traffic' }));
+    await hover(screen.getByRole('button', { name: 'Storage' }));
     await wait(300);
     expect(document.querySelector('[role="dialog"]')).toBeNull();
     expect(onOpenChange).not.toHaveBeenCalled();
@@ -533,8 +560,8 @@ describe('RichTooltip', () => {
       }, []);
       return (
         <TooltipTrigger defaultOpen isDisabled={isDisabled}>
-          <Button variant="text">Storage</Button>
-          <RichTooltip title="Storage" action={<Button variant="text">Manage</Button>}>
+          <Button variant="ghost">Storage</Button>
+          <RichTooltip title="Storage" action={<Button variant="ghost">Manage</Button>}>
             41 of 50 GB used.
           </RichTooltip>
         </TooltipTrigger>
@@ -557,9 +584,9 @@ describe('RichTooltip', () => {
         <>
           <p>{isOpen ? 'Details shown' : 'Details hidden'}</p>
           <TooltipTrigger isOpen={isOpen} onOpenChange={setOpen} delay={50}>
-            <Button variant="text">Net traffic</Button>
-            <RichTooltip title="Net traffic" action={<Button variant="text">Details</Button>}>
-              Gross sales minus refunds.
+            <Button variant="ghost">Storage</Button>
+            <RichTooltip title="Storage" action={<Button variant="ghost">Details</Button>}>
+              Photos, videos and backups count toward it.
             </RichTooltip>
           </TooltipTrigger>
         </>
@@ -567,11 +594,11 @@ describe('RichTooltip', () => {
     }
 
     const screen = await renderWithDS(<Controlled />);
-    const trigger = screen.getByRole('button', { name: 'Net traffic' });
+    const trigger = screen.getByRole('button', { name: 'Storage' });
 
     await userEvent.keyboard('{Tab}');
     await expect.element(trigger).toHaveFocus();
-    await expect.element(page.getByRole('dialog', { name: 'Net traffic' })).toBeVisible();
+    await expect.element(page.getByRole('dialog', { name: 'Storage' })).toBeVisible();
     await expect.element(screen.getByText('Details shown')).toBeInTheDocument();
 
     await userEvent.keyboard('{Escape}');
@@ -584,19 +611,19 @@ describe('RichTooltip', () => {
       <>
         <PointerRest />
         <TooltipTrigger delay={100}>
-          <Button variant="text">Net traffic</Button>
-          <RichTooltip title="Net traffic" action={<Button variant="text">Details</Button>}>
-            Gross sales minus refunds.
+          <Button variant="ghost">Storage</Button>
+          <RichTooltip title="Storage" action={<Button variant="ghost">Details</Button>}>
+            Photos, videos and backups count toward it.
           </RichTooltip>
         </TooltipTrigger>
       </>,
     );
 
-    await hover(screen.getByRole('button', { name: 'Net traffic' }));
-    await expect.element(page.getByRole('dialog', { name: 'Net traffic' })).toBeVisible();
+    await hover(screen.getByRole('button', { name: 'Storage' }));
+    await expect.element(page.getByRole('dialog', { name: 'Storage' })).toBeVisible();
     await page.getByRole('button', { name: 'Details' }).hover();
     await wait(400);
-    await expect.element(page.getByRole('dialog', { name: 'Net traffic' })).toBeVisible();
+    await expect.element(page.getByRole('dialog', { name: 'Storage' })).toBeVisible();
   });
 });
 
@@ -614,17 +641,17 @@ describe('Tooltip accessibility', () => {
     ),
     rich: (
       <TooltipTrigger defaultOpen>
-        <Button variant="text">Net traffic</Button>
-        <RichTooltip title="Net traffic" showArrow>
-          Gross sales minus refunds, discounts and fees.
+        <Button variant="ghost">Storage</Button>
+        <RichTooltip title="Storage" showArrow>
+          Photos, videos and backups count toward it.
         </RichTooltip>
       </TooltipTrigger>
     ),
     action: (
       <TooltipTrigger defaultOpen>
-        <Button variant="text">Net traffic</Button>
-        <RichTooltip title="Net traffic" action={<Button variant="text">Details</Button>}>
-          Gross sales minus refunds, discounts and fees.
+        <Button variant="ghost">Storage</Button>
+        <RichTooltip title="Storage" action={<Button variant="ghost">Details</Button>}>
+          Photos, videos and backups count toward it.
         </RichTooltip>
       </TooltipTrigger>
     ),

@@ -1,6 +1,6 @@
 ---
 title: Tag
-description: Compact status labels for tables and lists in six tones and three variants, with an optional dot or icon, plus a keyboard-navigable TagGroup for removable or selectable tags in forms.
+description: Compact status labels in six tones and three variants, with an optional dot or icon, plus a TagGroup for removable or selectable tags.
 ---
 
 <ComponentPreview name="tag-demo" />
@@ -27,14 +27,14 @@ import { Tag, TagGroup } from '@/components/ds/tag';
 
 A tag describes something. A [Chip](/docs/components/feedback/chip) is something people act on.
 
-|                | Tag                                                       | Chip                                                   |
-| -------------- | --------------------------------------------------------- | ------------------------------------------------------ |
-| Job            | Show a status or category: "Active", "Pending", "Draft"   | Filter, choose, enter a value or run a small action    |
-| Size           | 20 or 24px, 4px corners, `label-sm`                       | 28 or 32px, 8px corners, `label-lg` (Material 3 chips) |
-| Colour         | Six tones that carry meaning (success, warning, error...) | Neutral; selection fills it with the secondary colour  |
-| On its own     | A plain `<span>`. Nothing happens when you click it       | Always a button, toggle or grid row                    |
-| In a group     | `TagGroup`: removable or selectable labels inside a form  | `ChipGroup`: filter bars and choice sets               |
-| Typical places | Table cells, list rows, card headers, next to titles      | Toolbars above a table, search refinements, pickers    |
+|                | Tag                                                       | Chip                                                |
+| -------------- | --------------------------------------------------------- | --------------------------------------------------- |
+| Job            | Show a status or category: "Active", "Pending", "Draft"   | Filter, choose, enter a value or run a small action |
+| Size           | 20 or 24px pill, `text-xs font-medium`                    | 24 or 32px pill, `text-xs` or `text-sm font-medium` |
+| Colour         | Six tones that carry meaning (success, warning, error...) | Neutral; selection takes the pale primary fill      |
+| On its own     | A plain `<span>`. Nothing happens when you click it       | Always a button, toggle or grid row                 |
+| In a group     | `TagGroup`: removable or selectable labels inside a form  | `ChipGroup`: filter bars and choice sets            |
+| Typical places | Table cells, list rows, card headers, next to titles      | Toolbars above a table, search refinements, pickers |
 
 If the colour of the label means something, use a Tag. If the label is the control, use a Chip. A
 `TagGroup` sits between the two: it is the right choice when a form edits a set of labels that are
@@ -46,23 +46,33 @@ shown as tags everywhere else, such as the labels on a task or the categories of
 
 `neutral` is the default and suits states that need no attention, such as "Draft". `success`,
 `warning` and `error` map to the outcome of a task, a sync or a check. `info` marks something
-scheduled or informational. `primary` highlights something new or featured. Every tone uses its
-Material 3 container and on-container roles, so text contrast holds in both themes.
+scheduled or informational. `primary` highlights something new or featured. A soft tag is a 12%
+tint of its tone with the tone as text (`bg-success-soft text-on-success-soft`); neutral uses the
+translucent `bg-neutral-soft`. The tints are translucent, so they work on the page, a card or an
+overlay, and text contrast holds in both themes.
 
 <ComponentPreview name="tag-tones" />
 
 ### Variants
 
-`tonal` fills the tag with the tone's container colour and works best in dense tables. `outlined`
-keeps the surface behind it and suits busy cards. `filled` uses the tone's main colour for the one
-status that must stand out, such as "Failed", so use it sparingly.
+`soft`, the default, fills the tag with a pale tint of its tone and works best in dense tables.
+`outline` is a neutral 1px border with on-surface text; the tone shows in the dot or icon, which
+keeps a busy card calm. `solid` uses the tone's saturated fill, which stays vivid in dark mode, for
+the one status that must stand out, such as "Failed", so use it sparingly. A neutral solid tag is
+the inverse surface: dark in light mode, light in dark mode.
+
+| Variant   | Background                            | Text                   | Dot         |
+| --------- | ------------------------------------- | ---------------------- | ----------- |
+| `soft`    | `bg-{tone}-soft`                      | `text-on-{tone}-soft`  | text colour |
+| `outline` | transparent, `border-outline-variant` | `text-on-surface`      | `bg-{tone}` |
+| `solid`   | `bg-{tone}-solid`                     | `text-on-{tone}-solid` | text colour |
 
 <ComponentPreview name="tag-variants" />
 
 ### Sizes
 
-`md` is 24px and the default. `sm` is 20px for compact tables, list rows and sidebars. Both use the
-`label-sm` type role and 4px corners.
+`md` is 24px and the default. `sm` is 20px for compact tables, list rows and sidebars. Both are fully
+rounded pills with `text-xs font-medium` labels.
 
 <ComponentPreview name="tag-sizes" />
 
@@ -93,9 +103,10 @@ group shows "None", and focus moves to the group so it is not lost.
 
 ### Selectable tags
 
-`selectionMode="single"` or `"multiple"` turns the tags into a selection. A selected tag fills with
-its tone's main colour and shows a check, so selection never depends on colour alone. Set `tone`
-and `variant` on the group to style every tag at once; a tag's own props win.
+`selectionMode="single"` or `"multiple"` turns the tags into a selection. A selected tag takes its
+tone's solid fill and shows a check, so selection never depends on colour alone. Selectable tags get
+a hover fill, a pointer cursor and a 97% press scale. Set `tone` and `variant` on the group to style
+every tag at once; a tag's own props win.
 
 <ComponentPreview name="tag-group-selectable" align="start" />
 
@@ -109,7 +120,7 @@ description for the error, and screen readers hear it as the group's description
 ### Disabled
 
 `isDisabled` on the group disables every tag and its remove button and takes the group out of the
-tab order. To disable a single tag, set `isDisabled` on that `Tag`, or pass `disabledKeys` to the
+tab order. Disabled tags keep their colours at half opacity. To disable a single tag, set `isDisabled` on that `Tag`, or pass `disabledKeys` to the
 group.
 
 <ComponentPreview name="tag-group-disabled" align="start" />
@@ -121,7 +132,7 @@ group.
 | Prop         | Type                                                                     | Default     |
 | ------------ | ------------------------------------------------------------------------ | ----------- |
 | `tone`       | `'neutral' \| 'primary' \| 'success' \| 'warning' \| 'error' \| 'info'`  | `'neutral'` |
-| `variant`    | `'tonal' \| 'outlined' \| 'filled'`                                      | `'tonal'`   |
+| `variant`    | `'soft' \| 'outline' \| 'solid'`                                         | `'soft'`    |
 | `size`       | `'sm' \| 'md'`                                                           | `'md'`      |
 | `dot`        | `boolean \| 'pulse'`                                                     | `false`     |
 | `icon`       | `ReactNode`                                                              |             |
@@ -148,7 +159,7 @@ group's.
 | `isInvalid`         | `boolean`                                  | `false`     |
 | `isDisabled`        | `boolean`                                  | `false`     |
 | `tone`              | the `Tag` tones, applied to every tag      | `'neutral'` |
-| `variant`           | `'tonal' \| 'outlined' \| 'filled'`        | `'tonal'`   |
+| `variant`           | `'soft' \| 'outline' \| 'solid'`           | `'soft'`    |
 | `size`              | `'sm' \| 'md'`                             | `'md'`      |
 | `items`             | `Iterable<T>`                              |             |
 | `children`          | `ReactNode \| (item: T) => ReactNode`      |             |

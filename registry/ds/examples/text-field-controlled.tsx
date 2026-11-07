@@ -18,7 +18,7 @@ export default function TextFieldControlled() {
   return (
     <div className="grid w-full max-w-sm gap-2">
       <TextField label="Page title" value={title} onChange={setTitle} />
-      <p className="text-body-sm text-on-surface-variant">
+      <p className="text-sm text-on-surface-variant">
         The page lives at{' '}
         <span className="text-on-surface">example.com/{toSlug(title) || '…'}</span>
       </p>

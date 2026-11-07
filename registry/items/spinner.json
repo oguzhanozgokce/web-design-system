@@ -2,7 +2,7 @@
   "name": "spinner",
   "type": "registry:ui",
   "title": "Spinner",
-  "description": "A small decorative spinner that inherits the current text colour and size, for pending buttons, chips and inline status text.",
+  "description": "A small decorative spinner in four sizes that follows the current text colour, for pending buttons, chips and inline status text.",
   "category": "feedback",
   "files": ["ui/spinner.tsx"]
 }

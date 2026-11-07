@@ -14,7 +14,7 @@ export default function PopoverDemo() {
 
   return (
     <PopoverTrigger>
-      <Button variant="tonal" startIcon={<CalendarMonthIcon />}>
+      <Button variant="soft" startIcon={<CalendarMonthIcon />}>
         Next meeting
       </Button>
       <Popover>

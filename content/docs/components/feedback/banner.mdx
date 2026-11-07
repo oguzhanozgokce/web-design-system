@@ -1,6 +1,6 @@
 ---
 title: Banner
-description: Inline message and top-of-page banner in five status tones, tonal or outlined, with a default glyph per tone, text-button actions, a dismiss button and a polite status region that becomes an alert for announced errors.
+description: Inline and top-of-page message in five tones, soft or on a raised surface, with a glyph per tone, actions, a dismiss button and a polite live region.
 ---
 
 <ComponentPreview name="banner-demo" />
@@ -28,7 +28,7 @@ import { Button } from '@/components/ds/button';
 ### Tones
 
 `info` explains, `success` confirms, `warning` asks for attention before something goes wrong, and
-`error` says it already did. `neutral` uses a surface container for news and notes that are not a
+`error` says it already did. `neutral` uses a translucent grey for news and notes that are not a
 status. Each tone has its own glyph; screen readers also hear the tone ("Warning:") before the
 title, so colour is never the only signal.
 
@@ -36,26 +36,27 @@ title, so colour is never the only signal.
 
 ### Variants
 
-`tonal` fills the banner with the tone's container colour and is the default. `outlined` keeps the
-surface colour and draws the tone as a border and a coloured glyph, which suits dense settings
-pages where several banners would otherwise shout.
+`soft`, the default, fills the banner with a pale tint of the tone and writes the text in the tone.
+`surface` sits on the raised surface with a hairline border, like a card, and keeps the tone for the
+glyph only, which suits dense settings pages where several banners would otherwise shout.
 
 <ComponentPreview name="banner-variants" align="stretch" />
 
 ### Page banner
 
-`layout="page"` is the Material 3 banner: full width, square corners, placed at the top of the
-page under the app bar. Actions sit at the end when the banner is wider than 42rem and wrap under
-the message when it is narrower, so it reads well at 375px.
+`layout="page"` is a full-width strip with square corners for the top of a page, under the header.
+Actions sit at the end when the banner is wider than 42rem and wrap under the message when it is
+narrower, so it reads well at 375px. In the `surface` variant it keeps only the bottom border.
 
 <ComponentPreview name="banner-page" align="stretch" />
 
 ### Actions
 
-Buttons in `actions` default to small text buttons coloured like the banner's text. Pass `variant`
-on a button to override that. When `onPress` returns a promise, the button shows its own pending
-state. When the first action is a text button, the row shifts so its label lines up with the title,
-and actions that wrap onto a second row line up with the first.
+Buttons in `actions` default to small (32px) ghost buttons; in a `soft` banner they take the
+banner's text colour. Pass `variant` on a button to override that, for example `variant="soft"` for
+the one action that matters. When `onPress` returns a promise, the button shows its own pending
+state. When the first action is a ghost button, the row shifts so its label lines up with the
+title, and actions that wrap onto a second row line up with the first.
 
 <ComponentPreview name="banner-actions" align="stretch" />
 
@@ -90,7 +91,7 @@ leave it out.
 | Prop            | Type                                                         | Default    |
 | --------------- | ------------------------------------------------------------ | ---------- |
 | `tone`          | `'info' \| 'success' \| 'warning' \| 'error' \| 'neutral'`   | `'info'`   |
-| `variant`       | `'tonal' \| 'outlined'`                                      | `'tonal'`  |
+| `variant`       | `'soft' \| 'surface'`                                        | `'soft'`   |
 | `layout`        | `'inline' \| 'page'`                                         | `'inline'` |
 | `title`         | `ReactNode`                                                  |            |
 | `description`   | `ReactNode`                                                  |            |
@@ -107,6 +108,17 @@ leave it out.
 
 Every other `div` prop, including `ref`, goes to the root. `bannerStyles` is exported for custom
 compositions.
+
+### Styling
+
+| Part        | Classes                                                                                  |
+| ----------- | ---------------------------------------------------------------------------------------- |
+| root        | `flex gap-3 px-4 py-3`, `rounded-container` inline and square in the page layout         |
+| soft        | `bg-{tone}-soft text-on-{tone}-soft`; neutral is `bg-neutral-soft text-on-surface`       |
+| surface     | `border border-outline-subtle bg-surface-raised text-on-surface`, glyph in `text-{tone}` |
+| title       | `text-sm font-semibold`                                                                  |
+| description | `text-sm`, `text-on-surface-variant` in `surface`                                        |
+| dismiss     | a 28px round ghost button with a 16px glyph                                              |
 
 ### Data attributes
 
@@ -138,5 +150,6 @@ Text the banner writes on its own. Pass `labels` to one banner, or set them for 
 - The glyph is decorative. The tone is spoken as a visually hidden prefix, such as "Warning:".
 - Dismiss is a React Aria button named by the `dismiss` label. The banner fades out in 100 ms,
   becomes `inert` while it does, and is removed straight away when motion is disabled.
-- In tonal banners, focus rings use the banner's text colour so they keep 3:1 contrast on every
-  container. Contrast is checked with axe in light, dark and RTL by `banner.test.tsx`.
+- Soft fills are translucent tints, so the text keeps its contrast on the canvas, on cards and in
+  dialogs alike. Contrast is checked with axe for every tone and variant in light, dark and RTL by
+  `banner.test.tsx`.

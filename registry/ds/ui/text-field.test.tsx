@@ -18,7 +18,7 @@ describe('TextField', () => {
 
   it('follows a controlled value', async () => {
     function Example() {
-      const [value, setValue] = useState('nova');
+      const [value, setValue] = useState('studio');
       return (
         <>
           <TextField label="Workspace URL" value={value} onChange={setValue} />
@@ -28,7 +28,7 @@ describe('TextField', () => {
     }
     const screen = await renderWithDS(<Example />);
     const input = screen.getByRole('textbox', { name: 'Workspace URL' });
-    await expect.element(input).toHaveValue('nova');
+    await expect.element(input).toHaveValue('studio');
     await input.fill('riverside');
     await expect.element(screen.getByText('RIVERSIDE')).toBeInTheDocument();
   });
@@ -141,7 +141,7 @@ describe('TextField', () => {
   it('keeps email, URL and phone controls left to right in RTL', async () => {
     const screen = await renderWithDS(
       <div className="w-96">
-        <TextField label="الموقع" type="url" startAdornment="https://" defaultValue="nova.com" />
+        <TextField label="الموقع" type="url" startAdornment="https://" defaultValue="example.com" />
         <TextField label="الهاتف" type="tel" defaultValue="+44 20 7946 0958" />
         <TextField label="الاسم" defaultValue="شركة نورثويند" />
       </div>,
@@ -163,15 +163,15 @@ describe('TextField', () => {
   it('restores the default value and counter when its form resets', async () => {
     const screen = await renderWithDS(
       <form>
-        <TextField label="Display name" name="displayName" defaultValue="Nova" maxLength={20} />
+        <TextField label="Display name" name="displayName" defaultValue="Alex" maxLength={20} />
         <button type="reset">Reset</button>
       </form>,
     );
     const input = screen.getByRole('textbox', { name: 'Display name' });
-    await input.fill('Nova Finance');
-    await expect.element(screen.getByText('12/20')).toBeInTheDocument();
+    await input.fill('Design studio');
+    await expect.element(screen.getByText('13/20')).toBeInTheDocument();
     await screen.getByRole('button', { name: 'Reset' }).click();
-    await expect.element(input).toHaveValue('Nova');
+    await expect.element(input).toHaveValue('Alex');
     await expect.element(screen.getByText('4/20')).toBeInTheDocument();
   });
 
@@ -227,14 +227,14 @@ describe('TextField', () => {
 
   it('shows a character counter tied to the input when maxLength is set', async () => {
     const screen = await renderWithDS(
-      <TextField label="Display name" maxLength={20} defaultValue="Nova" />,
+      <TextField label="Display name" maxLength={20} defaultValue="Alex" />,
     );
     const input = screen.getByRole('textbox', { name: 'Display name' });
     await expect.element(input).toHaveAttribute('maxlength', '20');
     await expect.element(screen.getByText('4/20')).toBeInTheDocument();
     await expect.element(input).toHaveAccessibleDescription('Character count: 4 of 20');
-    await input.fill('Nova Finance');
-    await expect.element(screen.getByText('12/20')).toBeInTheDocument();
+    await input.fill('Design studio');
+    await expect.element(screen.getByText('13/20')).toBeInTheDocument();
   });
 
   it('keeps the description next to the counter and can hide the counter', async () => {
@@ -256,22 +256,22 @@ describe('TextField', () => {
   it('marks invalid and disabled states', async () => {
     const screen = await renderWithDS(
       <div>
-        <TextField label="IBAN" isInvalid errorMessage="This IBAN has 2 digits too few." />
-        <TextField label="Currency" isDisabled defaultValue="EUR" />
+        <TextField label="Access code" isInvalid errorMessage="This code has 2 digits too few." />
+        <TextField label="Language" isDisabled defaultValue="English" />
       </div>,
     );
-    const iban = screen.getByRole('textbox', { name: 'IBAN' });
-    await expect.element(iban).toHaveAttribute('aria-invalid', 'true');
-    await expect.element(iban).toHaveAccessibleDescription('This IBAN has 2 digits too few.');
-    await expect.element(screen.getByRole('textbox', { name: 'Currency' })).toBeDisabled();
+    const code = screen.getByRole('textbox', { name: 'Access code' });
+    await expect.element(code).toHaveAttribute('aria-invalid', 'true');
+    await expect.element(code).toHaveAccessibleDescription('This code has 2 digits too few.');
+    await expect.element(screen.getByRole('textbox', { name: 'Language' })).toBeDisabled();
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="grid w-96 gap-4 p-4">
-          <TextField label="Website" startAdornment="https://" placeholder="nova.com" />
-          <TextField label="Parcel weight" endAdornment="kg" variant="filled" size="sm" />
+          <TextField label="Website" startAdornment="https://" placeholder="example.com" />
+          <TextField label="Parcel weight" endAdornment="kg" variant="soft" size="sm" />
           <TextField
             label="Reference"
             defaultValue="DOC-2041"
@@ -280,7 +280,7 @@ describe('TextField', () => {
             size="lg"
           />
           <TextField label="Display name" maxLength={32} description="Shown to your team." />
-          <TextField label="IBAN" isInvalid errorMessage="This IBAN has 2 digits too few." />
+          <TextField label="Access code" isInvalid errorMessage="This code has 2 digits too few." />
         </div>,
         options,
       );

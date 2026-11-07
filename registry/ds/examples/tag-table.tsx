@@ -33,10 +33,10 @@ const members: { name: string; email: string; role: string; status: string; tone
 
 export default function TagTable() {
   return (
-    <div className="w-full max-w-xl overflow-x-auto rounded-md border border-outline-variant">
-      <table className="w-full text-start text-body-md text-on-surface">
+    <div className="w-full max-w-xl overflow-x-auto rounded-container border border-outline-subtle bg-surface-raised">
+      <table className="w-full text-start text-sm text-on-surface">
         <caption className="sr-only">Members</caption>
-        <thead className="bg-surface-container-low text-label-lg text-on-surface-variant">
+        <thead className="bg-neutral-soft text-sm font-medium text-on-surface-variant">
           <tr>
             <th scope="col" className="px-3 py-2 text-start font-medium sm:px-4">
               Member
@@ -51,10 +51,10 @@ export default function TagTable() {
         </thead>
         <tbody>
           {members.map((member) => (
-            <tr key={member.email} className="border-t border-outline-variant">
+            <tr key={member.email} className="border-t border-outline-subtle">
               <td className="w-full max-w-0 px-3 py-2.5 sm:px-4">
-                <div className="truncate text-label-lg">{member.name}</div>
-                <div className="truncate text-body-sm text-on-surface-variant">{member.email}</div>
+                <div className="truncate text-sm font-medium">{member.name}</div>
+                <div className="truncate text-xs text-on-surface-variant">{member.email}</div>
               </td>
               <td className="px-3 py-2.5 whitespace-nowrap text-on-surface-variant sm:px-4">
                 {member.role}

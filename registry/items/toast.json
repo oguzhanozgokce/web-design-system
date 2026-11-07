@@ -2,7 +2,7 @@
   "name": "toast",
   "type": "registry:ui",
   "title": "Toast",
-  "description": "Material 3 snackbar toasts with a global toast() API, status tones, actions, promise and in-place updates, six logical placements and a stack that fans out on hover or keyboard focus.",
+  "description": "Toasts with a global toast() API, five tones, an action, promise and in-place updates, six logical placements and a stack that fans out on hover or focus.",
   "category": "feedback",
   "files": ["ui/toast.tsx"]
 }

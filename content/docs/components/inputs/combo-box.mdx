@@ -1,6 +1,6 @@
 ---
 title: Combo box
-description: Searchable select on the shared Field contract that ignores case and accents, matches item keywords, loads results as you type, accepts custom values, picks one or several options and clears with one press.
+description: Searchable select that ignores case and accents, matches keywords, loads results as you type and picks one or several options.
 ---
 
 <ComponentPreview name="combo-box-demo" />
@@ -21,8 +21,9 @@ import { ListBoxItem } from '@/components/ds/list-box';
 ```
 
 The input follows the [Field](/docs/components/inputs/field) contract, and options are
-[List box](/docs/components/inputs/list-box) items in a popover at least as wide as the field, but
-never wider than the viewport. Use a combo box when people know what they are looking for, or the
+[List box](/docs/components/inputs/list-box) items on a raised overlay panel at least as wide as the
+field, but never wider than the viewport. The chevron button at the end is a small round ghost
+button that tints on hover and turns while the list is open. Use a combo box when people know what they are looking for, or the
 list is long. For a short list, a [Select](/docs/components/inputs/select) is quicker.
 
 ## Examples
@@ -61,7 +62,7 @@ replace a newer one.
 
 `selectionMode="multiple"` keeps the list open while people pick, and `value` becomes an array of
 keys. The input clears after each pick so the next search starts fresh, and a “2 selected” count
-shows at the end of the field. Screen readers hear the selected labels as the field's description.
+shows as a small neutral pill at the end of the field. Screen readers hear the selected labels as the field's description.
 The clear button empties both the text and the selection.
 
 <ComponentPreview name="combo-box-multiple" />
@@ -75,7 +76,8 @@ suggestions. Read the text from `inputValue`; `value` stays `null` for text that
 
 ### Variants and sizes
 
-The field takes the same `variant` and `size` as a text field. `sm` also tightens the list rows.
+The field takes the same `variant` (`outline` or `soft`) and `size` (32, 40 or 48 px) as a text
+field. `sm` also tightens the list rows to 32 px.
 
 <ComponentPreview name="combo-box-variants" />
 
@@ -132,18 +134,18 @@ Plus the [shared Field props](/docs/components/inputs/field#shared-props) and ev
 
 ### comboBoxStyles
 
-`comboBoxStyles({ animated })` returns class functions for `count`, `value`, `loading`, `arrow`,
-`popover` and `list`. `animated` (default `true`) turns the arrow with the spatial spring; ComboBox
+`comboBoxStyles({ animated })` returns class functions for `count`, `value`, `loading`, `trigger`,
+`arrow`, `popover` and `list`. `animated` (default `true`) turns the chevron over 150 ms; ComboBox
 sets it to `false` when `DSProvider` motion is reduced or off. The field itself uses the
 [`fieldStyles`](/docs/components/inputs/field#fieldstyles) parts.
 
 ### Data attributes
 
-The root has `data-slot="combo-box"`, `data-size`, `data-variant`, `data-loading`, `data-open`,
+The root has `data-slot="combo-box"`, `data-size`, `data-variant` (`outline` or `soft`), `data-loading`, `data-open`,
 `data-invalid`, `data-disabled`, `data-readonly` and `data-required`. Parts:
 `data-slot="container"`, `"input"`, `"selected-value"` (the hidden description, with
 `data-placeholder` while nothing is selected), `"selected-count"`, `"loading"`, `"clear-button"`,
-`"trigger"` (the arrow button, with `data-pressed` while open) and `"popover"`. The list parts are listed on
+`"trigger"` (the chevron button, with `data-pressed` while open) and `"popover"`. The list parts are listed on
 [List box](/docs/components/inputs/list-box#data-attributes).
 
 ### Labels
@@ -158,7 +160,7 @@ marker, which `DSProvider` sets under `field`.
 | `noResults`       | `No results`       | the open list when nothing matches                                       |
 | `loading`         | `Loading…`         | the spinner's accessible name and the row of an empty list while loading |
 | `clear`           | `Clear`            | the accessible name of the clear button                                  |
-| `showSuggestions` | `Show suggestions` | the accessible name of the arrow button                                  |
+| `showSuggestions` | `Show suggestions` | the accessible name of the chevron button                                |
 | `selectedCount`   | `{count} selected` | the count at the end of a multiple-selection field                       |
 
 `{count}` arrives formatted with the locale's number format. A template can also be a function of
@@ -173,6 +175,6 @@ it, for languages with plural forms: `selectedCount: ({ count }) => …`.
   cursor stays in the field and its options.
 - The popover takes its direction from the locale, so the list mirrors in right-to-left languages
   even when only part of the page is right-to-left.
-- The arrow and clear buttons are out of the tab order, like the browser's own controls; both are
+- The chevron and clear buttons are out of the tab order, like the browser's own controls; both are
   named from `labels`, and clearing puts focus back in the input.
 - Contrast is checked with axe in light, dark and RTL, with the list open, by `combo-box.test.tsx`.

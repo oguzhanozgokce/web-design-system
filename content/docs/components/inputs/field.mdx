@@ -1,6 +1,6 @@
 ---
 title: Field
-description: The shared contract every input follows, with a label and necessity indicator, description, error message, character counter and outlined and filled controls in three sizes.
+description: The shared contract every input follows, with a label, description, error, character counter and outline or soft controls in three sizes.
 ---
 
 <ComponentPreview name="field-demo" />
@@ -48,17 +48,18 @@ import { Field, FieldGroup, FieldInput, fieldStyles } from '@/components/ds/fiel
 
 ### Variants
 
-`outlined` is the default and reads best on white pages and cards. `filled` is the Material 3
-filled field with a bottom indicator; use it in dense admin forms or on tinted surfaces. Pick one per
+`outline` is the default: a white control with a hairline border that reads on the grey page, on
+cards and in dialogs alike. `soft` is a borderless neutral tint that turns white with a primary
+border on focus; use it for search bars in headers, toolbars and dense filter rows. Pick one per
 form.
 
 <ComponentPreview name="field-variants" align="stretch" />
 
 ### Sizes
 
-`md` (40 px) is the default. `sm` (36 px) suits filter bars and table toolbars, `lg` (48 px) suits
-sign-up and sign-in forms. Every size uses 16 px text on touch screens, so iOS does not zoom in on
-focus.
+`md` (40 px) is the default. `sm` (32 px) suits filter bars and table toolbars, `lg` (48 px) suits
+sign-up and sign-in forms. Fields have a 12 px radius at every size. Values are 14 px with a mouse
+and 16 px on touch screens, so iOS does not zoom in on focus.
 
 <ComponentPreview name="field-sizes" />
 
@@ -88,8 +89,8 @@ both fields here do, so the message matches the rest of the form.
 ### States
 
 `isReadOnly` keeps the value readable, selectable and submitted, on a tinted control. `isDisabled`
-dims the field and leaves it out of the form. `isInvalid` turns the control and the message to the
-error role.
+fades the whole field to half opacity, shows a not-allowed cursor and leaves it out of the form.
+`isInvalid` turns the border and the message to the error role; the label stays neutral.
 
 <ComponentPreview name="field-states" align="stretch" />
 
@@ -103,9 +104,10 @@ context already names the field, such as a search box in a toolbar.
 ### Building an input
 
 The parts work inside every React Aria field. `FieldGroup` draws the control and focuses the input
-when its padding or an adornment is pressed. `FieldAdornment` holds icons and text, `FieldButton` holds
-small actions such as copy or clear. Give every `FieldButton` an `aria-label`, and announce what it
-did when the result is not visible, as the copy button here does with a status region.
+when its padding or an adornment is pressed. `FieldAdornment` holds icons and text, `FieldButton`
+holds small round actions such as copy or clear, which tint on hover. Give every `FieldButton` an
+`aria-label`, and announce what it did when the result is not visible, as the copy button here does
+with a status region.
 
 <ComponentPreview name="field-composition" />
 
@@ -116,19 +118,19 @@ did when the result is not visible, as the copy button here does with a status r
 Every input accepts these, plus the React Aria props of the field it is built on (`value`,
 `defaultValue`, `onChange`, `name`, `validate`, `validationBehavior` and the rest).
 
-| Prop                 | Type                                                         | Default      |
-| -------------------- | ------------------------------------------------------------ | ------------ |
-| `label`              | `ReactNode`                                                  |              |
-| `isLabelHidden`      | `boolean`                                                    | `false`      |
-| `description`        | `ReactNode`                                                  |              |
-| `errorMessage`       | `ReactNode \| ((validation: ValidationResult) => ReactNode)` |              |
-| `necessityIndicator` | `'icon' \| 'label'`                                          | `'icon'`     |
-| `size`               | `'sm' \| 'md' \| 'lg'`                                       | `'md'`       |
-| `variant`            | `'outlined' \| 'filled'`                                     | `'outlined'` |
-| `isRequired`         | `boolean`                                                    | `false`      |
-| `isDisabled`         | `boolean`                                                    | `false`      |
-| `isReadOnly`         | `boolean`                                                    | `false`      |
-| `isInvalid`          | `boolean`                                                    | automatic    |
+| Prop                 | Type                                                         | Default     |
+| -------------------- | ------------------------------------------------------------ | ----------- |
+| `label`              | `ReactNode`                                                  |             |
+| `isLabelHidden`      | `boolean`                                                    | `false`     |
+| `description`        | `ReactNode`                                                  |             |
+| `errorMessage`       | `ReactNode \| ((validation: ValidationResult) => ReactNode)` |             |
+| `necessityIndicator` | `'icon' \| 'label'`                                          | `'icon'`    |
+| `size`               | `'sm' \| 'md' \| 'lg'`                                       | `'md'`      |
+| `variant`            | `'outline' \| 'soft'`                                        | `'outline'` |
+| `isRequired`         | `boolean`                                                    | `false`     |
+| `isDisabled`         | `boolean`                                                    | `false`     |
+| `isReadOnly`         | `boolean`                                                    | `false`     |
+| `isInvalid`          | `boolean`                                                    | automatic   |
 
 The props interface is exported as `FieldBaseProps`.
 
@@ -138,19 +140,19 @@ Renders the label, the control you pass as `children` and the supporting line. P
 React Aria field so the label, description and error are wired to the input. It reads the
 validation state from that field; pass `isRequired` to both so the indicator shows.
 
-| Prop                 | Type                                                         | Default      |
-| -------------------- | ------------------------------------------------------------ | ------------ |
-| `label`              | `ReactNode`                                                  |              |
-| `isLabelHidden`      | `boolean`                                                    | `false`      |
-| `description`        | `ReactNode`                                                  |              |
-| `errorMessage`       | `ReactNode \| ((validation: ValidationResult) => ReactNode)` |              |
-| `necessityIndicator` | `'icon' \| 'label'`                                          | `'icon'`     |
-| `isRequired`         | `boolean`                                                    | `false`      |
-| `size`               | `'sm' \| 'md' \| 'lg'`                                       | `'md'`       |
-| `variant`            | `'outlined' \| 'filled'`                                     | `'outlined'` |
-| `counter`            | `ReactNode`                                                  |              |
-| `labels`             | `Partial<FieldLabels>`                                       |              |
-| `children`           | `ReactNode`                                                  |              |
+| Prop                 | Type                                                         | Default     |
+| -------------------- | ------------------------------------------------------------ | ----------- |
+| `label`              | `ReactNode`                                                  |             |
+| `isLabelHidden`      | `boolean`                                                    | `false`     |
+| `description`        | `ReactNode`                                                  |             |
+| `errorMessage`       | `ReactNode \| ((validation: ValidationResult) => ReactNode)` |             |
+| `necessityIndicator` | `'icon' \| 'label'`                                          | `'icon'`    |
+| `isRequired`         | `boolean`                                                    | `false`     |
+| `size`               | `'sm' \| 'md' \| 'lg'`                                       | `'md'`      |
+| `variant`            | `'outline' \| 'soft'`                                        | `'outline'` |
+| `counter`            | `ReactNode`                                                  |             |
+| `labels`             | `Partial<FieldLabels>`                                       |             |
+| `children`           | `ReactNode`                                                  |             |
 
 ### Parts
 
@@ -174,14 +176,14 @@ validation state from that field; pass `isRequired` to both so the indicator sho
 `fieldStyles(variants)` returns one class function per slot: `root`, `label`, `necessity`,
 `container`, `input`, `adornment`, `action`, `supporting`, `description`, `error` and `counter`.
 
-| Variant              | Values                   | Affects                                             |
-| -------------------- | ------------------------ | --------------------------------------------------- |
-| `size`               | `'sm' \| 'md' \| 'lg'`   | `container` height, padding and icon size, `action` |
-| `variant`            | `'outlined' \| 'filled'` | `container`                                         |
-| `multiline`          | `boolean`                | `container` and `input` for a text area             |
-| `placement`          | `'start' \| 'end'`       | `adornment` spacing                                 |
-| `necessityIndicator` | `'icon' \| 'label'`      | `necessity`                                         |
-| `isLabelHidden`      | `boolean`                | `label`                                             |
+| Variant              | Values                 | Affects                                             |
+| -------------------- | ---------------------- | --------------------------------------------------- |
+| `size`               | `'sm' \| 'md' \| 'lg'` | `container` height, padding and icon size, `action` |
+| `variant`            | `'outline' \| 'soft'`  | `container`                                         |
+| `multiline`          | `boolean`              | `container` and `input` for a text area             |
+| `placement`          | `'start' \| 'end'`     | `adornment` spacing                                 |
+| `necessityIndicator` | `'icon' \| 'label'`    | `necessity`                                         |
+| `isLabelHidden`      | `boolean`              | `label`                                             |
 
 Use it to style a control that is not a `Group`, such as the trigger button of a select: give that
 element the `group/control` class (the `container` slot includes it) and `data-hovered`,
@@ -223,11 +225,10 @@ of those values, for languages that need plural forms.
 - The counter is read with the description on focus and announced politely 750 ms after typing
   stops, never on every keystroke, and only while the input it describes has focus, so a value set
   by code elsewhere on the page stays quiet.
-- Focus shows as a 2 px primary border (error border when invalid) for mouse and keyboard alike,
-  and the caret takes the same colour. Borders use the `outline` role, which keeps 3:1 contrast
-  against the surface. In forced-colours mode, where borders lose their colour, the input shows the
-  system focus outline instead, and the filled control, whose tint and indicator disappear there,
-  gets a bottom border so it stays visible.
+- Focus shows as a primary border with a soft 2 px inner ring (error colours when invalid) for mouse
+  and keyboard alike, and the caret takes the same colour. The outer size never changes, so nothing
+  around the field moves. In forced-colours mode, where tints disappear, every control keeps a 1 px
+  system-coloured border, the soft one included.
 - Text adornments keep their own reading direction, so `https://` reads correctly inside an
   Arabic form and an Arabic unit reads correctly inside an English one.
 - Contrast is checked with axe in light, dark and RTL by `field.test.tsx`.

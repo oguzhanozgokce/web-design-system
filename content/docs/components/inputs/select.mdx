@@ -1,6 +1,6 @@
 ---
 title: Select
-description: Field-styled select on the shared Field contract, with icons and avatars in the value, sections, single or multiple selection shown as text, a count or chips, and async loading.
+description: Pick one or several options from a list, with icons and avatars, sections, chips or a count, and async loading.
 ---
 
 <ComponentPreview name="select-demo" />
@@ -23,8 +23,9 @@ import { Select } from '@/components/ds/select';
 The trigger looks like a [Text field](/docs/components/inputs/text-field): label, description,
 errors, sizes, variants and the required indicator follow the
 [Field](/docs/components/inputs/field) contract. Options are
-[List box](/docs/components/inputs/list-box) items, shown in a popover at least as wide as the
-trigger. On a narrow screen the popover never grows past the viewport, so the page does not scroll
+[List box](/docs/components/inputs/list-box) items, shown on a raised overlay panel (16 px radius,
+hairline border, medium shadow) at least as wide as the trigger. Rows are 36 px with 12 px corners;
+the selected one carries a check mark. On a narrow screen the popover never grows past the viewport, so the page does not scroll
 sideways and close it.
 
 Use a select for a short, known list. When people need to search, or the list has more than about
@@ -34,15 +35,16 @@ fifteen options, use a [Combo box](/docs/components/inputs/combo-box).
 
 ### Variants
 
-`outlined` is the default and suits most forms. `filled` gives more weight on plain backgrounds and
-matches filled text fields in the same form.
+`outline` is the default and suits most forms. `soft` is a borderless neutral tint for toolbars and
+filter rows, and matches soft text fields in the same form. While the list is open, the trigger keeps
+the focused frame and the chevron turns.
 
 <ComponentPreview name="select-variants" />
 
 ### Sizes
 
-`md` (40px) is the default. `sm` (36px) suits toolbars and table footers and also tightens the list
-rows. `lg` (48px) suits touch-first and marketing forms.
+`md` (40 px) is the default. `sm` (32 px) suits toolbars and table footers and also tightens the
+list rows to 32 px. `lg` (48 px) suits touch-first and marketing forms.
 
 <ComponentPreview name="select-sizes" />
 
@@ -73,7 +75,7 @@ selectable.
 `selectionMode="multiple"` keeps the list open while people pick, and `value` becomes an array of
 keys. `valueDisplay` sets how the trigger shows the choice: `text` (the default) lists the labels in
 the locale's list format, `count` shows “3 selected”, and `chips` shows the first `maxChips` labels
-(2 by default) and a “+n” chip. Screen readers always hear the full list.
+(2 by default) as small neutral pills and a “+n” chip. Screen readers always hear the full list.
 
 <ComponentPreview name="select-multiple" />
 
@@ -87,14 +89,14 @@ validate as people go instead of on submit.
 
 ### Disabled
 
-`isDisabled` locks the whole control. `disabledKeys` or an item's `isDisabled` keeps one option
+`isDisabled` locks the whole control and fades it to half opacity. `disabledKeys` or an item's `isDisabled` keeps one option
 visible but out of reach; explain why in the description.
 
 <ComponentPreview name="select-disabled" />
 
 ### Async options
 
-`isLoading` swaps the arrow for a spinner, and the open list shows a “Loading…” row. Add
+`isLoading` swaps the chevron for a spinner, and the open list shows a “Loading…” row. Add
 `onLoadMore` to fetch the next page when the end of the list scrolls into view. An empty list shows
 “No options” unless you pass `renderEmptyState`.
 
@@ -141,14 +143,15 @@ React Aria's Select; use `isDisabled` or show the value as text.
 ### selectStyles
 
 `selectStyles({ variant, animated })` returns class functions for `trigger`, `value`, `chips`,
-`chip`, `more`, `indicator`, `arrow`, `popover` and `list`. `animated` (default `true`) turns the
-arrow with the spatial spring; Select sets it to `false` when `DSProvider` motion is reduced or off.
+`chip`, `more`, `indicator`, `arrow`, `popover` and `list`. `variant` is `'outline'` or `'soft'` and
+draws the open state of the trigger. `animated` (default `true`) turns the chevron over 150 ms;
+Select sets it to `false` when `DSProvider` motion is reduced or off.
 The trigger also takes the `container` classes from
 [`fieldStyles`](/docs/components/inputs/field#fieldstyles).
 
 ### Data attributes
 
-The root has `data-slot="select"`, `data-size`, `data-variant`, `data-loading`, `data-open`,
+The root has `data-slot="select"`, `data-size`, `data-variant` (`outline` or `soft`), `data-loading`, `data-open`,
 `data-focused`, `data-focus-visible`, `data-invalid`, `data-disabled` and `data-required`. Parts:
 `data-slot="trigger"` (with `data-pressed` while open and `data-invalid`), `"value"` (with
 `data-placeholder`), `"count"`, `"chips"`, `"chip"`, `"more"`, `"indicator"` and `"popover"`. The list parts are

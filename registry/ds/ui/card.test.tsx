@@ -13,159 +13,177 @@ import {
   ClickableCard,
   SelectableCard,
   SelectableCardGroup,
-  SurfaceContext,
 } from '@/registry/ds/ui/card';
 
 const pixel = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
 
+function probe(className: string, property: 'backgroundColor' | 'color' = 'backgroundColor') {
+  const element = document.createElement('div');
+  element.className = className;
+  document.querySelector('[data-testid="ds-root"]')!.append(element);
+  const value = getComputedStyle(element)[property];
+  element.remove();
+  return value;
+}
+
+function targetOf(control: Element) {
+  return control.closest('[data-slot=selectable-card-target]') as HTMLElement;
+}
+
 describe('Card', () => {
-  it('renders a filled card with its parts and a heading title', async () => {
+  it('renders an outline card with its parts and a heading title', async () => {
     const screen = await renderWithDS(
       <Card data-testid="card">
         <CardHeader
-          title="Project DOC-2048"
-          description="Garden Logistics, due 14 November"
-          action={<Button variant="text">Download</Button>}
+          title="Website redesign"
+          description="Due 14 November"
+          action={<Button variant="ghost">Edit</Button>}
         />
-        <CardContent>4,820.00 USD</CardContent>
+        <CardContent>12 of 18 tasks done</CardContent>
         <CardFooter>
-          <Button>Send reminder</Button>
+          <Button>Open</Button>
         </CardFooter>
       </Card>,
     );
     const card = screen.getByTestId('card');
     await expect.element(card).toHaveAttribute('data-slot', 'card');
-    await expect.element(card).toHaveAttribute('data-variant', 'filled');
+    await expect.element(card).toHaveAttribute('data-variant', 'outline');
     await expect.element(card).toHaveAttribute('data-padding', 'md');
-    await expect.element(card).toHaveAttribute('data-surface', 'surface-container-highest');
+    await expect.element(card).not.toHaveAttribute('data-surface');
     await expect
-      .element(screen.getByRole('heading', { level: 3, name: 'Project DOC-2048' }))
+      .element(screen.getByRole('heading', { level: 3, name: 'Website redesign' }))
       .toBeVisible();
-    await expect.element(screen.getByText('Garden Logistics, due 14 November')).toBeVisible();
-    await expect.element(screen.getByRole('button', { name: 'Download' })).toBeVisible();
+    await expect.element(screen.getByText('Due 14 November')).toBeVisible();
+    await expect.element(screen.getByRole('button', { name: 'Edit' })).toBeVisible();
     expect(card.element().querySelector('[data-slot=card-footer]')).not.toBeNull();
+
+    const style = getComputedStyle(card.element());
+    expect(style.backgroundColor).toBe(probe('bg-surface-raised'));
+    expect(style.borderTopWidth).toBe('1px');
+    expect(style.borderTopColor).toBe(probe('bg-outline-subtle'));
+    expect(style.borderTopLeftRadius).toBe('20px');
+    expect(style.paddingTop).toBe('16px');
   });
 
-  it('uses the M3 resting surface for each variant and the requested heading level', async () => {
+  it('paints each variant from its surface role and the requested heading level', async () => {
     const screen = await renderWithDS(
       <>
         <Card data-testid="elevated" variant="elevated">
           <CardTitle level={2}>Elevated</CardTitle>
         </Card>
-        <Card data-testid="outlined" variant="outlined">
-          <CardTitle>Outlined</CardTitle>
+        <Card data-testid="soft" variant="soft">
+          <CardTitle>Soft</CardTitle>
+        </Card>
+        <Card data-testid="transparent" variant="transparent">
+          <CardTitle>Transparent</CardTitle>
         </Card>
       </>,
     );
-    await expect
-      .element(screen.getByTestId('elevated'))
-      .toHaveAttribute('data-surface', 'surface-container-low');
-    await expect.element(screen.getByTestId('outlined')).toHaveAttribute('data-surface', 'surface');
+    const elevated = getComputedStyle(screen.getByTestId('elevated').element());
+    expect(elevated.backgroundColor).toBe(probe('bg-surface-raised'));
+    expect(elevated.boxShadow).not.toBe('none');
+    expect(elevated.borderTopWidth).toBe('0px');
+    expect(getComputedStyle(screen.getByTestId('soft').element()).backgroundColor).toBe(
+      probe('bg-neutral-soft'),
+    );
+    expect(getComputedStyle(screen.getByTestId('transparent').element()).backgroundColor).toBe(
+      'rgba(0, 0, 0, 0)',
+    );
     await expect.element(screen.getByRole('heading', { level: 2, name: 'Elevated' })).toBeVisible();
   });
 
-  it('steps nested cards up one surface level and caps at the highest', async () => {
+  it('sizes the title and spacing with the padding', async () => {
+    const screen = await renderWithDS(
+      <>
+        <Card data-testid="sm" padding="sm">
+          <CardTitle>Small</CardTitle>
+        </Card>
+        <Card data-testid="lg" padding="lg">
+          <CardTitle>Large</CardTitle>
+        </Card>
+      </>,
+    );
+    const small = screen.getByTestId('sm').element();
+    const large = screen.getByTestId('lg').element();
+    expect(getComputedStyle(small).paddingTop).toBe('12px');
+    expect(getComputedStyle(large).paddingTop).toBe('24px');
+    const smallTitle = getComputedStyle(screen.getByRole('heading', { name: 'Small' }).element());
+    const largeTitle = getComputedStyle(screen.getByRole('heading', { name: 'Large' }).element());
+    expect(smallTitle.fontSize).toBe('14px');
+    expect(smallTitle.fontWeight).toBe('600');
+    expect(largeTitle.fontSize).toBe('16px');
+  });
+
+  it('reads a soft card inside an outline or elevated card as a step, without a surface ladder', async () => {
     const screen = await renderWithDS(
       <Card data-testid="outer" variant="elevated">
-        <Card data-testid="middle" variant="elevated">
-          <Card data-testid="inner" variant="outlined">
-            <Card data-testid="deep" variant="elevated">
-              <Card data-testid="deepest" variant="elevated">
-                Folder
-              </Card>
-            </Card>
-          </Card>
-          <Card data-testid="filled" variant="filled">
-            Filled stays highest
+        <Card data-testid="inner" variant="soft">
+          <Card data-testid="leaf" variant="outline" padding="sm">
+            Largest: Summer album
           </Card>
         </Card>
       </Card>,
     );
-    await expect
-      .element(screen.getByTestId('outer'))
-      .toHaveAttribute('data-surface', 'surface-container-low');
-    await expect
-      .element(screen.getByTestId('middle'))
-      .toHaveAttribute('data-surface', 'surface-container');
-    await expect
-      .element(screen.getByTestId('inner'))
-      .toHaveAttribute('data-surface', 'surface-container-high');
-    await expect
-      .element(screen.getByTestId('deep'))
-      .toHaveAttribute('data-surface', 'surface-container-highest');
-    await expect
-      .element(screen.getByTestId('deepest'))
-      .toHaveAttribute('data-surface', 'surface-container-highest');
-    await expect
-      .element(screen.getByTestId('filled'))
-      .toHaveAttribute('data-surface', 'surface-container-highest');
-  });
-
-  it('starts from a surface given through SurfaceContext and honours an explicit surface', async () => {
-    const screen = await renderWithDS(
-      <SurfaceContext value="surface-container">
-        <Card data-testid="stepped" variant="outlined">
-          Region card
-        </Card>
-        <Card data-testid="pinned" surface="surface-container-lowest">
-          Pinned card
-        </Card>
-      </SurfaceContext>,
+    const outer = screen.getByTestId('outer').element();
+    const inner = screen.getByTestId('inner').element();
+    const leaf = screen.getByTestId('leaf').element();
+    expect(getComputedStyle(inner).backgroundColor).toBe(probe('bg-neutral-soft'));
+    expect(getComputedStyle(inner).backgroundColor).not.toBe(
+      getComputedStyle(outer).backgroundColor,
     );
-    await expect
-      .element(screen.getByTestId('stepped'))
-      .toHaveAttribute('data-surface', 'surface-container-high');
-    await expect
-      .element(screen.getByTestId('pinned'))
-      .toHaveAttribute('data-surface', 'surface-container-lowest');
+    expect(getComputedStyle(leaf).backgroundColor).toBe(getComputedStyle(outer).backgroundColor);
+    for (const card of [outer, inner, leaf]) expect(card).not.toHaveAttribute('data-surface');
   });
 
-  it('bleeds media to the card edges unless it is inset', async () => {
+  it('bleeds media to the card edges unless it is inset, with a concentric inset corner', async () => {
     const screen = await renderWithDS(
       <div className="w-80">
         <Card data-testid="card" padding="lg">
-          <CardMedia src={pixel} alt="Harbour at dawn" className="h-20" />
-          <CardTitle>Lisbon offsite</CardTitle>
-          <CardMedia inset src={pixel} alt="Venue floor plan" className="h-20" />
+          <CardMedia src={pixel} alt="Mountain lake at dawn" className="h-20" />
+          <CardTitle>Weekend trip</CardTitle>
+          <CardMedia inset src={pixel} alt="Trail map" className="h-20" />
         </Card>
       </div>,
     );
     const card = screen.getByTestId('card').element();
-    const bleed = screen.getByRole('img', { name: 'Harbour at dawn' }).element();
-    const inset = screen.getByRole('img', { name: 'Venue floor plan' }).element();
+    const bleed = screen.getByRole('img', { name: 'Mountain lake at dawn' }).element();
+    const inset = screen.getByRole('img', { name: 'Trail map' }).element();
     const cardBox = card.getBoundingClientRect();
-    expect(bleed.getBoundingClientRect().width).toBeCloseTo(cardBox.width, 0);
-    expect(bleed.getBoundingClientRect().top).toBeCloseTo(cardBox.top, 0);
-    expect(inset.getBoundingClientRect().width).toBeCloseTo(cardBox.width - 48, 0);
+    expect(bleed.getBoundingClientRect().width).toBeCloseTo(card.clientWidth, 0);
+    expect(bleed.getBoundingClientRect().top).toBeCloseTo(cardBox.top + card.clientTop, 0);
+    expect(getComputedStyle(bleed).borderTopLeftRadius).toBe('19px');
+    expect(inset.getBoundingClientRect().width).toBeCloseTo(card.clientWidth - 48, 0);
     expect(inset).toHaveAttribute('data-inset', 'true');
+    expect(getComputedStyle(inset).borderTopLeftRadius).toBe('8px');
   });
 });
 
 describe('ClickableCard', () => {
   it('renders a link named by all of its visible text, keeping the title a heading', async () => {
     const screen = await renderWithDS(
-      <ClickableCard href="/reports/q3" variant="outlined">
-        <CardHeader title="Q3 traffic" description="Updated 2 hours ago" />
-        <CardContent>128,400 USD</CardContent>
+      <ClickableCard href="/photos" variant="outline">
+        <CardHeader title="Photos" description="Updated 2 hours ago" />
+        <CardContent>1,204 items</CardContent>
       </ClickableCard>,
     );
     const link = screen.getByRole('link', {
-      name: /^Q3 traffic\s*Updated 2 hours ago\s*128,400 USD$/,
+      name: /^Photos\s*Updated 2 hours ago\s*1,204 items$/,
     });
-    await expect.element(link).toHaveAttribute('href', '/reports/q3');
+    await expect.element(link).toHaveAttribute('href', '/photos');
     await expect.element(link).toHaveAttribute('data-slot', 'clickable-card');
+    await expect.element(link).toHaveAttribute('data-variant', 'outline');
     await expect.element(link).not.toHaveAttribute('aria-labelledby');
-    await expect.element(screen.getByRole('heading', { name: 'Q3 traffic' })).toBeVisible();
+    await expect.element(screen.getByRole('heading', { name: 'Photos' })).toBeVisible();
   });
 
   it('renders a button with phrasing content that fires onPress from mouse and keyboard', async () => {
     const onPress = vi.fn();
     const screen = await renderWithDS(
       <ClickableCard onPress={onPress}>
-        <CardHeader title="Blank folder" description="Start with no accounts" />
+        <CardHeader title="Blank folder" description="Start with no files" />
       </ClickableCard>,
     );
-    const button = screen.getByRole('button', { name: /^Blank folder\s*Start with no accounts$/ });
+    const button = screen.getByRole('button', { name: /^Blank folder\s*Start with no files$/ });
     expect(button.element().querySelector('h3, div, p')).toBeNull();
 
     await button.click();
@@ -278,17 +296,64 @@ describe('ClickableCard', () => {
         </ClickableCard>
         <ClickableCard
           data-testid="link"
-          href="#vendors"
+          href="#shared"
           className={({ isDisabled }) => (isDisabled ? 'opacity-50' : 'w-48')}
         >
-          <CardTitle>Vendor spend</CardTitle>
+          <CardTitle>Shared files</CardTitle>
         </ClickableCard>
       </div>,
     );
     expect(screen.getByTestId('narrow').element().getBoundingClientRect().width).toBe(160);
     const link = screen.getByTestId('link').element();
     expect(link.getBoundingClientRect().width).toBe(192);
-    expect(link).toHaveClass('state-layer', 'focus-ring');
+    expect(getComputedStyle(link).cursor).toBe('pointer');
+  });
+
+  it('lifts outline and elevated cards with a shadow on hover', async () => {
+    const screen = await renderWithDS(
+      <div className="flex flex-col gap-2 p-4">
+        <ClickableCard href="#photos">
+          <CardTitle>Photos</CardTitle>
+        </ClickableCard>
+        <ClickableCard href="#videos" variant="elevated">
+          <CardTitle>Videos</CardTitle>
+        </ClickableCard>
+      </div>,
+    );
+    for (const name of ['Photos', 'Videos']) {
+      const link = screen.getByRole('link', { name });
+      const resting = getComputedStyle(link.element()).boxShadow;
+      await link.hover();
+      await expect.element(link).toHaveAttribute('data-hovered', 'true');
+      await expect.poll(() => getComputedStyle(link.element()).boxShadow).not.toBe(resting);
+      await userEvent.unhover(link);
+    }
+  });
+
+  it('darkens soft and transparent cards on hover instead of lifting them', async () => {
+    const screen = await renderWithDS(
+      <div className="flex flex-col gap-2 p-4">
+        <ClickableCard href="#music" variant="soft">
+          <CardTitle>Music</CardTitle>
+        </ClickableCard>
+        <ClickableCard href="#books" variant="transparent">
+          <CardTitle>Books</CardTitle>
+        </ClickableCard>
+      </div>,
+      { provider: { motion: 'disabled' } },
+    );
+    const soft = screen.getByRole('link', { name: 'Music' });
+    await soft.hover();
+    await expect
+      .poll(() => getComputedStyle(soft.element()).backgroundColor)
+      .toBe(probe('bg-neutral-soft-hover'));
+    expect(getComputedStyle(soft.element()).boxShadow).toBe('none');
+
+    const transparent = screen.getByRole('link', { name: 'Books' });
+    await transparent.hover();
+    await expect
+      .poll(() => getComputedStyle(transparent.element()).backgroundColor)
+      .toBe(probe('bg-neutral-soft'));
   });
 
   it('does not fire when disabled', async () => {
@@ -302,6 +367,9 @@ describe('ClickableCard', () => {
     await expect.element(button).toBeDisabled();
     await button.click({ force: true });
     expect(onPress).not.toHaveBeenCalled();
+    const style = getComputedStyle(button.element());
+    expect(style.opacity).toBe('0.5');
+    expect(style.cursor).toBe('not-allowed');
   });
 });
 
@@ -310,15 +378,15 @@ describe('SelectableCard', () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
       <SelectableCard onChange={onChange}>
-        <CardHeader title="Priority support" description="Replies within 2 business hours" />
-        <CardContent>19 USD a month</CardContent>
+        <CardHeader title="Automatic backup" description="Save new photos on Wi-Fi" />
+        <CardContent>About 2 GB a month</CardContent>
       </SelectableCard>,
     );
-    const checkbox = screen.getByRole('checkbox', { name: 'Priority support', exact: true });
-    await expect.element(checkbox).toHaveAccessibleDescription('Replies within 2 business hours');
+    const checkbox = screen.getByRole('checkbox', { name: 'Automatic backup', exact: true });
+    await expect.element(checkbox).toHaveAccessibleDescription('Save new photos on Wi-Fi');
     await expect.element(checkbox).not.toBeChecked();
 
-    await screen.getByText('19 USD a month').click();
+    await screen.getByText('About 2 GB a month').click();
     await expect.element(checkbox).toBeChecked();
     expect(onChange).toHaveBeenLastCalledWith(true);
     const target = checkbox.element().closest('[data-slot=selectable-card-target]');
@@ -334,38 +402,94 @@ describe('SelectableCard', () => {
       return (
         <>
           <SelectableCard isSelected={selected} onChange={setSelected}>
-            <CardTitle>Audit log export</CardTitle>
+            <CardTitle>Weekly digest</CardTitle>
           </SelectableCard>
           <output>{selected ? 'on' : 'off'}</output>
         </>
       );
     }
     const screen = await renderWithDS(<Controlled />);
-    const checkbox = screen.getByRole('checkbox', { name: 'Audit log export' });
+    const checkbox = screen.getByRole('checkbox', { name: 'Weekly digest' });
     await expect.element(checkbox).toBeChecked();
-    await screen.getByText('Audit log export').click();
+    await screen.getByText('Weekly digest').click();
     await expect.element(screen.getByRole('status')).toHaveTextContent('off');
   });
 
   it('shows the error of an invalid standalone card next to its description', async () => {
     const screen = await renderWithDS(
-      <SelectableCard isInvalid errorMessage="Accept the data processing terms to continue.">
-        <CardHeader title="Data processing terms" description="Version 3, effective 1 March" />
+      <SelectableCard isInvalid errorMessage="Accept the community guidelines to continue.">
+        <CardHeader title="Community guidelines" description="Version 3, effective 1 March" />
       </SelectableCard>,
     );
-    const checkbox = screen.getByRole('checkbox', { name: 'Data processing terms' });
+    const checkbox = screen.getByRole('checkbox', { name: 'Community guidelines' });
     await expect.element(checkbox).toHaveAttribute('aria-invalid', 'true');
     await expect
       .element(checkbox)
       .toHaveAccessibleDescription(
-        'Accept the data processing terms to continue. Version 3, effective 1 March',
+        'Accept the community guidelines to continue. Version 3, effective 1 March',
       );
     await expect
-      .element(screen.getByText('Accept the data processing terms to continue.'))
+      .element(screen.getByText('Accept the community guidelines to continue.'))
       .toBeVisible();
-    const target = checkbox.element().closest('[data-slot=selectable-card-target]');
+    const target = targetOf(checkbox.element());
     expect(target).toHaveAttribute('data-invalid', 'true');
-    expect(target).toHaveClass('border-error');
+    expect(getComputedStyle(target).borderTopColor).toBe(probe('bg-error'));
+    expect(getComputedStyle(target).getPropertyValue('--focus-color').trim()).toBe(
+      getComputedStyle(target).getPropertyValue('--error').trim(),
+    );
+  });
+
+  it('rings the selected card in primary and fills its indicator with the solid primary', async () => {
+    const screen = await renderWithDS(
+      <>
+        <SelectableCard defaultSelected>
+          <CardTitle>Weekly digest</CardTitle>
+        </SelectableCard>
+        <SelectableCard>
+          <CardTitle>Daily digest</CardTitle>
+        </SelectableCard>
+      </>,
+      { provider: { motion: 'reduced' } },
+    );
+    const selected = targetOf(screen.getByRole('checkbox', { name: 'Weekly digest' }).element());
+    const idle = targetOf(screen.getByRole('checkbox', { name: 'Daily digest' }).element());
+    const selectedStyle = getComputedStyle(selected);
+    expect(selectedStyle.borderTopColor).toBe(probe('bg-primary'));
+    expect(selectedStyle.boxShadow).toContain('inset');
+    expect(selectedStyle.backgroundColor).toBe(probe('bg-surface-raised'));
+    expect(getComputedStyle(idle).borderTopColor).toBe(probe('bg-outline-subtle'));
+
+    const indicator = selected.querySelector('[data-slot=selectable-card-indicator]')!;
+    const idleIndicator = idle.querySelector('[data-slot=selectable-card-indicator]')!;
+    expect(getComputedStyle(indicator).backgroundColor).toBe(probe('bg-primary-solid'));
+    expect(getComputedStyle(indicator).color).toBe(probe('text-on-primary-solid', 'color'));
+    expect(getComputedStyle(indicator).borderTopLeftRadius).toBe('6px');
+    expect(getComputedStyle(idleIndicator).backgroundColor).toBe(probe('bg-surface-raised'));
+    expect(getComputedStyle(idleIndicator).borderTopColor).toBe(probe('bg-outline'));
+    expect(getComputedStyle(idleIndicator.firstElementChild!).opacity).toBe('0');
+  });
+
+  it('lines the indicator up with the first line of the title', async () => {
+    for (const padding of ['sm', 'md', 'lg'] as const) {
+      const screen = await renderWithDS(
+        <div className="w-80">
+          <SelectableCard padding={padding}>
+            <CardTitle>Weekly digest</CardTitle>
+          </SelectableCard>
+        </div>,
+      );
+      const target = targetOf(screen.getByRole('checkbox', { name: 'Weekly digest' }).element());
+      const title = target.querySelector('[data-slot=card-title]')!.getBoundingClientRect();
+      const indicator = target
+        .querySelector('[data-slot=selectable-card-indicator]')!
+        .getBoundingClientRect();
+      const titleMiddle =
+        title.top +
+        parseFloat(getComputedStyle(target.querySelector('[data-slot=card-title]')!).lineHeight) /
+          2;
+      expect(Math.abs(indicator.top + indicator.height / 2 - titleMiddle)).toBeLessThanOrEqual(1);
+      await screen.unmount();
+    }
   });
 
   it('is named by all of its text, without repeating it as a description, when it has no title', async () => {
@@ -380,16 +504,15 @@ describe('SelectableCard', () => {
     await expect.element(checkbox).not.toHaveAttribute('aria-describedby');
   });
 
-  it('gives selectable elevated and filled cards the border width their media needs', async () => {
+  it('gives selectable elevated and soft cards the border width their media needs', async () => {
     const screen = await renderWithDS(
-      <SelectableCard variant="filled">
-        <CardTitle>Annual sharing</CardTitle>
+      <SelectableCard variant="soft">
+        <CardTitle>Shared albums</CardTitle>
       </SelectableCard>,
     );
-    const target = screen
-      .getByRole('checkbox', { name: 'Annual sharing' })
-      .element()
-      .closest('[data-slot=selectable-card-target]') as HTMLElement;
+    const checkbox = screen.getByRole('checkbox', { name: 'Shared albums' }).element();
+    const target = targetOf(checkbox);
+    expect(checkbox.closest('[data-slot=selectable-card]')).toHaveAttribute('data-variant', 'soft');
     expect(getComputedStyle(target).getPropertyValue('--card-border').trim()).toBe('1px');
     expect(getComputedStyle(target).borderTopWidth).toBe('1px');
   });
@@ -401,16 +524,13 @@ describe('SelectableCard', () => {
         <div className="w-80">
           <SelectableCard padding={padding}>
             <CardHeader
-              title="Priority support for every workspace member"
-              description="Replies within 2 business hours"
+              title="Automatic backup for every photo and video on this device"
+              description="Save new photos on Wi-Fi"
             />
           </SelectableCard>
         </div>,
       );
-      const target = screen
-        .getByRole('checkbox', { name: /Priority support/ })
-        .element()
-        .closest('[data-slot=selectable-card-target]') as HTMLElement;
+      const target = targetOf(screen.getByRole('checkbox', { name: /Automatic backup/ }).element());
       const header = target.querySelector('[data-slot=card-header]') as HTMLElement;
       const indicator = target.querySelector(
         '[data-slot=selectable-card-indicator]',
@@ -448,17 +568,17 @@ describe('SelectableCard', () => {
           <CardHeader title="Starter" description="One folder and one member" />
         </SelectableCard>
         <SelectableCard value="team">
-          <CardHeader title="Team" description="Unlimited folders and shared reports" />
+          <CardHeader title="Team" description="Unlimited folders and shared albums" />
         </SelectableCard>
-        <SelectableCard value="business" isDisabled>
-          <CardHeader title="Business" description="Approvals, audit log and SSO" />
+        <SelectableCard value="studio" isDisabled>
+          <CardHeader title="Studio" description="Roles, history and single sign-on" />
         </SelectableCard>
       </SelectableCardGroup>,
     );
     await expect.element(screen.getByRole('radiogroup', { name: 'Plan' })).toBeVisible();
     const team = screen.getByRole('radio', { name: 'Team', exact: true });
     await expect.element(team).toBeChecked();
-    await expect.element(team).toHaveAccessibleDescription('Unlimited folders and shared reports');
+    await expect.element(team).toHaveAccessibleDescription('Unlimited folders and shared albums');
 
     await screen.getByText('One folder and one member').click();
     expect(onChange).toHaveBeenLastCalledWith('starter');
@@ -466,7 +586,7 @@ describe('SelectableCard', () => {
 
     await userEvent.keyboard('{ArrowDown}');
     await expect.element(team).toBeChecked();
-    await expect.element(screen.getByRole('radio', { name: 'Business' })).toBeDisabled();
+    await expect.element(screen.getByRole('radio', { name: 'Studio' })).toBeDisabled();
   });
 
   it('supports a controlled group value', async () => {
@@ -520,28 +640,29 @@ describe('SelectableCard', () => {
   it('disables every card in a disabled group', async () => {
     const onChange = vi.fn();
     const screen = await renderWithDS(
-      <SelectableCardGroup selectionMode="multiple" label="Exports" isDisabled onChange={onChange}>
-        <SelectableCard value="csv">
-          <CardTitle>CSV</CardTitle>
+      <SelectableCardGroup selectionMode="multiple" label="Back up" isDisabled onChange={onChange}>
+        <SelectableCard value="photos">
+          <CardTitle>Photos</CardTitle>
         </SelectableCard>
-        <SelectableCard value="xlsx">
-          <CardTitle>Excel</CardTitle>
+        <SelectableCard value="videos">
+          <CardTitle>Videos</CardTitle>
         </SelectableCard>
       </SelectableCardGroup>,
     );
-    await expect.element(screen.getByRole('checkbox', { name: 'CSV' })).toBeDisabled();
-    await expect.element(screen.getByRole('checkbox', { name: 'Excel' })).toBeDisabled();
-    await screen.getByText('CSV').click({ force: true });
+    await expect.element(screen.getByRole('checkbox', { name: 'Photos' })).toBeDisabled();
+    await expect.element(screen.getByRole('checkbox', { name: 'Videos' })).toBeDisabled();
+    await screen.getByText('Photos').click({ force: true });
     expect(onChange).not.toHaveBeenCalled();
     await expect
-      .element(screen.getByRole('group', { name: 'Exports' }))
+      .element(screen.getByRole('group', { name: 'Back up' }))
       .toHaveAttribute('data-disabled', 'true');
     const target = screen
-      .getByRole('checkbox', { name: 'CSV' })
+      .getByRole('checkbox', { name: 'Photos' })
       .element()
       .closest('[data-slot=selectable-card-target]');
     expect(target).toHaveAttribute('data-disabled', 'true');
-    expect(target).toHaveClass('text-on-surface/38');
+    expect(getComputedStyle(target!).opacity).toBe('0.5');
+    expect(getComputedStyle(target!).cursor).toBe('not-allowed');
   });
 
   it('collects several values in a multiple-selection group', async () => {
@@ -555,7 +676,7 @@ describe('SelectableCard', () => {
         orientation="horizontal"
       >
         <SelectableCard value="projects">
-          <CardTitle>Overdue projects</CardTitle>
+          <CardTitle>Shared projects</CardTitle>
         </SelectableCard>
         <SelectableCard value="uploads">
           <CardTitle>Uploads</CardTitle>
@@ -606,22 +727,25 @@ describe('Card accessibility', () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="grid gap-4 p-4">
-          {(['elevated', 'filled', 'outlined'] as const).map((variant) => (
+          {(['outline', 'elevated', 'soft', 'transparent'] as const).map((variant) => (
             <Card key={variant} variant={variant}>
               <CardMedia src={pixel} alt="" className="h-12" />
               <CardHeader title={`${variant} card`} description="Supporting text for the card" />
               <CardContent>
-                <Card variant="elevated">
+                <Card variant="soft">
                   <CardDescription>Nested card text</CardDescription>
                 </Card>
               </CardContent>
               <CardFooter>
-                <Button variant="text">Details</Button>
+                <Button variant="ghost">Details</Button>
               </CardFooter>
             </Card>
           ))}
-          <ClickableCard href="/reports/q3">
-            <CardHeader title="Q3 traffic" description="Updated 2 hours ago" />
+          <ClickableCard href="/photos">
+            <CardHeader title="Photos" description="Updated 2 hours ago" />
+          </ClickableCard>
+          <ClickableCard href="/videos" variant="soft">
+            <CardHeader title="Videos" description="Updated yesterday" />
           </ClickableCard>
           <ClickableCard onPress={() => {}} isDisabled>
             <CardHeader title="Archived" description="Read only" />
@@ -631,14 +755,19 @@ describe('Card accessibility', () => {
               <CardHeader title="Starter" description="One folder" />
             </SelectableCard>
             <SelectableCard value="team" variant="elevated">
-              <CardHeader title="Team" description="Shared reports" />
+              <CardHeader title="Team" description="Shared albums" />
             </SelectableCard>
-            <SelectableCard value="business" isDisabled variant="filled">
-              <CardHeader title="Business" description="Approvals and SSO" />
+            <SelectableCard value="studio" isDisabled variant="soft">
+              <CardHeader title="Studio" description="Roles and history" />
+            </SelectableCard>
+          </SelectableCardGroup>
+          <SelectableCardGroup label="Storage" isInvalid errorMessage="Choose a storage plan.">
+            <SelectableCard value="cloud">
+              <CardHeader title="Cloud" description="Synced everywhere" />
             </SelectableCard>
           </SelectableCardGroup>
           <SelectableCard defaultSelected>
-            <CardHeader title="Priority support" description="Replies within 2 hours" />
+            <CardHeader title="Automatic backup" description="Save new photos on Wi-Fi" />
           </SelectableCard>
         </div>,
         options,

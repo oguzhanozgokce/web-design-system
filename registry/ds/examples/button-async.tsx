@@ -18,7 +18,7 @@ export default function ButtonAsync() {
       >
         Save changes
       </Button>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {savedAt
           ? `Saved at ${new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(savedAt)}`
           : 'You have unsaved changes'}

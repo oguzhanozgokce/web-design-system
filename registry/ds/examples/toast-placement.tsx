@@ -24,7 +24,7 @@ export default function ToastPlacementExample() {
         <Button
           key={value}
           size="sm"
-          variant={value === placement ? 'tonal' : 'outlined'}
+          variant={value === placement ? 'soft' : 'outline'}
           onPress={() => {
             setPlacement(value);
             toast(`Shown at ${value}`, { toasterId });

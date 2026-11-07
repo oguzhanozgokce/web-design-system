@@ -1,12 +1,12 @@
 import {
-  BookmarkIcon,
   FavoriteFilledIcon,
   FavoriteIcon,
-  NotificationsIcon,
+  LockIcon,
+  LockOpenIcon,
+  PauseIcon,
+  PlayArrowIcon,
   StarFilledIcon,
   StarIcon,
-  VisibilityIcon,
-  VisibilityOffIcon,
 } from '@/registry/ds/lib/icons';
 import { IconToggleButton } from '@/registry/ds/ui/icon-button';
 
@@ -19,29 +19,19 @@ export default function IconButtonToggle() {
         selectedIcon={<FavoriteFilledIcon />}
         defaultSelected
       />
+      <IconToggleButton aria-label="Star" icon={<StarIcon />} selectedIcon={<StarFilledIcon />} />
       <IconToggleButton
-        variant="filled"
-        aria-label="Star"
-        icon={<StarIcon />}
-        selectedIcon={<StarFilledIcon />}
-      />
-      <IconToggleButton
-        variant="tonal"
-        aria-label="Show password"
-        icon={<VisibilityOffIcon />}
-        selectedIcon={<VisibilityIcon />}
+        variant="soft"
+        aria-label="Lock folder"
+        icon={<LockOpenIcon />}
+        selectedIcon={<LockIcon />}
         defaultSelected
       />
       <IconToggleButton
-        variant="outlined"
-        aria-label="Notifications"
-        icon={<NotificationsIcon />}
-      />
-      <IconToggleButton
-        variant="outlined"
-        aria-label="Bookmark"
-        icon={<BookmarkIcon />}
-        defaultSelected
+        variant="soft"
+        aria-label="Pause sync"
+        icon={<PauseIcon />}
+        selectedIcon={<PlayArrowIcon />}
       />
     </div>
   );

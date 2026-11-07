@@ -3,7 +3,7 @@ import { Chip, ChipGroup } from '@/registry/ds/ui/chip';
 export default function ChipVariants() {
   return (
     <div className="flex flex-col gap-6">
-      {(['outlined', 'elevated', 'tonal'] as const).map((variant) => (
+      {(['soft', 'outline'] as const).map((variant) => (
         <ChipGroup
           key={variant}
           label={variant}

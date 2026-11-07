@@ -1,6 +1,6 @@
 ---
 title: Switch
-description: Material 3 switch with a growing handle, optional handle icons, label at either side, descriptions and a full-width row layout for settings pages.
+description: Switch with a sliding pill thumb, two sizes, optional thumb icons, descriptions and a row layout for settings pages.
 ---
 
 <ComponentPreview name="switch-demo" />
@@ -24,6 +24,13 @@ A switch applies its change immediately. When the change needs a Save button, us
 
 ## Examples
 
+### Sizes
+
+`md` (a 48 by 24px track) is the default and lines up with 40px rows. `sm` (40 by 20px) fits dense
+lists and toolbars.
+
+<ComponentPreview name="switch-sizes" />
+
 ### Description
 
 `description` explains the consequence of turning the setting on. It is part of the click target
@@ -38,19 +45,20 @@ forms where labels line up on the start edge.
 
 <ComponentPreview name="switch-label-placement" />
 
-### Handle icons
+### Thumb icons
 
-The selected handle shows a check by default. `unselectedIcon` adds an icon to the off state,
-which also grows the off handle from 16px to 24px. `selectedIcon` replaces the check, and
-`selectedIcon={null}` removes it.
+The thumb is plain by default. `selectedIcon` and `unselectedIcon` put a small icon on it for each
+state, such as a check and a cross, or a sun and a moon for a theme switch. The selected icon takes
+the primary colour; the unselected one is a neutral grey that stays readable on the light thumb in
+both themes.
 
 <ComponentPreview name="switch-icons" />
 
 ### Settings row
 
 `variant="row"` stretches the switch across its container with the label and description at the
-start, an optional `icon`, and a state layer over the whole row. Stack rows inside a surface for
-settings pages.
+start and an optional `icon`. The whole row fills with a neutral tint on hover and press. Stack rows
+inside a raised surface for settings pages.
 
 <ComponentPreview name="switch-row" align="stretch" />
 
@@ -62,7 +70,8 @@ Use `isSelected` and `onChange` when the rest of the page reacts to the setting.
 
 ### Disabled
 
-Disabled switches keep their state visible so people can still see how a setting is set.
+Disabled switches are drawn at half opacity with a not-allowed cursor and keep their state
+visible, so people can still see how a setting is set.
 
 <ComponentPreview name="switch-disabled" />
 
@@ -76,9 +85,10 @@ Disabled switches keep their state visible so people can still see how a setting
 | `description`     | `ReactNode`                                                |             |
 | `errorMessage`    | `ReactNode \| (validation: ValidationResult) => ReactNode` |             |
 | `variant`         | `'default' \| 'row'`                                       | `'default'` |
+| `size`            | `'sm' \| 'md'`                                             | `'md'`      |
 | `labelPlacement`  | `'start' \| 'end'`                                         | `'end'`     |
 | `icon`            | `ReactNode`                                                |             |
-| `selectedIcon`    | `ReactNode \| null`                                        | check icon  |
+| `selectedIcon`    | `ReactNode`                                                |             |
 | `unselectedIcon`  | `ReactNode`                                                |             |
 | `isSelected`      | `boolean`                                                  |             |
 | `defaultSelected` | `boolean`                                                  | `false`     |
@@ -94,27 +104,27 @@ such as `name`, `value` and `inputRef`.
 
 ### Data attributes
 
-Root (`data-slot="switch"`): `data-variant`, `data-label-placement`, `data-selected`,
-`data-disabled`, `data-readonly`, `data-invalid`, `data-required`. The clickable part
-(`data-slot="target"`, the whole row for `variant="row"`) also has `data-hovered`, `data-pressed`
-and `data-focus-visible`.
-Parts: `"track"`, `"thumb"`, `"state-layer"`, `"handle"`, `"handle-icon"`, `"icon"`, `"content"`,
-`"label"`, `"required"`, `"description"`, `"error"`.
+Root (`data-slot="switch"`): `data-variant`, `data-size`, `data-label-placement`,
+`data-selected`, `data-disabled`, `data-readonly`, `data-invalid`, `data-required`. The clickable
+part (`data-slot="target"`, the whole row for `variant="row"`) also has `data-hovered`,
+`data-pressed` and `data-focus-visible`. The track (`data-slot="track"`) has `data-selected` and
+`data-focus-visible`. Other parts: `"thumb"`, `"thumb-icon"`, `"icon"`, `"content"`, `"label"`,
+`"required"`, `"description"`, `"error"`.
 
 ### Labels
 
-Switch writes no text of its own, so it takes no `labels`. The default check icon comes from
-`useIcons()`, so replacing `check` in `DSProvider icons` changes it everywhere.
+Switch writes no text of its own, so it takes no `labels`.
 
 ## Accessibility
 
 - Built on React Aria `SwitchField`: a native checkbox input with `role="switch"`, Space to
   toggle, and the label and description wired with `aria-labelledby` and `aria-describedby`. An
   explicit `aria-label` or `aria-labelledby` always wins over the visible label.
-- The focus ring sits on the track, or inside the whole row for `variant="row"`. A read-only row
-  shows no hover or press layer.
-- The handle moves with logical `inset-inline-start`, so it travels right to left in RTL without
-  extra code.
-- The handle slides and grows with the fast spatial spring and moves instantly with reduced
-  motion.
+- The focus ring is a 2px outline around the track, or inside the whole row for `variant="row"`.
+  A read-only switch shows no hover or press feedback.
+- The on track uses the solid primary, which stays saturated in dark mode; the off track is an
+  opaque grey so the off state is visible on any surface.
+- The thumb moves with logical `inset-inline-start`, so it travels right to left in RTL without
+  extra code. It slides over 300ms on the fluid curve and widens by 4px while pressed; with reduced
+  motion it moves instantly.
 - Contrast is checked with axe in light, dark and RTL by `switch.test.tsx`.

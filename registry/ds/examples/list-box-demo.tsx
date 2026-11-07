@@ -7,7 +7,7 @@ export default function ListBoxDemo() {
       aria-label="Layout"
       selectionMode="single"
       defaultSelectedKeys={['list']}
-      variant="outlined"
+      variant="outline"
       className="w-full max-w-xs"
     >
       <ListBoxItem id="list" startIcon={<ListIcon />} description="One item per row">

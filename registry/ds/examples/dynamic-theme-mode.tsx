@@ -14,11 +14,11 @@ export default function DynamicThemeMode() {
           seed={seed}
           mode={mode}
           paletteStyle="expressive"
-          className="flex flex-col gap-3 rounded-xl bg-surface-container-high p-5 text-on-surface"
+          className="flex flex-col gap-3 rounded-container border border-outline-subtle bg-surface-raised p-5 text-on-surface"
         >
-          <p className="text-label-md text-primary uppercase">Always {mode}</p>
-          <p className="text-title-lg">New features are here</p>
-          <p className="text-body-md text-on-surface-variant">
+          <p className="text-xs font-medium text-primary">Always {mode}</p>
+          <p className="text-xl font-semibold tracking-tight">New features are here</p>
+          <p className="text-sm text-on-surface-variant">
             Dark mode, keyboard shortcuts and faster search.
           </p>
           <Button className="self-start">Learn more</Button>

@@ -18,10 +18,10 @@ export default function KbdPlatforms() {
         <section
           key={column.platform}
           aria-label={column.title}
-          className="rounded-md bg-surface-container-low p-4 text-on-surface"
+          className="rounded-container border border-outline-subtle bg-surface-raised p-4 text-on-surface"
         >
-          <h3 className="mb-3 text-title-sm">{column.title}</h3>
-          <dl className="flex flex-col gap-2.5 text-body-md">
+          <h3 className="mb-3 text-sm font-semibold">{column.title}</h3>
+          <dl className="flex flex-col gap-2.5 text-sm">
             {shortcuts.map((shortcut) => (
               <div key={shortcut.label} className="flex items-center justify-between gap-3">
                 <dt className="text-on-surface-variant">{shortcut.label}</dt>

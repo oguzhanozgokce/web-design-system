@@ -14,7 +14,7 @@ const shortcuts = [
 export default function DialogCloseButton() {
   return (
     <DialogTrigger>
-      <Button variant="outlined" startIcon={<KeyboardReturnIcon />}>
+      <Button variant="outline" startIcon={<KeyboardReturnIcon />}>
         Keyboard shortcuts
       </Button>
       <Dialog size="sm">
@@ -23,7 +23,7 @@ export default function DialogCloseButton() {
           <dl className="flex flex-col">
             {shortcuts.map((shortcut) => (
               <div key={shortcut.action} className="flex items-center justify-between gap-4 py-2">
-                <dt className="text-body-md text-on-surface">{shortcut.action}</dt>
+                <dt className="text-sm text-on-surface">{shortcut.action}</dt>
                 <dd>
                   <KbdCombo keys={shortcut.keys} />
                 </dd>

@@ -116,7 +116,7 @@ const css = [
 ].join('\n');
 
 const dtcg = {
-  $description: `Material 3 color roles generated from seed ${config.seed} (${config.style}, spec 2025).`,
+  $description: `Colour roles generated from seed ${config.seed} (${config.style}, spec 2025).`,
   color: Object.fromEntries(
     (['light', 'dark'] as const).map((mode) => [
       mode,

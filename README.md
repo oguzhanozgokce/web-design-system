@@ -3,6 +3,11 @@
 React components for marketing sites, admin panels and signed-in user panels: HeroUI's soft shapes
 on neutral surfaces, built on React Aria and themed from a single colour.
 
+- **One web style.** Pill controls at 32, 40 and 48px, one variant vocabulary (`variant` solid,
+  soft, outline or ghost; `tone` primary, neutral, error and the status tones), six radius families
+  from `rounded-control` to `rounded-dialog`, and Tailwind's type sizes with explicit weights. The
+  page is a grey canvas, cards and fields sit on raised surfaces, and the accent paints only the
+  main action, checked controls and focus, with solid fills that stay vivid in dark mode.
 - **One seed, every role.** `tokens/config.json` holds a brand colour; the generator produces every
   colour role plus success, warning and info, in light and dark, at three contrast levels, with
   neutral surfaces and accents from the seed. The same engine themes a card or the whole page at
@@ -51,5 +56,5 @@ npm run build        # static export to out/
 
 ## License
 
-Apache-2.0, like the mobile library. Third-party code adapted into components is listed in
+Apache-2.0. Third-party code adapted into components is listed in
 `THIRD_PARTY_NOTICES.md`.

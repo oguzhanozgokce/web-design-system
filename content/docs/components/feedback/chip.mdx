@@ -1,6 +1,6 @@
 ---
 title: Chip
-description: Material 3 chips for filtering, choosing and entering values, as a keyboard-navigable group with single or multiple selection and removable input chips, plus standalone assist and filter chips.
+description: Pill-shaped chips for filtering, choosing and entering values, in a keyboard-navigable group or on their own.
 ---
 
 <ComponentPreview name="chip-demo" />
@@ -47,23 +47,37 @@ describes a row in a table or list, use a Tag.
 
 ### Variants
 
-`outlined` is the Material 3 default and works on any surface. `elevated` lifts chips off an image
-or a busy background. `tonal` fills chips with the secondary container for denser toolbars. A
-selected chip fills with the secondary container (the secondary colour for `tonal`) and drops its
-outline.
+`soft`, the default, sits on a translucent neutral fill and works on the page, a card or an
+overlay. `outline` draws a 1px border instead, for chips next to fields or on busy layouts. Either
+way a selected chip takes the pale primary fill, drops its border and shows a check, so the accent
+appears only where something is chosen.
+
+| Variant   | Rest                                  | Hovered                 | Selected                                  |
+| --------- | ------------------------------------- | ----------------------- | ----------------------------------------- |
+| `soft`    | `bg-neutral-soft`, `text-on-surface`  | `bg-neutral-soft-hover` | `bg-primary-soft`, `text-on-primary-soft` |
+| `outline` | `border-outline-variant`, transparent | `bg-neutral-soft`       | `bg-primary-soft`, `text-on-primary-soft` |
+
+Hover only shows on chips that do something: selectable chips, chips with `onAction` or `href`,
+`AssistChip` and `FilterChip`. A pressed chip scales to 97%.
 
 <ComponentPreview name="chip-variants" align="start" />
 
 ### Sizes
 
-`md` is 32px, the Material 3 height. `sm` is 28px for dense admin filters and table toolbars.
+Chips are always fully rounded. `md` is 32px with 14px text, `sm` is 24px with 12px text for dense
+filters and table toolbars.
+
+| Size | Height | Text      | Icon |
+| ---- | ------ | --------- | ---- |
+| `sm` | 24px   | `text-xs` | 14px |
+| `md` | 32px   | `text-sm` | 16px |
 
 <ComponentPreview name="chip-sizes" align="start" />
 
 ### Multiple selection
 
 `selectionMode="multiple"` turns the group into filter chips. A selected chip shows a check that
-slides in at the start, so selection never relies on colour alone. Control the selection with
+grows in at the start over 150ms, so selection never relies on colour alone. Control the selection with
 `selectedKeys` and `onSelectionChange`, or set `defaultSelectedKeys`.
 
 <ComponentPreview name="chip-multiple" align="start" />
@@ -85,8 +99,9 @@ the chip is selected.
 ### Input chips
 
 Pass `onRemove` to the group to make chips removable. Each chip gets a trailing close button
-labelled "Remove Ayşe Demir", and Delete or Backspace removes the focused chip. `avatar` shows a
-person or an image at the start, and `renderEmptyState` fills the space when the last chip is gone.
+labelled "Remove Ayşe Demir", with a 24px hit area around its 16 or 20px circle, and Delete or
+Backspace removes the focused chip. `avatar` shows a person or an image at the start, and
+`renderEmptyState` fills the space when the last chip is gone.
 
 <ComponentPreview name="chip-input" align="start" />
 
@@ -116,7 +131,8 @@ one tab stop.
 ### Disabled
 
 `disabledKeys` disables single chips. `isDisabled` on the group disables all of them and takes
-the group out of the tab order, like a disabled native control.
+the group out of the tab order, like a disabled native control. Disabled chips keep their colours
+at half opacity with a not-allowed cursor.
 
 <ComponentPreview name="chip-disabled" align="start" />
 
@@ -124,43 +140,43 @@ the group out of the tab order, like a disabled native control.
 
 ### ChipGroup
 
-| Prop                     | Type                                       | Default      |
-| ------------------------ | ------------------------------------------ | ------------ |
-| `variant`                | `'outlined' \| 'elevated' \| 'tonal'`      | `'outlined'` |
-| `size`                   | `'sm' \| 'md'`                             | `'md'`       |
-| `label`                  | `ReactNode`                                |              |
-| `description`            | `ReactNode`                                |              |
-| `selectionMode`          | `'none' \| 'single' \| 'multiple'`         | `'none'`     |
-| `selectedKeys`           | `'all' \| Iterable<Key>`                   |              |
-| `defaultSelectedKeys`    | `'all' \| Iterable<Key>`                   |              |
-| `onSelectionChange`      | `(keys: Selection) => void`                |              |
-| `disallowEmptySelection` | `boolean`                                  | `false`      |
-| `onRemove`               | `(keys: Set<Key>) => void`                 |              |
-| `disabledKeys`           | `Iterable<Key>`                            |              |
-| `isDisabled`             | `boolean`                                  | `false`      |
-| `items`                  | `Iterable<T>`                              |              |
-| `children`               | `ReactNode \| (item: T) => ReactNode`      |              |
-| `renderEmptyState`       | `(props: TagListRenderProps) => ReactNode` |              |
-| `dependencies`           | `ReadonlyArray<any>`                       |              |
-| `labels`                 | `Partial<ChipLabels>`                      |              |
-| `aria-label`             | `string`                                   |              |
+| Prop                     | Type                                       | Default  |
+| ------------------------ | ------------------------------------------ | -------- |
+| `variant`                | `'soft' \| 'outline'`                      | `'soft'` |
+| `size`                   | `'sm' \| 'md'`                             | `'md'`   |
+| `label`                  | `ReactNode`                                |          |
+| `description`            | `ReactNode`                                |          |
+| `selectionMode`          | `'none' \| 'single' \| 'multiple'`         | `'none'` |
+| `selectedKeys`           | `'all' \| Iterable<Key>`                   |          |
+| `defaultSelectedKeys`    | `'all' \| Iterable<Key>`                   |          |
+| `onSelectionChange`      | `(keys: Selection) => void`                |          |
+| `disallowEmptySelection` | `boolean`                                  | `false`  |
+| `onRemove`               | `(keys: Set<Key>) => void`                 |          |
+| `disabledKeys`           | `Iterable<Key>`                            |          |
+| `isDisabled`             | `boolean`                                  | `false`  |
+| `items`                  | `Iterable<T>`                              |          |
+| `children`               | `ReactNode \| (item: T) => ReactNode`      |          |
+| `renderEmptyState`       | `(props: TagListRenderProps) => ReactNode` |          |
+| `dependencies`           | `ReadonlyArray<any>`                       |          |
+| `labels`                 | `Partial<ChipLabels>`                      |          |
+| `aria-label`             | `string`                                   |          |
 
 Give the group a `label` or an `aria-label`. Every other
 [React Aria TagGroup](https://react-aria.adobe.com/TagGroup) prop is passed through.
 
 ### Chip
 
-| Prop         | Type                                  | Default           |
-| ------------ | ------------------------------------- | ----------------- |
-| `id`         | `Key`                                 |                   |
-| `startIcon`  | `ReactNode`                           |                   |
-| `avatar`     | `ReactNode`                           |                   |
-| `endIcon`    | `ReactNode`                           |                   |
-| `textValue`  | `string`                              | the text children |
-| `isDisabled` | `boolean`                             | the group's value |
-| `variant`    | `'outlined' \| 'elevated' \| 'tonal'` | the group's value |
-| `size`       | `'sm' \| 'md'`                        | the group's value |
-| `labels`     | `Partial<ChipLabels>`                 | the group's value |
+| Prop         | Type                  | Default           |
+| ------------ | --------------------- | ----------------- |
+| `id`         | `Key`                 |                   |
+| `startIcon`  | `ReactNode`           |                   |
+| `avatar`     | `ReactNode`           |                   |
+| `endIcon`    | `ReactNode`           |                   |
+| `textValue`  | `string`              | the text children |
+| `isDisabled` | `boolean`             | the group's value |
+| `variant`    | `'soft' \| 'outline'` | the group's value |
+| `size`       | `'sm' \| 'md'`        | the group's value |
+| `labels`     | `Partial<ChipLabels>` | the group's value |
 
 `endIcon` is hidden while the chip is removable. Set `textValue` when the children are not plain
 text; it names the chip and its remove button. Without it, the remove button falls back to React
@@ -170,33 +186,33 @@ Aria's own "Remove" label joined to the chip's content. Every other
 
 ### AssistChip
 
-| Prop         | Type                                              | Default      |
-| ------------ | ------------------------------------------------- | ------------ |
-| `variant`    | `'outlined' \| 'elevated' \| 'tonal'`             | `'outlined'` |
-| `size`       | `'sm' \| 'md'`                                    | `'md'`       |
-| `startIcon`  | `ReactNode`                                       |              |
-| `avatar`     | `ReactNode`                                       |              |
-| `endIcon`    | `ReactNode`                                       |              |
-| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>` |              |
-| `isPending`  | `boolean`                                         | automatic    |
-| `isDisabled` | `boolean`                                         | `false`      |
-| `labels`     | `Partial<ChipLabels>`                             |              |
+| Prop         | Type                                              | Default   |
+| ------------ | ------------------------------------------------- | --------- |
+| `variant`    | `'soft' \| 'outline'`                             | `'soft'`  |
+| `size`       | `'sm' \| 'md'`                                    | `'md'`    |
+| `startIcon`  | `ReactNode`                                       |           |
+| `avatar`     | `ReactNode`                                       |           |
+| `endIcon`    | `ReactNode`                                       |           |
+| `onPress`    | `(event: PressEvent) => void \| Promise<unknown>` |           |
+| `isPending`  | `boolean`                                         | automatic |
+| `isDisabled` | `boolean`                                         | `false`   |
+| `labels`     | `Partial<ChipLabels>`                             |           |
 
 Every other [React Aria Button](https://react-aria.adobe.com/Button) prop is passed through.
 
 ### FilterChip
 
-| Prop              | Type                                  | Default      |
-| ----------------- | ------------------------------------- | ------------ |
-| `variant`         | `'outlined' \| 'elevated' \| 'tonal'` | `'outlined'` |
-| `size`            | `'sm' \| 'md'`                        | `'md'`       |
-| `startIcon`       | `ReactNode`                           |              |
-| `avatar`          | `ReactNode`                           |              |
-| `endIcon`         | `ReactNode`                           |              |
-| `isSelected`      | `boolean`                             |              |
-| `defaultSelected` | `boolean`                             | `false`      |
-| `onChange`        | `(isSelected: boolean) => void`       |              |
-| `isDisabled`      | `boolean`                             | `false`      |
+| Prop              | Type                            | Default  |
+| ----------------- | ------------------------------- | -------- |
+| `variant`         | `'soft' \| 'outline'`           | `'soft'` |
+| `size`            | `'sm' \| 'md'`                  | `'md'`   |
+| `startIcon`       | `ReactNode`                     |          |
+| `avatar`          | `ReactNode`                     |          |
+| `endIcon`         | `ReactNode`                     |          |
+| `isSelected`      | `boolean`                       |          |
+| `defaultSelected` | `boolean`                       | `false`  |
+| `onChange`        | `(isSelected: boolean) => void` |          |
+| `isDisabled`      | `boolean`                       | `false`  |
 
 Every other [React Aria ToggleButton](https://react-aria.adobe.com/ToggleButton) prop is passed
 through.
@@ -236,6 +252,7 @@ chip's own `labels` win over its group's.
   to the group, which shows the empty state and a focus ring.
 - `FilterChip` is a `button` with `aria-pressed`; `AssistChip` is a plain `button` that stays
   focusable and announces a progress bar while pending.
-- The check and padding change use the fast spatial spring and are instant under reduced motion.
+- The check grows in over 150ms and is instant under reduced motion; the press scale is skipped
+  too.
 - Contrast is checked with axe for every variant, selected and disabled, in light, dark and RTL by
   `chip.test.tsx`.

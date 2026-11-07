@@ -170,11 +170,43 @@ describe('ComboBox', () => {
     expect(await optionNames()).toEqual(['Project 2041']);
   });
 
-  it('turns the arrow without a transition when motion is reduced', async () => {
-    const screen = await renderWithDS(<CityComboBox />, { provider: { motion: 'disabled' } });
-    const arrow = screen.container.querySelector('[data-slot="trigger"] svg');
-    expect(arrow?.getAttribute('class')).toContain('rotate-180');
-    expect(arrow?.getAttribute('class')).not.toContain('transition');
+  it('turns the chevron while open, without a transition when motion is reduced', async () => {
+    const screen = await renderWithDS(<CityComboBox />);
+    const arrow = screen.container.querySelector<SVGElement>('[data-slot="trigger"] svg')!;
+    expect(getComputedStyle(arrow).rotate).toBe('none');
+    expect(getComputedStyle(arrow).transitionDuration).toBe('0.15s');
+    await screen.getByRole('button', { name: /^Show suggestions/ }).click();
+    await expect.element(page.getByRole('listbox')).toBeVisible();
+    await expect.poll(() => getComputedStyle(arrow).rotate).toBe('180deg');
+    await userEvent.keyboard('{Escape}');
+    await screen.unmount();
+
+    const still = await renderWithDS(<CityComboBox />, { provider: { motion: 'disabled' } });
+    const stillArrow = still.container.querySelector('[data-slot="trigger"] svg')!;
+    expect(getComputedStyle(stillArrow).transitionDuration).toBe('0s');
+  });
+
+  it('lists suggestions on a raised overlay panel and reports the variant', async () => {
+    const screen = await renderWithDS(
+      <div className="flex flex-col gap-4">
+        <span data-testid="overlay" className="bg-surface-overlay" />
+        <CityComboBox />
+        <CityComboBox label="Region" variant="soft" />
+      </div>,
+    );
+    const variants = [...screen.container.querySelectorAll('[data-slot="combo-box"]')].map(
+      (element) => element.getAttribute('data-variant'),
+    );
+    expect(variants).toEqual(['outline', 'soft']);
+    await input().click();
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.element(page.getByRole('listbox')).toBeVisible();
+    const panel = getComputedStyle(document.querySelector<HTMLElement>('[data-slot="popover"]')!);
+    expect(panel.borderTopLeftRadius).toBe('16px');
+    expect(panel.borderTopWidth).toBe('1px');
+    expect(panel.backgroundColor).toBe(
+      getComputedStyle(screen.getByTestId('overlay').element()).backgroundColor,
+    );
   });
 
   it('clears the input and the selection from the clear button', async () => {
@@ -212,6 +244,7 @@ describe('ComboBox', () => {
     const count = () => screen.container.querySelector('[data-slot="selected-count"]');
     expect(count()?.textContent).toBe('1 selected');
     expect(count()).toHaveAttribute('aria-hidden', 'true');
+    expect(getComputedStyle(count()!).borderTopLeftRadius).toBe('9999px');
     await expect.element(input()).toHaveAccessibleDescription('İstanbul');
 
     await input().click();
@@ -389,8 +422,8 @@ describe('ComboBox', () => {
       document.documentElement.classList.toggle('dark', 'dark' in options);
       const variants = await renderWithDS(
         <div className="flex flex-col gap-4 p-4">
-          <CityComboBox defaultValue="lis" description="Where projects are issued from." />
-          <CityComboBox label="Branch" variant="filled" isInvalid errorMessage="Pick a branch" />
+          <CityComboBox defaultValue="lis" description="Where the team meets." />
+          <CityComboBox label="Branch" variant="soft" isInvalid errorMessage="Pick a branch" />
           <CityComboBox label="Warehouse" isLoading size="sm" />
           <CityComboBox label="Archive" isDisabled />
           <CityComboBox label="Regions" selectionMode="multiple" defaultValue={['ist', 'lis']} />

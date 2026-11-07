@@ -2,7 +2,7 @@
   "name": "fab",
   "type": "registry:ui",
   "title": "FAB",
-  "description": "Material 3 floating action button in three sizes and four colours, with an extended form that shrinks on scroll and a FAB menu for two to six related actions.",
+  "description": "Floating action button as a raised pill in two tones and two sizes, with an extended form that shrinks on scroll and a menu for two to six related actions.",
   "category": "actions",
   "files": ["ui/fab.tsx"]
 }

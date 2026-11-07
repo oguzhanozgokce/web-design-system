@@ -12,7 +12,7 @@ function ProjectCard() {
   return (
     <section aria-label="Project" aria-busy={!loaded}>
       <Skeleton isLoaded={loaded} className="w-fit">
-        <button type="button">Pay DOC-2048</button>
+        <button type="button">Open project</button>
       </Skeleton>
       <button type="button" onClick={() => setLoaded(true)}>
         Finish loading
@@ -22,17 +22,32 @@ function ProjectCard() {
 }
 
 describe('Skeleton', () => {
-  it('renders a hidden rectangle by default', async () => {
+  it('renders a hidden block by default', async () => {
     const screen = await renderWithDS(<Skeleton />);
     const block = all(screen.container, 'skeleton')[0];
     expect(block.getAttribute('aria-hidden')).toBe('true');
-    expect(block.dataset.shape).toBe('rect');
+    expect(block.dataset.shape).toBe('block');
+    expect(block.dataset.animation).toBe('shimmer');
     expect(block.getBoundingClientRect().height).toBe(96);
+    expect(getComputedStyle(block).borderRadius).toBe('20px');
+  });
+
+  it('paints on the neutral soft fill', async () => {
+    const screen = await renderWithDS(
+      <>
+        <Skeleton />
+        <span data-testid="reference" className="bg-neutral-soft" />
+      </>,
+    );
+    const block = all(screen.container, 'skeleton')[0];
+    expect(getComputedStyle(block).backgroundColor).toBe(
+      getComputedStyle(screen.getByTestId('reference').element()).backgroundColor,
+    );
   });
 
   it('draws text lines from the line height with a shorter last line', async () => {
     const screen = await renderWithDS(
-      <div className="w-60 text-body-md">
+      <div className="w-60 text-sm">
         <Skeleton shape="text" lines={3} />
       </div>,
     );
@@ -45,9 +60,9 @@ describe('Skeleton', () => {
     expect(lines[2].getBoundingClientRect().width).toBeCloseTo(144, 0);
   });
 
-  it('follows a larger type style', async () => {
+  it('follows a larger type size', async () => {
     const screen = await renderWithDS(
-      <div className="w-60 text-headline-md">
+      <div className="w-60 text-3xl">
         <Skeleton shape="text" />
       </div>,
     );
@@ -65,22 +80,41 @@ describe('Skeleton', () => {
     expect(getComputedStyle(circle).borderRadius).not.toBe('0px');
   });
 
-  it('shimmers along the reading direction', async () => {
-    const ltr = await renderWithDS(<Skeleton />);
-    const ltrBlock = all(ltr.container, 'skeleton')[0];
-    expect(getComputedStyle(ltrBlock).animationName).toBe('ds-shimmer');
-    expect(getComputedStyle(ltrBlock).animationDirection).toBe('normal');
-    await ltr.unmount();
+  it.each([
+    ['en', '-100%'],
+    ['ar', '100%'],
+  ])('sweeps a shimmer along the reading direction in %s', async (locale, start) => {
+    const screen = await renderWithDS(<Skeleton />, { locale });
+    const block = all(screen.container, 'skeleton')[0];
+    const after = getComputedStyle(block, '::after');
+    expect(after.animationName).toBe('ds-shimmer');
+    expect(after.animationDuration).toBe('2s');
+    const [sweep] = block.getAnimations({ subtree: true });
+    sweep.pause();
+    sweep.currentTime = 0;
+    expect(after.translate).toBe(start);
+  });
 
-    const rtl = await renderWithDS(<Skeleton />, { locale: 'ar' });
-    expect(getComputedStyle(all(rtl.container, 'skeleton')[0]).animationDirection).toBe('reverse');
+  it('pulses on request and stays still with animation none', async () => {
+    const pulse = await renderWithDS(<Skeleton animation="pulse" />);
+    const block = all(pulse.container, 'skeleton')[0];
+    expect(block.dataset.animation).toBe('pulse');
+    expect(getComputedStyle(block).animationName).toBe('ds-pulse');
+    expect(getComputedStyle(block, '::after').animationName).toBe('none');
+    await pulse.unmount();
+
+    const still = await renderWithDS(<Skeleton animation="none" />);
+    const stillBlock = all(still.container, 'skeleton')[0];
+    expect(getComputedStyle(stillBlock).animationName).toBe('none');
+    expect(getComputedStyle(stillBlock, '::after').animationName).toBe('none');
   });
 
   it('pulses with reduced motion and stays still when motion is disabled', async () => {
     const reduced = await renderWithDS(<Skeleton />, { provider: { motion: 'reduced' } });
     const block = all(reduced.container, 'skeleton')[0];
+    expect(block.dataset.animation).toBe('pulse');
     expect(getComputedStyle(block).animationName).toBe('ds-pulse');
-    expect(getComputedStyle(block).backgroundImage).toBe('none');
+    expect(getComputedStyle(block, '::after').animationName).toBe('none');
     await reduced.unmount();
 
     const disabled = await renderWithDS(<Skeleton />, { provider: { motion: 'disabled' } });
@@ -90,7 +124,7 @@ describe('Skeleton', () => {
   it('keeps wrapped content out of reach until it is loaded', async () => {
     const screen = await renderWithDS(<ProjectCard />);
     await expect
-      .element(screen.getByRole('button', { name: 'Pay DOC-2048' }))
+      .element(screen.getByRole('button', { name: 'Open project' }))
       .not.toBeInTheDocument();
     const region = screen.getByRole('region', { name: 'Project' });
     await expect.element(region).toHaveAttribute('aria-busy', 'true');
@@ -98,7 +132,7 @@ describe('Skeleton', () => {
     expect(placeholder.getBoundingClientRect().width).toBeGreaterThan(0);
 
     await screen.getByRole('button', { name: 'Finish loading' }).click();
-    await expect.element(screen.getByRole('button', { name: 'Pay DOC-2048' })).toBeVisible();
+    await expect.element(screen.getByRole('button', { name: 'Open project' })).toBeVisible();
     await expect.element(region).toHaveAttribute('aria-busy', 'false');
     expect(all(screen.container, 'skeleton')[0].dataset.loaded).toBe('true');
   });
@@ -128,10 +162,10 @@ describe('Skeleton', () => {
     const screen = await renderWithDS(<Harness />);
     await screen.getByRole('button', { name: 'Toggle' }).click();
     const note = screen.getByRole('textbox', { name: 'Note' });
-    await note.fill('Paid by card');
+    await note.fill('Ready for review');
     await screen.getByRole('button', { name: 'Toggle' }).click();
     await screen.getByRole('button', { name: 'Toggle' }).click();
-    await expect.element(note).toHaveValue('Paid by card');
+    await expect.element(note).toHaveValue('Ready for review');
     expect(mounted).toHaveBeenCalledTimes(1);
   });
 
@@ -140,7 +174,7 @@ describe('Skeleton', () => {
       <>
         <button type="button">Before</button>
         <Skeleton className="w-fit">
-          <button type="button">Pay DOC-2048</button>
+          <button type="button">Open project</button>
         </Skeleton>
         <button type="button">After</button>
       </>,
@@ -167,7 +201,7 @@ describe('Skeleton', () => {
       const screen = await renderWithDS(
         <section aria-label="Team members" aria-busy="true" className="flex w-80 gap-3 p-4">
           <Skeleton shape="circle" />
-          <div className="flex-1 text-body-md">
+          <div className="flex-1 text-sm">
             <Skeleton shape="text" lines={2} />
           </div>
           <Skeleton className="h-10 w-24">

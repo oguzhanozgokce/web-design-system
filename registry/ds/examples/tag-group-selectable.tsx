@@ -19,7 +19,7 @@ export default function TagGroupSelectable() {
     <div className="flex w-full max-w-sm flex-col gap-3">
       <TagGroup
         label="Notify me about"
-        variant="outlined"
+        variant="outline"
         tone="primary"
         selectionMode="multiple"
         selectedKeys={selected}
@@ -28,7 +28,7 @@ export default function TagGroupSelectable() {
       >
         {(topic) => <Tag id={topic.id}>{topic.name}</Tag>}
       </TagGroup>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {count} of {topics.length} notifications on
       </p>
     </div>

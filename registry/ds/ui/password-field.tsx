@@ -80,25 +80,25 @@ export const passwordFieldStyles = tv({
   slots: {
     reveal: 'data-[selected]:text-on-surface',
     capsLock:
-      'flex animate-ds-fade-in items-center gap-1 text-body-sm text-on-surface-variant motion-reduce:animate-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-warning',
+      'flex animate-ds-fade-in items-center gap-1 text-xs text-on-surface-variant motion-reduce:animate-none [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-warning',
     strength: 'grid gap-1.5 pt-0.5',
     track: 'grid grid-cols-4 gap-1',
     segment:
-      'h-1 rounded-full bg-surface-container-highest transition-colors duration-250 ease-standard motion-reduce:transition-none',
-    summary: 'flex items-baseline justify-between gap-3 text-body-sm',
+      'h-1 rounded-control bg-neutral-soft transition-colors duration-200 ease-out motion-reduce:transition-none',
+    summary: 'flex items-baseline justify-between gap-3 text-xs',
     strengthLabel: 'text-on-surface-variant',
     strengthValue: 'font-medium',
-    rules: 'grid gap-1 text-body-sm',
+    rules: 'grid gap-1 text-xs',
     rule: 'flex items-start gap-1.5 text-on-surface-variant data-[met]:text-on-surface [&_svg]:size-4 [&_svg]:shrink-0',
     ruleIcon: 'text-on-surface-variant',
   },
   variants: {
     level: {
       '0': { strengthValue: 'text-error' },
-      '1': { segment: 'data-[filled]:bg-error', strengthValue: 'text-error' },
-      '2': { segment: 'data-[filled]:bg-warning', strengthValue: 'text-warning' },
-      '3': { segment: 'data-[filled]:bg-success', strengthValue: 'text-success' },
-      '4': { segment: 'data-[filled]:bg-success', strengthValue: 'text-success' },
+      '1': { segment: 'data-[filled]:bg-error-solid', strengthValue: 'text-error' },
+      '2': { segment: 'data-[filled]:bg-warning-solid', strengthValue: 'text-warning' },
+      '3': { segment: 'data-[filled]:bg-success-solid', strengthValue: 'text-success' },
+      '4': { segment: 'data-[filled]:bg-success-solid', strengthValue: 'text-success' },
     },
     isMet: {
       true: { ruleIcon: 'text-success' },
@@ -108,6 +108,8 @@ export const passwordFieldStyles = tv({
     },
   },
 });
+
+export type PasswordFieldVariant = 'outline' | 'soft';
 
 const segments = [1, 2, 3, 4] as const;
 
@@ -185,7 +187,7 @@ export function PasswordField({
   errorMessage,
   necessityIndicator,
   size = 'md',
-  variant = 'outlined',
+  variant = 'outline',
   value: valueProp,
   defaultValue,
   onChange,

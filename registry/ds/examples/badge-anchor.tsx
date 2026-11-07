@@ -16,22 +16,22 @@ export default function BadgeAnchorExample() {
   return (
     <nav
       aria-label="Main"
-      className="flex w-full max-w-md justify-around rounded-lg bg-surface-container px-2 py-3"
+      className="flex w-full max-w-md justify-around rounded-container border border-outline-subtle bg-surface-raised px-2 py-3 [--ds-badge-seam:var(--surface-raised)]"
     >
       {destinations.map(({ href, label, icon: Icon, badge }, index) => (
         <Link
           key={href}
           href={href}
           aria-current={index === 0 ? 'page' : undefined}
-          className="group/destination flex flex-col-reverse items-center gap-1 rounded-md px-1 text-label-md text-on-surface-variant no-underline focus-ring data-[current]:text-on-surface"
+          className="group/destination flex flex-col-reverse items-center gap-1 rounded-item px-1 text-xs font-medium text-on-surface-variant no-underline focus-ring data-[current]:text-on-surface"
         >
           <span>{label}</span>
           <span
             className={cn(
-              'inline-flex h-8 w-14 items-center justify-center rounded-full transition-colors duration-150 ease-standard',
+              'inline-flex h-8 w-14 items-center justify-center rounded-control transition-colors duration-100 ease-out',
               index === 0
-                ? 'bg-secondary-container text-on-secondary-container'
-                : 'group-data-[hovered]/destination:bg-on-surface/8 group-data-[pressed]/destination:bg-on-surface/10',
+                ? 'bg-neutral-soft-hover'
+                : 'group-data-[hovered]/destination:bg-neutral-soft group-data-[pressed]/destination:bg-neutral-soft-hover',
             )}
           >
             <BadgeAnchor badge={badge}>

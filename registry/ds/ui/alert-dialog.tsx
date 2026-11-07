@@ -19,34 +19,25 @@ export const alertDialogStyles = tv({
     icon: 'inline-flex',
     content: 'flex flex-col gap-4',
     confirmation: 'flex flex-col gap-2',
-    label: 'text-body-md text-on-surface-variant',
-    phrase:
-      'rounded-xs bg-surface-container-highest px-1 py-0.5 font-mono font-medium text-on-surface',
+    label: 'text-sm text-on-surface-variant',
+    phrase: 'rounded-md bg-neutral-soft px-1 py-0.5 font-mono font-medium text-on-surface',
     input: [
-      'h-12 w-full rounded-sm border border-outline bg-transparent px-4 font-mono text-body-lg text-on-surface caret-primary focus:outline-hidden',
-      'transition-[border-color,box-shadow] duration-150 ease-standard motion-reduce:transition-none',
-      'data-[hovered]:not-data-[focused]:border-on-surface data-[focused]:border-primary data-[focused]:ring-1 data-[focused]:ring-primary data-[focused]:ring-inset',
-      'read-only:bg-on-surface/4 read-only:text-on-surface-variant',
+      'h-10 w-full rounded-field border border-outline-variant bg-surface-raised px-3 font-mono text-base text-on-surface caret-primary pointer-fine:text-sm focus:outline-hidden',
+      'transition-[border-color,box-shadow,background-color] duration-150 ease-out motion-reduce:transition-none',
+      'data-[hovered]:not-data-[focused]:not-read-only:inset-ring-2 data-[hovered]:not-data-[focused]:not-read-only:inset-ring-outline-variant/40',
+      'data-[focused]:border-primary data-[focused]:inset-ring-2 data-[focused]:inset-ring-primary/20',
+      'read-only:bg-neutral-soft read-only:text-on-surface-variant',
     ],
     error: [
-      'mx-6 mt-4 flex shrink-0 items-start gap-3 rounded-md bg-error-container px-4 py-3 text-body-md text-on-error-container',
-      '[&_svg]:mt-px [&_svg]:size-[1.125rem] [&_svg]:shrink-0',
+      'mx-6 mt-4 flex shrink-0 items-start gap-2 rounded-item bg-error-soft px-3 py-2.5 text-sm text-[color-mix(in_oklab,var(--error)_70%,var(--on-surface))]',
+      '[&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-on-error-soft',
     ],
-  },
-  variants: {
-    tone: {
-      default: { icon: 'text-secondary' },
-      destructive: { icon: 'text-error' },
-    },
-  },
-  defaultVariants: {
-    tone: 'default',
   },
 });
 
 export type AlertDialogStyleProps = VariantProps<typeof alertDialogStyles>;
 
-export type AlertDialogTone = 'default' | 'destructive';
+export type AlertDialogTone = 'neutral' | 'primary' | 'success' | 'warning' | 'info' | 'error';
 
 export type AlertDialogSize = 'sm' | 'md' | 'lg';
 
@@ -105,7 +96,7 @@ export function AlertDialog({
   onOpenChange,
   className,
   overlayClassName,
-  tone = 'default',
+  tone = 'neutral',
   ...content
 }: AlertDialogProps) {
   const [isPending, setPending] = useState(false);
@@ -155,7 +146,8 @@ function describeError(error: unknown, fallback: string) {
   return fallback;
 }
 
-interface AlertDialogContentInternalProps extends AlertDialogContentProps {
+interface AlertDialogContentInternalProps extends Omit<AlertDialogContentProps, 'tone'> {
+  tone: AlertDialogTone;
   isPending: boolean;
   onPendingChange: (isPending: boolean) => void;
   close: () => void;
@@ -166,7 +158,7 @@ function AlertDialogContent({
   description,
   icon,
   children,
-  tone = 'default',
+  tone,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   onConfirm,
@@ -181,7 +173,7 @@ function AlertDialogContent({
 }: AlertDialogContentInternalProps) {
   const t = useLabels('alertDialog', defaultAlertDialogLabels, labels);
   const icons = useIcons();
-  const styles = alertDialogStyles({ tone });
+  const styles = alertDialogStyles();
   const [typed, setTyped] = useState('');
   const [failure, setFailure] = useState<{ error: unknown } | null>(null);
   const isMounted = useRef(false);
@@ -260,7 +252,7 @@ function AlertDialogContent({
     .split(phraseToken);
   const focusTarget = needsPhrase
     ? 'phrase'
-    : tone === 'destructive' || isConfirmDisabled
+    : tone === 'error' || isConfirmDisabled
       ? 'cancel'
       : 'confirm';
 
@@ -269,6 +261,7 @@ function AlertDialogContent({
       <DialogHeader
         title={title}
         description={description}
+        iconTone={tone}
         icon={
           hasContent(icon) ? (
             <span data-slot="alert-dialog-icon" className={styles.icon()}>
@@ -325,7 +318,8 @@ function AlertDialogContent({
       ) : null}
       <DialogFooter>
         <Button
-          variant="text"
+          variant="soft"
+          tone="neutral"
           onPress={cancel}
           isDisabled={isPending}
           autoFocus={focusTarget === 'cancel'}
@@ -334,8 +328,8 @@ function AlertDialogContent({
           {cancelLabel}
         </Button>
         <Button
-          variant="filled"
-          tone={tone}
+          variant="solid"
+          tone={tone === 'error' ? 'error' : 'primary'}
           onPress={confirm}
           isPending={isPending}
           isDisabled={!canConfirm}

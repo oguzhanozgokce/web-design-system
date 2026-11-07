@@ -51,52 +51,43 @@ export const defaultSelectLabels: SelectLabels = {
 
 export const selectStyles = tv({
   slots: {
-    trigger: 'cursor-default text-start',
-    value: [
-      'block min-w-0 flex-1 truncate',
-      'data-[placeholder]:text-on-surface-variant group-data-[disabled]/control:text-current',
-    ],
+    trigger: 'no-tap-highlight cursor-pointer text-start',
+    value: 'block min-w-0 flex-1 truncate data-[placeholder]:text-on-surface-variant',
     chips: 'flex min-w-0 items-center gap-1 overflow-hidden',
-    chip: [
-      'inline-flex h-6 max-w-40 min-w-0 items-center rounded-sm px-2 text-label-md [unicode-bidi:plaintext]',
-      'bg-secondary-container text-on-secondary-container',
-      'group-data-[disabled]/control:bg-on-surface/12 group-data-[disabled]/control:text-current',
-    ],
-    more: [
-      'inline-flex h-6 shrink-0 items-center rounded-sm border border-outline-variant px-1.5 text-label-md text-on-surface-variant tabular-digits [unicode-bidi:plaintext]',
-      'group-data-[disabled]/control:border-on-surface/12 group-data-[disabled]/control:text-current',
-    ],
-    indicator: [
+    chip: 'inline-flex h-6 max-w-40 min-w-0 items-center rounded-control bg-neutral-soft px-2 text-xs font-medium text-on-surface [unicode-bidi:plaintext]',
+    more: 'inline-flex h-6 shrink-0 items-center rounded-control border border-outline-variant px-1.5 text-xs font-medium text-on-surface-variant tabular-digits [unicode-bidi:plaintext]',
+    indicator:
       '-me-1 ms-1 flex shrink-0 items-center justify-center text-on-surface-variant [&_svg]:size-(--icon-size)',
-      'group-data-[disabled]/control:text-current',
-    ],
     arrow: 'group-data-[open]/select:rotate-180',
-    popover: 'flex min-w-[min(var(--trigger-width),calc(100vw-1.5rem))] flex-col',
+    popover:
+      'flex min-w-[min(var(--trigger-width),calc(100vw-1.5rem))] flex-col border border-outline-subtle [--ds-popover-scale:0.95]',
     list: 'max-h-[inherit]',
   },
   variants: {
     variant: {
-      outlined: {
+      outline: {
         trigger:
-          'data-[pressed]:ring-1 data-[pressed]:ring-inset data-[pressed]:not-data-[invalid]:border-primary',
+          'data-[pressed]:not-data-[invalid]:border-primary data-[pressed]:inset-ring-2 data-[pressed]:not-data-[invalid]:inset-ring-primary/20 data-[pressed]:data-[invalid]:inset-ring-error/20',
       },
-      filled: {
-        trigger: 'data-[pressed]:after:h-0.5 data-[pressed]:not-data-[invalid]:after:bg-primary',
+      soft: {
+        trigger:
+          'data-[pressed]:not-data-[invalid]:border-primary data-[pressed]:not-data-[invalid]:bg-surface-raised data-[pressed]:inset-ring-2 data-[pressed]:not-data-[invalid]:inset-ring-primary/20 data-[pressed]:data-[invalid]:inset-ring-error/20',
       },
     },
     animated: {
       true: {
-        arrow:
-          'transition-[rotate] duration-(--ds-duration-spatial-fast) ease-spatial-fast motion-reduce:transition-none',
+        arrow: 'transition-[rotate] duration-150 ease-out motion-reduce:transition-none',
       },
       false: {},
     },
   },
   defaultVariants: {
-    variant: 'outlined',
+    variant: 'outline',
     animated: true,
   },
 });
+
+export type SelectVariant = 'outline' | 'soft';
 
 export interface SelectProps<T extends object = object, M extends SelectSelectionMode = 'single'>
   extends Omit<AriaSelectProps<T, M>, 'children' | 'className' | 'placeholder'>, FieldBaseProps {
@@ -186,7 +177,7 @@ export function Select<T extends object = object, M extends SelectSelectionMode 
   errorMessage,
   necessityIndicator,
   size = 'md',
-  variant = 'outlined',
+  variant = 'outline',
   items,
   children,
   dependencies,
@@ -254,11 +245,7 @@ export function Select<T extends object = object, M extends SelectSelectionMode 
               )}
             </SelectValue>
             <span aria-hidden="true" data-slot="indicator" className={styles.indicator()}>
-              {isLoading ? (
-                <Spinner className="text-primary" />
-              ) : (
-                <icons.arrowDropDown className={styles.arrow()} />
-              )}
+              {isLoading ? <Spinner /> : <icons.chevronDown className={styles.arrow()} />}
             </span>
           </AriaButton>
           <Popover dir={direction} offset={4} maxHeight={320} className={styles.popover()}>

@@ -34,7 +34,7 @@ export default function SheetSnapPoints() {
   return (
     <div className="flex flex-col items-center gap-3">
       <SheetTrigger>
-        <Button variant="tonal">Notifications</Button>
+        <Button variant="soft">Notifications</Button>
         <Sheet
           side="bottom"
           snapPoints={['50%', '90%']}
@@ -43,11 +43,11 @@ export default function SheetSnapPoints() {
         >
           <SheetHeader title="Notifications" description={`${notifications.length} new`} />
           <SheetBody>
-            <ul className="flex flex-col divide-y divide-outline-variant">
+            <ul className="flex flex-col divide-y divide-outline-subtle">
               {notifications.map((text, index) => (
                 <li key={text} className="flex flex-col py-3">
-                  <p className="text-body-lg text-on-surface">{text}</p>
-                  <p className="text-body-sm text-on-surface-variant">
+                  <p className="text-base text-on-surface">{text}</p>
+                  <p className="text-xs text-on-surface-variant">
                     {time.format(-(index + 1), 'hour')}
                   </p>
                 </li>
@@ -56,7 +56,7 @@ export default function SheetSnapPoints() {
           </SheetBody>
         </Sheet>
       </SheetTrigger>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         Opens at {snapPoint} of the screen
       </p>
     </div>

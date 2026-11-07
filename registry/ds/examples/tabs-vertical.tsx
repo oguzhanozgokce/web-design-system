@@ -35,11 +35,7 @@ export default function TabsVertical() {
   const wide = useMediaQuery('(min-width: 40rem)', true);
 
   return (
-    <Tabs
-      orientation={wide ? 'vertical' : 'horizontal'}
-      iconPlacement="start"
-      className="w-full max-w-xl"
-    >
+    <Tabs orientation={wide ? 'vertical' : 'horizontal'} className="w-full max-w-xl">
       <TabList aria-label="Settings" items={sections}>
         {(section) => (
           <Tab id={section.id} icon={section.icon}>
@@ -49,8 +45,8 @@ export default function TabsVertical() {
       </TabList>
       {sections.map((section) => (
         <TabPanel key={section.id} id={section.id} className="flex flex-col gap-1">
-          <h3 className="text-title-md text-on-surface">{section.label}</h3>
-          <p className="text-body-md text-on-surface-variant">{section.body}</p>
+          <h3 className="text-base font-semibold text-on-surface">{section.label}</h3>
+          <p className="text-sm text-on-surface-variant">{section.body}</p>
         </TabPanel>
       ))}
     </Tabs>

@@ -22,7 +22,7 @@ export default function FabScroll() {
   const lastScrollTop = useRef(0);
 
   return (
-    <div className="relative w-full max-w-sm overflow-hidden rounded-lg bg-surface-container-low">
+    <div className="relative w-full max-w-sm overflow-hidden rounded-container border border-outline-subtle bg-surface-raised">
       <div
         role="region"
         aria-label="Contacts"
@@ -35,11 +35,11 @@ export default function FabScroll() {
           lastScrollTop.current = top;
         }}
       >
-        <ul className="divide-y divide-outline-variant pb-24">
+        <ul className="divide-y divide-outline-subtle pb-24">
           {contacts.map((contact) => (
             <li key={contact.email} className="px-4 py-3">
-              <p className="truncate text-title-sm text-on-surface">{contact.name}</p>
-              <p className="truncate text-body-sm text-on-surface-variant">{contact.email}</p>
+              <p className="truncate text-sm font-medium text-on-surface">{contact.name}</p>
+              <p className="truncate text-xs text-on-surface-variant">{contact.email}</p>
             </li>
           ))}
         </ul>

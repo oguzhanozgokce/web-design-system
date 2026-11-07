@@ -13,9 +13,9 @@ import { Menu, MenuItem, MenuSeparator, MenuTrigger, SubmenuTrigger } from '@/re
 
 export default function MenuSubmenu() {
   return (
-    <div className="flex items-center gap-3 rounded-lg bg-surface-container-low py-2 ps-4 pe-2">
-      <FileIcon className="size-6 shrink-0 text-on-surface-variant" />
-      <span className="min-w-0 flex-1 truncate text-body-lg text-on-surface">Notes.txt</span>
+    <div className="flex w-full max-w-sm items-center gap-3 rounded-container border border-outline-subtle bg-surface-raised py-2 ps-4 pe-2">
+      <FileIcon className="size-5 shrink-0 text-on-surface-variant" />
+      <span className="min-w-0 flex-1 truncate text-sm font-medium text-on-surface">Notes.txt</span>
       <MenuTrigger>
         <IconButton aria-label="Actions for Notes.txt" icon={<MoreVerticalIcon />} />
         <Menu placement="bottom end">
@@ -42,7 +42,7 @@ export default function MenuSubmenu() {
             </Menu>
           </SubmenuTrigger>
           <MenuSeparator />
-          <MenuItem startIcon={<DeleteIcon />} tone="destructive">
+          <MenuItem startIcon={<DeleteIcon />} tone="error">
             Move to trash
           </MenuItem>
         </Menu>

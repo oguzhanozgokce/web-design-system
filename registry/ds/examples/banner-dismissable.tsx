@@ -18,7 +18,7 @@ export default function BannerDismissable() {
         description="Switch themes in Settings, or let the app follow your system setting."
         actions={<Button>Open settings</Button>}
       />
-      <Button variant="outlined" size="sm" isDisabled={isOpen} onPress={() => setOpen(true)}>
+      <Button variant="outline" size="sm" isDisabled={isOpen} onPress={() => setOpen(true)}>
         Show announcement again
       </Button>
     </div>

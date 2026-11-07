@@ -11,7 +11,7 @@ const actions = [
 export default function SheetBottom() {
   return (
     <SheetTrigger>
-      <Button variant="tonal" startIcon={<ShareIcon />}>
+      <Button variant="soft" startIcon={<ShareIcon />}>
         Share
       </Button>
       <Sheet side="bottom" size="sm">
@@ -22,11 +22,11 @@ export default function SheetBottom() {
               <li key={action.label}>
                 <Button
                   slot="close"
-                  variant="text"
+                  variant="ghost"
                   size="lg"
                   fullWidth
                   startIcon={action.icon}
-                  className="justify-start text-on-surface"
+                  className="justify-start"
                 >
                   {action.label}
                 </Button>

@@ -114,7 +114,13 @@ export type FeedbackRole =
 export type LayerRole =
   'canvas' | 'surface-raised' | 'surface-overlay' | 'surface-segment' | 'surface-thumb';
 
-export type ColorRole = SchemeRole | FeedbackRole | LayerRole;
+export const solidSourceNames = ['primary', 'error', 'success', 'warning', 'info'] as const;
+
+type SolidSource = (typeof solidSourceNames)[number];
+
+export type SolidRole = `${SolidSource}-solid` | `on-${SolidSource}-solid`;
+
+export type ColorRole = SchemeRole | FeedbackRole | LayerRole | SolidRole;
 
 export type BrandColors = Record<ColorRole, string>;
 
@@ -145,10 +151,15 @@ const layerSources: Record<LayerRole, Record<ColorMode, SchemeRole>> = {
 
 export const layerRoleNames = Object.keys(layerSources) as LayerRole[];
 
+export const solidRoleNames: SolidRole[] = solidSourceNames.flatMap(
+  (name) => [`${name}-solid`, `on-${name}-solid`] as const,
+);
+
 export const colorRoleNames: ColorRole[] = [
   ...schemeRoleNames,
   ...feedbackRoleNames,
   ...layerRoleNames,
+  ...solidRoleNames,
 ];
 
 function createScheme(source: Hct, dark: boolean, style: PaletteStyle, contrast: number) {
@@ -235,7 +246,14 @@ export function brandColors({
   for (const role of layerRoleNames) {
     result[role] = result[layerSources[role][mode]];
   }
-  return { ...result, ...feedbackColors(argb, dark) };
+  Object.assign(result, feedbackColors(argb, dark));
+  const solids =
+    dark && style !== 'monochrome' ? brandColors({ seed, mode: 'light', style, contrast }) : result;
+  for (const name of solidSourceNames) {
+    result[`${name}-solid`] = solids[name];
+    result[`on-${name}-solid`] = solids[`on-${name}`];
+  }
+  return result;
 }
 
 export function colorDeclarations(colors: BrandColors, indent = '  ') {

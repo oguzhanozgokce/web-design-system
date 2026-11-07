@@ -20,12 +20,7 @@ export default function ProgressSteps() {
         tone={done === steps.length ? 'success' : 'primary'}
       />
       <div className="flex gap-2">
-        <Button
-          variant="outlined"
-          size="sm"
-          isDisabled={done === 0}
-          onPress={() => setDone(done - 1)}
-        >
+        <Button variant="soft" size="sm" isDisabled={done === 0} onPress={() => setDone(done - 1)}>
           Back
         </Button>
         <Button size="sm" isDisabled={done === steps.length} onPress={() => setDone(done + 1)}>

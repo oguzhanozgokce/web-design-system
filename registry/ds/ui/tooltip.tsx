@@ -30,7 +30,6 @@ import {
 import { useControllableState } from '@/registry/ds/hooks/use-controllable-state';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
 import { ButtonGroupContext } from '@/registry/ds/ui/button';
-import { SurfaceContext } from '@/registry/ds/ui/card';
 import { useDirection } from '@/registry/ds/ui/ds-provider';
 import { Kbd, type KbdKey } from '@/registry/ds/ui/kbd';
 import { PopoverArrow, popoverMotion, usePopoverMotion } from '@/registry/ds/ui/popover';
@@ -164,12 +163,12 @@ function useInteractiveTooltip(isInteractive: boolean) {
 export const tooltipStyles = tv({
   slots: {
     base: [
-      'flex min-h-6 max-w-60 items-center gap-3 rounded-xs bg-inverse-surface px-2 py-1 text-body-sm text-inverse-on-surface',
-      'origin-(--trigger-anchor-point) forced-colors:border',
+      'flex min-h-7 max-w-xs items-center gap-2.5 rounded-item bg-inverse-surface px-2.5 py-1.5 text-xs text-inverse-on-surface shadow-md',
+      'origin-(--trigger-anchor-point) [--ds-popover-scale:0.9] forced-colors:border',
     ],
     label: 'me-auto min-w-0',
     shortcut: 'flex shrink-0 items-center gap-0.5',
-    key: 'h-4 min-w-4 rounded-xs bg-inverse-on-surface/12 px-1 text-body-sm',
+    key: 'h-4 min-w-4 rounded-sm bg-inverse-on-surface/15 px-1 text-xs font-medium text-inverse-on-surface',
     arrow: 'text-inverse-surface',
   },
   variants: {
@@ -196,7 +195,7 @@ function TooltipShortcut({ keys, className, keyClassName }: TooltipShortcutProps
   return (
     <Keyboard data-slot="shortcut" className={className}>
       {keys.map((key, index) => (
-        <Kbd key={`${index}:${key}`} variant="text" size="sm" className={keyClassName}>
+        <Kbd key={`${index}:${key}`} variant="ghost" size="sm" className={keyClassName}>
           {key}
         </Kbd>
       ))}
@@ -256,13 +255,13 @@ export function Tooltip({
 export const richTooltipStyles = tv({
   slots: {
     base: [
-      'flex max-w-[min(20rem,calc(100vw-1.5rem))] flex-col gap-1 rounded-md bg-surface-container px-4 py-3 text-on-surface-variant shadow-elevation-2 outline-none',
-      'origin-(--trigger-anchor-point) has-data-[slot=actions]:pb-2 forced-colors:border',
+      'flex max-w-[min(20rem,calc(100vw-1.5rem))] flex-col gap-1 rounded-overlay bg-surface-overlay px-4 py-3 text-sm text-on-surface-variant shadow-md outline-none',
+      'origin-(--trigger-anchor-point) [--ds-popover-scale:0.9] has-data-[slot=actions]:pb-2 forced-colors:border',
     ],
-    title: 'text-title-sm text-on-surface',
-    body: 'text-body-md',
+    title: 'text-sm font-semibold text-on-surface',
+    body: 'text-sm',
     actions: '-ms-3 mt-1 flex flex-wrap items-center gap-1',
-    arrow: 'text-surface-container',
+    arrow: 'text-surface-overlay',
   },
   variants: {
     motion: {
@@ -317,26 +316,24 @@ export function RichTooltip({
   useInteractiveTooltip(action != null);
 
   const content = (
-    <SurfaceContext value="surface-container">
-      <ButtonGroupContext value={null}>
-        {showArrow ? <PopoverArrow className={styles.arrow()} /> : null}
-        {title != null ? (
-          <div id={titleId} data-slot="title" className={styles.title()}>
-            {title}
-          </div>
-        ) : null}
-        {children != null ? (
-          <div id={bodyId} data-slot="body" className={styles.body()}>
-            {children}
-          </div>
-        ) : null}
-        {action != null ? (
-          <div data-slot="actions" className={styles.actions()}>
-            {action}
-          </div>
-        ) : null}
-      </ButtonGroupContext>
-    </SurfaceContext>
+    <ButtonGroupContext value={null}>
+      {showArrow ? <PopoverArrow className={styles.arrow()} /> : null}
+      {title != null ? (
+        <div id={titleId} data-slot="title" className={styles.title()}>
+          {title}
+        </div>
+      ) : null}
+      {children != null ? (
+        <div id={bodyId} data-slot="body" className={styles.body()}>
+          {children}
+        </div>
+      ) : null}
+      {action != null ? (
+        <div data-slot="actions" className={styles.actions()}>
+          {action}
+        </div>
+      ) : null}
+    </ButtonGroupContext>
   );
 
   if (tooltipState) {

@@ -10,70 +10,136 @@ import {
   type LinkProps as AriaLinkProps,
   type PressEvent,
 } from 'react-aria-components';
-import { tv, type VariantProps } from '@/registry/ds/lib/utils';
+import { tv } from '@/registry/ds/lib/utils';
 import { useLabels } from '@/registry/ds/ui/ds-provider';
 import { Spinner } from '@/registry/ds/ui/spinner';
 
 export const buttonStyles = tv({
   base: [
-    'state-layer focus-ring group/button relative inline-flex shrink-0 cursor-default items-center justify-center rounded-full font-medium whitespace-nowrap no-underline select-none',
-    'transition-[background-color,color,border-color,box-shadow,scale] duration-150 ease-standard',
-    'data-[pressed]:scale-[0.97] motion-reduce:data-[pressed]:scale-100',
-    'data-[disabled]:text-on-surface/38 data-[disabled]:shadow-none',
+    'focus-ring transition-control no-tap-highlight group/button relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control font-medium whitespace-nowrap no-underline select-none',
+    'motion-reduce:data-[pressed]:scale-100',
+    'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
   ],
   variants: {
     variant: {
-      filled: 'data-[disabled]:bg-on-surface/12',
-      tonal: 'data-[disabled]:bg-on-surface/12',
-      outlined: 'border bg-transparent data-[disabled]:border-on-surface/12',
-      text: 'bg-transparent',
-      elevated:
-        'shadow-elevation-1 data-[disabled]:bg-on-surface/12 data-[hovered]:shadow-elevation-2',
+      solid: '',
+      soft: '',
+      outline: 'border bg-transparent',
+      ghost: 'bg-transparent',
     },
     tone: {
-      default: '',
-      destructive: '',
+      primary: '',
+      neutral: '',
+      error: '[--focus-color:var(--error)]',
     },
     size: {
-      xs: 'h-7 gap-1 px-3 text-label-md [--icon-size:1rem]',
-      sm: 'h-8 gap-1.5 px-3.5 text-label-lg [--icon-size:1.125rem]',
-      md: 'h-10 gap-2 px-5 text-label-lg [--icon-size:1.25rem]',
-      lg: 'h-12 gap-2 px-6 text-title-md [--icon-size:1.375rem]',
-      xl: 'h-14 gap-2.5 px-8 text-title-lg [--icon-size:1.5rem]',
+      sm: 'h-8 gap-1.5 px-3 text-sm data-[pressed]:scale-[0.98] [--icon-size:1rem]',
+      md: 'h-10 gap-2 px-4 text-sm data-[pressed]:scale-[0.97] [--icon-size:1rem]',
+      lg: 'h-12 gap-2 px-5 text-base data-[pressed]:scale-[0.96] [--icon-size:1.25rem]',
     },
     fullWidth: {
       true: 'w-full',
     },
   },
   compoundVariants: [
-    { variant: 'filled', tone: 'default', class: 'bg-primary text-on-primary' },
-    { variant: 'filled', tone: 'destructive', class: 'bg-error text-on-error' },
     {
-      variant: 'tonal',
-      tone: 'default',
-      class: 'bg-secondary-container text-on-secondary-container',
+      variant: 'solid',
+      tone: 'primary',
+      class:
+        'bg-primary-solid text-on-primary-solid data-[hovered]:bg-primary-solid-hover data-[pressed]:bg-primary-solid-hover',
     },
-    { variant: 'tonal', tone: 'destructive', class: 'bg-error-container text-on-error-container' },
-    { variant: 'outlined', tone: 'default', class: 'border-outline-variant text-primary' },
-    { variant: 'outlined', tone: 'destructive', class: 'border-error/40 text-error' },
-    { variant: 'text', tone: 'default', class: 'text-primary' },
-    { variant: 'text', tone: 'destructive', class: 'text-error' },
-    { variant: 'elevated', tone: 'default', class: 'bg-surface-container-low text-primary' },
-    { variant: 'elevated', tone: 'destructive', class: 'bg-surface-container-low text-error' },
+    {
+      variant: 'solid',
+      tone: 'neutral',
+      class:
+        'bg-inverse-surface text-inverse-on-surface data-[hovered]:bg-inverse-surface-hover data-[pressed]:bg-inverse-surface-hover',
+    },
+    {
+      variant: 'solid',
+      tone: 'error',
+      class:
+        'bg-error-solid text-on-error-solid data-[hovered]:bg-error-solid-hover data-[pressed]:bg-error-solid-hover',
+    },
+    {
+      variant: 'soft',
+      tone: 'primary',
+      class:
+        'bg-primary-soft text-on-primary-soft data-[hovered]:bg-primary-soft-hover data-[pressed]:bg-primary-soft-hover',
+    },
+    {
+      variant: 'soft',
+      tone: 'neutral',
+      class:
+        'bg-neutral-soft text-on-surface data-[hovered]:bg-neutral-soft-hover data-[pressed]:bg-neutral-soft-hover',
+    },
+    {
+      variant: 'soft',
+      tone: 'error',
+      class:
+        'bg-error-soft text-on-error-soft data-[hovered]:bg-error-soft-hover data-[pressed]:bg-error-soft-hover',
+    },
+    {
+      variant: 'outline',
+      tone: 'primary',
+      class: 'border-primary/40 text-primary data-[hovered]:bg-primary-soft',
+    },
+    {
+      variant: 'outline',
+      tone: 'neutral',
+      class: 'border-outline-variant text-on-surface data-[hovered]:bg-neutral-soft',
+    },
+    {
+      variant: 'outline',
+      tone: 'error',
+      class: 'border-error/40 text-error data-[hovered]:bg-error-soft',
+    },
+    {
+      variant: 'ghost',
+      tone: 'primary',
+      class: 'text-primary data-[hovered]:bg-primary-soft data-[pressed]:bg-primary-soft-hover',
+    },
+    {
+      variant: 'ghost',
+      tone: 'neutral',
+      class: 'text-on-surface data-[hovered]:bg-neutral-soft data-[pressed]:bg-neutral-soft-hover',
+    },
+    {
+      variant: 'ghost',
+      tone: 'error',
+      class: 'text-error data-[hovered]:bg-error-soft data-[pressed]:bg-error-soft-hover',
+    },
   ],
   defaultVariants: {
-    variant: 'filled',
-    tone: 'default',
+    variant: 'solid',
+    tone: 'primary',
     size: 'md',
   },
 });
 
-export type ButtonStyleProps = VariantProps<typeof buttonStyles>;
+export type ButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost';
+export type ButtonTone = 'primary' | 'neutral' | 'error';
+export type ButtonSize = 'sm' | 'md' | 'lg';
+
+export interface ButtonStyleProps {
+  variant?: ButtonVariant;
+  tone?: ButtonTone;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+}
+
+export function resolveButtonStyle({
+  variant = 'solid',
+  tone,
+  size = 'md',
+}: Pick<ButtonStyleProps, 'variant' | 'tone' | 'size'>) {
+  const resolvedTone: ButtonTone = tone ?? (variant === 'solid' ? 'primary' : 'neutral');
+  return { variant, tone: resolvedTone, size };
+}
 
 export interface ButtonGroupContextValue {
-  variant?: ButtonStyleProps['variant'];
-  tone?: ButtonStyleProps['tone'];
-  size?: ButtonStyleProps['size'];
+  variant?: ButtonVariant;
+  tone?: ButtonTone;
+  size?: ButtonSize;
   isDisabled?: boolean;
 }
 
@@ -86,9 +152,11 @@ function useGroupedStyle({
 }: Pick<ButtonStyleProps, 'variant' | 'tone' | 'size'>) {
   const group = use(ButtonGroupContext);
   return {
-    variant: variant ?? group?.variant ?? 'filled',
-    tone: tone ?? group?.tone ?? 'default',
-    size: size ?? group?.size ?? 'md',
+    ...resolveButtonStyle({
+      variant: variant ?? group?.variant,
+      tone: tone ?? group?.tone,
+      size: size ?? group?.size,
+    }),
     isGroupDisabled: group?.isDisabled,
   };
 }

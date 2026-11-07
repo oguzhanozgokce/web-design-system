@@ -5,12 +5,12 @@ export default function BadgeLabel() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
       <Button
-        variant="tonal"
+        variant="soft"
         endIcon={<Badge count={7} tone="primary" label="{count} waiting for your review" />}
       >
         Requests
       </Button>
-      <Button variant="outlined" endIcon={<Badge count={2} label="{count} failed uploads" />}>
+      <Button variant="outline" endIcon={<Badge count={2} label="{count} failed uploads" />}>
         Uploads
       </Button>
     </div>

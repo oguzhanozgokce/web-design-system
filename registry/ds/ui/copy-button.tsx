@@ -2,49 +2,44 @@
 
 import { use, useSyncExternalStore, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { composeRenderProps, useLocale } from 'react-aria-components';
+import { useLocale } from 'react-aria-components';
 import {
   resolveCopyValue,
   useCopyToClipboard,
   type CopyStatus,
   type CopyValue,
 } from '@/registry/ds/hooks/use-copy-to-clipboard';
-import { tv, type VariantProps } from '@/registry/ds/lib/utils';
+import { tv } from '@/registry/ds/lib/utils';
 import { Button, ButtonGroupContext, type ButtonProps } from '@/registry/ds/ui/button';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
+import { IconButton, type IconButtonSize } from '@/registry/ds/ui/icon-button';
 
 export const copyButtonStyles = tv({
   slots: {
-    base: '',
     glyph:
       'grid shrink-0 place-items-center text-(length:--icon-size) *:col-start-1 *:row-start-1 [&_svg]:size-[1em]',
     icon: '',
     label: 'grid justify-items-center *:col-start-1 *:row-start-1',
-    face: 'inline-flex items-center gap-2 group-data-[size=sm]/button:gap-1.5 group-data-[size=xl]/button:gap-2.5 group-data-[size=xs]/button:gap-1',
+    face: 'inline-flex items-center gap-1.5 group-data-[size=lg]/button:gap-2 group-data-[size=md]/button:gap-2',
   },
   variants: {
-    iconOnly: {
-      true: {
-        base: [
-          'px-0 data-[size=lg]:w-12 data-[size=md]:w-10 data-[size=sm]:w-8 data-[size=xl]:w-14 data-[size=xs]:w-7',
-          'pointer-coarse:after:absolute pointer-coarse:data-[size=md]:after:-inset-1 pointer-coarse:data-[size=sm]:after:-inset-2 pointer-coarse:data-[size=xs]:after:-inset-2.5',
-          'data-[size=lg]:[--icon-size:1.5rem] data-[size=md]:[--icon-size:1.5rem] data-[size=sm]:[--icon-size:1.25rem] data-[size=xl]:[--icon-size:1.75rem] data-[size=xs]:[--icon-size:1.125rem]',
-          'data-[variant=outlined]:not-data-[disabled]:text-on-surface-variant data-[variant=text]:not-data-[disabled]:text-on-surface-variant',
-        ],
-      },
+    state: {
+      idle: {},
+      copied: { icon: 'text-success group-data-[variant=solid]/button:text-current' },
+      failed: {},
     },
     shown: {
-      true: { icon: 'opacity-100', face: 'visible opacity-100' },
+      true: { icon: 'scale-100 opacity-100', face: 'visible opacity-100' },
       false: { icon: 'opacity-0', face: 'invisible opacity-0' },
     },
     motion: {
       spatial: {
-        icon: 'transition-[opacity,scale] duration-[150ms,var(--ds-duration-spatial-fast)] ease-[var(--ease-standard),var(--ds-ease-spatial-fast)] motion-reduce:transition-opacity',
-        face: 'transition-[opacity,visibility] duration-150 ease-standard',
+        icon: 'transition-[opacity,scale] duration-150 ease-out motion-reduce:transition-opacity',
+        face: 'transition-[opacity,visibility] duration-150 ease-out',
       },
       fade: {
-        icon: 'transition-opacity duration-150 ease-standard',
-        face: 'transition-[opacity,visibility] duration-150 ease-standard',
+        icon: 'transition-opacity duration-150 ease-out',
+        face: 'transition-[opacity,visibility] duration-150 ease-out',
       },
       none: {},
     },
@@ -57,13 +52,12 @@ export const copyButtonStyles = tv({
     },
   ],
   defaultVariants: {
-    iconOnly: true,
     shown: true,
     motion: 'none',
   },
 });
 
-export type CopyButtonStyleProps = VariantProps<typeof copyButtonStyles>;
+export type CopyButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost';
 
 export interface CopyButtonLabels {
   copy: string;
@@ -86,7 +80,8 @@ function useGlyphMotion(): GlyphMotion {
 
 function CopyGlyph({ status }: { status: CopyStatus }) {
   const icons = useIcons();
-  const styles = copyButtonStyles({ motion: useGlyphMotion() });
+  const motion = useGlyphMotion();
+  const styles = copyButtonStyles({ motion });
   const glyphs = [
     { state: 'idle', Icon: icons.copy },
     { state: 'copied', Icon: icons.check },
@@ -96,7 +91,11 @@ function CopyGlyph({ status }: { status: CopyStatus }) {
   return (
     <span data-slot="glyph" data-status={status} className={styles.glyph()}>
       {glyphs.map(({ state, Icon }) => (
-        <Icon key={state} className={styles.icon({ shown: status === state })} />
+        <Icon
+          key={state}
+          data-glyph={state}
+          className={copyButtonStyles({ motion, state, shown: status === state }).icon()}
+        />
       ))}
     </span>
   );
@@ -110,8 +109,8 @@ interface CopyLabelProps {
 
 function CopyLabel({ status, labels, children }: CopyLabelProps) {
   const t = useLabels('copyButton', defaultCopyButtonLabels, labels);
-  const icons = useIcons();
-  const styles = copyButtonStyles({ motion: useGlyphMotion() });
+  const motion = useGlyphMotion();
+  const styles = copyButtonStyles({ motion });
   const copied = status === 'copied';
 
   return (
@@ -121,9 +120,7 @@ function CopyLabel({ status, labels, children }: CopyLabelProps) {
         <span>{status === 'failed' ? t.copyFailed : children}</span>
       </span>
       <span data-slot="face" className={styles.face({ shown: copied })}>
-        <span data-slot="glyph" className={styles.glyph()}>
-          <icons.check />
-        </span>
+        <CopyGlyph status={copied ? 'copied' : 'idle'} />
         <span>{t.copied}</span>
       </span>
     </span>
@@ -165,9 +162,18 @@ function CopyAnnouncer({ message, attempt }: { message: string | null; attempt: 
 
 export interface CopyButtonProps extends Omit<
   ButtonProps,
-  'onPress' | 'children' | 'startIcon' | 'endIcon' | 'tone' | 'isPending' | 'value' | 'labels'
+  | 'onPress'
+  | 'children'
+  | 'startIcon'
+  | 'endIcon'
+  | 'tone'
+  | 'isPending'
+  | 'value'
+  | 'labels'
+  | 'size'
 > {
   value: CopyValue;
+  size?: IconButtonSize;
   onCopy?: (text: string) => void;
   onCopyError?: (error: unknown) => void;
   timeout?: number;
@@ -183,7 +189,8 @@ export function CopyButton({
   labels,
   children,
   variant,
-  className,
+  size,
+  fullWidth,
   'aria-label': ariaLabel,
   ...props
 }: CopyButtonProps) {
@@ -191,7 +198,7 @@ export function CopyButton({
   const group = use(ButtonGroupContext);
   const { status, attempt, copy } = useCopyToClipboard({ timeout, onCopy, onCopyError });
   const iconOnly = children == null;
-  const styles = copyButtonStyles({ iconOnly });
+  const tone = status === 'failed' ? 'error' : undefined;
   const announcement = status === 'copied' ? t.copied : status === 'failed' ? t.copyFailed : null;
 
   function handlePress() {
@@ -202,21 +209,33 @@ export function CopyButton({
 
   return (
     <>
-      <Button
-        {...props}
-        variant={variant ?? group?.variant ?? (iconOnly ? 'text' : 'outlined')}
-        aria-label={iconOnly ? (ariaLabel ?? t.copy) : ariaLabel}
-        data-status={status}
-        onPress={handlePress}
-        startIcon={iconOnly ? <CopyGlyph status={status} /> : undefined}
-        className={composeRenderProps(className, (className) => styles.base({ className }))}
-      >
-        {iconOnly ? undefined : (
+      {iconOnly ? (
+        <IconButton
+          {...props}
+          variant={variant ?? group?.variant ?? 'ghost'}
+          tone={tone}
+          size={size ?? group?.size ?? 'sm'}
+          aria-label={ariaLabel ?? t.copy}
+          data-status={status}
+          onPress={handlePress}
+          icon={<CopyGlyph status={status} />}
+        />
+      ) : (
+        <Button
+          {...props}
+          variant={variant ?? group?.variant ?? 'soft'}
+          tone={tone}
+          size={size === 'xs' ? 'sm' : (size ?? group?.size ?? 'sm')}
+          fullWidth={fullWidth}
+          aria-label={ariaLabel}
+          data-status={status}
+          onPress={handlePress}
+        >
           <CopyLabel status={status} labels={labels}>
             {children}
           </CopyLabel>
-        )}
-      </Button>
+        </Button>
+      )}
       <CopyAnnouncer message={announcement} attempt={attempt} />
     </>
   );

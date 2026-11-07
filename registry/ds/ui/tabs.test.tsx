@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { StrictMode, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { I18nProvider, type Key } from 'react-aria-components';
 import { userEvent } from 'vitest/browser';
@@ -29,6 +29,29 @@ function FolderTabs(props: Omit<TabsProps, 'children'>) {
   );
 }
 
+const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'];
+
+function MonthTabs({ width, ...props }: Omit<TabsProps, 'children'> & { width?: number }) {
+  return (
+    <div style={width ? { width } : undefined}>
+      <Tabs {...props}>
+        <TabList aria-label="Month">
+          {monthNames.map((month) => (
+            <Tab key={month} id={month}>
+              {month}
+            </Tab>
+          ))}
+        </TabList>
+        {monthNames.map((month) => (
+          <TabPanel key={month} id={month}>
+            {month}
+          </TabPanel>
+        ))}
+      </Tabs>
+    </div>
+  );
+}
+
 function indicatorOwner(container: HTMLElement) {
   const indicators = container.querySelectorAll('[data-slot="indicator"]');
   expect(indicators).toHaveLength(1);
@@ -44,10 +67,9 @@ describe('Tabs', () => {
     await expect.element(screen.getByRole('tabpanel')).toHaveTextContent('Overview panel');
     await expect.element(screen.getByRole('tabpanel')).toHaveAccessibleName('Overview');
     expect(indicatorOwner(screen.container)).toBe(overview.element());
-    expect(screen.container.querySelector('[data-slot="tabs"]')).toHaveAttribute(
-      'data-variant',
-      'primary',
-    );
+    const tabs = screen.container.querySelector('[data-slot="tabs"]');
+    expect(tabs).toHaveAttribute('data-variant', 'underline');
+    expect(tabs).toHaveAttribute('data-size', 'md');
   });
 
   it('selects on press, reports the key and moves the indicator', async () => {
@@ -61,12 +83,14 @@ describe('Tabs', () => {
     expect(indicatorOwner(screen.container)).toBe(messages.element());
   });
 
-  it('animates the indicator from the previous tab with the spatial spring', async () => {
+  it('slides the indicator from the previous tab over 250ms on the fluid curve', async () => {
     const screen = await renderWithDS(<FolderTabs />);
     await screen.getByRole('tab', { name: 'Notes' }).click();
     const indicator = screen.container.querySelector<HTMLElement>('[data-slot="indicator"]')!;
-    expect(getComputedStyle(indicator).transitionProperty).toBe('width, height, translate');
-    expect(getComputedStyle(indicator).transitionTimingFunction).toMatch(/^linear\(/);
+    const style = getComputedStyle(indicator);
+    expect(style.transitionProperty).toBe('width, height, translate');
+    expect(style.transitionDuration).toBe('0.25s');
+    expect(style.transitionTimingFunction).toBe('cubic-bezier(0.32, 0.72, 0, 1)');
   });
 
   it('starts the indicator travel exactly on the previous tab, in both directions', async () => {
@@ -81,7 +105,7 @@ describe('Tabs', () => {
           {(['ltr', 'rtl'] as const).map((dir) => (
             <I18nProvider key={dir} locale={dir === 'rtl' ? 'ar' : 'en'}>
               <div dir={dir}>
-                {(['primary', 'secondary', 'pill'] as const).map((variant) => (
+                {(['underline', 'pill'] as const).map((variant) => (
                   <FolderTabs
                     key={variant}
                     variant={variant}
@@ -97,7 +121,7 @@ describe('Tabs', () => {
     }
     const screen = await renderWithDS(<Matrix />);
     const instances = [...screen.container.querySelectorAll<HTMLElement>('[data-slot="tabs"]')];
-    expect(instances).toHaveLength(6);
+    expect(instances).toHaveLength(4);
     const indicatorIn = (tabs: HTMLElement, name: string) =>
       [...tabs.querySelectorAll('[role="tab"]')]
         .find((tab) => tab.textContent === name)!
@@ -110,6 +134,26 @@ describe('Tabs', () => {
       expect(start.left).toBeCloseTo(before[index].left, 0);
       expect(start.width).toBeCloseTo(before[index].width, 0);
     });
+  });
+
+  it('settles the indicator on the new tab with no inline offset left behind', async () => {
+    const screen = await renderWithDS(
+      <StrictMode>
+        <FolderTabs />
+      </StrictMode>,
+    );
+    const notes = screen.getByRole('tab', { name: 'Notes' });
+    await notes.click();
+    await expect
+      .poll(() => {
+        const indicator = notes.element().querySelector('[data-slot="indicator"]');
+        if (!indicator) return Infinity;
+        const tab = notes.element().getBoundingClientRect();
+        return Math.abs(indicator.getBoundingClientRect().left - tab.left);
+      })
+      .toBeLessThan(1);
+    const indicator = notes.element().querySelector<HTMLElement>('[data-slot="indicator"]')!;
+    expect(indicator.style.translate).toBe('');
   });
 
   it('jumps without a transition when motion is reduced', async () => {
@@ -147,7 +191,7 @@ describe('Tabs', () => {
   });
 
   it('places the indicator under the selected tab in RTL layouts', async () => {
-    const screen = await renderWithDS(<FolderTabs variant="secondary" />, {
+    const screen = await renderWithDS(<FolderTabs />, {
       locale: 'ar',
       ...still,
     });
@@ -202,10 +246,10 @@ describe('Tabs', () => {
     expect(onSelectionChange).not.toHaveBeenCalledWith('projects');
   });
 
-  it('stacks icons on primary tabs and keeps them inline elsewhere', async () => {
+  it('keeps icons inline by default and stacks them with iconPlacement="top"', async () => {
     const screen = await renderWithDS(
       <>
-        <Tabs>
+        <Tabs iconPlacement="top">
           <TabList aria-label="Mail">
             <Tab id="inbox" icon={<InboxIcon />}>
               Inbox
@@ -217,7 +261,7 @@ describe('Tabs', () => {
           <TabPanel id="inbox">Inbox</TabPanel>
           <TabPanel id="sent">Sent</TabPanel>
         </Tabs>
-        <Tabs variant="secondary">
+        <Tabs>
           <TabList aria-label="Folders">
             <Tab id="inbox" icon={<InboxIcon />}>
               Inbox
@@ -227,58 +271,102 @@ describe('Tabs', () => {
         </Tabs>
       </>,
     );
-    const primary = screen.getByRole('tablist', { name: 'Mail' }).getByRole('tab').first();
-    const secondary = screen.getByRole('tablist', { name: 'Folders' }).getByRole('tab').first();
-    await expect.element(primary).toHaveAttribute('data-stacked', 'true');
-    await expect.element(secondary).not.toHaveAttribute('data-stacked');
-    expect(primary.element().getBoundingClientRect().height).toBe(64);
-    expect(secondary.element().getBoundingClientRect().height).toBe(48);
+    const stacked = screen.getByRole('tablist', { name: 'Mail' }).getByRole('tab').first();
+    const inline = screen.getByRole('tablist', { name: 'Folders' }).getByRole('tab').first();
+    await expect.element(stacked).toHaveAttribute('data-stacked', 'true');
+    await expect.element(inline).not.toHaveAttribute('data-stacked');
+    expect(stacked.element().getBoundingClientRect().height).toBe(56);
+    expect(inline.element().getBoundingClientRect().height).toBe(40);
+  });
+
+  it('sizes underline tabs and pill tracks at 32, 40 and 48px', async () => {
+    const sizes = ['sm', 'md', 'lg'] as const;
+    const screen = await renderWithDS(
+      <div className="flex flex-col gap-4">
+        {sizes.map((size) => (
+          <FolderTabs key={`underline-${size}`} size={size} />
+        ))}
+        {sizes.map((size) => (
+          <FolderTabs key={`pill-${size}`} variant="pill" size={size} />
+        ))}
+      </div>,
+    );
+    const instances = [...screen.container.querySelectorAll<HTMLElement>('[data-slot="tabs"]')];
+    const heights = instances.map((tabs, index) =>
+      index < 3
+        ? tabs.querySelector('[role="tab"]')!.getBoundingClientRect().height
+        : tabs.querySelector('[data-slot="tab-list-container"]')!.getBoundingClientRect().height,
+    );
+    expect(heights).toEqual([32, 40, 48, 32, 40, 48]);
+    expect(instances[4]).toHaveAttribute('data-size', 'md');
+    expect(getComputedStyle(instances[4].querySelector('[role="tab"]')!).borderRadius).toBe(
+      '9999px',
+    );
+  });
+
+  it('paints the pill indicator on the segment surface and the underline in primary', async () => {
+    const screen = await renderWithDS(
+      <>
+        <FolderTabs />
+        <FolderTabs variant="pill" />
+        <span data-testid="primary" className="bg-primary" />
+        <span data-testid="segment" className="bg-surface-segment" />
+      </>,
+      still,
+    );
+    const [underline, pill] = [
+      ...screen.container.querySelectorAll<HTMLElement>('[data-slot="indicator"]'),
+    ];
+    const background = (element: Element) => getComputedStyle(element).backgroundColor;
+    expect(background(underline)).toBe(background(screen.getByTestId('primary').element()));
+    expect(background(pill)).toBe(background(screen.getByTestId('segment').element()));
+    expect(underline.getBoundingClientRect().height).toBe(2);
   });
 
   it('formats count badges for the locale and labels them with the badge labels', async () => {
     const screen = await renderWithDS(
-      <Tabs variant="secondary">
-        <TabList aria-label="Siparişler">
-          <Tab id="unpaid" badge={12}>
-            Ödenmemiş
+      <Tabs>
+        <TabList aria-label="Klasörler">
+          <Tab id="inbox" badge={12}>
+            Gelen kutusu
           </Tab>
-          <Tab id="pending" badge={1280}>
-            Bekleyen
+          <Tab id="drafts" badge={1280}>
+            Taslaklar
           </Tab>
-          <Tab id="disputes" badge>
-            İtirazlar
+          <Tab id="shared" badge>
+            Paylaşılanlar
           </Tab>
-          <Tab id="refunds" badge={0}>
-            İadeler
+          <Tab id="archive" badge={0}>
+            Arşiv
           </Tab>
         </TabList>
-        <TabPanel id="unpaid">Ödenmemiş</TabPanel>
-        <TabPanel id="pending">Bekleyen</TabPanel>
-        <TabPanel id="disputes">İtirazlar</TabPanel>
-        <TabPanel id="refunds">İadeler</TabPanel>
+        <TabPanel id="inbox">Gelen kutusu</TabPanel>
+        <TabPanel id="drafts">Taslaklar</TabPanel>
+        <TabPanel id="shared">Paylaşılanlar</TabPanel>
+        <TabPanel id="archive">Arşiv</TabPanel>
       </Tabs>,
       {
         locale: 'tr',
         provider: { labels: { badge: { count: '{count} yeni', dot: 'Yeni' } } },
       },
     );
-    await expect.element(screen.getByRole('tab', { name: 'Ödenmemiş 12 yeni' })).toBeVisible();
-    await expect.element(screen.getByRole('tab', { name: 'Bekleyen 99+ yeni' })).toBeVisible();
-    await expect.element(screen.getByRole('tab', { name: 'İtirazlar Yeni' })).toBeVisible();
-    const refunds = screen.getByRole('tab', { name: 'İadeler', exact: true });
-    await expect.element(refunds).toBeVisible();
-    expect(refunds.element().querySelector('[data-slot="badge"]')).toBeNull();
+    await expect.element(screen.getByRole('tab', { name: 'Gelen kutusu 12 yeni' })).toBeVisible();
+    await expect.element(screen.getByRole('tab', { name: 'Taslaklar 99+ yeni' })).toBeVisible();
+    await expect.element(screen.getByRole('tab', { name: 'Paylaşılanlar Yeni' })).toBeVisible();
+    const archive = screen.getByRole('tab', { name: 'Arşiv', exact: true });
+    await expect.element(archive).toBeVisible();
+    expect(archive.element().querySelector('[data-slot="badge"]')).toBeNull();
   });
 
   it('formats badge digits for Arabic', async () => {
     const screen = await renderWithDS(
-      <Tabs variant="secondary">
-        <TabList aria-label="الطلبات">
-          <Tab id="unpaid" badge={12}>
-            غير مدفوعة
+      <Tabs>
+        <TabList aria-label="المجلدات">
+          <Tab id="inbox" badge={12}>
+            البريد الوارد
           </Tab>
         </TabList>
-        <TabPanel id="unpaid">غير مدفوعة</TabPanel>
+        <TabPanel id="inbox">البريد الوارد</TabPanel>
       </Tabs>,
       { locale: 'ar' },
     );
@@ -290,7 +378,7 @@ describe('Tabs', () => {
   it('pins the badge to the icon on stacked and icon-only tabs', async () => {
     const screen = await renderWithDS(
       <>
-        <Tabs>
+        <Tabs iconPlacement="top">
           <TabList aria-label="Mail">
             <Tab id="inbox" icon={<InboxIcon />} badge={4}>
               Inbox
@@ -298,7 +386,7 @@ describe('Tabs', () => {
           </TabList>
           <TabPanel id="inbox">Inbox</TabPanel>
         </Tabs>
-        <Tabs variant="secondary">
+        <Tabs>
           <TabList aria-label="Folders">
             <Tab id="sent" icon={<MailIcon />} aria-label="Sent" badge />
             <Tab id="drafts" icon={<InboxIcon />} badge={2}>
@@ -320,26 +408,6 @@ describe('Tabs', () => {
     expect(anchored('Drafts 2 new')).toBeNull();
   });
 
-  it('keeps primary tabs at 48px with iconPlacement="start"', async () => {
-    const screen = await renderWithDS(
-      <Tabs iconPlacement="start">
-        <TabList aria-label="Mail">
-          <Tab id="inbox" icon={<InboxIcon />}>
-            Inbox
-          </Tab>
-        </TabList>
-        <TabPanel id="inbox">Inbox</TabPanel>
-      </Tabs>,
-    );
-    expect(screen.container.querySelector('[data-slot="tabs"]')).toHaveAttribute(
-      'data-icon-placement',
-      'start',
-    );
-    const inbox = screen.getByRole('tab', { name: 'Inbox' });
-    await expect.element(inbox).not.toHaveAttribute('data-stacked');
-    expect(inbox.element().getBoundingClientRect().height).toBe(48);
-  });
-
   it('waits for Enter with manual keyboard activation', async () => {
     const screen = await renderWithDS(<FolderTabs keyboardActivation="manual" />);
     screen.getByRole('tab', { name: 'Overview' }).element().focus();
@@ -351,21 +419,21 @@ describe('Tabs', () => {
     await expect.element(projects).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('paints the indicator of disabled tabs in the disabled colour', async () => {
+  it('dims disabled tabs to half opacity with a not-allowed cursor', async () => {
     const screen = await renderWithDS(
       <>
         <FolderTabs isDisabled />
-        <FolderTabs variant="pill" isDisabled />
-        <span data-testid="text-disabled" className="bg-on-surface/38" />
-        <span data-testid="container-disabled" className="bg-on-surface/12" />
+        <FolderTabs variant="pill" disabledKeys={['projects']} />
       </>,
     );
-    const [primary, pill] = [
-      ...screen.container.querySelectorAll<HTMLElement>('[data-slot="indicator"]'),
-    ];
-    const background = (element: Element) => getComputedStyle(element).backgroundColor;
-    expect(background(primary)).toBe(background(screen.getByTestId('text-disabled').element()));
-    expect(background(pill)).toBe(background(screen.getByTestId('container-disabled').element()));
+    const tabs = [...screen.container.querySelectorAll<HTMLElement>('[role="tab"]')];
+    const disabled = tabs.filter((tab) => tab.hasAttribute('data-disabled'));
+    expect(disabled).toHaveLength(5);
+    for (const tab of disabled) {
+      expect(getComputedStyle(tab).opacity).toBe('0.5');
+      expect(getComputedStyle(tab).cursor).toBe('not-allowed');
+    }
+    expect(getComputedStyle(tabs[4]).opacity).toBe('1');
   });
 
   it('works vertically with up and down arrows and an end-edge indicator', async () => {
@@ -384,26 +452,7 @@ describe('Tabs', () => {
   });
 
   it('scrolls overflowing tabs, fades the hidden edge and reveals the selected tab', async () => {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'];
-    const screen = await renderWithDS(
-      <div style={{ width: 280 }}>
-        <Tabs variant="secondary">
-          <TabList aria-label="Month">
-            {months.map((month) => (
-              <Tab key={month} id={month}>
-                {month}
-              </Tab>
-            ))}
-          </TabList>
-          {months.map((month) => (
-            <TabPanel key={month} id={month}>
-              {month}
-            </TabPanel>
-          ))}
-        </Tabs>
-      </div>,
-      still,
-    );
+    const screen = await renderWithDS(<MonthTabs width={280} />, still);
     const scroller = screen.container.querySelector<HTMLElement>('[data-slot="tab-scroller"]')!;
     await expect.element(scroller).toHaveAttribute('data-overflow-end', 'true');
     await expect.element(scroller).not.toHaveAttribute('data-overflow-start');
@@ -428,7 +477,7 @@ describe('Tabs', () => {
     const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس'];
     const screen = await renderWithDS(
       <div style={{ width: 240 }}>
-        <Tabs variant="secondary">
+        <Tabs>
           <TabList aria-label="الشهر">
             {months.map((month) => (
               <Tab key={month} id={month}>
@@ -472,11 +521,98 @@ describe('Tabs', () => {
     await expect.element(daily).toHaveAttribute('href', '#daily');
   });
 
+  it('shows a scroll button only at an edge with hidden tabs and pages the list', async () => {
+    const screen = await renderWithDS(<MonthTabs width={280} />, still);
+    const scroller = screen.container.querySelector<HTMLElement>('[data-slot="tab-scroller"]')!;
+    const button = (edge: string) =>
+      screen.container.querySelector<HTMLElement>(
+        `[data-slot="tab-scroll-button"][data-edge="${edge}"]`,
+      );
+    await expect.poll(() => button('end')).not.toBeNull();
+    expect(button('start')).toBeNull();
+
+    await userEvent.click(button('end')!);
+    await expect.poll(() => scroller.scrollLeft).toBeGreaterThan(150);
+    await expect.poll(() => button('start')).not.toBeNull();
+    await expect
+      .element(screen.getByRole('tab', { name: 'January' }))
+      .toHaveAttribute('aria-selected', 'true');
+
+    for (let page = 0; page < 6 && button('end'); page++) await userEvent.click(button('end')!);
+    await expect.poll(() => button('end')).toBeNull();
+    await userEvent.click(button('start')!);
+    await expect.poll(() => button('end')).not.toBeNull();
+  });
+
+  it('leaves the scroll buttons out of the keyboard order and the accessibility tree', async () => {
+    const screen = await renderWithDS(
+      <>
+        <MonthTabs width={280} />
+        <button type="button">After</button>
+      </>,
+      still,
+    );
+    const end = await vi.waitUntil(() =>
+      screen.container.querySelector<HTMLElement>('[data-slot="tab-scroll-button"]'),
+    );
+    expect(end.closest('[aria-hidden="true"]')).not.toBeNull();
+    expect(end.tabIndex).toBe(-1);
+
+    screen.getByRole('tab', { name: 'January' }).element().focus();
+    await userEvent.keyboard('{Tab}');
+    await expect.element(screen.getByRole('tabpanel')).toHaveFocus();
+    await userEvent.keyboard('{Tab}');
+    await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+
+    screen.getByRole('tab', { name: 'January' }).element().focus();
+    await userEvent.click(end);
+    await expect.element(screen.getByRole('tab', { name: 'January' })).toHaveFocus();
+    await userEvent.keyboard('{ArrowRight}');
+    await expect
+      .element(screen.getByRole('tab', { name: 'February' }))
+      .toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('mirrors the scroll buttons in RTL layouts', async () => {
+    const screen = await renderWithDS(<MonthTabs width={240} />, { locale: 'ar', ...still });
+    const scroller = screen.container.querySelector<HTMLElement>('[data-slot="tab-scroller"]')!;
+    const end = await vi.waitUntil(() =>
+      screen.container.querySelector<HTMLElement>('[data-edge="end"]'),
+    );
+    const view = scroller.getBoundingClientRect();
+    expect(end.getBoundingClientRect().left).toBeLessThan(view.left + view.width / 2);
+    await userEvent.click(end);
+    await expect.poll(() => scroller.scrollLeft).toBeLessThan(-100);
+    const start = await vi.waitUntil(() =>
+      screen.container.querySelector<HTMLElement>('[data-edge="start"]'),
+    );
+    expect(start.getBoundingClientRect().right).toBeGreaterThan(view.left + view.width / 2);
+  });
+
+  it('pages a vertical list with buttons at the top and bottom', async () => {
+    const screen = await renderWithDS(<MonthTabs orientation="vertical" className="h-40" />, still);
+    const scroller = screen.container.querySelector<HTMLElement>('[data-slot="tab-scroller"]')!;
+    const end = await vi.waitUntil(() =>
+      screen.container.querySelector<HTMLElement>('[data-edge="end"]'),
+    );
+    expect(end.getBoundingClientRect().bottom).toBeGreaterThan(
+      scroller.getBoundingClientRect().top + 80,
+    );
+    await userEvent.click(end);
+    await expect.poll(() => scroller.scrollTop).toBeGreaterThan(40);
+  });
+
+  it('shows no scroll buttons when every tab fits', async () => {
+    const screen = await renderWithDS(<FolderTabs />, still);
+    await expect.element(screen.getByRole('tab', { name: 'Notes' })).toBeVisible();
+    expect(screen.container.querySelector('[data-slot="tab-scroll-button"]')).toBeNull();
+  });
+
   it('has no accessibility violations in light, dark and RTL', async () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
         <div className="flex flex-col gap-6 p-4">
-          {(['primary', 'secondary', 'pill'] as const).map((variant) => (
+          {(['underline', 'pill'] as const).map((variant) => (
             <Tabs key={variant} variant={variant} disabledKeys={['archive']}>
               <TabList aria-label={`Mail ${variant}`}>
                 <Tab id="inbox" icon={<InboxIcon />} badge={3}>
@@ -487,17 +623,20 @@ describe('Tabs', () => {
                 </Tab>
                 <Tab id="archive">Archive</Tab>
               </TabList>
-              <TabPanel id="inbox">Three unread messages from Riverside Studios.</TabPanel>
+              <TabPanel id="inbox">Three unread messages.</TabPanel>
               <TabPanel id="sent">Sent</TabPanel>
               <TabPanel id="archive">Archive</TabPanel>
             </Tabs>
           ))}
-          <FolderTabs orientation="vertical" variant="secondary" />
+          <MonthTabs width={240} />
+          <MonthTabs width={240} variant="pill" size="sm" />
+          <FolderTabs orientation="vertical" />
         </div>,
         options,
       );
+      await vi.waitUntil(() => screen.container.querySelector('[data-slot="tab-scroll-button"]'));
       await expectNoA11yViolations(screen.container);
-      screen.unmount();
+      await screen.unmount();
     }
   });
 });

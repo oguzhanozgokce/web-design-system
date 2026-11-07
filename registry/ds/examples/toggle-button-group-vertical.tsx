@@ -6,7 +6,6 @@ export default function ToggleButtonGroupVertical() {
     <ToggleButtonGroup
       aria-label="Layout"
       orientation="vertical"
-      buttonVariant="tonal"
       defaultSelectedKeys={['grid']}
       disallowEmptySelection
     >

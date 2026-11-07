@@ -3,7 +3,7 @@ import { NotificationsIcon } from '@/registry/ds/lib/icons';
 import { Badge, BadgeAnchor, type BadgeLabels } from '@/registry/ds/ui/badge';
 import { Button } from '@/registry/ds/ui/button';
 
-const tones = ['error', 'primary', 'success', 'warning', 'neutral'] as const;
+const tones = ['error', 'primary', 'neutral', 'success', 'warning', 'info'] as const;
 
 const still = { provider: { motion: 'disabled' as const } };
 
@@ -15,9 +15,12 @@ describe('Badge', () => {
   it('shows a count and reads it with the English default label', async () => {
     const screen = await renderWithDS(<Badge count={3} data-testid="badge" />);
     const badge = screen.getByTestId('badge');
-    await expect.element(badge).toHaveAttribute('data-size', 'large');
+    await expect.element(badge).toHaveAttribute('data-variant', 'solid');
     await expect.element(badge).toHaveAttribute('data-tone', 'error');
+    await expect.element(badge).toHaveAttribute('data-size', 'md');
+    await expect.element(badge).not.toHaveAttribute('data-dot');
     await expect.element(screen.getByText('3 new')).toBeInTheDocument();
+    expect(badge.element().getBoundingClientRect().height).toBe(20);
     const visible = badge.element().querySelector('[data-slot="badge-label"]');
     expect(visible?.textContent).toBe('3');
     expect(visible?.getAttribute('aria-hidden')).toBe('true');
@@ -47,21 +50,76 @@ describe('Badge', () => {
     expect(shown(screen.getByTestId('shown').element())).toBe('0');
   });
 
-  it('renders a small dot without a count', async () => {
-    const screen = await renderWithDS(<Badge data-testid="dot" />, still);
+  it('renders a dot without a count', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <Badge data-testid="dot" />
+        <Badge size="sm" data-testid="small" />
+      </div>,
+      still,
+    );
     const dot = screen.getByTestId('dot');
-    await expect.element(dot).toHaveAttribute('data-size', 'small');
-    const box = dot.element().getBoundingClientRect();
-    expect(box.width).toBe(6);
-    expect(box.height).toBe(6);
-    await expect.element(screen.getByText('New')).toBeInTheDocument();
+    await expect.element(dot).toHaveAttribute('data-dot', 'true');
+    expect(dot.element().getBoundingClientRect().width).toBe(8);
+    expect(dot.element().getBoundingClientRect().height).toBe(8);
+    expect(screen.getByTestId('small').element().getBoundingClientRect().width).toBe(6);
+    await expect.element(screen.getByText('New').first()).toBeInTheDocument();
+  });
+
+  it('is 20px tall at md and 16px at sm', async () => {
+    const screen = await renderWithDS(
+      <div className="flex items-start gap-2">
+        <Badge count={4} data-testid="md" />
+        <Badge count={4} size="sm" data-testid="sm" />
+      </div>,
+    );
+    const md = screen.getByTestId('md').element().getBoundingClientRect();
+    const sm = screen.getByTestId('sm').element().getBoundingClientRect();
+    expect(md.height).toBe(20);
+    expect(md.width).toBe(20);
+    expect(sm.height).toBe(16);
+    expect(sm.width).toBe(16);
+    await expect.element(screen.getByTestId('sm')).toHaveAttribute('data-size', 'sm');
+  });
+
+  it.each([{}, { dark: true }])(
+    'fills solid badges with the solid roles and soft badges with the soft roles %o',
+    async (options) => {
+      const screen = await renderWithDS(
+        <div>
+          <Badge count={4} tone="success" data-testid="solid" />
+          <Badge count={4} tone="success" variant="soft" data-testid="soft" />
+          <span data-testid="solid-ref" className="bg-success-solid text-on-success-solid" />
+          <span data-testid="soft-ref" className="bg-success-soft text-on-success-soft" />
+        </div>,
+        options,
+      );
+      const style = (testId: string) => getComputedStyle(screen.getByTestId(testId).element());
+      expect(style('solid').backgroundColor).toBe(style('solid-ref').backgroundColor);
+      expect(style('solid').color).toBe(style('solid-ref').color);
+      expect(style('soft').backgroundColor).toBe(style('soft-ref').backgroundColor);
+      expect(style('soft').color).toBe(style('soft-ref').color);
+      await expect.element(screen.getByTestId('soft')).toHaveAttribute('data-variant', 'soft');
+    },
+  );
+
+  it('keeps a soft dot visible with the solid fill', async () => {
+    const screen = await renderWithDS(
+      <div>
+        <Badge variant="soft" tone="warning" data-testid="dot" />
+        <span data-testid="reference" className="bg-warning-solid" />
+      </div>,
+    );
+    expect(getComputedStyle(screen.getByTestId('dot').element()).backgroundColor).toBe(
+      getComputedStyle(screen.getByTestId('reference').element()).backgroundColor,
+    );
   });
 
   it('uses a custom label with a count placeholder', async () => {
     const screen = await renderWithDS(
-      <Badge count={4} label="{count} unpaid projects" tone="warning" />,
+      <Badge count={4} label="{count} open tasks" tone="warning" />,
     );
-    await expect.element(screen.getByText('4 unpaid projects')).toBeInTheDocument();
+    await expect.element(screen.getByText('4 open tasks')).toBeInTheDocument();
   });
 
   it('shows a short text label as is', async () => {
@@ -71,7 +129,7 @@ describe('Badge', () => {
       </Badge>,
     );
     const badge = screen.getByTestId('badge');
-    await expect.element(badge).toHaveAttribute('data-size', 'large');
+    await expect.element(badge).not.toHaveAttribute('data-dot');
     expect(shown(badge.element())).toBe('Beta');
     expect(badge.element().querySelector('[aria-hidden]')).toBeNull();
   });
@@ -139,7 +197,7 @@ describe('Badge', () => {
 
   it('adds its label to the accessible name of a control', async () => {
     const screen = await renderWithDS(
-      <Button variant="text" endIcon={<Badge count={12} />}>
+      <Button variant="ghost" endIcon={<Badge count={12} />}>
         Projects
       </Button>,
     );
@@ -148,19 +206,41 @@ describe('Badge', () => {
       .toBeInTheDocument();
   });
 
-  it.each(['en', 'ar'])('pins a dot to the top-end corner of its anchor in %s', async (locale) => {
+  it.each(['en', 'ar'])(
+    'pins a dot over the top-end corner of its anchor in %s',
+    async (locale) => {
+      const screen = await renderWithDS(
+        <BadgeAnchor data-testid="anchor" badge={<Badge data-testid="dot" />}>
+          <NotificationsIcon className="size-6" />
+        </BadgeAnchor>,
+        { locale, ...still },
+      );
+      await expect.element(screen.getByTestId('dot')).toHaveAttribute('data-size', 'sm');
+      const anchor = screen.getByTestId('anchor').element().getBoundingClientRect();
+      const dot = screen.getByTestId('dot').element().getBoundingClientRect();
+      expect(dot.width).toBe(6);
+      expect(dot.top).toBeCloseTo(anchor.top - 1.5, 1);
+      if (locale === 'ar') expect(dot.left).toBeCloseTo(anchor.left - 1.5, 1);
+      else expect(dot.right).toBeCloseTo(anchor.right + 1.5, 1);
+    },
+  );
+
+  it('draws a seam in the canvas colour around an anchored badge', async () => {
     const screen = await renderWithDS(
-      <BadgeAnchor data-testid="anchor" badge={<Badge data-testid="dot" />}>
-        <NotificationsIcon className="size-6" />
-      </BadgeAnchor>,
-      { locale, ...still },
+      <div>
+        <BadgeAnchor badge={<Badge count={2} data-testid="anchored" />}>
+          <NotificationsIcon className="size-6" />
+        </BadgeAnchor>
+        <Badge count={2} data-testid="inline" />
+        <span data-testid="canvas" className="bg-canvas" />
+      </div>,
+      still,
     );
-    await expect.element(screen.getByTestId('dot')).toBeInTheDocument();
-    const anchor = screen.getByTestId('anchor').element().getBoundingClientRect();
-    const dot = screen.getByTestId('dot').element().getBoundingClientRect();
-    expect(dot.top).toBe(anchor.top);
-    if (locale === 'ar') expect(dot.left).toBe(anchor.left);
-    else expect(dot.right).toBe(anchor.right);
+    const shadow = (testId: string) =>
+      getComputedStyle(screen.getByTestId(testId).element()).boxShadow;
+    const canvas = getComputedStyle(screen.getByTestId('canvas').element()).backgroundColor;
+    expect(shadow('anchored')).toContain(`${canvas} 0px 0px 0px 2px`);
+    expect(shadow('inline')).toBe('none');
   });
 
   it('animates only when anchored and motion is allowed', async () => {
@@ -192,7 +272,7 @@ describe('Badge', () => {
     ).toBe(0);
   });
 
-  it.each(['en', 'ar'])('places a large badge 12px in from the end edge in %s', async (locale) => {
+  it.each(['en', 'ar'])('moves a count a quarter outside the corner in %s', async (locale) => {
     const screen = await renderWithDS(
       <BadgeAnchor data-testid="anchor" badge={<Badge count={8} data-testid="badge" />}>
         <NotificationsIcon className="size-6" />
@@ -202,14 +282,15 @@ describe('Badge', () => {
     await expect.element(screen.getByTestId('anchor')).toBeInTheDocument();
     const anchor = screen.getByTestId('anchor').element().getBoundingClientRect();
     const badge = screen.getByTestId('badge').element().getBoundingClientRect();
+    expect(badge.height).toBe(16);
     if (locale === 'ar') {
       expect(badge.right).toBe(anchor.left + 12);
-      expect(badge.left).toBeLessThan(anchor.left);
+      expect(badge.left).toBe(anchor.left - 4);
     } else {
       expect(badge.left).toBe(anchor.right - 12);
-      expect(badge.right).toBeGreaterThan(anchor.right);
+      expect(badge.right).toBe(anchor.right + 4);
     }
-    expect(badge.bottom).toBe(anchor.top + 14);
+    expect(badge.top).toBe(anchor.top - 4);
   });
 
   it('mirrors a circular anchor in RTL', async () => {
@@ -219,7 +300,7 @@ describe('Badge', () => {
         overlap="circular"
         badge={<Badge tone="success" label="Online" data-testid="dot" />}
       >
-        <span className="block size-10 rounded-full bg-primary-container" />
+        <span className="block size-10 rounded-full bg-neutral-soft" />
       </BadgeAnchor>,
       { locale: 'ar', ...still },
     );
@@ -237,7 +318,7 @@ describe('Badge', () => {
         overlap="circular"
         badge={<Badge tone="success" data-testid="dot" />}
       >
-        <span className="block size-10 rounded-full bg-primary-container" />
+        <span className="block size-10 rounded-full bg-neutral-soft" />
       </BadgeAnchor>,
       still,
     );
@@ -256,9 +337,13 @@ describe('Badge', () => {
             <Badge key={tone} tone={tone} count={128} />
           ))}
           {tones.map((tone) => (
+            <Badge key={`soft-${tone}`} tone={tone} variant="soft" count={7} />
+          ))}
+          {tones.map((tone) => (
             <Badge key={`dot-${tone}`} tone={tone} />
           ))}
           <Badge tone="primary">Beta</Badge>
+          <Badge size="sm" count={5} />
           <BadgeAnchor badge={<Badge count={3} />}>
             <NotificationsIcon className="size-6 text-on-surface-variant" />
           </BadgeAnchor>

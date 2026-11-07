@@ -18,7 +18,7 @@ export default function AvatarInitials() {
       {names.map((name) => (
         <li key={name} className="flex items-center gap-3">
           <Avatar name={name} alt="" size="sm" />
-          <span className="text-body-md text-on-surface">{name}</span>
+          <span className="text-sm text-on-surface">{name}</span>
         </li>
       ))}
     </ul>

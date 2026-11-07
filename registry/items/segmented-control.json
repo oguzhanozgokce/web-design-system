@@ -2,7 +2,7 @@
   "name": "segmented-control",
   "type": "registry:ui",
   "title": "Segmented Control",
-  "description": "Material 3 segmented button for one or several choices, with a check on selected segments, plus a thumb style whose filled thumb slides to the selection.",
+  "description": "Pill-shaped segmented control for one or several choices, with a raised selection that slides between segments.",
   "category": "navigation",
   "files": ["ui/segmented-control.tsx"],
   "credits": [

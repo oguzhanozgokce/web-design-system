@@ -52,7 +52,7 @@ export default function PasswordFieldConfirm() {
         }
       />
       <Button type="submit">Update password</Button>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-sm text-on-surface-variant" aria-live="polite">
         {status}
       </p>
     </form>

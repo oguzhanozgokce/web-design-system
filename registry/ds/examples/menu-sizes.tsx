@@ -8,8 +8,8 @@ import {
 } from '@/registry/ds/ui/menu';
 
 const sizes: { size: MenuSize; label: string }[] = [
-  { size: 'md', label: 'Default, 48px items' },
-  { size: 'sm', label: 'Dense, 40px items' },
+  { size: 'md', label: 'Default, 36px rows' },
+  { size: 'sm', label: 'Dense, 32px rows' },
 ];
 
 export default function MenuSizes() {
@@ -17,7 +17,7 @@ export default function MenuSizes() {
     <div className="flex flex-wrap items-start justify-center gap-6">
       {sizes.map(({ size, label }) => (
         <div key={size} className="flex flex-col gap-2">
-          <p className="text-label-md text-on-surface-variant">{label}</p>
+          <p className="text-xs font-medium text-on-surface-variant">{label}</p>
           <div className={menuPopoverStyles({ motion: 'none', className: 'w-56' })}>
             <MenuList aria-label={`Actions, ${label}`} size={size}>
               <MenuItem startIcon={<EditIcon />} shortcut={['mod', 'E']}>
@@ -26,7 +26,7 @@ export default function MenuSizes() {
               <MenuItem startIcon={<CopyIcon />}>Duplicate</MenuItem>
               <MenuItem startIcon={<ArchiveIcon />}>Archive</MenuItem>
               <MenuSeparator />
-              <MenuItem startIcon={<DeleteIcon />} tone="destructive">
+              <MenuItem startIcon={<DeleteIcon />} tone="error">
                 Delete
               </MenuItem>
             </MenuList>

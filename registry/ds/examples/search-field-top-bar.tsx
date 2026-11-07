@@ -4,15 +4,15 @@ import { SearchField } from '@/registry/ds/ui/search-field';
 
 export default function SearchFieldTopBar() {
   return (
-    <header className="flex w-full max-w-2xl items-center gap-3 rounded-lg bg-surface-container-low p-2">
-      <span className="hidden ps-2 text-title-md text-on-surface sm:inline">Photos</span>
+    <header className="flex w-full max-w-2xl items-center gap-3 rounded-container border border-outline-subtle bg-surface-raised p-2">
+      <span className="hidden ps-2 text-base font-semibold text-on-surface sm:inline">Photos</span>
       <SearchField
         className="flex-1"
-        shape="pill"
+        variant="soft"
         aria-label="Search photos"
         placeholder="Search"
         endAdornment={
-          <Button variant="text" size="xs" startIcon={<TuneIcon />}>
+          <Button variant="ghost" size="sm" startIcon={<TuneIcon />}>
             Filters
           </Button>
         }

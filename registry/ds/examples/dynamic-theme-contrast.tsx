@@ -13,13 +13,13 @@ export default function DynamicThemeContrast() {
           key={contrast}
           seed={seed}
           contrast={contrast}
-          className="flex flex-col gap-3 rounded-lg border border-outline-variant bg-surface p-4 text-on-surface"
+          className="flex flex-col gap-3 rounded-container border border-outline-subtle bg-surface-raised p-4 text-on-surface"
         >
-          <p className="text-label-lg">{contrast}</p>
-          <p className="text-body-sm text-on-surface-variant">Supporting text and outlines</p>
+          <p className="text-sm font-medium">{contrast}</p>
+          <p className="text-xs text-on-surface-variant">Supporting text and outlines</p>
           <div className="flex gap-2">
             <Button size="sm">Save</Button>
-            <Button size="sm" variant="outlined">
+            <Button size="sm" variant="outline">
               Cancel
             </Button>
           </div>

@@ -8,14 +8,14 @@ const insets: { inset: DividerInset; label: string }[] = [
 
 export default function DividerInsetExample() {
   return (
-    <div className="flex w-full max-w-md flex-col rounded-lg bg-surface-container-low py-2 text-on-surface">
+    <div className="flex w-full max-w-md flex-col rounded-container border border-outline-subtle bg-surface-raised py-1 text-on-surface">
       {insets.map((item) => (
         <div key={item.inset} className="flex flex-col">
-          <span className="px-4 py-3 text-body-lg">{item.label}</span>
+          <span className="px-4 py-3 text-sm">{item.label}</span>
           <Divider inset={item.inset} />
         </div>
       ))}
-      <span className="px-4 py-3 text-body-lg">Next row</span>
+      <span className="px-4 py-3 text-sm">Next row</span>
     </div>
   );
 }

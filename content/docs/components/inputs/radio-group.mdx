@@ -1,6 +1,6 @@
 ---
 title: Radio Group
-description: Material 3 radio group with per-option descriptions, vertical or horizontal layout and a card variant for plan and option pickers.
+description: Radio group with per-option descriptions, vertical or horizontal layout and a card variant for option pickers.
 ---
 
 <ComponentPreview name="radio-group-demo" />
@@ -39,9 +39,10 @@ reading direction, so they swap in RTL.
 
 ### Cards
 
-`variant="card"` turns each option into a bordered tile with a title, description and optional
-`icon`. The selected tile fills with `secondary-container`. Use it when options need explanation,
-such as visibility or sharing settings.
+`variant="card"` turns each option into a tile with a title, description and optional `icon`, on
+the raised surface with a hairline border and the card radius. The selected tile takes a primary
+border and a soft primary tint. Use it when options need explanation, such as visibility or sharing
+settings.
 
 <ComponentPreview name="radio-group-card" />
 
@@ -54,14 +55,15 @@ phone.
 
 ### Validation
 
-`isInvalid` and `errorMessage` show an error under the group, and the rings turn to the error
-colour. `isRequired` adds an asterisk and `aria-required`.
+`isInvalid` and `errorMessage` show an error under the group, and the circles take the error
+border. `isRequired` adds an asterisk and `aria-required`.
 
 <ComponentPreview name="radio-group-invalid" />
 
 ### Disabled
 
 Disable one option with `isDisabled` on the `Radio`, or the whole group on the `RadioGroup`.
+Disabled options are drawn at half opacity with a not-allowed cursor.
 
 <ComponentPreview name="radio-group-disabled" />
 
@@ -108,8 +110,8 @@ Group root (`data-slot="radio-group"`): `data-variant`, `data-orientation`, `dat
 Radio root (`data-slot="radio"`): `data-variant`, `data-selected`, `data-disabled`,
 `data-readonly`, `data-invalid`, `data-required`. The clickable part (`data-slot="target"`, the
 whole tile for cards) also has `data-hovered`, `data-pressed` and `data-focus-visible`. Parts:
-`"control"`, `"state-layer"`, `"ring"`, `"dot"`, `"icon"`, `"content"`, `"label"`,
-`"description"`.
+`"control"`, `"ring"` (the circle, with `data-focus-visible` in the default variant), `"dot"`,
+`"icon"`, `"content"`, `"label"`, `"description"`.
 
 ### Labels
 
@@ -122,7 +124,9 @@ Radio Group writes no text of its own, so it takes no `labels`.
 - With a description, the name comes from the label only and the description is linked with
   `aria-describedby`, so a card is announced as "Team, radio button, 2 of 3" followed by its
   details. An explicit `aria-label` or `aria-labelledby` always wins over the visible label.
-- In the card variant the focus ring and state layer cover the whole tile. A read-only group
-  shows no hover or press layer, since nothing in it can change.
-- The inner dot scales in with the spatial spring and appears instantly with reduced motion.
+- The focus ring is a 2px outline around the circle, or around the whole tile in the card variant.
+  A read-only group shows no hover or press feedback, since nothing in it can change.
+- A selected circle fills with the solid primary and its inner disc shrinks to a 7px dot over
+  200ms; the dot grows a little while pressed. With reduced motion the change is instant.
+- The click target is the circle, a 24px area around it, the label and the description.
 - Contrast is checked with axe in light, dark and RTL by `radio-group.test.tsx`.

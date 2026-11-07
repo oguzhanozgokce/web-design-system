@@ -22,64 +22,58 @@ const iconSlot =
 
 export const disclosureStyles = tv({
   slots: {
-    root: 'relative min-w-0 text-on-surface',
+    root: 'relative min-w-0 text-on-surface [--disclosure-radius:var(--radius-container)]',
     heading: 'flex min-w-0',
     trigger: [
-      'state-layer focus-ring-inset group/trigger flex w-full min-w-0 cursor-default items-center text-start select-none',
-      'data-[disabled]:text-on-surface/38',
+      'focus-ring-inset no-tap-highlight group/trigger flex w-full min-w-0 cursor-pointer items-center px-(--disclosure-px) text-start font-medium select-none',
+      'transition-[background-color] duration-150 ease-out motion-reduce:transition-none',
+      'data-[hovered]:bg-neutral-soft data-[pressed]:bg-neutral-soft',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
     ],
-    startIcon: [
-      iconSlot,
-      'text-on-surface-variant group-data-[disabled]/trigger:text-on-surface/38',
-    ],
+    startIcon: [iconSlot, 'text-on-surface-variant'],
     text: 'flex min-w-0 flex-1 flex-col gap-0.5',
     title: 'break-words',
-    description: 'text-on-surface-variant group-data-[disabled]/trigger:text-on-surface/38',
-    indicator: [
-      iconSlot,
-      'text-on-surface-variant group-aria-expanded/trigger:rotate-180 group-data-[disabled]/trigger:text-on-surface/38',
-    ],
+    description: 'font-normal text-on-surface-variant',
+    indicator: [iconSlot, 'text-on-surface-variant group-aria-expanded/trigger:-rotate-180'],
     panel: 'h-(--disclosure-panel-height) [clip-path:inset(-0.5rem_0_0)] aria-hidden:opacity-0',
-    content: 'space-y-3 text-on-surface-variant',
+    content: 'space-y-3 px-(--disclosure-px) text-on-surface-variant',
   },
   variants: {
     variant: {
       plain: '',
-      outlined: {
-        root: 'overflow-clip rounded-(--disclosure-radius) border border-outline-variant data-[disabled]:border-on-surface/12',
-      },
-      filled: {
-        root: 'overflow-clip rounded-(--disclosure-radius) bg-surface-container-high',
+      surface: {
+        root: 'overflow-clip rounded-(--disclosure-radius) border border-outline-subtle bg-surface-raised',
       },
     },
     size: {
       sm: {
-        root: '[--disclosure-radius:var(--radius-md)] [--icon-size:1.25rem]',
-        trigger: 'min-h-12 gap-3 px-3 py-2.5',
-        title: 'text-title-sm',
-        description: 'text-body-sm',
-        content: 'px-3 pb-3 text-body-sm',
+        root: '[--disclosure-px:0.75rem] [--icon-size:1rem]',
+        trigger: 'min-h-10 gap-2.5 py-2 text-sm',
+        description: 'text-xs',
+        content: 'pb-3 text-sm',
       },
       md: {
-        root: '[--disclosure-radius:var(--radius-md)] [--icon-size:1.5rem]',
-        trigger: 'min-h-14 gap-3 px-4 py-4',
-        title: 'text-title-md',
-        description: 'text-body-md',
-        content: 'px-4 pb-4 text-body-md',
+        root: '[--disclosure-px:1rem] [--icon-size:1rem]',
+        trigger: 'min-h-12 gap-3 py-3 text-sm',
+        description: 'text-xs',
+        content: 'pb-4 text-sm',
       },
       lg: {
-        root: '[--disclosure-radius:var(--radius-lg)] [--icon-size:1.5rem]',
-        trigger: 'min-h-16 gap-4 px-5 py-5',
-        title: 'text-title-lg',
-        description: 'text-body-md',
-        content: 'px-5 pb-5 text-body-lg',
+        root: '[--disclosure-px:1.25rem] [--icon-size:1.25rem]',
+        trigger: 'min-h-14 gap-3 py-4 text-base',
+        description: 'text-sm',
+        content: 'pb-5 text-base',
       },
     },
     grouping: {
       none: '',
-      plain: { trigger: 'rounded-none' },
-      outlined: {
+      plain: {
+        root: 'border-b border-outline-subtle last:border-b-0',
+        trigger: 'rounded-none',
+      },
+      surface: {
         root: [
+          'after:pointer-events-none after:absolute after:inset-x-(--disclosure-px) after:bottom-0 after:h-px after:bg-outline-subtle after:forced-color-adjust-none last:after:hidden forced-colors:after:bg-[CanvasText]',
           '[--disclosure-trigger-radius-top:0px] [--disclosure-trigger-radius-bottom:0px]',
           'first:[--disclosure-trigger-radius-top:calc(var(--accordion-radius)-1px)]',
           'last:[--disclosure-trigger-radius-bottom:calc(var(--accordion-radius)-1px)]',
@@ -90,31 +84,25 @@ export const disclosureStyles = tv({
     },
     animated: {
       true: {
-        indicator:
-          'transition-[rotate] duration-(--ds-duration-spatial) ease-spatial motion-reduce:transition-none',
+        indicator: 'transition-[rotate] duration-250 ease-out-quad motion-reduce:transition-none',
         panel:
-          '[transition:height_var(--ds-duration-spatial)_var(--ds-ease-spatial),opacity_var(--ds-duration-effect)_var(--ds-ease-effect)] motion-reduce:transition-none',
+          'transition-[height,opacity] duration-200 ease-out-quad motion-reduce:transition-none',
       },
       false: '',
     },
   },
   compoundVariants: [
-    { variant: 'plain', grouping: 'none', class: { trigger: 'rounded-(--disclosure-radius)' } },
+    { variant: 'plain', grouping: 'none', class: { trigger: 'rounded-item' } },
     {
-      variant: 'outlined',
+      variant: 'surface',
       grouping: 'none',
       class: {
         trigger: 'rounded-[calc(var(--disclosure-radius)-1px)] aria-expanded:rounded-b-none',
       },
     },
-    {
-      variant: 'filled',
-      grouping: 'none',
-      class: { trigger: 'rounded-(--disclosure-radius) aria-expanded:rounded-b-none' },
-    },
   ],
   defaultVariants: {
-    variant: 'outlined',
+    variant: 'surface',
     size: 'md',
     grouping: 'none',
     animated: true,
@@ -122,32 +110,32 @@ export const disclosureStyles = tv({
 });
 
 export const accordionStyles = tv({
-  base: 'flex min-w-0 flex-col',
+  base: 'flex min-w-0 flex-col [--accordion-radius:var(--radius-container)]',
   variants: {
     variant: {
-      plain: 'divide-y divide-outline-variant',
-      outlined:
-        'divide-y divide-outline-variant overflow-clip rounded-(--accordion-radius) border border-outline-variant',
+      plain: '',
+      surface:
+        'overflow-clip rounded-(--accordion-radius) border border-outline-subtle bg-surface-raised',
       separated: 'gap-2',
     },
     size: {
-      sm: '[--accordion-radius:var(--radius-md)]',
-      md: '[--accordion-radius:var(--radius-md)]',
-      lg: '[--accordion-radius:var(--radius-lg)]',
+      sm: '',
+      md: '',
+      lg: '',
     },
   },
   compoundVariants: [{ variant: 'separated', size: 'lg', class: 'gap-3' }],
   defaultVariants: {
-    variant: 'outlined',
+    variant: 'surface',
     size: 'md',
   },
 });
 
-export type DisclosureVariant = 'plain' | 'outlined' | 'filled';
+export type DisclosureVariant = 'plain' | 'surface';
 
 export type DisclosureSize = 'sm' | 'md' | 'lg';
 
-export type AccordionVariant = 'plain' | 'outlined' | 'separated';
+export type AccordionVariant = 'plain' | 'surface' | 'separated';
 
 type DisclosureSlots = ReturnType<typeof disclosureStyles>;
 
@@ -167,7 +155,7 @@ export interface AccordionProps extends Omit<AriaDisclosureGroupProps, 'classNam
 }
 
 export function Accordion({
-  variant = 'outlined',
+  variant = 'surface',
   size = 'md',
   className,
   ...props
@@ -195,14 +183,15 @@ export interface DisclosureProps extends Omit<AriaDisclosureProps, 'className'> 
   className?: AriaDisclosureProps['className'];
 }
 
-type DisclosureGrouping = 'none' | 'plain' | 'outlined';
+type DisclosureGrouping = 'none' | 'plain' | 'surface';
 
 function resolveVariant(
   variant: DisclosureVariant | undefined,
   accordion: AccordionContextValue | null,
 ): { variant: DisclosureVariant; grouping: DisclosureGrouping } {
-  if (!accordion) return { variant: variant ?? 'outlined', grouping: 'none' };
-  if (accordion.variant === 'separated') return { variant: variant ?? 'filled', grouping: 'none' };
+  if (!accordion || accordion.variant === 'separated') {
+    return { variant: variant ?? 'surface', grouping: 'none' };
+  }
   return { variant: 'plain', grouping: accordion.variant };
 }
 

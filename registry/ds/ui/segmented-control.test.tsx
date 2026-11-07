@@ -7,7 +7,6 @@ import {
   SegmentedControl,
   SegmentedControlItem,
   type SegmentedControlProps,
-  type SegmentedControlVariant,
 } from '@/registry/ds/ui/segmented-control';
 
 const still = { provider: { motion: 'reduced' as const } };
@@ -35,7 +34,7 @@ describe('SegmentedControl', () => {
   it('renders a labelled radio group with the default segment checked', async () => {
     const screen = await renderWithDS(<Period />);
     const group = screen.getByRole('radiogroup', { name: 'Period' });
-    await expect.element(group).toHaveAttribute('data-variant', 'outlined');
+    await expect.element(group).not.toHaveAttribute('data-variant');
     await expect.element(group).toHaveAttribute('data-size', 'md');
     await expect.element(group).toHaveAttribute('data-selection-mode', 'single');
     await expect.element(group).not.toHaveAttribute('data-full-width');
@@ -68,6 +67,9 @@ describe('SegmentedControl', () => {
     screen.getByRole('radio', { name: 'Week' }).element().focus();
     await userEvent.keyboard('{ArrowRight}');
     await expect.element(screen.getByRole('radio', { name: 'Quarter' })).toHaveFocus();
+    const quarter = screen.getByRole('radio', { name: 'Quarter' }).element();
+    expect(getComputedStyle(quarter).outlineWidth).toBe('2px');
+    expect(getComputedStyle(quarter).outlineOffset).toBe('-2px');
     await userEvent.keyboard(' ');
     await expect
       .element(screen.getByRole('radio', { name: 'Quarter' }))
@@ -135,7 +137,7 @@ describe('SegmentedControl', () => {
   });
 
   it('measures the thumb onto the selected segment and follows the selection', async () => {
-    const screen = await renderWithDS(<Period variant="thumb" />, still);
+    const screen = await renderWithDS(<Period />, still);
     const group = screen.getByRole('radiogroup', { name: 'Period' });
     await expect.element(group).toHaveAttribute('data-thumb-ready', 'true');
     const thumb = thumbOf(screen.container)!;
@@ -152,7 +154,7 @@ describe('SegmentedControl', () => {
   });
 
   it('places the thumb from the start edge in RTL layouts', async () => {
-    const screen = await renderWithDS(<Period variant="thumb" />, { locale: 'ar', ...still });
+    const screen = await renderWithDS(<Period />, { locale: 'ar', ...still });
     await expect
       .element(screen.getByRole('radiogroup', { name: 'Period' }))
       .toHaveAttribute('data-thumb-ready', 'true');
@@ -166,7 +168,7 @@ describe('SegmentedControl', () => {
   });
 
   it('re-measures the thumb when an ancestor changes direction', async () => {
-    const screen = await renderWithDS(<Period variant="thumb" defaultSelectedKeys={['day']} />);
+    const screen = await renderWithDS(<Period defaultSelectedKeys={['day']} />);
     const group = screen.getByRole('radiogroup', { name: 'Period' });
     await expect.element(group).toHaveAttribute('data-thumb-ready', 'true');
     const thumb = thumbOf(screen.container)!;
@@ -180,39 +182,41 @@ describe('SegmentedControl', () => {
     expectAligned(thumb.getBoundingClientRect(), day.getBoundingClientRect());
   });
 
-  it('slides the thumb with the spatial spring unless motion is reduced', async () => {
-    const moving = await renderWithDS(<Period variant="thumb" />);
+  it('slides the thumb on the fluid curve unless motion is reduced', async () => {
+    const moving = await renderWithDS(<Period />);
     await expect
       .element(moving.getByRole('radiogroup', { name: 'Period' }))
       .toHaveAttribute('data-thumb-ready', 'true');
     const thumb = thumbOf(moving.container)!;
     expect(getComputedStyle(thumb).transitionProperty).toBe('translate, width');
-    expect(getComputedStyle(thumb).transitionTimingFunction).toMatch(/^linear\(/);
+    expect(getComputedStyle(thumb).transitionDuration).toBe('0.25s');
+    expect(getComputedStyle(thumb).transitionTimingFunction).toBe('cubic-bezier(0.32, 0.72, 0, 1)');
   });
 
   it('places the thumb without a slide when it first appears', async () => {
     function Switching() {
-      const [variant, setVariant] = useState<SegmentedControlVariant>('thumb');
+      const [mode, setMode] = useState<'single' | 'multiple'>('single');
       return (
         <>
-          <Period variant={variant} />
+          <Period selectionMode={mode} />
           <button
             type="button"
-            onClick={() => setVariant((current) => (current === 'thumb' ? 'outlined' : 'thumb'))}
+            onClick={() => setMode((current) => (current === 'single' ? 'multiple' : 'single'))}
           >
-            Switch style
+            Switch mode
           </button>
         </>
       );
     }
     const screen = await renderWithDS(<Switching />);
-    const group = screen.getByRole('radiogroup', { name: 'Period' });
+    const group = screen.container.querySelector<HTMLElement>('[data-slot="segmented-control"]')!;
     await expect.element(group).toHaveAttribute('data-thumb-ready', 'true');
-    const toggle = screen.getByRole('button', { name: 'Switch style' });
+    const toggle = screen.getByRole('button', { name: 'Switch mode' });
     await toggle.click();
-    await expect.element(group).toHaveAttribute('data-variant', 'outlined');
+    await expect.element(group).toHaveAttribute('data-selection-mode', 'multiple');
+    expect(thumbOf(screen.container)).toBeNull();
     await toggle.click();
-    await expect.element(group).toHaveAttribute('data-variant', 'thumb');
+    await expect.element(group).toHaveAttribute('data-selection-mode', 'single');
     const thumb = thumbOf(screen.container)!;
     expect(thumb.getAnimations()).toHaveLength(0);
     expectAligned(
@@ -222,7 +226,7 @@ describe('SegmentedControl', () => {
   });
 
   it('turns the thumb transition off when motion is reduced', async () => {
-    const screen = await renderWithDS(<Period variant="thumb" />, still);
+    const screen = await renderWithDS(<Period />, still);
     await expect
       .element(screen.getByRole('radiogroup', { name: 'Period' }))
       .toHaveAttribute('data-thumb-ready', 'true');
@@ -234,7 +238,7 @@ describe('SegmentedControl', () => {
       const [label, setLabel] = useState('Week');
       return (
         <>
-          <SegmentedControl aria-label="Period" variant="thumb" defaultSelectedKeys={['week']}>
+          <SegmentedControl aria-label="Period" defaultSelectedKeys={['week']}>
             <SegmentedControlItem id="day">Day</SegmentedControlItem>
             <SegmentedControlItem id="week">{label}</SegmentedControlItem>
           </SegmentedControl>
@@ -253,11 +257,10 @@ describe('SegmentedControl', () => {
       .toBeCloseTo(week.element().getBoundingClientRect().width, 0);
   });
 
-  it('gives each selected segment its own fill when the thumb style allows several', async () => {
+  it('gives each selected segment its own fill in multiple selection mode', async () => {
     const screen = await renderWithDS(
       <SegmentedControl
         aria-label="Weekdays"
-        variant="thumb"
         selectionMode="multiple"
         defaultSelectedKeys={['mon', 'wed']}
       >
@@ -300,7 +303,7 @@ describe('SegmentedControl', () => {
   it('stretches segments equally with fullWidth', async () => {
     const screen = await renderWithDS(
       <div style={{ width: 360 }}>
-        <Period fullWidth variant="thumb" />
+        <Period fullWidth />
       </div>,
       still,
     );
@@ -311,7 +314,45 @@ describe('SegmentedControl', () => {
       (name) => screen.getByRole('radio', { name }).element().getBoundingClientRect().width,
     );
     expect(widths[0]).toBeCloseTo(widths[2], 0);
-    expect(widths.reduce((sum, width) => sum + width, 0)).toBeCloseTo(352, 0);
+    expect(widths.reduce((sum, width) => sum + width, 0)).toBeCloseTo(348, 0);
+  });
+
+  it('sizes the track at 32, 40 and 48 pixels with segments 8 pixels shorter', async () => {
+    const screen = await renderWithDS(
+      <div className="flex flex-col items-start gap-2">
+        <Period size="sm" />
+        <Period />
+        <Period size="lg" />
+      </div>,
+      still,
+    );
+    const groups = screen.getByRole('radiogroup').elements();
+    expect(groups.map((group) => group.getBoundingClientRect().height)).toEqual([32, 40, 48]);
+    expect(
+      groups.map(
+        (group) => group.querySelector('[data-slot="segment"]')!.getBoundingClientRect().height,
+      ),
+    ).toEqual([24, 32, 40]);
+    expect(groups.map((group) => group.getAttribute('data-size'))).toEqual(['sm', 'md', 'lg']);
+  });
+
+  it('puts the selection on a raised pill over a neutral track', async () => {
+    const screen = await renderWithDS(
+      <>
+        <span data-testid="track" className="bg-neutral-soft" />
+        <span data-testid="pill" className="bg-surface-segment" />
+        <Period />
+      </>,
+      still,
+    );
+    const group = screen.getByRole('radiogroup', { name: 'Period' });
+    await expect.element(group).toHaveAttribute('data-thumb-ready', 'true');
+    const fill = (testId: string) =>
+      getComputedStyle(screen.getByTestId(testId).element()).backgroundColor;
+    expect(getComputedStyle(group.element()).backgroundColor).toBe(fill('track'));
+    const thumb = thumbOf(screen.container)!;
+    expect(getComputedStyle(thumb).backgroundColor).toBe(fill('pill'));
+    expect(getComputedStyle(thumb).boxShadow).not.toBe('none');
   });
 
   it('has no accessibility violations in light, dark and RTL', async () => {
@@ -319,7 +360,8 @@ describe('SegmentedControl', () => {
       const screen = await renderWithDS(
         <div className="flex flex-col items-start gap-4 p-4">
           <Period />
-          <Period variant="thumb" size="sm" />
+          <Period size="sm" />
+          <Period size="lg" />
           <SegmentedControl
             aria-label="Remind by"
             selectionMode="multiple"

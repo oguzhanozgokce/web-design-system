@@ -17,7 +17,7 @@ export default function DividerLabelPosition() {
       {days.map((day) => (
         <section key={day.label} className="flex flex-col gap-2">
           <Divider labelPosition="start">{day.label}</Divider>
-          <ul className="flex flex-col gap-1 text-body-md">
+          <ul className="flex flex-col gap-1 text-sm">
             {day.events.map((event) => (
               <li key={event}>{event}</li>
             ))}

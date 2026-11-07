@@ -48,17 +48,21 @@ export function effectSpring(speed: MotionSpeed = 'medium') {
 }
 
 export const motionDurations = {
-  short: 150,
+  fast: 150,
   medium: 250,
-  long: 400,
-  shimmer: 1200,
+  slow: 350,
+  shimmer: 2000,
   pulse: 1800,
 } as const;
 
 export const motionEasings = {
-  standard: [0.2, 0, 0, 1],
-  emphasizedDecelerate: [0.05, 0.7, 0.1, 1],
-  emphasizedAccelerate: [0.3, 0, 0.8, 0.15],
+  fluid: [0.32, 0.72, 0, 1],
+  outQuad: [0.25, 0.46, 0.45, 0.94],
+  out: [0, 0, 0.2, 1],
 } as const;
 
-export const pressScale = 0.96;
+export function fluidTween(duration: number = motionDurations.medium) {
+  return { type: 'tween' as const, duration: duration / 1000, ease: motionEasings.fluid };
+}
+
+export const pressScale = 0.97;

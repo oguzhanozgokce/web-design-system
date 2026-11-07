@@ -46,7 +46,7 @@ export default function CardSelectable() {
             title={template.title}
             description={template.description}
           />
-          <CardContent className="text-body-sm">{template.detail}</CardContent>
+          <CardContent className="text-xs text-on-surface-variant">{template.detail}</CardContent>
         </SelectableCard>
       ))}
     </SelectableCardGroup>

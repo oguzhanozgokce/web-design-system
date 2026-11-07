@@ -4,10 +4,10 @@ import { IconButton } from '@/registry/ds/ui/icon-button';
 export default function IconButtonVariants() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
-      <IconButton variant="standard" aria-label="Settings, standard" icon={<SettingsIcon />} />
-      <IconButton variant="filled" aria-label="Settings, filled" icon={<SettingsIcon />} />
-      <IconButton variant="tonal" aria-label="Settings, tonal" icon={<SettingsIcon />} />
-      <IconButton variant="outlined" aria-label="Settings, outlined" icon={<SettingsIcon />} />
+      <IconButton variant="ghost" aria-label="Settings, ghost" icon={<SettingsIcon />} />
+      <IconButton variant="soft" aria-label="Settings, soft" icon={<SettingsIcon />} />
+      <IconButton variant="outline" aria-label="Settings, outline" icon={<SettingsIcon />} />
+      <IconButton variant="solid" aria-label="Settings, solid" icon={<SettingsIcon />} />
     </div>
   );
 }

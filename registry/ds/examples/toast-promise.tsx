@@ -45,7 +45,7 @@ export default function ToastPromise() {
       >
         Export photos
       </Button>
-      <Button variant="outlined" startIcon={<SyncIcon />} onPress={startSync}>
+      <Button variant="outline" startIcon={<SyncIcon />} onPress={startSync}>
         Sync files
       </Button>
       <Toaster toasterId={toasterId} />

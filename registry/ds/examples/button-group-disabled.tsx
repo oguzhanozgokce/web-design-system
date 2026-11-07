@@ -7,18 +7,19 @@ export default function ButtonGroupDisabled() {
     <div className="flex flex-col items-center gap-3">
       <ButtonGroup
         aria-label="Bulk actions"
-        buttonVariant="tonal"
+        variant="detached"
+        buttonVariant="soft"
         size="sm"
         isDisabled
         className="justify-center"
       >
-        <Button startIcon={<DownloadIcon />}>Export</Button>
+        <Button startIcon={<DownloadIcon />}>Download</Button>
         <Button startIcon={<ArchiveIcon />}>Archive</Button>
-        <Button startIcon={<DeleteIcon />} tone="destructive">
+        <Button startIcon={<DeleteIcon />} tone="error">
           Delete
         </Button>
       </ButtonGroup>
-      <p className="text-body-sm text-on-surface-variant">Select items to use bulk actions.</p>
+      <p className="text-xs text-on-surface-variant">Select files to use bulk actions.</p>
     </div>
   );
 }

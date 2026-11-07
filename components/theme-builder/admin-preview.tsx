@@ -3,7 +3,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useLocale } from 'react-aria-components';
 import { AddIcon, ArrowForwardIcon, TrendingDownIcon } from '@/registry/ds/lib/icons';
-import { cn } from '@/registry/ds/lib/utils';
+import { Avatar } from '@/registry/ds/ui/avatar';
 import { Banner } from '@/registry/ds/ui/banner';
 import { Button } from '@/registry/ds/ui/button';
 import {
@@ -20,6 +20,7 @@ import { LinearProgress } from '@/registry/ds/ui/progress';
 import { SegmentedControl, SegmentedControlItem } from '@/registry/ds/ui/segmented-control';
 import { Switch } from '@/registry/ds/ui/switch';
 import { Tab, TabList, TabPanel, Tabs } from '@/registry/ds/ui/tabs';
+import { Tag, type TagTone } from '@/registry/ds/ui/tag';
 import { TextField } from '@/registry/ds/ui/text-field';
 
 type TaskStatus = 'overdue' | 'active' | 'done' | 'draft';
@@ -92,11 +93,11 @@ const statusLabels: Record<TaskStatus, string> = {
   draft: 'Draft',
 };
 
-const statusTones: Record<TaskStatus, string> = {
-  overdue: 'bg-error-container text-on-error-container',
-  active: 'bg-secondary-container text-on-secondary-container',
-  done: 'bg-success-container text-on-success-container',
-  draft: 'bg-surface-container-highest text-on-surface-variant',
+const statusTones: Record<TaskStatus, TagTone> = {
+  overdue: 'error',
+  active: 'primary',
+  done: 'success',
+  draft: 'neutral',
 };
 
 function useFormatters() {
@@ -113,14 +114,9 @@ function useFormatters() {
 
 function StatusPill({ status }: { status: TaskStatus }) {
   return (
-    <span
-      className={cn(
-        'inline-flex min-w-16 shrink-0 justify-center rounded-full px-2 py-0.5 text-label-md',
-        statusTones[status],
-      )}
-    >
+    <Tag tone={statusTones[status]} size="sm" dot className="shrink-0">
       {statusLabels[status]}
-    </span>
+    </Tag>
   );
 }
 
@@ -129,19 +125,19 @@ function TaskList({ items }: { items: Task[] }) {
 
   if (items.length === 0) {
     return (
-      <p className="py-6 text-center text-body-md text-on-surface-variant">
+      <p className="py-6 text-center text-sm text-on-surface-variant">
         No tasks match these filters.
       </p>
     );
   }
 
   return (
-    <ul className="flex flex-col divide-y divide-outline-variant">
+    <ul className="flex flex-col divide-y divide-outline-subtle">
       {items.map((task) => (
         <li key={task.id} className="flex items-center gap-3 py-2.5">
           <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-body-md text-on-surface">{task.title}</span>
-            <span className="truncate text-body-sm text-on-surface-variant">
+            <span className="truncate text-sm font-medium text-on-surface">{task.title}</span>
+            <span className="truncate text-xs text-on-surface-variant">
               {task.project} · due {format.day.format(task.due)}
             </span>
           </span>
@@ -154,9 +150,11 @@ function TaskList({ items }: { items: Task[] }) {
 
 function Metric({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
-    <Card variant="filled" className="gap-2">
-      <p className="text-label-lg text-on-surface-variant">{label}</p>
-      <p className="text-headline-sm text-on-surface tabular-digits">{value}</p>
+    <Card variant="outline" className="gap-2">
+      <p className="text-sm font-medium text-on-surface-variant">{label}</p>
+      <p className="text-2xl font-semibold tracking-tight text-on-surface tabular-digits">
+        {value}
+      </p>
       {children}
     </Card>
   );
@@ -173,8 +171,8 @@ function OverviewPanel() {
     <TabPanel id="overview" className="flex flex-col gap-4 p-4 @2xl:p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col">
-          <h3 className="text-title-lg text-on-surface">November overview</h3>
-          <p className="text-body-sm text-on-surface-variant">Updated 4 minutes ago</p>
+          <h3 className="text-lg font-semibold text-on-surface">November overview</h3>
+          <p className="text-xs text-on-surface-variant">Updated 4 minutes ago</p>
         </div>
         <SegmentedControl aria-label="Report period" size="sm" defaultSelectedKeys={['month']}>
           <SegmentedControlItem id="week">Week</SegmentedControlItem>
@@ -187,7 +185,11 @@ function OverviewPanel() {
         tone="warning"
         title="3 tasks are overdue"
         description="Help center, Mobile app and Website each have a task past its due date. Reminders go out tomorrow at 09:00."
-        actions={<Button variant="text">Send reminders now</Button>}
+        actions={
+          <Button variant="ghost" size="sm">
+            Send reminders now
+          </Button>
+        }
       />
 
       <div className="grid gap-3 @xl:grid-cols-3">
@@ -195,17 +197,17 @@ function OverviewPanel() {
           <LinearProgress label={`Goal ${format.count.format(67)}`} value={72} showValueLabel />
         </Metric>
         <Metric label="Open" value={format.count.format(12)}>
-          <p className="text-body-sm text-on-surface-variant">3 overdue, 9 on track</p>
+          <p className="text-xs text-on-surface-variant">3 overdue, 9 on track</p>
         </Metric>
         <Metric label="Average time to finish" value={format.days.format(4)}>
-          <p className="flex items-center gap-1 text-body-sm text-success [&_svg]:size-4">
+          <p className="flex items-center gap-1 text-xs text-success [&_svg]:size-4">
             <TrendingDownIcon className="rtl:-scale-x-100" />1 day faster than October
           </p>
         </Metric>
       </div>
 
       <div className="grid items-start gap-4 @3xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <Card variant="outlined">
+        <Card variant="outline">
           <CardHeader
             action={
               <FilterChip size="sm" isSelected={overdueOnly} onChange={setOverdueOnly}>
@@ -221,7 +223,7 @@ function OverviewPanel() {
           </CardContent>
           <CardFooter>
             <Button
-              variant="tonal"
+              variant="soft"
               size="sm"
               endIcon={<ArrowForwardIcon className="rtl:-scale-x-100" />}
             >
@@ -230,7 +232,7 @@ function OverviewPanel() {
           </CardFooter>
         </Card>
 
-        <Card variant="filled">
+        <Card variant="outline">
           <CardHeader>
             <CardTitle level={4}>Notifications</CardTitle>
             <CardDescription>Applies to every project you follow.</CardDescription>
@@ -243,7 +245,7 @@ function OverviewPanel() {
             <TextField label="Email" type="email" defaultValue="alex@example.com" />
           </CardContent>
           <CardFooter className="justify-end">
-            <Button variant="text">Discard</Button>
+            <Button variant="ghost">Discard</Button>
             <Button>Save</Button>
           </CardFooter>
         </Card>
@@ -287,24 +289,19 @@ function TasksPanel() {
 function MembersPanel() {
   return (
     <TabPanel id="members" className="flex flex-col gap-4 p-4 @2xl:p-6">
-      <ul className="flex flex-col divide-y divide-outline-variant">
+      <ul className="flex flex-col divide-y divide-outline-subtle">
         {members.map((member) => (
           <li key={member.email} className="flex items-center gap-3 py-2.5">
-            <span
-              aria-hidden
-              className="grid size-9 shrink-0 place-items-center rounded-full bg-tertiary-container text-label-lg text-on-tertiary-container"
-            >
-              {member.name.slice(0, 1)}
-            </span>
+            <Avatar name={member.name} size="sm" aria-hidden />
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-body-md text-on-surface">{member.name}</span>
-              <span className="truncate text-body-sm text-on-surface-variant">{member.email}</span>
+              <span className="truncate text-sm font-medium text-on-surface">{member.name}</span>
+              <span className="truncate text-xs text-on-surface-variant">{member.email}</span>
             </span>
-            <span className="text-body-md text-on-surface-variant">{member.role}</span>
+            <span className="text-sm text-on-surface-variant">{member.role}</span>
           </li>
         ))}
       </ul>
-      <Button variant="outlined" startIcon={<AddIcon />} className="self-start">
+      <Button variant="outline" startIcon={<AddIcon />} className="self-start">
         Invite a member
       </Button>
     </TabPanel>
@@ -314,16 +311,16 @@ function MembersPanel() {
 export function AdminPreview() {
   return (
     <div data-slot="admin-preview" className="@container flex flex-col">
-      <div className="flex items-center gap-3 border-b border-outline-variant bg-surface-container px-4 py-3">
+      <div className="flex items-center gap-3 border-b border-outline-subtle bg-surface-raised px-4 py-3">
         <span
           aria-hidden
-          className="grid size-9 shrink-0 place-items-center rounded-md bg-primary text-title-md text-on-primary"
+          className="grid size-9 shrink-0 place-items-center rounded-field bg-primary-solid text-base font-semibold text-on-primary-solid"
         >
           P
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-title-sm text-on-surface">Projects</span>
-          <span className="truncate text-body-sm text-on-surface-variant">Team workspace</span>
+          <span className="truncate text-sm font-semibold text-on-surface">Projects</span>
+          <span className="truncate text-xs text-on-surface-variant">Team workspace</span>
         </span>
         <Button size="sm" startIcon={<AddIcon />}>
           New project

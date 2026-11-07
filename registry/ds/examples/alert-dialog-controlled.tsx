@@ -33,20 +33,20 @@ export default function AlertDialogControlled() {
         id={headingId}
         ref={headingRef}
         tabIndex={-1}
-        className="rounded-xs px-1 text-title-sm text-on-surface-variant focus-ring"
+        className="rounded-item px-1 text-sm font-semibold text-on-surface-variant focus-ring"
       >
         Members
       </h3>
-      <ul className="divide-y divide-outline-variant rounded-lg bg-surface-container-low px-4">
+      <ul className="divide-y divide-outline-subtle rounded-container border border-outline-subtle bg-surface-raised px-4">
         {members.map((member) => (
           <li key={member.id} className="flex items-center justify-between gap-3 py-2">
             <span className="flex min-w-0 flex-col">
-              <span className="truncate text-body-lg">{member.name}</span>
-              <span className="text-body-sm text-on-surface-variant">{member.role}</span>
+              <span className="truncate text-base">{member.name}</span>
+              <span className="text-xs text-on-surface-variant">{member.role}</span>
             </span>
             <Button
-              variant="text"
-              tone="destructive"
+              variant="ghost"
+              tone="error"
               size="sm"
               aria-label={`Remove ${member.name}`}
               onPress={() => {
@@ -59,13 +59,13 @@ export default function AlertDialogControlled() {
           </li>
         ))}
         {members.length === 0 ? (
-          <li className="py-3 text-body-md text-on-surface-variant">No members left.</li>
+          <li className="py-3 text-sm text-on-surface-variant">No members left.</li>
         ) : null}
       </ul>
       <AlertDialog
         isOpen={isOpen}
         onOpenChange={setOpen}
-        tone="destructive"
+        tone="error"
         title={`Remove ${pending.name}?`}
         description="They lose access to everything shared with this team. You can invite them again later."
         confirmLabel="Remove"

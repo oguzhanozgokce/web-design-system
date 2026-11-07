@@ -9,7 +9,6 @@ import { ThemeControls } from '@/components/theme-builder/theme-controls';
 import { ThemeExport } from '@/components/theme-builder/theme-export';
 import {
   buildSchemes,
-  composeCall,
   configJson,
   contrastName,
   defaultSettings,
@@ -83,11 +82,13 @@ export function ThemeBuilder() {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-10 sm:py-14">
       <header className="flex max-w-3xl flex-col gap-3">
-        <h1 className="text-display-sm text-on-background">Theme builder</h1>
-        <p className="text-body-lg text-on-surface-variant">
+        <h1 className="text-3xl font-semibold tracking-tight text-on-surface sm:text-4xl">
+          Theme builder
+        </h1>
+        <p className="text-base text-pretty text-on-surface-variant sm:text-lg">
           Pick a seed colour and a palette style, check the scheme on a working admin screen in
-          light and dark, then copy the tokens for the web or the call for Compose. It runs the same
-          engine as <code className="font-mono text-body-md">npm run generate</code>.
+          light and dark, then copy the tokens. It runs the same engine as{' '}
+          <code className="font-mono text-[0.9em] text-on-surface">npm run generate</code>.
         </p>
       </header>
 
@@ -113,16 +114,16 @@ export function ThemeBuilder() {
         <div className="flex min-w-0 flex-col gap-10">
           <section aria-labelledby={previewId} className="flex flex-col gap-3">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h2 id={previewId} className="text-title-lg text-on-surface">
+              <h2 id={previewId} className="text-lg font-semibold text-on-surface">
                 Preview
               </h2>
-              <p className="text-body-sm text-on-surface-variant">{summary}</p>
+              <p className="text-sm text-on-surface-variant">{summary}</p>
             </div>
             <div
               data-slot="theme-preview"
               data-theme={mode}
               style={themeStyle}
-              className="overflow-hidden rounded-xl border border-outline-variant bg-background text-on-background"
+              className="overflow-hidden rounded-container border border-outline-subtle bg-canvas text-on-surface"
             >
               <AdminPreview />
             </div>
@@ -130,10 +131,10 @@ export function ThemeBuilder() {
 
           <section aria-labelledby={rolesId} className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
-              <h2 id={rolesId} className="text-title-lg text-on-surface">
+              <h2 id={rolesId} className="text-lg font-semibold text-on-surface">
                 Colour roles
               </h2>
-              <p className="max-w-prose text-body-md text-on-surface-variant">
+              <p className="max-w-prose text-sm text-on-surface-variant">
                 All {Object.keys(colors).length} roles for this mode and contrast level. Text on a
                 role uses its on-colour; that pairing is what keeps every seed readable.
               </p>
@@ -142,17 +143,13 @@ export function ThemeBuilder() {
               data-slot="theme-roles"
               data-theme={mode}
               style={themeStyle}
-              className="overflow-hidden rounded-xl border border-outline-variant bg-background text-on-background"
+              className="overflow-hidden rounded-container border border-outline-subtle bg-canvas text-on-surface"
             >
               <RoleSwatches colors={colors} />
             </div>
           </section>
 
-          <ThemeExport
-            css={exportFiles.css}
-            config={exportFiles.config}
-            compose={composeCall(deferredSeed, deferredStyle, contrast)}
-          />
+          <ThemeExport css={exportFiles.css} config={exportFiles.config} />
         </div>
       </div>
     </div>

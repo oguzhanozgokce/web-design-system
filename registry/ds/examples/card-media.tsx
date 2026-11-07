@@ -9,13 +9,13 @@ export default function CardMediaExample() {
         <CardMedia src="/samples/dune.jpg" alt="" className="aspect-video" />
         <CardHeader title="Landscape photography basics" description="Article · 6 min read" />
         <CardFooter>
-          <Button variant="text">Save</Button>
-          <Button variant="tonal">Read</Button>
+          <Button variant="ghost">Save</Button>
+          <Button variant="soft">Read</Button>
         </CardFooter>
       </Card>
-      <Card variant="outlined">
+      <Card>
         <CardMedia inset>
-          <span className="grid aspect-video place-items-center bg-tertiary-container text-on-tertiary-container">
+          <span className="grid aspect-video place-items-center bg-neutral-soft text-on-surface-variant">
             <BarChartIcon className="size-12" />
           </span>
         </CardMedia>

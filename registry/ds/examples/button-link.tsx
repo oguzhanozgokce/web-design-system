@@ -5,17 +5,17 @@ import { ButtonLink } from '@/registry/ds/ui/button';
 export default function ButtonLinkExample() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
-      <ButtonLink href="#installation" variant="outlined">
+      <ButtonLink href="#installation" variant="outline">
         Read the guide
       </ButtonLink>
       <ButtonLink
-        href="https://m3.material.io/components/buttons"
+        href="https://example.com/help"
         target="_blank"
         rel="noreferrer"
-        variant="text"
+        variant="ghost"
         endIcon={<OpenInNewIcon />}
       >
-        Material 3 spec
+        Help centre
         <VisuallyHidden elementType="span"> (opens in a new tab)</VisuallyHidden>
       </ButtonLink>
     </div>

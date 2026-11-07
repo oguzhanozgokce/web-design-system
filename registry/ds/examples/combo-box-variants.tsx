@@ -6,7 +6,7 @@ const fruits = ['Apple', 'Banana', 'Cherry', 'Mango'];
 export default function ComboBoxVariants() {
   return (
     <div className="grid w-full max-w-lg grid-cols-1 gap-4 sm:grid-cols-2">
-      {(['outlined', 'filled'] as const).map((variant) => (
+      {(['outline', 'soft'] as const).map((variant) => (
         <ComboBox
           key={variant}
           label={`Fruit, ${variant}`}

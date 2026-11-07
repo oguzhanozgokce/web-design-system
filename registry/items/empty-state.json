@@ -2,7 +2,7 @@
   "name": "empty-state",
   "type": "registry:ui",
   "title": "Empty State",
-  "description": "Centred placeholder for empty tables, lists and whole pages, with an icon or illustration, a real heading, a description and primary and secondary actions in three sizes.",
+  "description": "Centred placeholder for empty tables, lists and pages, with an icon or illustration, a heading, a description and up to two actions, in three sizes.",
   "category": "feedback",
   "files": ["ui/empty-state.tsx"]
 }

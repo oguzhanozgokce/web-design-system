@@ -12,36 +12,55 @@ import {
   type ValidationResult,
 } from 'react-aria-components';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
-import { useIcons, useMotionPreference } from '@/registry/ds/ui/ds-provider';
+import { useMotionPreference } from '@/registry/ds/ui/ds-provider';
 
 export const switchStyles = tv({
   slots: {
     root: 'group/switch flex flex-col items-start gap-1',
-    target: 'cursor-default text-on-surface select-none data-[disabled]:text-on-surface/38',
-    track:
-      'focus-ring relative inline-flex h-8 w-13 shrink-0 rounded-full border-2 transition-[background-color,border-color] duration-150 ease-standard motion-reduce:transition-none',
-    thumb:
-      'absolute inset-y-0 flex w-7 items-center justify-center transition-[inset-inline-start] duration-(--ds-duration-spatial-fast) ease-spatial-fast motion-reduce:transition-none',
-    stateLayer: 'state-layer absolute size-10 rounded-full',
-    handle:
-      'relative grid shrink-0 place-items-center rounded-full transition-[width,height,background-color] duration-[var(--ds-duration-spatial-fast),var(--ds-duration-spatial-fast),var(--ds-duration-effect-fast)] ease-[var(--ds-ease-spatial-fast),var(--ds-ease-spatial-fast),var(--ds-ease-effect-fast)] motion-reduce:transition-none',
-    handleIcon:
-      'grid animate-ds-fade-in place-items-center motion-reduce:animate-none [&_svg]:size-4',
-    icon: 'grid size-6 shrink-0 place-items-center text-on-surface-variant group-data-[disabled]/switch:text-on-surface/38 [&_svg]:size-6',
+    target: [
+      'group/switch-target no-tap-highlight cursor-pointer text-sm text-on-surface select-none',
+      'data-[readonly]:cursor-default',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+    ],
+    track: [
+      'focus-ring relative inline-flex h-(--switch-track-height) w-(--switch-track-width) shrink-0 rounded-control',
+      'transition-[background-color,box-shadow] duration-250 ease-out motion-reduce:transition-none',
+    ],
+    thumb: [
+      'absolute inset-y-0.5 grid w-(--switch-thumb-width) place-items-center rounded-control bg-surface-thumb shadow-xs [--switch-thumb-width:var(--switch-thumb-rest)]',
+      'transition-[inset-inline-start,width] duration-300 ease-fluid motion-reduce:transition-none',
+    ],
+    thumbIcon:
+      'grid animate-ds-fade-in place-items-center motion-reduce:animate-none [&_svg]:size-(--switch-icon)',
+    icon: 'grid size-5 shrink-0 place-items-center text-on-surface-variant [&_svg]:size-5',
     content: 'flex min-w-0 flex-col gap-0.5',
-    label: 'text-body-lg',
+    label: '',
     required: 'ms-0.5 text-error',
-    description:
-      'text-body-md text-on-surface-variant group-data-[disabled]/switch:text-on-surface/38',
-    error: 'text-body-sm text-error',
+    description: 'text-xs text-on-surface-variant',
+    error: 'text-xs text-error',
   },
   variants: {
     variant: {
-      default: { target: 'inline-flex max-w-full items-start gap-4', content: 'pt-1' },
+      default: {
+        target: 'inline-flex max-w-full items-start gap-3',
+        content: 'pt-(--switch-label-offset)',
+      },
       row: {
-        target: 'focus-ring-inset flex min-h-14 w-full items-center gap-4 rounded-md px-4 py-3',
+        target: [
+          'focus-ring-inset flex min-h-12 w-full items-center gap-3 rounded-item px-3 py-2.5',
+          'transition-[background-color] duration-100 ease-out motion-reduce:transition-none',
+        ],
         content: 'flex-1',
-        error: 'px-4',
+        label: 'font-medium',
+        error: 'px-3',
+      },
+    },
+    size: {
+      sm: {
+        root: '[--switch-icon:0.625rem] [--switch-label-offset:0px] [--switch-thumb-rest:1.375rem] [--switch-track-height:1.25rem] [--switch-track-width:2.5rem]',
+      },
+      md: {
+        root: '[--switch-icon:0.75rem] [--switch-label-offset:0.125rem] [--switch-thumb-rest:1.75rem] [--switch-track-height:1.5rem] [--switch-track-width:3rem]',
       },
     },
     labelPlacement: {
@@ -49,58 +68,79 @@ export const switchStyles = tv({
       end: '',
     },
     interactive: {
-      true: '',
+      true: {
+        thumb:
+          'group-data-[pressed]/switch-target:[--switch-thumb-width:calc(var(--switch-thumb-rest)+0.25rem)]',
+      },
       false: '',
     },
     selected: {
-      true: { thumb: 'inset-s-5', stateLayer: 'text-primary' },
-      false: { thumb: 'inset-s-0', stateLayer: 'text-on-surface' },
+      true: {
+        track: 'bg-primary-solid',
+        thumb: 'inset-s-[calc(100%-var(--switch-thumb-width)-0.125rem)]',
+        thumbIcon: 'text-primary-solid',
+      },
+      false: {
+        track: 'bg-outline-variant',
+        thumb: 'inset-s-0.5',
+        thumbIcon: 'text-[color:light-dark(var(--on-surface-variant),var(--inverse-on-surface))]',
+      },
     },
-    trackTone: {
-      off: { track: 'border-outline bg-surface-container-highest' },
-      offInvalid: { track: 'border-error bg-surface-container-highest' },
-      on: { track: 'border-primary bg-primary' },
-      offDisabled: { track: 'border-on-surface/12 bg-surface-container-highest/12' },
-      onDisabled: { track: 'border-transparent bg-on-surface/12' },
-    },
-    handleTone: {
-      idle: { handle: 'bg-outline text-surface-container-highest' },
-      active: { handle: 'bg-on-surface-variant text-surface-container-highest' },
-      selected: { handle: 'bg-on-primary text-primary' },
-      selectedActive: { handle: 'bg-primary-container text-on-primary-container' },
-      disabled: { handle: 'bg-on-surface/38 text-surface-container-highest/38' },
-      disabledSelected: { handle: 'bg-surface text-on-surface/38' },
-    },
-    handleSize: {
-      sm: { handle: 'size-4' },
-      md: { handle: 'size-6' },
-      lg: { handle: 'size-7' },
+    invalid: {
+      true: '',
+      false: '',
     },
     instant: {
-      true: { track: 'transition-none', thumb: 'transition-none', handle: 'transition-none' },
+      true: { track: 'transition-none', thumb: 'transition-none', thumbIcon: 'animate-none' },
       false: '',
     },
   },
   compoundVariants: [
-    { variant: 'default', labelPlacement: 'end', class: { error: 'ps-17' } },
-    { variant: 'row', interactive: true, class: { target: 'state-layer' } },
-    { instant: true, class: { handleIcon: 'animate-none' } },
+    {
+      variant: 'default',
+      labelPlacement: 'end',
+      class: { error: 'ps-[calc(var(--switch-track-width)+0.75rem)]' },
+    },
+    {
+      variant: 'row',
+      interactive: true,
+      class: { target: 'data-[hovered]:bg-neutral-soft data-[pressed]:bg-neutral-soft-hover' },
+    },
+    {
+      interactive: true,
+      selected: true,
+      class: { track: 'group-data-[hovered]/switch-target:bg-primary-solid-hover' },
+    },
+    {
+      interactive: true,
+      selected: false,
+      class: {
+        track:
+          'group-data-[hovered]/switch-target:bg-[color-mix(in_oklab,var(--outline-variant)_82%,var(--on-surface))]',
+      },
+    },
+    {
+      invalid: true,
+      selected: false,
+      class: { track: 'inset-ring-2 inset-ring-error [--focus-color:var(--error)]' },
+    },
   ],
   defaultVariants: {
     variant: 'default',
+    size: 'md',
     labelPlacement: 'end',
     interactive: true,
     selected: false,
-    trackTone: 'off',
-    handleTone: 'idle',
-    handleSize: 'sm',
+    invalid: false,
     instant: false,
   },
 });
 
+export type SwitchSize = 'sm' | 'md';
+
 export type SwitchStyleProps = Pick<
   VariantProps<typeof switchStyles>,
-  'variant' | 'labelPlacement'
+  'variant' | 'labelPlacement' | 'size'
 >;
 
 function labelledByWithDescription(
@@ -115,25 +155,6 @@ function labelledByWithDescription(
   return hasLabel && hasDescription ? labelId : undefined;
 }
 
-function trackToneOf({ isSelected, isDisabled, isInvalid }: SwitchButtonRenderProps) {
-  if (isDisabled) return isSelected ? 'onDisabled' : 'offDisabled';
-  if (isSelected) return 'on';
-  return isInvalid ? 'offInvalid' : 'off';
-}
-
-function handleToneOf({
-  isSelected,
-  isDisabled,
-  isHovered,
-  isPressed,
-  isFocusVisible,
-}: SwitchButtonRenderProps) {
-  if (isDisabled) return isSelected ? 'disabledSelected' : 'disabled';
-  const isActive = isHovered || isPressed || isFocusVisible;
-  if (isSelected) return isActive ? 'selectedActive' : 'selected';
-  return isActive ? 'active' : 'idle';
-}
-
 interface SwitchTrackProps {
   state: SwitchButtonRenderProps;
   isRow: boolean;
@@ -144,12 +165,10 @@ interface SwitchTrackProps {
 
 function SwitchTrack({ state, isRow, instant, selectedIcon, unselectedIcon }: SwitchTrackProps) {
   const glyph = state.isSelected ? selectedIcon : unselectedIcon;
-  const isPressed = state.isPressed && !state.isDisabled && !state.isReadOnly;
   const styles = switchStyles({
     selected: state.isSelected,
-    trackTone: trackToneOf(state),
-    handleTone: handleToneOf(state),
-    handleSize: isPressed ? 'lg' : state.isSelected || unselectedIcon != null ? 'md' : 'sm',
+    invalid: state.isInvalid,
+    interactive: !state.isDisabled && !state.isReadOnly,
     instant,
   });
 
@@ -157,31 +176,20 @@ function SwitchTrack({ state, isRow, instant, selectedIcon, unselectedIcon }: Sw
     <span
       aria-hidden="true"
       data-slot="track"
+      data-selected={state.isSelected || undefined}
       data-focus-visible={(!isRow && state.isFocusVisible) || undefined}
       className={styles.track()}
     >
       <span data-slot="thumb" className={styles.thumb()}>
-        {isRow ? null : (
+        {glyph != null ? (
           <span
-            data-slot="state-layer"
-            data-hovered={state.isHovered || undefined}
-            data-pressed={state.isPressed || undefined}
-            data-focus-visible={state.isFocusVisible || undefined}
-            data-disabled={state.isDisabled || state.isReadOnly || undefined}
-            className={styles.stateLayer()}
-          />
-        )}
-        <span data-slot="handle" className={styles.handle()}>
-          {glyph != null ? (
-            <span
-              key={state.isSelected ? 'selected' : 'unselected'}
-              data-slot="handle-icon"
-              className={styles.handleIcon()}
-            >
-              {glyph}
-            </span>
-          ) : null}
-        </span>
+            key={state.isSelected ? 'selected' : 'unselected'}
+            data-slot="thumb-icon"
+            className={styles.thumbIcon()}
+          >
+            {glyph}
+          </span>
+        ) : null}
       </span>
     </span>
   );
@@ -204,6 +212,7 @@ export function Switch({
   description,
   errorMessage,
   variant = 'default',
+  size = 'md',
   labelPlacement = 'end',
   icon,
   selectedIcon,
@@ -211,7 +220,6 @@ export function Switch({
   className,
   ...props
 }: SwitchProps) {
-  const icons = useIcons();
   const labelId = useId();
   const instant = useMotionPreference().preference !== 'system';
 
@@ -220,8 +228,7 @@ export function Switch({
   const hasLabel = children != null;
   const hasDescription = description != null;
   const hasContent = hasLabel || hasDescription;
-  const styles = switchStyles({ variant, labelPlacement: placement });
-  const resolvedSelectedIcon = selectedIcon === undefined ? <icons.check /> : selectedIcon;
+  const styles = switchStyles({ variant, size, labelPlacement: placement });
 
   return (
     <SwitchField
@@ -229,12 +236,15 @@ export function Switch({
       aria-labelledby={labelledByWithDescription(props, labelId, hasLabel, hasDescription)}
       data-slot="switch"
       data-variant={variant}
+      data-size={size}
       data-label-placement={placement}
       className={composeRenderProps(className, (className) => styles.root({ className }))}
     >
       <SwitchButton
         data-slot="target"
-        className={({ isReadOnly }) => styles.target({ interactive: !isReadOnly })}
+        className={({ isReadOnly, isDisabled }) =>
+          styles.target({ interactive: !isReadOnly && !isDisabled })
+        }
       >
         {(state) => {
           const track = (
@@ -242,7 +252,7 @@ export function Switch({
               state={state}
               isRow={isRow}
               instant={instant}
-              selectedIcon={resolvedSelectedIcon}
+              selectedIcon={selectedIcon}
               unselectedIcon={unselectedIcon}
             />
           );

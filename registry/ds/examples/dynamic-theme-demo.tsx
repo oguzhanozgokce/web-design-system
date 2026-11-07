@@ -47,7 +47,7 @@ export default function DynamicThemeDemo() {
               className={cn(
                 'grid size-10 cursor-pointer place-items-center rounded-full focus-ring outline-offset-2',
                 'data-[selected]:ring-2 data-[selected]:ring-on-surface',
-                'data-[selected]:ring-offset-2 data-[selected]:ring-offset-surface',
+                'data-[selected]:ring-offset-2 data-[selected]:ring-offset-canvas',
               )}
             >
               {({ isSelected }) => (
@@ -55,7 +55,7 @@ export default function DynamicThemeDemo() {
                   seed={preset.seed}
                   paletteStyle="fidelity"
                   contrast="standard"
-                  className="grid size-8 place-items-center rounded-full bg-primary-container text-on-primary-container"
+                  className="grid size-8 place-items-center rounded-full bg-primary-solid text-on-primary-solid"
                 >
                   {isSelected ? <CheckIcon className="text-lg" /> : null}
                 </DynamicTheme>
@@ -63,7 +63,7 @@ export default function DynamicThemeDemo() {
             </Radio>
           ))}
         </RadioGroup>
-        <label className="flex items-center gap-2 text-label-lg text-on-surface-variant">
+        <label className="flex items-center gap-2 text-sm font-medium text-on-surface-variant">
           <input
             type="color"
             value={custom}
@@ -72,7 +72,7 @@ export default function DynamicThemeDemo() {
               setCustom(value);
               startTransition(() => setSeed(value));
             }}
-            className="size-10 cursor-pointer rounded-full border border-outline-variant bg-surface p-1 focus-ring"
+            className="size-10 cursor-pointer rounded-full border border-outline-variant bg-surface-raised p-1 focus-ring"
           />
           Custom colour
         </label>
@@ -85,21 +85,21 @@ export default function DynamicThemeDemo() {
       {wholePage ? <DynamicTheme scope="root" seed={seed} paletteStyle="vibrant" /> : null}
 
       <DynamicTheme seed={seed} paletteStyle="vibrant">
-        <Card variant="filled">
+        <Card>
           <CardHeader title="Design team" description="Your accent colour, every role" />
           <CardContent className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-primary-container px-3 py-1 text-label-lg text-on-primary-container">
-              primary
+            <span className="rounded-control bg-primary-solid px-3 py-1 text-sm font-medium text-on-primary-solid">
+              solid
             </span>
-            <span className="rounded-full bg-secondary-container px-3 py-1 text-label-lg text-on-secondary-container">
-              secondary
+            <span className="rounded-control bg-primary-soft px-3 py-1 text-sm font-medium text-on-primary-soft">
+              soft
             </span>
-            <span className="rounded-full bg-tertiary-container px-3 py-1 text-label-lg text-on-tertiary-container">
-              tertiary
+            <span className="rounded-control border border-outline-variant px-3 py-1 text-sm font-medium text-primary">
+              text
             </span>
           </CardContent>
           <CardFooter>
-            <Button variant="outlined">Invite</Button>
+            <Button variant="outline">Invite</Button>
             <Button>Open</Button>
           </CardFooter>
         </Card>

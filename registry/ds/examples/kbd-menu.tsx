@@ -11,12 +11,20 @@ export default function KbdMenu() {
   return (
     <ul
       aria-label="Edit"
-      className="w-64 rounded-sm bg-surface-container py-2 text-body-md text-on-surface shadow-elevation-2"
+      className="w-64 rounded-overlay bg-surface-overlay p-1 text-sm text-on-surface shadow-md"
     >
       {actions.map((action) => (
-        <li key={action.label} className="flex h-10 items-center justify-between gap-6 px-3">
+        <li
+          key={action.label}
+          className="flex h-9 items-center justify-between gap-6 rounded-item px-2.5"
+        >
           <span>{action.label}</span>
-          <KbdCombo keys={action.keys} variant="text" className="text-on-surface-variant" />
+          <KbdCombo
+            keys={action.keys}
+            variant="ghost"
+            size="sm"
+            className="text-xs text-on-surface-variant"
+          />
         </li>
       ))}
     </ul>

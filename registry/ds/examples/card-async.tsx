@@ -38,7 +38,7 @@ export default function CardAsync() {
           </ClickableCard>
         ))}
       </div>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {created ? `Created a project from “${created}”.` : 'Pick a template to create a project.'}
       </p>
     </div>

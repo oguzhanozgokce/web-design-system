@@ -24,7 +24,7 @@ export default function KbdShortcutHint() {
       }}
     >
       <TextField value={draft} onChange={setDraft} className="flex flex-col gap-1.5">
-        <Label className="text-label-lg text-on-surface">Comment</Label>
+        <Label className="text-sm font-medium text-on-surface">Comment</Label>
         <TextArea
           rows={3}
           placeholder="Add a comment"
@@ -35,18 +35,18 @@ export default function KbdShortcutHint() {
               send();
             }
           }}
-          className="resize-none rounded-sm border border-outline bg-transparent px-3 py-2 text-body-md text-on-surface ring-primary outline-none placeholder:text-on-surface-variant data-[focused]:border-primary data-[focused]:ring-1 data-[focused]:ring-inset"
+          className="resize-none rounded-field border border-outline-variant bg-surface-raised px-3 py-2 text-base text-on-surface outline-none placeholder:text-on-surface-variant data-[focused]:border-primary data-[focused]:inset-ring-2 data-[focused]:inset-ring-primary/20 pointer-fine:text-sm"
         />
       </TextField>
       <div className="flex items-center justify-between gap-3">
-        <p className="text-body-sm text-on-surface-variant">
+        <p className="text-xs text-on-surface-variant">
           <KbdCombo keys={['mod', 'enter']} size="sm" /> to send
         </p>
         <Button type="submit" size="sm">
           Send
         </Button>
       </div>
-      <p className="text-body-sm text-on-surface-variant" aria-live="polite">
+      <p className="text-xs text-on-surface-variant" aria-live="polite">
         {sent === 0 ? null : sent === 1 ? '1 comment sent' : `${sent} comments sent`}
       </p>
     </form>

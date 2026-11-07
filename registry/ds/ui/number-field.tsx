@@ -2,14 +2,7 @@
 
 import NumberFlow, { type Format } from '@number-flow/react';
 import { calcGeneratorDuration, generateLinearEasing, spring } from 'motion/react';
-import {
-  useId,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent,
-  type ReactNode,
-  type Ref,
-} from 'react';
+import { useId, useState, type KeyboardEvent, type ReactNode, type Ref } from 'react';
 import {
   Button as AriaButton,
   ButtonContext,
@@ -35,7 +28,7 @@ import {
 
 export const numberFieldStyles = tv({
   slots: {
-    container: '',
+    container: 'gap-0 overflow-hidden',
     value: 'relative flex min-w-0 flex-1 self-stretch',
     input: [
       'w-0 tabular-digits',
@@ -45,47 +38,35 @@ export const numberFieldStyles = tv({
       'pointer-events-none absolute inset-0 flex items-center overflow-hidden whitespace-nowrap tabular-digits',
       'motion-reduce:hidden forced-colors:hidden',
     ],
-    steppers: 'flex shrink-0 flex-col self-stretch',
+    steppers: 'flex shrink-0 flex-col self-stretch border-s border-outline-subtle',
     stepper: [
-      'state-layer focus-ring flex shrink-0 cursor-default items-center justify-center text-on-surface-variant',
-      'data-[disabled]:text-on-surface/38 [&_svg]:size-(--icon-size)',
+      'focus-ring-inset transition-control no-tap-highlight flex shrink-0 cursor-pointer items-center justify-center self-stretch border-outline-subtle text-on-surface-variant motion-reduce:transition-none',
+      'data-[hovered]:bg-neutral-soft data-[hovered]:text-on-surface data-[pressed]:bg-neutral-soft-hover data-[pressed]:text-on-surface',
+      'data-[disabled]:cursor-not-allowed data-[disabled]:not-group-data-[disabled]/control:opacity-50',
+      '[&_svg]:size-(--icon-size)',
     ],
   },
   variants: {
     layout: {
       stepper: {
-        container: 'gap-1 px-1',
+        container: 'px-0',
+        value: 'px-2',
         input: 'text-center',
-        roller: 'justify-center',
-        stepper: [
-          'rounded-full transition-[scale,background-color,color] duration-150 ease-standard',
-          'data-[pressed]:scale-90 motion-reduce:transition-none motion-reduce:data-[pressed]:scale-100',
-        ],
+        roller: 'justify-center px-2',
+        stepper: 'data-[slot=decrement]:border-e data-[slot=increment]:border-s',
       },
       inline: {
-        container: 'pe-1',
+        container: 'pe-0',
         input: 'text-start',
         roller: 'justify-start',
-        steppers: 'ms-1 py-0.5',
-        stepper: 'w-6 flex-1 rounded-xs pointer-coarse:w-9',
+        steppers: 'ms-(--field-gap)',
+        stepper: 'flex-1 data-[slot=increment]:border-b pointer-coarse:w-10',
       },
     },
     size: {
       sm: { container: 'min-w-32' },
       md: { container: 'min-w-36' },
       lg: { container: 'min-w-44' },
-      display: {
-        container:
-          'h-14 min-w-48 text-headline-sm pointer-fine:text-headline-sm [--icon-size:1.5rem]',
-      },
-    },
-    variant: {
-      outlined: {},
-      filled: {},
-    },
-    shape: {
-      field: {},
-      pill: {},
     },
     isRolling: {
       true: {},
@@ -93,66 +74,27 @@ export const numberFieldStyles = tv({
     },
   },
   compoundVariants: [
-    { layout: 'stepper', size: 'sm', class: { stepper: 'size-7' } },
-    { layout: 'stepper', size: 'md', class: { stepper: 'size-8' } },
-    { layout: 'stepper', size: 'lg', class: { stepper: 'size-10' } },
-    {
-      layout: 'stepper',
-      size: 'display',
-      class: {
-        container: 'px-1.5',
-        stepper:
-          'size-11 bg-secondary-container text-on-secondary-container data-[disabled]:bg-on-surface/12 data-[disabled]:text-on-surface/38',
-      },
-    },
-    {
-      layout: 'stepper',
-      size: 'display',
-      variant: 'outlined',
-      class: { container: 'rounded-full' },
-    },
-    { layout: 'inline', size: ['sm', 'md'], class: { steppers: '[--icon-size:1rem]' } },
-    { layout: 'inline', size: 'lg', class: { steppers: 'py-1 [--icon-size:1.125rem]' } },
-    {
-      layout: 'inline',
-      size: 'display',
-      class: { steppers: 'py-1 [--icon-size:1.25rem]', stepper: 'w-8 pointer-coarse:w-10' },
-    },
-    {
-      shape: 'pill',
-      class: {
-        container: [
-          'w-fit min-w-0 gap-0 rounded-full border-0 bg-surface-container-high forced-colors:border',
-          'focus-within:ring-2 data-[invalid]:ring-2 data-[invalid]:ring-inset',
-          'data-[readonly]:bg-surface-container data-[disabled]:bg-on-surface/4',
-        ],
-        value: [
-          'w-[calc(var(--number-field-chars)*1ch+1rem)] flex-none',
-          'transition-[width] duration-(--ds-duration-spatial-fast) ease-spatial-fast motion-reduce:transition-none',
-        ],
-        input: 'font-medium',
-        roller: 'font-medium',
-        stepper:
-          'bg-surface-container-highest text-on-surface data-[disabled]:bg-on-surface/12 data-[disabled]:text-on-surface/38',
-      },
-    },
+    { layout: 'stepper', size: 'sm', class: { stepper: 'w-8' } },
+    { layout: 'stepper', size: 'md', class: { stepper: 'w-10' } },
+    { layout: 'stepper', size: 'lg', class: { stepper: 'w-12' } },
+    { layout: 'inline', size: 'sm', class: { stepper: 'w-6 [--icon-size:0.875rem]' } },
+    { layout: 'inline', size: 'md', class: { stepper: 'w-7 [--icon-size:1rem]' } },
+    { layout: 'inline', size: 'lg', class: { stepper: 'w-8 [--icon-size:1.125rem]' } },
   ],
   defaultVariants: {
     layout: 'stepper',
     size: 'md',
-    variant: 'outlined',
-    shape: 'field',
     isRolling: true,
   },
 });
 
 export type NumberFieldStyleProps = VariantProps<typeof numberFieldStyles>;
 
-export type NumberFieldSize = 'sm' | 'md' | 'lg' | 'display';
+export type NumberFieldSize = FieldSize;
+
+export type NumberFieldVariant = 'outline' | 'soft';
 
 export type NumberFieldLayout = 'stepper' | 'inline';
-
-export type NumberFieldShape = 'field' | 'pill';
 
 type StepperTemplate = LabelTemplate<{ label: string }>;
 
@@ -170,7 +112,6 @@ export interface NumberFieldProps
   extends Omit<AriaNumberFieldProps, 'children' | 'className'>, Omit<FieldBaseProps, 'size'> {
   size?: NumberFieldSize;
   layout?: NumberFieldLayout;
-  shape?: NumberFieldShape;
   isAnimated?: boolean;
   placeholder?: string;
   inputRef?: Ref<HTMLInputElement>;
@@ -324,9 +265,8 @@ export function NumberField({
   errorMessage,
   necessityIndicator,
   size = 'md',
-  variant = 'outlined',
+  variant = 'outline',
   layout = 'stepper',
-  shape = 'field',
   isAnimated = false,
   placeholder,
   inputRef,
@@ -341,10 +281,6 @@ export function NumberField({
   const { locale, direction } = useLocale();
   const { preference, profile } = useMotionPreference();
   const { isEditing, inputProps, onStep } = useEditing(isAnimated);
-  const fieldSize: FieldSize = size === 'display' ? 'lg' : size;
-  const isPill = shape === 'pill';
-  const activeLayout = isPill ? 'stepper' : layout;
-  const fieldVariant = isPill ? 'outlined' : variant;
   const fieldName = props['aria-label'] || (typeof label === 'string' ? label : undefined);
   const stepperProps = {
     fieldName,
@@ -359,12 +295,11 @@ export function NumberField({
       decrementAriaLabel={decrementAriaLabel}
       data-slot="number-field"
       data-size={size}
-      data-variant={isPill ? undefined : variant}
-      data-layout={activeLayout}
-      data-shape={shape}
+      data-variant={variant}
+      data-layout={layout}
       data-animated={isAnimated || undefined}
       className={composeRenderProps(className, (className) =>
-        fieldStyles({ size: fieldSize, variant: fieldVariant }).root({ className }),
+        fieldStyles({ size, variant }).root({ className }),
       )}
     >
       {({ state }) => {
@@ -379,18 +314,7 @@ export function NumberField({
             formatOptions: props.formatOptions,
           });
         const isRolling = isRollable && !isEditing;
-        const styles = numberFieldStyles({
-          layout: activeLayout,
-          size,
-          variant: fieldVariant,
-          shape,
-          isRolling,
-        });
-        const valueStyle = isPill
-          ? ({
-              '--number-field-chars': Math.max(1, (state.inputValue || placeholder || '').length),
-            } as CSSProperties)
-          : undefined;
+        const styles = numberFieldStyles({ layout: layout, size, isRolling });
 
         const decrement = (
           <NumberFieldStepper
@@ -400,7 +324,7 @@ export function NumberField({
             customLabel={decrementAriaLabel}
             className={styles.stepper()}
           >
-            {activeLayout === 'inline' ? <icons.chevronDown /> : <icons.remove />}
+            {layout === 'inline' ? <icons.chevronDown /> : <icons.remove />}
           </NumberFieldStepper>
         );
         const increment = (
@@ -411,7 +335,7 @@ export function NumberField({
             customLabel={incrementAriaLabel}
             className={styles.stepper()}
           >
-            {activeLayout === 'inline' ? <icons.chevronUp /> : <icons.add />}
+            {layout === 'inline' ? <icons.chevronUp /> : <icons.add />}
           </NumberFieldStepper>
         );
 
@@ -423,13 +347,13 @@ export function NumberField({
             errorMessage={errorMessage}
             necessityIndicator={necessityIndicator}
             isRequired={props.isRequired}
-            size={fieldSize}
-            variant={fieldVariant}
+            size={size}
+            variant={variant}
             labels={labels}
           >
             <FieldGroup isReadOnly={props.isReadOnly} className={styles.container()}>
-              {activeLayout === 'stepper' ? decrement : null}
-              <span data-slot="value" className={styles.value()} style={valueStyle}>
+              {layout === 'stepper' ? decrement : null}
+              <span data-slot="value" className={styles.value()}>
                 <FieldInput
                   {...inputProps}
                   ref={inputRef}
@@ -448,7 +372,7 @@ export function NumberField({
                   </span>
                 ) : null}
               </span>
-              {activeLayout === 'stepper' ? (
+              {layout === 'stepper' ? (
                 increment
               ) : (
                 <span data-slot="steppers" className={styles.steppers()}>

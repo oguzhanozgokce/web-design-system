@@ -5,7 +5,7 @@ export default function SearchFieldSizes() {
     <div className="grid w-full max-w-sm gap-4">
       <SearchField size="sm" placeholder="Filter rows" />
       <SearchField size="md" placeholder="Search members" />
-      <SearchField size="lg" shape="pill" placeholder="Search the help centre" />
+      <SearchField size="lg" placeholder="Search the help centre" />
     </div>
   );
 }

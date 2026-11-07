@@ -30,28 +30,62 @@ function sample(role: ColorRole): Swatch {
 
 export const swatchGroups: SwatchGroup[] = [
   {
+    title: 'Layers',
+    description:
+      'The page, the panels on it, the menus above them, and the selected segment and switch thumb.',
+    columns: '@2xl:grid-cols-3',
+    swatches: [
+      sample('canvas'),
+      sample('surface-raised'),
+      sample('surface-overlay'),
+      sample('surface-segment'),
+      sample('surface-thumb'),
+    ],
+  },
+  {
+    title: 'Solid fills',
+    description:
+      'The main action, checked controls and solid badges. In dark mode they keep the saturated light colour.',
+    columns: '@3xl:grid-cols-5',
+    swatches: [
+      pair('primary-solid', 'on-primary-solid'),
+      pair('error-solid', 'on-error-solid'),
+      pair('success-solid', 'on-success-solid'),
+      pair('warning-solid', 'on-warning-solid'),
+      pair('info-solid', 'on-info-solid'),
+    ],
+  },
+  {
     title: 'Accent',
-    description: 'Actions, selection and emphasis. Each colour pairs with its on-colour for text.',
+    description:
+      'Links, ghost and outline labels, icons and the focus ring. Each colour pairs with its on-colour.',
     columns: '@3xl:grid-cols-4',
     swatches: [
       pair('primary', 'on-primary'),
       pair('secondary', 'on-secondary'),
       pair('tertiary', 'on-tertiary'),
       pair('error', 'on-error'),
-      pair('primary-container', 'on-primary-container'),
-      pair('secondary-container', 'on-secondary-container'),
-      pair('tertiary-container', 'on-tertiary-container'),
-      pair('error-container', 'on-error-container'),
     ],
   },
   {
-    title: 'Feedback',
+    title: 'Status',
     description: 'Success, warning and info, harmonised toward the seed.',
     columns: '@2xl:grid-cols-3',
     swatches: [
       pair('success', 'on-success'),
       pair('warning', 'on-warning'),
       pair('info', 'on-info'),
+    ],
+  },
+  {
+    title: 'Containers',
+    description: 'Strong tinted fills, for the rare place that needs more than a soft fill.',
+    columns: '@3xl:grid-cols-4',
+    swatches: [
+      pair('primary-container', 'on-primary-container'),
+      pair('secondary-container', 'on-secondary-container'),
+      pair('tertiary-container', 'on-tertiary-container'),
+      pair('error-container', 'on-error-container'),
       pair('success-container', 'on-success-container'),
       pair('warning-container', 'on-warning-container'),
       pair('info-container', 'on-info-container'),
@@ -59,7 +93,7 @@ export const swatchGroups: SwatchGroup[] = [
   },
   {
     title: 'Surfaces',
-    description: 'Backgrounds from lowest to highest emphasis. Text on all of them is on-surface.',
+    description: 'The neutral scale the layers come from. Text on all of them is on-surface.',
     columns: '@3xl:grid-cols-4',
     swatches: [
       pair('surface', 'on-surface'),
@@ -73,19 +107,6 @@ export const swatchGroups: SwatchGroup[] = [
       surface('surface-container'),
       surface('surface-container-high'),
       surface('surface-container-highest'),
-    ],
-  },
-  {
-    title: 'Layers',
-    description:
-      'The page, the panels on it, the menus above them and the track and thumb of segmented controls.',
-    columns: '@2xl:grid-cols-3',
-    swatches: [
-      sample('canvas'),
-      sample('surface-raised'),
-      sample('surface-overlay'),
-      sample('surface-segment'),
-      sample('surface-thumb'),
     ],
   },
   {
@@ -121,7 +142,7 @@ function cssVar(role: ColorRole) {
 }
 
 function Hex({ value }: { value: string }) {
-  return <span className="font-mono text-label-md">{value}</span>;
+  return <span className="font-mono text-xs">{value}</span>;
 }
 
 function SwatchTile({ swatch, colors }: { swatch: Swatch; colors: BrandColors }) {
@@ -129,15 +150,15 @@ function SwatchTile({ swatch, colors }: { swatch: Swatch; colors: BrandColors })
     return (
       <li
         data-role={swatch.role}
-        className="flex items-center gap-3 rounded-md border border-outline-variant bg-surface p-3 text-on-surface"
+        className="flex items-center gap-3 rounded-item border border-outline-subtle bg-surface-raised p-3 text-on-surface"
       >
         <span
           aria-hidden
-          className="size-10 shrink-0 rounded-sm border border-outline-variant"
+          className="size-10 shrink-0 rounded-lg border border-outline-subtle"
           style={{ background: cssVar(swatch.role) }}
         />
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="text-label-lg wrap-anywhere">{swatch.role}</span>
+          <span className="text-sm font-medium wrap-anywhere">{swatch.role}</span>
           <span className="text-on-surface-variant">
             <Hex value={colors[swatch.role]} />
           </span>
@@ -152,13 +173,13 @@ function SwatchTile({ swatch, colors }: { swatch: Swatch; colors: BrandColors })
     <li
       data-role={swatch.role}
       data-on-role={swatch.kind === 'pair' ? swatch.on : undefined}
-      className="flex flex-col overflow-hidden rounded-md border border-outline-variant"
+      className="flex flex-col overflow-hidden rounded-item border border-outline-subtle"
     >
       <span
         className="flex min-h-20 flex-1 flex-col justify-between gap-3 p-3"
         style={{ background: cssVar(swatch.role), color: cssVar(on) }}
       >
-        <span className="text-label-lg wrap-anywhere">{swatch.role}</span>
+        <span className="text-sm font-medium wrap-anywhere">{swatch.role}</span>
         <Hex value={colors[swatch.role]} />
       </span>
       {swatch.kind === 'pair' ? (
@@ -166,7 +187,7 @@ function SwatchTile({ swatch, colors }: { swatch: Swatch; colors: BrandColors })
           className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 px-3 py-2"
           style={{ background: cssVar(swatch.on), color: cssVar(swatch.role) }}
         >
-          <span className="text-label-md wrap-anywhere">{swatch.on}</span>
+          <span className="text-xs font-medium wrap-anywhere">{swatch.on}</span>
           <Hex value={colors[swatch.on]} />
         </span>
       ) : null}
@@ -184,10 +205,10 @@ export function RoleSwatches({ colors }: { colors: BrandColors }) {
         return (
           <section key={group.title} aria-labelledby={titleId} className="flex flex-col gap-3">
             <div className="flex flex-col gap-0.5">
-              <h3 id={titleId} className="text-title-md text-on-surface">
+              <h3 id={titleId} className="text-base font-semibold text-on-surface">
                 {group.title}
               </h3>
-              <p className="text-body-sm text-on-surface-variant">{group.description}</p>
+              <p className="text-sm text-on-surface-variant">{group.description}</p>
             </div>
             <ul className={cn('grid grid-cols-2 gap-2', group.columns)}>
               {group.swatches.map((swatch) => (

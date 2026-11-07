@@ -10,6 +10,25 @@ import {
 } from '@/registry/ds/lib/icons';
 import { ExtendedFab, Fab, FabMenu, FabMenuItem } from '@/registry/ds/ui/fab';
 
+function roleStyle(className: string) {
+  const probe = document.createElement('span');
+  probe.className = className;
+  document.querySelector('[data-testid="ds-root"]')!.append(probe);
+  const style = getComputedStyle(probe);
+  const result = {
+    backgroundColor: style.backgroundColor,
+    color: style.color,
+    boxShadow: style.boxShadow,
+  };
+  probe.remove();
+  return result;
+}
+
+function box(element: Element) {
+  const html = element as HTMLElement;
+  return { width: html.offsetWidth, height: html.offsetHeight };
+}
+
 function ProjectMenu(props: Partial<Parameters<typeof FabMenu>[0]>) {
   return (
     <FabMenu aria-label="Create" {...props}>
@@ -27,18 +46,23 @@ function ProjectMenu(props: Partial<Parameters<typeof FabMenu>[0]>) {
 }
 
 describe('Fab', () => {
-  it('renders an accessible button named by aria-label', async () => {
+  it('renders a primary pill named by aria-label', async () => {
     const screen = await renderWithDS(<Fab aria-label="New project" icon={<AddIcon />} />);
     const fab = screen.getByRole('button', { name: 'New project' });
     await expect.element(fab).toBeVisible();
-    await expect.element(fab).toHaveAttribute('data-color', 'primary');
+    await expect.element(fab).toHaveAttribute('data-tone', 'primary');
     await expect.element(fab).toHaveAttribute('data-size', 'md');
-    await expect.element(fab).toHaveClass('bg-primary-container');
-    expect(fab.element().getBoundingClientRect().width).toBe(56);
+    const style = getComputedStyle(fab.element());
+    expect(style.backgroundColor).toBe(roleStyle('bg-primary-solid').backgroundColor);
+    expect(style.color).toBe(roleStyle('text-on-primary-solid').color);
+    expect(style.borderTopLeftRadius).toBe('9999px');
+    expect(style.boxShadow).toBe(roleStyle('shadow-sm').boxShadow);
+    expect(box(fab.element())).toEqual({ width: 48, height: 48 });
+    expect(getComputedStyle(fab.element().querySelector('svg')!).width).toBe('20px');
   });
 
-  it('sizes the FAB at 40, 56 and 96 pixels', async () => {
-    const sizes = { sm: 40, md: 56, lg: 96 } as const;
+  it('sizes the FAB at 48 and 56 pixels', async () => {
+    const sizes = { md: 48, lg: 56 } as const;
     const screen = await renderWithDS(
       <div className="flex gap-4">
         {(Object.keys(sizes) as (keyof typeof sizes)[]).map((size) => (
@@ -47,10 +71,65 @@ describe('Fab', () => {
       </div>,
     );
     for (const [size, pixels] of Object.entries(sizes)) {
-      const rect = screen.getByRole('button', { name: size }).element().getBoundingClientRect();
-      expect(rect.width).toBe(pixels);
-      expect(rect.height).toBe(pixels);
+      const fab = screen.getByRole('button', { name: size });
+      expect(box(fab.element())).toEqual({ width: pixels, height: pixels });
     }
+  });
+
+  it('paints the neutral tone on the overlay surface', async () => {
+    const screen = await renderWithDS(
+      <div className="flex gap-4">
+        <Fab tone="neutral" aria-label="Neutral" icon={<EditIcon />} />
+        <Fab aria-label="Primary" icon={<EditIcon />} />
+      </div>,
+    );
+    const neutral = screen.getByRole('button', { name: 'Neutral' });
+    await expect.element(neutral).toBeVisible();
+    expect(getComputedStyle(neutral.element()).backgroundColor).toBe(
+      roleStyle('bg-surface-overlay').backgroundColor,
+    );
+    expect(getComputedStyle(neutral.element()).color).toBe(roleStyle('text-on-surface').color);
+    await expect.element(neutral).toHaveAttribute('data-tone', 'neutral');
+    await expect
+      .element(screen.getByRole('button', { name: 'Primary' }))
+      .toHaveAttribute('data-tone', 'primary');
+  });
+
+  it('lifts on hover and scales down while pressed', async () => {
+    const screen = await renderWithDS(<Fab aria-label="New project" icon={<AddIcon />} />);
+    const fab = screen.getByRole('button', { name: 'New project' });
+    await fab.hover();
+    await expect.element(fab).toHaveAttribute('data-hovered', 'true');
+    await expect
+      .poll(() => getComputedStyle(fab.element()).boxShadow)
+      .toBe(roleStyle('shadow-lg').boxShadow);
+    await expect
+      .poll(() => getComputedStyle(fab.element()).backgroundColor)
+      .toBe(roleStyle('bg-primary-solid-hover').backgroundColor);
+
+    fab.element().focus();
+    await userEvent.keyboard('[Space>]');
+    await expect.element(fab).toHaveAttribute('data-pressed', 'true');
+    await expect.poll(() => getComputedStyle(fab.element()).scale).toBe('0.96');
+    await userEvent.keyboard('[/Space]');
+  });
+
+  it('scales in when it mounts, unless motion is reduced', async () => {
+    const isScaling = (element: Element) =>
+      element
+        .getAnimations()
+        .some((animation) => (animation as CSSTransition).transitionProperty === 'scale');
+
+    const screen = await renderWithDS(<Fab aria-label="New project" icon={<AddIcon />} />);
+    expect(isScaling(screen.getByRole('button', { name: 'New project' }).element())).toBe(true);
+    await screen.unmount();
+
+    const reduced = await renderWithDS(<Fab aria-label="New project" icon={<AddIcon />} />, {
+      provider: { motion: 'reduced' },
+    });
+    const still = reduced.getByRole('button', { name: 'New project' });
+    await expect.element(still).toHaveAttribute('data-reduced-motion', 'true');
+    expect(isScaling(still.element())).toBe(false);
   });
 
   it('calls onPress and shows its own pending state for async work', async () => {
@@ -134,32 +213,34 @@ describe('ExtendedFab', () => {
   it('is named by its label and collapses to a square FAB', async () => {
     const screen = await renderWithDS(
       <ExtendedFab icon={<EditIcon />} isExtended={false}>
-        Compose
+        Write
       </ExtendedFab>,
       { provider: { motion: 'reduced' } },
     );
-    const fab = screen.getByRole('button', { name: 'Compose' });
+    const fab = screen.getByRole('button', { name: 'Write' });
     await expect.element(fab).toHaveAttribute('data-extended', 'false');
     await expect.element(fab).toHaveAttribute('data-reduced-motion', 'true');
-    await expect.poll(() => fab.element().getBoundingClientRect().width).toBe(56);
-    expect(fab.element().getBoundingClientRect().height).toBe(56);
+    await expect.poll(() => box(fab.element()).width).toBe(48);
+    expect(box(fab.element()).height).toBe(48);
+    expect(getComputedStyle(fab.element()).borderTopLeftRadius).toBe('9999px');
   });
 
   it('extends again when isExtended turns true', async () => {
     const screen = await renderWithDS(
       <ExtendedFab icon={<EditIcon />} isExtended={false}>
-        Compose
+        Write
       </ExtendedFab>,
       { provider: { motion: 'reduced' } },
     );
     await screen.rerender(
       <ExtendedFab icon={<EditIcon />} isExtended>
-        Compose
+        Write
       </ExtendedFab>,
     );
-    const fab = page.getByRole('button', { name: 'Compose' });
+    const fab = page.getByRole('button', { name: 'Write' });
     await expect.element(fab).toHaveAttribute('data-extended', 'true');
-    await expect.poll(() => fab.element().getBoundingClientRect().width).toBeGreaterThan(100);
+    await expect.poll(() => box(fab.element()).width).toBeGreaterThan(72);
+    expect(box(fab.element()).height).toBe(48);
   });
 
   it('owns its pending state for an async onPress and ignores repeat presses', async () => {
@@ -182,21 +263,20 @@ describe('ExtendedFab', () => {
     await expect.element(fab).not.toHaveAttribute('data-pending');
   });
 
-  it('animates the width on the spatial spring and drops it for reduced motion', async () => {
-    const screen = await renderWithDS(<ExtendedFab icon={<EditIcon />}>Compose</ExtendedFab>);
-    const label = screen.getByRole('button', { name: 'Compose' }).element().children[1];
+  it('collapses the label over 250ms on the fluid curve and drops it for reduced motion', async () => {
+    const screen = await renderWithDS(<ExtendedFab icon={<EditIcon />}>Write</ExtendedFab>);
+    const label = screen.getByRole('button', { name: 'Write' }).element().children[1];
     expect(label).toHaveAttribute('data-slot', 'label');
     const style = getComputedStyle(label);
-    const spatial = parseFloat(style.getPropertyValue('--ds-duration-spatial')) / 1000;
-    expect(spatial).toBeGreaterThan(0);
     expect(style.transitionProperty.split(', ')[0]).toBe('grid-template-columns');
-    expect(style.transitionDuration.split(', ')[0]).toBe(`${spatial}s`);
+    expect(style.transitionDuration.split(', ')[0]).toBe('0.25s');
+    expect(style.transitionTimingFunction).toContain('cubic-bezier(0.32, 0.72, 0, 1)');
     await screen.unmount();
 
-    const reduced = await renderWithDS(<ExtendedFab icon={<EditIcon />}>Compose</ExtendedFab>, {
+    const reduced = await renderWithDS(<ExtendedFab icon={<EditIcon />}>Write</ExtendedFab>, {
       provider: { motion: 'reduced' },
     });
-    const still = reduced.getByRole('button', { name: 'Compose' }).element().children[1];
+    const still = reduced.getByRole('button', { name: 'Write' }).element().children[1];
     expect(getComputedStyle(still).transitionProperty).toBe('none');
   });
 
@@ -225,6 +305,11 @@ describe('FabMenu', () => {
     await expect.element(trigger).toHaveAttribute('aria-expanded', 'true');
     await expect.element(trigger).toHaveAttribute('data-open', 'true');
     expect(page.getByRole('menuitem').elements()).toHaveLength(3);
+    const item = page.getByRole('menuitem', { name: 'Project' }).element();
+    expect(getComputedStyle(item).backgroundColor).toBe(
+      roleStyle('bg-surface-overlay').backgroundColor,
+    );
+    expect(getComputedStyle(item).borderTopLeftRadius).toBe('9999px');
 
     await page.getByRole('menuitem', { name: 'Session' }).click();
     expect(onAction.mock.calls[0][0]).toBe('session');
@@ -340,13 +425,13 @@ describe('FabMenu', () => {
           id="import"
           onAction={() => new Promise<void>((resolve) => (finish = resolve))}
         >
-          Import statement
+          Import photos
         </FabMenuItem>
       </FabMenu>,
     );
     const trigger = screen.getByRole('button', { name: 'Create' });
     await trigger.click();
-    await page.getByRole('menuitem', { name: 'Import statement' }).click();
+    await page.getByRole('menuitem', { name: 'Import photos' }).click();
     await expect.element(trigger).toHaveAttribute('data-pending', 'true');
     finish();
     await expect.element(trigger).not.toHaveAttribute('data-pending');
@@ -364,13 +449,13 @@ describe('FabMenu', () => {
           id="import"
           onAction={() => new Promise<void>((resolve) => (finishItem = resolve))}
         >
-          Import statement
+          Import photos
         </FabMenuItem>
       </FabMenu>,
     );
     const trigger = screen.getByRole('button', { name: 'Create' });
     await trigger.click();
-    await page.getByRole('menuitem', { name: 'Import statement' }).click();
+    await page.getByRole('menuitem', { name: 'Import photos' }).click();
     await expect.element(trigger).toHaveAttribute('data-pending', 'true');
 
     finishItem();
@@ -478,22 +563,26 @@ describe('FabMenu', () => {
 
 describe('FAB accessibility', () => {
   it('has no accessibility violations in light, dark and RTL', async () => {
-    const colors = ['primary', 'secondary', 'tertiary', 'surface'] as const;
+    const tones = ['primary', 'neutral'] as const;
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       const screen = await renderWithDS(
-        <div className="flex flex-col gap-4 p-4">
+        <div className="flex flex-col gap-4 bg-canvas p-4">
           <div className="flex gap-4">
-            {colors.map((color) => (
-              <Fab key={color} color={color} aria-label={`New ${color}`} icon={<AddIcon />} />
+            {tones.map((tone) => (
+              <Fab key={tone} tone={tone} aria-label={`New ${tone}`} icon={<AddIcon />} />
             ))}
+            <Fab size="lg" aria-label="Large" icon={<AddIcon />} />
             <Fab aria-label="Disabled" icon={<AddIcon />} isDisabled />
           </div>
           <div className="flex flex-wrap gap-4">
-            {colors.map((color) => (
-              <ExtendedFab key={color} color={color} icon={<EditIcon />}>
-                Compose {color}
+            {tones.map((tone) => (
+              <ExtendedFab key={tone} tone={tone} icon={<EditIcon />}>
+                Write {tone}
               </ExtendedFab>
             ))}
+            <ExtendedFab size="lg" icon={<EditIcon />}>
+              Write large
+            </ExtendedFab>
             <ExtendedFab icon={<EditIcon />} isDisabled>
               Disabled
             </ExtendedFab>
@@ -506,14 +595,14 @@ describe('FAB accessibility', () => {
     }
   });
 
-  it('has no accessibility violations with the menu open in every colour', async () => {
-    const colors = ['primary', 'secondary', 'tertiary', 'surface'] as const;
+  it('has no accessibility violations with the menu open in both tones', async () => {
+    const tones = ['primary', 'neutral'] as const;
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       document.documentElement.classList.toggle('dark', 'dark' in options);
-      for (const color of colors) {
+      for (const tone of tones) {
         const screen = await renderWithDS(
           <div className="flex min-h-96 items-end justify-end p-4">
-            <ProjectMenu color={color} defaultOpen />
+            <ProjectMenu tone={tone} defaultOpen />
           </div>,
           options,
         );

@@ -5,7 +5,7 @@ import { OrDivider } from '@/registry/ds/ui/divider';
 export default function DividerLabel() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <Button variant="outlined" startIcon={<LockIcon />} fullWidth>
+      <Button variant="outline" startIcon={<LockIcon />} fullWidth>
         Sign in with a passkey
       </Button>
       <OrDivider />

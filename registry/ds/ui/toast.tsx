@@ -30,7 +30,7 @@ import { Button } from '@/registry/ds/ui/button';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
 import { Spinner } from '@/registry/ds/ui/spinner';
 
-export type ToastTone = 'default' | 'info' | 'success' | 'warning' | 'error';
+export type ToastTone = 'neutral' | 'info' | 'success' | 'warning' | 'error';
 
 export type ToastPlacement =
   'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
@@ -85,7 +85,7 @@ export interface ToastPromiseOptions<Value> extends Omit<ToastOptions, 'tone' | 
   error: ToastPromiseResult<unknown>;
 }
 
-interface ToastRecord extends ToastContentOptions {
+interface ToastRecord extends Omit<ToastContentOptions, 'tone'> {
   id: string;
   toasterId: string;
   message: ReactNode;
@@ -115,9 +115,9 @@ interface Countdown {
 }
 
 const defaultToasterId = 'default';
-const exitDuration = 200;
+const exitDuration = 250;
 const stackGap = 12;
-const stackPeek = 10;
+const stackPeek = 12;
 const stackScaleStep = 0.05;
 const noEntries: readonly ToastEntry[] = [];
 
@@ -239,7 +239,7 @@ function showToast(message: ReactNode, options: ToastOptions & { isLoading?: boo
   const {
     id: requestedId,
     toasterId = defaultToasterId,
-    tone = 'default',
+    tone = 'neutral',
     isLoading = false,
     ...content
   } = options;
@@ -270,7 +270,11 @@ function showToast(message: ReactNode, options: ToastOptions & { isLoading?: boo
 function updateToast(id: string, update: ToastUpdate) {
   const record = records.get(id);
   if (!record || record.exitReason) return false;
-  records.set(id, { ...record, ...withoutUndefined(update), revision: record.revision + 1 });
+  records.set(id, {
+    ...record,
+    ...withoutUndefined(update),
+    revision: record.revision + 1,
+  });
   publish(toasterStore(record.toasterId));
   return true;
 }
@@ -345,93 +349,79 @@ export const toast = Object.assign(createToast, {
   },
 });
 
+const toneIconColours: Record<ToastTone, string> = {
+  neutral: 'text-on-surface-variant',
+  info: 'text-info',
+  success: 'text-success',
+  warning: 'text-warning',
+  error: 'text-error',
+};
+
 export const toastStyles = tv({
   slots: {
     region: [
-      'fixed z-100 rounded-md focus-ring',
-      'max-sm:inset-x-4 sm:w-[min(24rem,calc(100vw-3rem))]',
+      'fixed z-100 rounded-container focus-ring',
+      'max-sm:inset-x-4 sm:w-[min(25rem,calc(100vw-2rem))]',
     ],
     list: 'relative m-0 list-none p-0',
     toast: [
-      'group/toast absolute inset-x-0 overflow-hidden rounded-md shadow-elevation-3 focus-ring forced-colors:border',
+      'group/toast absolute inset-x-0 overflow-hidden rounded-container bg-surface-overlay text-on-surface shadow-md focus-ring forced-colors:border',
       'h-(--ds-toast-height) [scale:var(--ds-toast-scale)] [translate:0_var(--ds-toast-y)]',
       'data-[exiting]:pointer-events-none data-[exiting]:opacity-0',
     ],
     body: [
-      'flex items-start gap-3 py-2 ps-4',
-      'transition-opacity duration-250 ease-standard group-data-[stacked]/toast:opacity-0',
+      'flex items-start gap-3 px-4 py-3',
+      'transition-opacity duration-250 ease-out group-data-[stacked]/toast:opacity-0',
     ],
-    icon: 'mt-1.5 inline-flex shrink-0 items-center justify-center text-[1.25rem] [&_svg]:size-[1em]',
-    main: 'flex min-w-0 flex-1 items-start gap-x-2',
-    content: 'min-w-0 py-1.5 [overflow-wrap:anywhere]',
-    title: 'text-title-sm',
-    message: 'text-body-md',
-    description: 'mt-0.5 text-body-sm',
+    icon: 'mt-0.5 inline-flex size-4 shrink-0 items-center justify-center [&_svg]:size-4',
+    main: 'flex min-w-0 flex-1 gap-x-3 gap-y-2',
+    content: 'flex min-w-0 flex-col gap-0.5 [overflow-wrap:anywhere]',
+    title: 'text-sm font-medium',
+    message: 'text-sm',
+    description: 'text-sm text-on-surface-variant',
     action: 'shrink-0',
     close: [
-      'state-layer focus-ring inline-flex size-8 shrink-0 cursor-default items-center justify-center rounded-full',
-      'transition-colors duration-150 ease-standard [&_svg]:size-5',
+      'focus-ring transition-control no-tap-highlight relative -my-1 -me-1.5 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-on-surface-variant',
+      'data-[hovered]:bg-neutral-soft data-[pressed]:bg-neutral-soft-hover [&_svg]:size-4',
       'pointer-coarse:after:absolute pointer-coarse:after:-inset-2',
     ],
   },
   variants: {
     placement: {
-      'top-start': { region: 'sm:inset-s-6' },
+      'top-start': { region: 'sm:inset-s-4' },
       'top-center': { region: 'sm:inset-x-0 sm:mx-auto' },
-      'top-end': { region: 'sm:inset-e-6' },
-      'bottom-start': { region: 'sm:inset-s-6' },
+      'top-end': { region: 'sm:inset-e-4' },
+      'bottom-start': { region: 'sm:inset-s-4' },
       'bottom-center': { region: 'sm:inset-x-0 sm:mx-auto' },
-      'bottom-end': { region: 'sm:inset-e-6' },
+      'bottom-end': { region: 'sm:inset-e-4' },
     },
     side: {
       top: {
-        region:
-          'top-[calc(1rem+env(safe-area-inset-top))] sm:top-[calc(1.5rem+env(safe-area-inset-top))]',
+        region: 'top-[calc(1rem+env(safe-area-inset-top))]',
         toast: 'top-0 origin-bottom',
       },
       bottom: {
-        region:
-          'bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]',
+        region: 'bottom-[calc(1rem+env(safe-area-inset-bottom))]',
         toast: 'bottom-0 origin-top',
       },
     },
     tone: {
-      default: {
-        toast: 'bg-inverse-surface text-inverse-on-surface',
-        action: 'text-inverse-primary data-[focus-visible]:outline-inverse-primary',
-        close: 'data-[focus-visible]:outline-inverse-primary',
-      },
-      info: {
-        toast: 'bg-info-container text-on-info-container',
-        action: 'text-on-info-container data-[focus-visible]:outline-on-info-container',
-        close: 'data-[focus-visible]:outline-on-info-container',
-      },
-      success: {
-        toast: 'bg-success-container text-on-success-container',
-        action: 'text-on-success-container data-[focus-visible]:outline-on-success-container',
-        close: 'data-[focus-visible]:outline-on-success-container',
-      },
-      warning: {
-        toast: 'bg-warning-container text-on-warning-container',
-        action: 'text-on-warning-container data-[focus-visible]:outline-on-warning-container',
-        close: 'data-[focus-visible]:outline-on-warning-container',
-      },
-      error: {
-        toast: 'bg-error-container text-on-error-container',
-        action: 'text-on-error-container data-[focus-visible]:outline-on-error-container',
-        close: 'data-[focus-visible]:outline-on-error-container',
-      },
+      neutral: { icon: toneIconColours.neutral },
+      info: { icon: toneIconColours.info },
+      success: { icon: toneIconColours.success },
+      warning: { icon: toneIconColours.warning },
+      error: { icon: toneIconColours.error },
     },
     motion: {
       spatial: {
         toast: [
-          'transition-[translate,scale,opacity,height] duration-(--ds-duration-spatial) ease-spatial starting:opacity-0',
-          'data-[exiting]:duration-150 data-[exiting]:ease-emphasized-accelerate',
+          'transition-[translate,scale,opacity,height] duration-350 ease-fluid starting:opacity-0',
+          'data-[exiting]:duration-250',
           'motion-reduce:transition-opacity motion-reduce:duration-150',
         ],
       },
       fade: {
-        toast: 'transition-opacity duration-150 ease-standard starting:opacity-0',
+        toast: 'transition-opacity duration-150 ease-out starting:opacity-0',
       },
       none: {
         toast: 'transition-none',
@@ -439,12 +429,19 @@ export const toastStyles = tv({
       },
     },
     actionPlacement: {
-      inline: { main: 'flex-wrap justify-end', content: 'flex-[1_1_10rem]' },
-      below: { main: 'flex-col items-end', content: 'w-full' },
+      inline: { main: 'flex-wrap items-center justify-end', content: 'flex-[1_1_10rem]' },
+      below: { main: 'flex-col items-start', content: 'w-full' },
     },
-    hasTrailing: {
-      true: { body: 'pe-2' },
-      false: { body: 'pe-4' },
+    hasTitle: {
+      true: { message: 'text-on-surface-variant' },
+      false: { message: 'font-medium' },
+    },
+    isCloseRevealed: {
+      true: {},
+      false: {
+        close:
+          'pointer-fine:not-data-[focus-visible]:opacity-0 pointer-fine:group-hover/toast:opacity-100 pointer-fine:group-focus-within/toast:opacity-100',
+      },
     },
   },
   compoundVariants: [
@@ -462,10 +459,11 @@ export const toastStyles = tv({
   defaultVariants: {
     placement: 'bottom-end',
     side: 'bottom',
-    tone: 'default',
+    tone: 'neutral',
     motion: 'spatial',
     actionPlacement: 'inline',
-    hasTrailing: true,
+    hasTitle: false,
+    isCloseRevealed: true,
   },
 });
 
@@ -793,7 +791,8 @@ function ToastItem({
   const isExiting = record.exitReason !== undefined;
   const duration = effectiveDuration(record, defaultDuration);
   const isCountdownPaused = isPaused || isActing || isExiting;
-  const hasCloseButton = showCloseButton || !Number.isFinite(duration);
+  const isPersistent = !Number.isFinite(duration);
+  const hasCloseButton = showCloseButton || isPersistent;
   const hasTitle = title != null;
   const hasDescription = description != null;
   const hasSupportingText = hasTitle || hasDescription;
@@ -807,7 +806,8 @@ function ToastItem({
     side,
     motion,
     actionPlacement: hasSupportingText ? 'below' : 'inline',
-    hasTrailing: hasCloseButton || Boolean(action),
+    hasTitle,
+    isCloseRevealed: isPersistent,
   });
 
   useEffect(() => markShown(id), [id]);
@@ -865,7 +865,7 @@ function ToastItem({
   }
 
   const toneIcons = {
-    default: null,
+    neutral: null,
     info: icons.info,
     success: icons.checkCircle,
     warning: icons.warning,
@@ -927,7 +927,13 @@ function ToastItem({
             ) : null}
           </AriaToastContent>
           {action ? (
-            <Button variant="text" size="sm" className={styles.action()} onPress={handleAction}>
+            <Button
+              variant="soft"
+              tone="neutral"
+              size="sm"
+              className={styles.action()}
+              onPress={handleAction}
+            >
               {action.label}
             </Button>
           ) : null}

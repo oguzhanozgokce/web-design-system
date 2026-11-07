@@ -14,12 +14,12 @@ export default function CopyButtonTable() {
 
   return (
     <div className="flex w-full max-w-lg flex-col gap-2">
-      <ul className="divide-y divide-outline-variant rounded-md border border-outline-variant">
+      <ul className="divide-y divide-outline-subtle rounded-container border border-outline-subtle bg-surface-raised">
         {folders.map((folder) => (
           <li key={folder.name} className="flex items-center gap-3 py-2 ps-4 pe-2">
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-body-md text-on-surface">{folder.name}</span>
-              <span className="truncate font-mono text-body-sm text-on-surface-variant">
+              <span className="truncate text-sm font-medium text-on-surface">{folder.name}</span>
+              <span className="truncate font-mono text-xs text-on-surface-variant">
                 {folder.link}
               </span>
             </div>
@@ -31,7 +31,7 @@ export default function CopyButtonTable() {
           </li>
         ))}
       </ul>
-      <p className="text-body-sm text-on-surface-variant">
+      <p className="text-xs text-on-surface-variant">
         {lastCopied ? `Last copied: ${lastCopied}` : 'Nothing copied yet'}
       </p>
     </div>

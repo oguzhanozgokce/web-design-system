@@ -14,12 +14,12 @@ const topics = [
 
 export default function TabsScrollable() {
   return (
-    <Tabs variant="secondary" className="w-full max-w-sm">
+    <Tabs className="w-full max-w-sm">
       <TabList aria-label="Topics" items={topics}>
         {(topic) => <Tab id={topic.id}>{topic.label}</Tab>}
       </TabList>
       {topics.map((topic) => (
-        <TabPanel key={topic.id} id={topic.id} className="text-body-md text-on-surface-variant">
+        <TabPanel key={topic.id} id={topic.id} className="text-sm text-on-surface-variant">
           New articles in {topic.label}.
         </TabPanel>
       ))}

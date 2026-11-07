@@ -26,11 +26,13 @@ export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export type AvatarShape = 'circle' | 'rounded';
 
-export type AvatarTone = 'primary' | 'secondary' | 'tertiary' | 'neutral';
+export type AvatarTone = 'neutral' | 'primary' | 'success' | 'warning' | 'error' | 'info';
 
 export type AvatarStatus = 'online' | 'away' | 'busy' | 'offline';
 
 export type AvatarImageState = 'loading' | 'loaded' | 'error';
+
+export type AvatarGroupSeam = 'ring' | 'clip';
 
 export const avatarStyles = tv({
   slots: {
@@ -41,7 +43,7 @@ export const avatarStyles = tv({
     initials: 'leading-none whitespace-nowrap',
     icon: 'inline-flex shrink-0 text-(length:--icon-size) [&_svg]:size-[1em]',
     status: [
-      'absolute overflow-hidden rounded-full ring-[color:var(--ds-avatar-ring,var(--surface))]',
+      'absolute overflow-hidden rounded-full ring-[color:var(--ds-avatar-ring,var(--canvas))]',
       'after:absolute after:rounded-full',
     ],
   },
@@ -49,32 +51,32 @@ export const avatarStyles = tv({
     size: {
       xs: {
         root: 'size-6',
-        visual: 'text-label-sm',
-        icon: '[--icon-size:1rem]',
+        visual: 'text-xs',
+        icon: '[--icon-size:0.875rem]',
         status: 'size-2 ring-[1.5px]',
       },
       sm: {
         root: 'size-8',
-        visual: 'text-title-sm',
-        icon: '[--icon-size:1.25rem]',
+        visual: 'text-xs',
+        icon: '[--icon-size:1.125rem]',
         status: 'size-2.5 ring-2',
       },
       md: {
         root: 'size-10',
-        visual: 'text-title-md',
-        icon: '[--icon-size:1.5rem]',
+        visual: 'text-sm',
+        icon: '[--icon-size:1.25rem]',
         status: 'size-3 ring-2',
       },
       lg: {
-        root: 'size-14',
-        visual: 'text-title-lg',
-        icon: '[--icon-size:2rem]',
+        root: 'size-12',
+        visual: 'text-base',
+        icon: '[--icon-size:1.5rem]',
         status: 'size-3.5 ring-2',
       },
       xl: {
-        root: 'size-18',
-        visual: 'text-headline-md',
-        icon: '[--icon-size:2.5rem]',
+        root: 'size-16',
+        visual: 'text-xl',
+        icon: '[--icon-size:2rem]',
         status: 'size-4 ring-[3px]',
       },
     },
@@ -84,37 +86,46 @@ export const avatarStyles = tv({
         status: 'inset-s-[85.4%] top-[85.4%] -translate-1/2 rtl:translate-x-1/2',
       },
       rounded: {
-        visual: 'rounded-md',
+        visual: 'rounded-xl',
         status: '-inset-e-0.5 -bottom-0.5',
       },
     },
     tone: {
-      primary: { visual: 'bg-primary-container text-on-primary-container' },
-      secondary: { visual: 'bg-secondary-container text-on-secondary-container' },
-      tertiary: { visual: 'bg-tertiary-container text-on-tertiary-container' },
-      neutral: { visual: 'bg-surface-container-highest text-on-surface-variant' },
+      neutral: { visual: 'bg-neutral-soft text-on-surface' },
+      primary: { visual: 'bg-primary-soft text-on-primary-soft' },
+      success: { visual: 'bg-success-soft text-on-success-soft' },
+      warning: { visual: 'bg-warning-soft text-on-warning-soft' },
+      error: { visual: 'bg-error-soft text-on-error-soft' },
+      info: { visual: 'bg-info-soft text-on-info-soft' },
     },
     status: {
-      online: { status: 'bg-success' },
+      online: { status: 'bg-success-solid' },
       away: {
         status:
-          'bg-warning after:-inset-s-[12%] after:-top-[12%] after:size-[66%] after:bg-[color:var(--ds-avatar-ring,var(--surface))]',
+          'bg-warning-solid after:-inset-s-[12%] after:-top-[12%] after:size-[66%] after:bg-[color:var(--ds-avatar-ring,var(--canvas))]',
       },
       busy: {
         status:
-          'bg-error after:inset-x-[22%] after:top-1/2 after:h-[24%] after:-translate-y-1/2 after:bg-on-error',
+          'bg-error-solid after:inset-x-[22%] after:top-1/2 after:h-[24%] after:-translate-y-1/2 after:bg-on-error-solid',
       },
       offline: {
-        status: 'border-2 border-outline bg-[color:var(--ds-avatar-ring,var(--surface))]',
+        status: 'border-2 border-outline bg-[color:var(--ds-avatar-ring,var(--canvas))]',
       },
     },
     animated: {
       true: {
-        image: 'transition-opacity duration-150 ease-standard motion-reduce:transition-none',
+        image: 'transition-opacity duration-250 ease-out motion-reduce:transition-none',
       },
       false: {},
     },
   },
+  compoundVariants: [
+    {
+      shape: 'rounded',
+      size: ['xs', 'sm'],
+      class: { visual: 'rounded-lg' },
+    },
+  ],
   defaultVariants: {
     size: 'md',
     shape: 'circle',
@@ -126,47 +137,80 @@ export const avatarStyles = tv({
 export const avatarGroupStyles = tv({
   slots: {
     root: 'isolate inline-flex items-center',
-    item: 'relative inline-flex shrink-0 ring-2 ring-[color:var(--ds-avatar-ring,var(--surface))] focus-within:z-10',
+    item: 'relative inline-flex shrink-0 not-first:-ms-(--avatar-overlap) focus-within:z-10',
     overflow: '',
   },
   variants: {
     size: {
-      xs: { item: 'not-first:-ms-2', overflow: 'text-label-sm' },
-      sm: { item: 'not-first:-ms-2.5', overflow: 'text-label-md' },
-      md: { item: 'not-first:-ms-3', overflow: 'text-label-lg' },
-      lg: { item: 'not-first:-ms-4.5', overflow: 'text-title-md' },
-      xl: { item: 'not-first:-ms-6', overflow: 'text-title-lg' },
+      xs: {
+        root: '[--avatar-overlap:0.375rem] [--avatar-size:1.5rem]',
+        overflow: 'text-[0.625rem]',
+      },
+      sm: { root: '[--avatar-overlap:0.5rem] [--avatar-size:2rem]', overflow: 'text-xs' },
+      md: { root: '[--avatar-overlap:0.625rem] [--avatar-size:2.5rem]', overflow: 'text-xs' },
+      lg: { root: '[--avatar-overlap:0.75rem] [--avatar-size:3rem]', overflow: 'text-sm' },
+      xl: { root: '[--avatar-overlap:1rem] [--avatar-size:4rem]', overflow: 'text-base' },
     },
     shape: {
-      circle: { item: 'rounded-full' },
-      rounded: { item: 'rounded-md' },
+      circle: {
+        item: [
+          '[--avatar-cut-x:calc(var(--avatar-size)*1.5_-_var(--avatar-overlap))]',
+          'rtl:[--avatar-cut-x:calc(var(--avatar-overlap)_-_var(--avatar-size)/2)]',
+          '[--avatar-cut:radial-gradient(circle_at_var(--avatar-cut-x)_50%,transparent_calc(var(--avatar-size)/2_+_var(--avatar-seam)),var(--color-on-surface)_calc(var(--avatar-size)/2_+_var(--avatar-seam)_+_0.5px))]',
+          'rounded-full',
+        ],
+      },
+      rounded: {
+        item: [
+          '[--avatar-cut-to:left] rtl:[--avatar-cut-to:right]',
+          '[--avatar-cut:linear-gradient(to_var(--avatar-cut-to),transparent_calc(var(--avatar-overlap)_+_var(--avatar-seam)),var(--color-on-surface)_calc(var(--avatar-overlap)_+_var(--avatar-seam)))]',
+          'rounded-xl',
+        ],
+      },
+    },
+    seam: {
+      ring: {
+        item: 'bg-[color:var(--ds-avatar-ring,var(--canvas))] ring-2 ring-[color:var(--ds-avatar-ring,var(--canvas))]',
+      },
+      clip: {
+        root: '[--avatar-seam:2px]',
+        item: 'not-last:not-focus-within:[mask-image:var(--avatar-cut)]',
+      },
     },
     animated: {
       true: {
-        item: 'transition-[scale,opacity] duration-(--ds-duration-spatial) ease-spatial starting:scale-60 starting:opacity-0 motion-reduce:transition-none',
+        item: 'transition-[scale,opacity] duration-300 ease-fluid starting:scale-75 starting:opacity-0 motion-reduce:transition-none',
       },
       false: {},
     },
   },
+  compoundVariants: [
+    {
+      shape: 'rounded',
+      size: ['xs', 'sm'],
+      class: { item: 'rounded-lg' },
+    },
+  ],
   defaultVariants: {
     size: 'sm',
     shape: 'circle',
+    seam: 'ring',
     animated: false,
   },
 });
 
 export const avatarButtonStyles = tv({
   base: [
-    'focus-ring relative inline-flex shrink-0 cursor-default no-underline select-none',
-    'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:bg-on-surface after:opacity-0 after:transition-opacity after:duration-150 after:ease-standard',
-    'data-[hovered]:after:opacity-8 data-[focus-visible]:after:opacity-10 data-[pressed]:after:opacity-10',
-    'data-[disabled]:opacity-38',
+    'focus-ring no-tap-highlight relative inline-flex shrink-0 cursor-pointer no-underline select-none',
+    'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:bg-transparent after:transition-[background-color] after:duration-100 after:ease-out',
+    'data-[hovered]:after:bg-neutral-soft data-[pressed]:after:bg-neutral-soft-hover',
+    'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
     'pointer-coarse:before:absolute',
   ],
   variants: {
     shape: {
       circle: 'rounded-full',
-      rounded: 'rounded-md',
+      rounded: 'rounded-xl',
     },
     size: {
       xs: 'pointer-coarse:before:-inset-3',
@@ -176,27 +220,23 @@ export const avatarButtonStyles = tv({
       xl: '',
     },
     animated: {
-      true: 'transition-[scale] duration-150 ease-standard data-[pressed]:scale-[0.96] motion-reduce:transition-none motion-reduce:data-[pressed]:scale-100',
+      true: 'transition-[scale] duration-250 ease-out data-[pressed]:scale-[0.96] motion-reduce:transition-none motion-reduce:data-[pressed]:scale-100',
       false: '',
     },
   },
+  compoundVariants: [
+    {
+      shape: 'rounded',
+      size: ['xs', 'sm'],
+      class: 'rounded-lg',
+    },
+  ],
   defaultVariants: {
     shape: 'circle',
     size: 'md',
     animated: true,
   },
 });
-
-const toneCycle = ['primary', 'secondary', 'tertiary'] as const;
-
-export function getAvatarTone(key: string): (typeof toneCycle)[number] {
-  const normalized = key.trim().toLowerCase();
-  let hash = 0;
-  for (let index = 0; index < normalized.length; index++) {
-    hash = (Math.imul(hash, 31) + normalized.charCodeAt(index)) & 0x7fffffff;
-  }
-  return toneCycle[hash % toneCycle.length];
-}
 
 let graphemes: Intl.Segmenter | null | undefined;
 
@@ -299,7 +339,7 @@ export function Avatar({
   fallbackIcon,
   size: sizeProp,
   shape: shapeProp,
-  tone: toneProp,
+  tone = 'neutral',
   status,
   labels,
   className,
@@ -317,7 +357,6 @@ export function Avatar({
   const size = sizeProp ?? group?.size ?? 'md';
   const shape = shapeProp ?? group?.shape ?? 'circle';
   const trimmedName = name?.trim() ?? '';
-  const tone = toneProp ?? (trimmedName ? getAvatarTone(trimmedName) : 'neutral');
   const initials = useMemo(
     () => (trimmedName ? getAvatarInitials(trimmedName, locale) : ''),
     [trimmedName, locale],
@@ -473,6 +512,7 @@ export interface AvatarGroupProps extends Omit<ComponentProps<'span'>, 'children
   total?: number;
   size?: AvatarSize;
   shape?: AvatarShape;
+  seam?: AvatarGroupSeam;
   labels?: Partial<AvatarLabels>;
 }
 
@@ -486,6 +526,7 @@ export function AvatarGroup({
   total,
   size = 'sm',
   shape = 'circle',
+  seam = 'ring',
   labels,
   className,
   ...props
@@ -497,7 +538,7 @@ export function AvatarGroup({
   const items = Children.toArray(children).filter(isValidElement);
   const visible = items.slice(0, Math.max(1, Math.floor(max)));
   const hidden = Math.max(0, (total ?? items.length) - visible.length);
-  const styles = avatarGroupStyles({ size, shape, animated: spatialEnabled });
+  const styles = avatarGroupStyles({ size, shape, seam, animated: spatialEnabled });
   const overflowStyles = avatarStyles({ size, shape, tone: 'neutral' });
 
   const stagger = (index: number) =>
@@ -510,6 +551,7 @@ export function AvatarGroup({
       data-slot="avatar-group"
       data-size={size}
       data-shape={shape}
+      data-seam={seam}
       className={styles.root({ className })}
     >
       <AvatarGroupContext value={context}>

@@ -2,7 +2,7 @@
   "name": "list-box",
   "type": "registry:ui",
   "title": "List box",
-  "description": "Selectable list on React Aria ListBox, with sections, start icons or avatars, descriptions, a check mark for selected rows, two densities, an empty state and load-more.",
+  "description": "Selectable list with sections, icons or avatars, descriptions, a check mark for selected rows, two densities and load-more.",
   "category": "inputs",
   "files": ["ui/list-box.tsx"]
 }
