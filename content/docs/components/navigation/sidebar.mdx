@@ -1,0 +1,132 @@
+---
+title: Sidebar
+description: Responsive navigation with an icon rail, grouped links and a mobile sheet.
+---
+
+<ComponentPreview name="sidebar-demo" align="stretch" className="p-3 sm:p-4" />
+
+## Installation
+
+<InstallCommand name="sidebar" />
+
+## Usage
+
+```tsx
+import { HomeIcon } from '@/lib/ds/icons';
+import {
+  Sidebar, SidebarContent, SidebarGroup, SidebarLink,
+  SidebarProvider, SidebarTrigger,
+} from '@/components/ds/sidebar';
+
+<SidebarProvider className="h-dvh">
+  <Sidebar aria-label="Workspace">
+    <SidebarContent>
+      <SidebarGroup label="Workspace">
+        <SidebarLink href="/overview" icon={<HomeIcon />} isCurrent>
+          Overview
+        </SidebarLink>
+      </SidebarGroup>
+    </SidebarContent>
+  </Sidebar>
+  <main className="min-w-0 flex-1">
+    <SidebarTrigger />
+    {children}
+  </main>
+</SidebarProvider>;
+```
+
+Give the provider a bounded height to scroll the links while the header and footer stay in place.
+Set `isCurrent` from your router; links use `DSProvider navigate` when provided.
+
+## Examples
+
+### Floating rail
+
+`variant="floating"` adds a raised surface. `side="end"` moves it to the logical end,
+including in RTL. Hover or focus a collapsed link to see its label.
+
+<ComponentPreview name="sidebar-floating" align="stretch" className="p-3 sm:p-4" />
+
+### Mobile navigation
+
+Below 48rem, the trigger opens a modal Sheet. Labels stay visible, focus remains inside,
+and selecting a link closes it. Resize this page to try it.
+Use `closeOnNavigate={false}` for links that should leave the sheet open.
+
+### Controlled state
+
+Desktop collapse and mobile opening are separate. Store the desktop preference in your own
+settings or local storage; the component does not write cookies or register global shortcuts.
+
+```tsx
+<SidebarProvider
+  isCollapsed={isCollapsed}
+  onCollapsedChange={setCollapsed}
+  isOpen={isMobileOpen}
+  onOpenChange={setMobileOpen}
+>
+  {children}
+</SidebarProvider>
+```
+
+## API
+
+### SidebarProvider
+
+| Prop                               | Type                             | Default          |
+| ---------------------------------- | -------------------------------- | ---------------- |
+| `isCollapsed` / `defaultCollapsed` | `boolean`                        | `false`          |
+| `onCollapsedChange`                | `(isCollapsed: boolean) => void` | —                |
+| `isOpen` / `defaultOpen`           | `boolean`; mobile sheet          | `false`          |
+| `onOpenChange`                     | `(isOpen: boolean) => void`      | —                |
+| `labels`                           | `Partial<SidebarLabels>`         | English defaults |
+
+Also accepts `div` props. `useSidebar()` exposes these states, `setCollapsed`, `setOpen`,
+`isMobile`, the generated `id` and resolved `labels`.
+
+### Sidebar and parts
+
+| Part                              | Purpose / props                                                                                           |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `Sidebar`                         | Navigation landmark; `variant="standard" \| "floating"`, `side="start" \| "end"`, `nav` props except `id` |
+| `SidebarHeader` / `SidebarFooter` | Persistent content; `div` props                                                                           |
+| `SidebarContent`                  | Scrollable region; `div` props                                                                            |
+| `SidebarGroup`                    | Group of links; optional `label`, `div` props                                                             |
+| `SidebarTrigger`                  | Opens mobile navigation or toggles desktop labels; IconButton styling and optional `aria-label`           |
+
+Use one `Sidebar` per provider. The default width is 256px, collapsing to 72px.
+Custom header/footer text can use `group-data-[collapsed]/sidebar:sr-only` to keep its accessible name.
+
+### SidebarLink
+
+| Prop              | Type                                          | Default  |
+| ----------------- | --------------------------------------------- | -------- |
+| `children`        | `string`; visible label and rail tooltip      | required |
+| `icon`            | `ReactNode`                                   | required |
+| `isCurrent`       | `boolean`; maps to `aria-current="page"`      | `false`  |
+| `badge`           | `ReactNode`; non-interactive trailing content | —        |
+| `closeOnNavigate` | `boolean`                                     | `true`   |
+
+Accepts React Aria Link props, including `href`, `routerOptions`, `isDisabled` and render-prop `className`.
+
+### Labels and styling
+
+The `sidebar` provider namespace and `SidebarProvider labels` use the same keys:
+
+| Key                   | Default                            |
+| --------------------- | ---------------------------------- |
+| `navigation`          | Main navigation                    |
+| `expand` / `collapse` | Expand sidebar / Collapse sidebar  |
+| `open` / `close`      | Open navigation / Close navigation |
+
+`SidebarLabels`, `defaultSidebarLabels` and `sidebarStyles` are exported.
+Layout and link parts carry `data-slot="sidebar-*"`; the trigger keeps the `icon-button` slot
+and adds `data-sidebar-trigger`. The nav uses `data-slot="sidebar"`, `data-variant`,
+`data-side`, `data-collapsed` and `data-mobile`. Links expose `data-current` and React Aria interaction states.
+
+## Accessibility and motion
+
+Navigation uses ordinary links, not a menu or tree keyboard model. Tab follows the page order;
+`aria-current` identifies the active page. The rail retains accessible labels and keyboard tooltips.
+Mobile dismissal returns focus to the trigger. `DSProvider motion` and the OS reduced-motion setting
+remove width animation; the Sheet follows the shared overlay motion rules.

@@ -1,0 +1,8 @@
+{
+  "name": "sidebar",
+  "type": "registry:ui",
+  "title": "Sidebar",
+  "description": "Responsive navigation with an icon rail, grouped links and a mobile sheet.",
+  "category": "navigation",
+  "files": ["ui/sidebar.tsx"]
+}

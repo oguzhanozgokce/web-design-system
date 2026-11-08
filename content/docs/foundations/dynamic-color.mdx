@@ -1,11 +1,10 @@
 ---
 title: Dynamic colour
-description: Build the whole colour scheme at runtime from a brand colour, a user's choice or a photo, for one card or the whole page, in light, dark and every contrast level.
+description: Theme a section or a whole app from a brand colour or image.
 ---
 
-A seed colour can come from anywhere in the product: a tenant's brand colour in an admin panel, an
-accent the user picks in their settings, or the cover image of whatever is on screen. The engine is
-the one that generates the static tokens, so a dynamic scheme has every role the components use.
+Use `DynamicTheme` when the colour is chosen at runtime: a workspace brand, user preference or image.
+The same engine powers [static themes](/docs/foundations/theming).
 
 <ComponentPreview name="dynamic-theme-demo" align="start" />
 
@@ -13,96 +12,81 @@ the one that generates the static tokens, so a dynamic scheme has every role the
 
 <InstallCommand name="dynamic-theme" />
 
-For themes taken from images, and to remember a user's choice:
-
-<InstallCommand name="use-image-seed" />
-
-<InstallCommand name="use-local-storage-state" />
-
-## Usage
+## Theme a section
 
 ```tsx
 import { DynamicTheme } from '@/components/ds/dynamic-theme';
 
-<DynamicTheme seed={workspace.brandColor}>
+<DynamicTheme seed={workspace.brandColor} paletteStyle="vibrant">
   <WorkspaceDashboard />
 </DynamicTheme>;
 ```
 
-Everything inside reads its colours from the generated roles: `bg-primary`, `text-on-surface`, every
-component, and the popovers, menus, dialogs and sheets they open, even though those render at the
-end of the page. Nothing else on the page changes. Those overlays take the scope's pinned `mode`;
-an unpinned scope's overlays follow the page's mode.
+<FoundationFlow
+  caption="The nearest scope wins. Overlays keep their opening scope's colours, even across portals."
+  steps={[
+    { title: 'Supply a seed', description: 'A brand colour, user choice or image colour.' },
+    { title: 'Choose a scope', description: 'Wrap a section, or use scope="root" for the page.' },
+    {
+      title: 'Render normally',
+      description: 'Components read roles. Other sections keep their own theme.',
+    },
+  ]}
+/>
 
-## Examples
-
-### One theme per team
-
-Each scope gets its own scheme, so a list of teams or workspaces can show each in its own brand colour. Scopes nest,
-and the nearest one wins.
+### Workspace colours
 
 <ComponentPreview name="dynamic-theme-tenants" align="stretch" />
 
 ### From an image
 
-`useImageSeed` downsizes the image to 128 pixels, quantizes it and ranks the colours with Material's
-content-based scoring (`QuantizerCelebi` and `Score` from Material Color Utilities).
-It returns up to four candidates, best first, so the user can choose as they do on a phone. The same
-image always gives the same seeds. A file the user picks or drops is read in the browser and never
-uploaded.
+<InstallCommand name="use-image-seed" />
+
+The hook extracts up to four ranked colours. Local files are processed in the browser, never uploaded.
 
 <ComponentPreview name="dynamic-theme-image" align="start" />
 
-Images from another origin need CORS headers, or the canvas cannot read them and the hook reports
-`status: 'error'`. An image with no usable colour, such as a grey or transparent one, returns no
-seeds, or the `fallback` you pass. Pass a URL, a `File` or a new element when the picture changes:
-the hook compares sources by identity, so it does not notice an `<img>` whose `src` changed.
+Remote images need CORS headers. A grey or transparent image may return no seed; supply `fallback`
+when needed. Pass a new URL, file or image element when the source changes.
 
-### Palette styles
+## Common options
 
-The same seed in each style. `tonal-spot` is the default here. The static tokens of this site are generated as `vibrant`; pass
-`paletteStyle="vibrant"` to match them. `fidelity` keeps the container closest to the seed, which
-suits a brand colour that must appear as it is.
+| Option                    | Use                                                       |
+| ------------------------- | --------------------------------------------------------- |
+| `paletteStyle="vibrant"`  | Match this catalogue; the runtime default is `tonal-spot` |
+| `paletteStyle="fidelity"` | Keep the container close to the seed                      |
+| `mode="dark"`             | Pin a section's mode; omit to follow its nearest ancestor |
+| `contrast="auto"`         | Follow page/OS contrast; the default                      |
+| `scope="root"`            | Theme `<html>` without adding a wrapper                   |
+| `seed={null}`             | Remove the theme                                          |
+
+<details>
+<summary>Compare palette styles, modes and contrast</summary>
 
 <ComponentPreview name="dynamic-theme-styles" align="stretch" />
-
-### Pinning a mode
-
-A scope follows the nearest light or dark mode around it: `.dark`, `.light` or `data-theme` on any
-ancestor, or on the scope itself. `mode` pins it, and sets `data-theme` on the scope so the static
-tokens and nested scopes inside follow too. Use it for a promotional band that stays dark on a light
-page.
-
 <ComponentPreview name="dynamic-theme-mode" align="stretch" />
-
-### Contrast
-
-By default a scope follows the page: `data-contrast="medium"` or `"high"` on `<html>`, and the
-operating system's increased-contrast setting when the page sets none. The static tokens follow the
-same setting. Pin a level with `contrast` when a surface must not change.
-
 <ComponentPreview name="dynamic-theme-contrast" align="stretch" />
 
-## Whole-page themes
+Unpinned element scopes follow the nearest `.light`, `.dark` or `data-theme` ancestor.
+Unpinned portaled overlays follow the page mode; pass `mode` to keep a specific mode across portals.
 
-`scope="root"` puts the scheme on `<html>`, so the page background, the header, overlays and every
-mode island below follow it. It renders no element of its own.
+</details>
+
+## Whole-page themes
 
 ```tsx
 <DynamicTheme scope="root" seed={tenant.brandColor} paletteStyle="fidelity" />
 ```
 
-When the seed is known on the server, as a tenant's is, the scheme is part of the HTML and the first
-paint is already themed. Inside a hidden `<Activity>`, for example a route Next keeps alive in the
-background, the root theme switches off until it is visible again.
+A server-known seed themes the first paint. For a choice saved only in the browser, use the cache setup below.
 
-### Remembering a user's choice
+<details>
+<summary>Remember a user preference without a colour flash</summary>
 
-A colour the user picks lives in their browser, which the server never sees. Give the root theme a
-`storageKey` and render `DynamicThemeScript` in the document head: the script paints the last scheme
-from a cache before the page renders, and the theme refreshes the cache whenever the seed changes.
-The script must be part of the server-rendered or static HTML; React does not run a script it
-creates in the browser.
+<InstallCommand name="use-local-storage-state" />
+
+Give `DynamicTheme` a `storageKey` and put `DynamicThemeScript` in the server-rendered document head.
+The script restores the cached scheme before the first paint.
 
 ```tsx title="app/layout.tsx"
 import { DynamicThemeScript } from '@/components/ds/dynamic-theme-script';
@@ -131,32 +115,29 @@ export function AccentTheme() {
 }
 ```
 
-To reset, keep the component mounted and pass `seed={null}`: that removes the theme and clears the
-cache. Unmounting leaves the cache, so the next visit would paint a theme nobody owns. With a
-`storageKey`, the scheme is applied by the cache and then by the component after hydration, never by
-server HTML.
+Reset with `seed={null}` while the component stays mounted. Unmounting alone leaves the cache for the next visit.
+With caching enabled, the script applies the initial scheme and the component takes over after hydration.
+For a nonce-based CSP, pass the same `nonce` to both components.
 
-Under a nonce-based Content Security Policy, pass the same `nonce` to `DynamicThemeScript` and to
-`DynamicTheme`; the boot script copies its own nonce onto the style it creates.
+</details>
 
-### Animating the switch
+## Keep updates responsive
 
-`useThemeTransition` wraps a state update in a view transition, so the page cross-fades to the new
-colours instead of jumping. It falls back to an instant change where view transitions are missing or
-`DSProvider motion="disabled"`.
+Use `useThemeTransition()` for deliberate colour changes. It cross-fades when view transitions are available
+and falls back to an instant update when unsupported or motion is disabled.
 
 ```tsx
-import { useThemeTransition } from '@/components/ds/dynamic-theme';
-
 const transition = useThemeTransition();
-
 <Button onPress={() => transition(() => setAccent(next))}>Use this colour</Button>;
 ```
 
-A full scheme takes a few tens of milliseconds to build. For a colour input that fires on every drag
-step, update the seed in `startTransition` so dragging stays smooth, as the demo above does.
+For continuous colour dragging, keep the input value immediate and schedule theme updates with
+`startTransition`, as in the first demo. Avoid starting a page transition for every pointer movement.
 
-## API
+## Reference
+
+<details>
+<summary>Props, hooks and helper functions</summary>
 
 ### DynamicTheme
 
@@ -224,29 +205,18 @@ functions here call it `paletteStyle`, like the component, whose `style` prop is
 | `data-ds-scheme` | element scope and its overlay roots | the scheme's key; the generated CSS targets it |
 | `data-theme`     | element scope with `mode`           | the pinned mode                                |
 
-## How it works
+</details>
 
-A scope writes each role once per contrast level as `light-dark(light, dark)`. The style is added at
-runtime, so no build step rewrites it, and CSS resolves each role against the `color-scheme` of the
-element that uses it: the nearest `.light`, `.dark` or `data-theme` wins without any selector
-knowing about it. A root theme also names the mode islands below it, because the static tokens
-declare the roles again on every island and would otherwise cover it there.
+<details>
+<summary>Rendering and browser support</summary>
 
-The scheme's styles live in the document head, one per distinct scheme however many scopes use it,
-and leave when the last of those scopes unmounts. During server rendering a scope writes its style
-inline so the first paint is themed, and moves it to the head once React has hydrated.
+Identical schemes share one stylesheet. Server-rendered scopes include their styles in the HTML;
+the client moves them to the head and removes them when no scope needs them.
 
-A scope following the page's contrast writes about 14 KB of CSS; pinning `contrast` cuts it to 6 KB
-and pinning `mode` as well to 4.5 KB. Identical schemes are written once.
+Runtime roles use `light-dark()` to follow the nearest colour scheme. Older browsers receive a
+standard-contrast fallback. Pinning mode or contrast reduces the generated CSS.
 
-Browsers without `light-dark()` (before Chrome 123, Firefox 120 and Safari 17.5) get a fallback in
-the same stylesheet: the scheme at its standard contrast level. A root theme follows the nearest mode;
-an element scope follows a dark class on any ancestor.
+</details>
 
-## Accessibility
-
-Every role pair is generated with Material's contrast curves, so `on-primary` on `primary` stays
-readable whatever the seed, photos included. Text placed directly on a photo is not covered: put it
-on a role colour or a scrim. Leave `contrast` on `auto` and `mode` unset except on surfaces that
-must not change, so users who ask for more contrast get it. Success, warning and info keep the same
-tones at every contrast level.
+Keep contrast automatic unless a surface must be pinned. Generated colour pairs cover text on role fills;
+text directly on a photo still needs a suitable surface or scrim.

@@ -1,12 +1,36 @@
 ---
 title: Theming
-description: One seed colour becomes every colour role, in light and dark, at three contrast levels.
+description: One seed colour. Consistent roles in light and dark.
 ---
 
-The theme is generated, not hand-picked. `tokens/config.json` holds a seed colour and a palette
-style. `npm run generate` turns them into `registry/ds/styles/tokens.css`: the accent, status, layer,
-solid-fill and outline roles, for light and dark, each at standard, medium and high contrast.
-Surfaces and outlines come from a neutral palette, so only the accents carry the seed's hue.
+Start in the [theme builder](/theme). Choose a seed and palette style, then export the tokens.
+Neutral surfaces stay quiet; the seed colours accents and status roles.
+
+<FoundationFlow
+  caption="Both modes and all three contrast levels are included in every CSS export."
+  steps={[
+    {
+      title: 'Choose a seed',
+      description: 'Start with your brand colour.',
+      code: 'tokens/config.json',
+    },
+    {
+      title: 'Generate roles',
+      description: 'The engine pairs fills with readable text colours.',
+      code: 'npm run generate',
+    },
+    {
+      title: 'Use the theme',
+      description: 'Every component reads the same semantic roles.',
+      code: 'bg-primary-solid',
+    },
+  ]}
+/>
+
+## Use the export
+
+**In your app:** replace the installed `styles/ds/tokens.css` with the builder's CSS export.
+**In this repository:** save the config below and run `npm run generate`.
 
 ```json title="tokens/config.json"
 {
@@ -18,57 +42,28 @@ Surfaces and outlines come from a neutral palette, so only the accents carry the
 }
 ```
 
-## Palette styles
+| Palette style | Result                                    |
+| ------------- | ----------------------------------------- |
+| `vibrant`     | Saturated accents; this catalogue's style |
+| `tonal-spot`  | Calm, lower-chroma accents                |
+| `expressive`  | Shifted hues                              |
+| `fidelity`    | Containers close to the seed              |
+| `neutral`     | Nearly grey                               |
+| `monochrome`  | Grey only                                 |
 
-The generator runs `@material/material-color-utilities` and harmonises success, warning and info
-toward the seed. The style decides how the seed becomes accents:
+## Mode and contrast
 
-| Style        | What it does                                   |
-| ------------ | ---------------------------------------------- |
-| `tonal-spot` | The engine's default: calm, low-chroma accents |
-| `vibrant`    | Saturated accents; the catalogue default       |
-| `expressive` | Shifts hues for playful palettes               |
-| `fidelity`   | Keeps `primary-container` closest to the seed  |
-| `neutral`    | Nearly grey, for tools and dense admin screens |
-| `monochrome` | Grey only                                      |
-
-## Dark mode and contrast
-
-Each role is declared per mode. `:root` and every `.light` or `[data-theme='light']` element get the
-light values, every `.dark` or `[data-theme='dark']` element the dark ones. `next-themes` sets the
-class on `<html>`; a `.dark` section inside a light page is dark, and a `.light` island inside it is
-light again. The blocks sit in `:where()`, so they carry no specificity and a runtime theme always
-wins over them.
-
-The tokens do not use `light-dark()`. Tailwind lowers it for older browsers into variables that
-resolve where a role is declared, which would freeze every role at the page's mode and leave a
-`.dark` section light.
-
-Medium and high contrast apply with `data-contrast` on `<html>`. Without it, the tokens follow the
-operating system's increased-contrast setting (`prefers-contrast: more`) and switch to high:
+Set `.light`, `.dark` or `data-theme` on the page or a section. Nested sections can use a different mode.
+Components use the same roles in both modes; no `dark:` styles are needed.
 
 ```html
 <html class="dark" data-contrast="high"></html>
 ```
 
-Components never use `dark:`. The roles change underneath them.
+`data-contrast` on `<html>` accepts `standard`, `medium` or `high`.
+Without it, increased OS contrast selects `high`.
 
-## Runtime themes
+## Change colours at runtime
 
-A tenant's brand colour, an accent the user picks or the colours of a photo can theme one card or the
-whole page at runtime, with the same engine. See [Dynamic colour](/docs/foundations/dynamic-color).
-
-## Theme builder
-
-The [theme builder](/theme) runs the same engine in the browser. Pick a seed, a palette style and a
-contrast level, check the result on an admin screen and the full role grid in light and dark, then
-copy one of two exports:
-
-| Export               | What to do with it                                                                                                                    |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `tokens.css`         | Replace the colour blocks of `registry/ds/styles/tokens.css`. It is what `npm run generate` writes: every contrast level, both modes. |
-| `tokens/config.json` | Commit it and run `npm run generate` to rebuild `tokens.css` from it.                                                                 |
-
-Contrast is a viewer setting, not part of the config: the CSS export always carries all three
-levels. The seed changes accent and status colours; surfaces and neutral controls stay neutral.
-While a palette is updating, copying waits for the export to match the selected colour.
+Use [Dynamic colour](/docs/foundations/dynamic-color) for workspace brands, user preferences or image colours.
+The builder, static generator and runtime themes use the same engine.

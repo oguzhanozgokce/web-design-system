@@ -7,6 +7,12 @@ import {
   ComponentSource,
   InstallCommand,
 } from '@/components/docs/component-preview';
+import {
+  FoundationFlow,
+  TypeSpecimen,
+  ShapeSpecimen,
+  IconSpecimen,
+} from '@/components/docs/foundation-visuals';
 import { PaletteSwatches } from '@/components/docs/palette-swatches';
 import { ComponentGrid } from '@/components/showcase/component-grid';
 
@@ -14,6 +20,10 @@ export function getMDXComponents(components?: MDXComponents) {
   return {
     ...defaultMdxComponents,
     ComponentGrid,
+    FoundationFlow,
+    TypeSpecimen,
+    ShapeSpecimen,
+    IconSpecimen,
     ComponentPreview,
     ComponentSource,
     InstallCommand,

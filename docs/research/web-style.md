@@ -1354,3 +1354,21 @@ Settled by the owner on 2026-11-07:
     ring) keep `primary`, which is lighter in dark mode and stays readable on dark surfaces.
 12. **Tabs overflow**: scroll buttons at the ends.
 13. **FAB and avatar group**: follow the reference libraries, not Material.
+
+
+## Sidebar — 2026-11-08
+
+Original implementation informed by the public [shadcn sidebar](https://ui.shadcn.com/docs/components/base/sidebar)
+and [HeroUI Pro sidebar demos](https://heroui.pro/docs/react/components/sidebar). Patterns only;
+no reference source was copied, including paid Pro code.
+
+- Composable navigation links with normal Tab order, not tree/menu keyboard semantics.
+- 256px expanded, 72px icon rail; 40px rows with item radii. Primary soft current-page fill,
+  neutral resting surface and secondary text. Standard edge border or floating raised container.
+- Header/footer stay visible while the content scrolls. Rail labels stay accessible and gain
+  keyboard/hover tooltips. Required icons avoid empty collapsed links.
+- Below 48rem use the existing modal Sheet with full labels, focus restoration and navigation dismissal.
+  Mobile opening and desktop collapse are independent controlled/uncontrolled states.
+- Logical start/end placement, shared English labels and provider routing. Persistence belongs to
+  the consuming app; no global shortcut or automatic cookie side effect.
+- Width changes use 250ms ease-fluid and stop under reduced/disabled motion. No per-frame React state.

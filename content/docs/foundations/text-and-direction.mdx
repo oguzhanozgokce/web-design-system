@@ -1,60 +1,47 @@
 ---
 title: Text and direction
-description: Built-in text is yours to replace, layouts mirror for right-to-left, and dates and numbers follow the locale.
+description: Your wording, locale and reading direction.
 ---
 
-## Built-in text
+Built-in labels start in English. Override them locally or across the app.
+Titles, descriptions and other content you supply stay ordinary props.
 
-The library ships no translations. A few components write text of their own: the accessible name
-of a spinner, a "Close" button, "3 selected" in a select. Each has an English default, and you
-replace it in one of two places.
-
-For one component, pass `labels`:
-
-```tsx
-<Dialog labels={{ close: 'Dismiss' }}>…</Dialog>
-```
-
-For the whole app, give `DSProvider` the same keys under the component's namespace:
-
-```tsx
-<DSProvider labels={{ dialog: { close: 'Dismiss' }, select: { placeholder: 'Choose an item' } }}>
-```
-
-A component's own `labels` win over the provider's, and the provider's win over the defaults. Every
-docs page lists the keys, the English default and where each one shows up. Each component also
-exports its type and defaults (`DialogLabels`, `defaultDialogLabels`), so a translation file can be
-typed.
-
-### Values and plurals
-
-Some labels hold values, such as `selectedCount: '{count} selected'`. A label is either a string with
-`{placeholders}` or a function of the values, so an i18n library with plurals plugs straight in:
+<FoundationFlow
+  caption="The most specific label wins. Each component documents and exports its label types and defaults."
+  steps={[
+    {
+      title: 'English default',
+      description: 'Works without configuration.',
+      code: 'defaultDialogLabels',
+    },
+    { title: 'App override', description: 'Set shared wording once.', code: 'DSProvider labels' },
+    { title: 'Local override', description: 'Change one instance.', code: 'Dialog labels' },
+  ]}
+/>
 
 ```tsx
-const t = useTranslations('select');
-
-<Select labels={{ selectedCount: ({ count }) => t('selected', { count }) }} />;
+<DSProvider labels={{ dialog: { close: 'Dismiss' } }}>
+  <Dialog labels={{ close: 'Close preview' }}>…</Dialog>
+</DSProvider>
 ```
 
-Values arrive already formatted for the locale, so `count` is `"1,204"` in English and `"1.204"` in
-Turkish.
+## Locale and direction
 
-Text you always write yourself, such as a title, a description or a button's label, is an ordinary
-prop and never a label.
+`DSProvider locale` controls dates, numbers, calendars and React Aria announcements.
+It does **not** translate component labels.
 
-## Locale
+Set the document's `lang` and `dir` to match the locale. The components use logical spacing
+(`ms-`, `pe-`, `text-start`) and mirror directional arrows. Try the **LTR / RTL** switch on any preview.
 
-`DSProvider locale` does not change any wording. React Aria uses it for dates, numbers, calendars
-and its own screen reader announcements.
+<ComponentPreview name="button-icons" />
 
-## Right to left
+## Labels with values
 
-The library uses logical properties only: `ms-`, `pe-`, `inset-s-`, `rounded-s-`, `border-e`,
-`text-start`. Physical ones (`ml-`, `left-`, `text-left`) fail `check:ds`. Set `dir="rtl"` on
-`<html>` for Arabic or Hebrew and the layout mirrors.
+Templates accept placeholders or a function. Values arrive formatted for the locale:
 
-Directional icons, such as arrows, need `rtl:-scale-x-100`. Icons that mean the same in both
-directions, such as a plus or a check, do not.
+```tsx
+<Select labels={{ selectedCount: ({ count }) => `${count} items selected` }} />
+```
 
-Every preview on this site has an LTR/RTL switch.
+Connect your translation library inside that function when you need plural rules.
+Keep translated strings in your app; the library does not ship a translation catalogue.

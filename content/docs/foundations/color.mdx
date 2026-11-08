@@ -1,66 +1,44 @@
 ---
 title: Color
-description: The colour roles, which layer each surface sits on, and where the accent may paint.
+description: Choose colours by purpose and always pair fill with text.
 ---
 
-Use the role names, never raw colours. Every fill comes with the text role that is readable on it,
-and every role switches with the theme, so components never need `dark:`.
+Use semantic roles instead of raw colours. Pair each fill with its matching text role:
+`bg-primary-solid text-on-primary-solid` or `bg-error-soft text-on-error-soft`.
 
 <PaletteSwatches />
 
-## Layers
+## Choose a role
 
-| Role              | Used for                                               |
-| ----------------- | ------------------------------------------------------ |
-| `canvas`          | The page                                               |
-| `surface-raised`  | Cards, fields, accordion surfaces, raised banners      |
-| `surface-overlay` | Popovers, menus, select lists, dialogs, sheets, toasts |
-| `surface-segment` | The selected pill of a segmented control or pill tabs  |
-| `surface-thumb`   | Switch and slider thumbs                               |
+| Purpose                          | Role                                     |
+| -------------------------------- | ---------------------------------------- |
+| Page                             | `canvas`                                 |
+| Cards and fields                 | `surface-raised`                         |
+| Menus, dialogs and sheets        | `surface-overlay`                        |
+| Selected pill / control thumb    | `surface-segment` / `surface-thumb`      |
+| Main action and checked controls | `primary-solid` + `on-primary-solid`     |
+| Quiet selection                  | `primary-soft` + `on-primary-soft`       |
+| Neutral interaction              | `neutral-soft` + `on-surface`            |
+| Tooltip                          | `inverse-surface` + `inverse-on-surface` |
 
-A raised thing is white on a grey page in light mode and lighter than the page in dark mode, so
-the layers read the same way in both themes. Text on every layer is `on-surface`, with
-`on-surface-variant` for secondary text.
+Use `on-surface` for text on neutral layers and `on-surface-variant` for supporting text.
+Hover fills use the matching `-hover` role.
 
-## Fills
+## Lines and focus
 
-- **Solid** (`bg-primary-solid text-on-primary-solid`, and the same for `error`, `success`,
-  `warning` and `info`): the main action, checked checkboxes, radios and switches, slider ranges,
-  progress bars and solid badges. Solid fills keep their saturated colour in dark mode.
-  `bg-{tone}-solid-hover` is the hovered and pressed fill.
-- **Soft** (`bg-primary-soft text-on-primary-soft`, `bg-neutral-soft text-on-surface`): quiet
-  actions, banners, tags and selected rows. They are translucent, so they work on any layer.
-  `-soft-hover` is one step stronger.
-- **Inverse** (`bg-inverse-surface text-inverse-on-surface`): tooltips and the neutral solid fill.
+| Purpose                                     | Role              |
+| ------------------------------------------- | ----------------- |
+| Field and outline-button border             | `outline-variant` |
+| Checkbox and radio edge                     | `outline`         |
+| Divider and card border                     | `outline-subtle`  |
+| Modal scrim                                 | `backdrop`        |
+| Focus, active links and selected indicators | `primary`         |
 
-## Lines
+## Status and charts
 
-- `outline-variant` borders fields and outline buttons.
-- `outline` borders checkboxes and radios, which need a 3:1 edge.
-- `outline-subtle` draws hairlines: card borders, dividers and the edges of sheets.
-- `backdrop` sits behind dialogs and sheets.
+Use `error`, `success`, `warning` and `info` for meaning, not decoration. Each has solid and soft pairs.
+Disabled controls keep their colours at 50% opacity.
 
-## Where the accent paints
-
-`primary` appears on the main action, checked controls, slider and progress fills, the selected
-tab indicator, the focus ring, the focused field border, accent links and selected list rows.
-Everything else is neutral. Text-coloured accents (links, ghost and outline labels, the focus ring)
-use `text-primary`, which is lighter in dark mode and stays readable on dark surfaces.
-
-## Charts
-
-`chart-1` to `chart-8` (`bg-chart-3`, `fill-chart-3`, `stroke-chart-3`, `text-chart-3`) colour the
-series of a chart with several series, always in that order. They are fixed rather than generated
-from the seed, because the order is checked for every common colour-vision deficiency and against
-card surfaces in both themes; the dark values are lifted to stay apart on dark cards. A chart with
-one series uses `primary`. Charts never rely on colour alone: each carries a legend, a tooltip and a
-table view. See [Chart](/docs/components/charts/chart).
-
-## Rules
-
-- Pair a fill with its text role: `bg-error-soft` with `text-on-error-soft`, `bg-surface-raised`
-  with `text-on-surface`.
-- Disabled controls keep their colours and drop to 50% opacity with a not-allowed cursor.
-- `success`, `warning` and `info` are harmonised with the seed. Use them for status, not
-  decoration.
-- No hex value appears outside `tokens.css`. `npm run check:ds` fails the build if one does.
+Multi-series charts use `chart-1` through `chart-8` in order; a single series uses `primary`.
+Chart colours are fixed across seeds. Always keep labels, a legend and the [table view](/docs/components/charts/chart)
+so colour is not the only way to read the data.

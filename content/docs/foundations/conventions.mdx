@@ -1,34 +1,41 @@
 ---
 title: Conventions
-description: The rules every component follows, so they read the same wherever they are used.
+description: A consistent API, from the first component to the last.
 ---
 
-## API
+Use React Aria names and behaviour. Extend a component through its public props, slots and styles.
 
-- **Props follow React Aria.** `isDisabled`, `isPending`, `isSelected`, `onPress`, `value`,
-  `defaultValue`, `onChange`. Controlled and uncontrolled both work.
-- **One variant vocabulary.** `variant` says how much ink: `solid`, `soft`, `outline`, `ghost`
-  (or the component's own set, such as `underline` and `pill` tabs). `tone` says which role paints
-  it: `primary`, `neutral` or `error` on actions, plus `success`, `warning` and `info` on status
-  components. `size` is `sm`, `md` or `lg` at 32, 40 and 48px. `solid` defaults to `primary`; the
-  quieter variants default to `neutral`.
-- **A different look is a variant. A different behaviour is a new component** named after what it
-  does: `HoldToConfirmButton`, `SplitButton`. Never `ButtonV2`.
-- **Async actions are promises.** `onPress`, `onConfirm` and `onSubmit` may return a promise and the
-  component shows its own pending state.
-- **Icon-only actions are `IconButton`**, which requires an `aria-label`.
-- **State is visible as data attributes**: `data-variant`, `data-size`, `data-pending`,
-  `data-selected`, plus React Aria's `data-hovered`, `data-pressed`, `data-focus-visible`. Restyle
-  with Tailwind data variants instead of new props.
-- **Parts carry `data-slot`** so a project can target them.
-- **Every style export is public**: `buttonStyles`, `cardStyles`. Style a link or a custom element
-  with them instead of nesting a button in a link.
+<FoundationFlow
+  caption="A different look is a variant. A different behaviour gets a descriptive component name, never V2."
+  steps={[
+    {
+      title: 'Variant',
+      description: 'How much visual emphasis?',
+      code: 'solid · soft · outline · ghost',
+    },
+    { title: 'Tone', description: 'What does the action mean?', code: 'primary · neutral · error' },
+    { title: 'Size', description: 'How dense is the interface?', code: 'sm 32 · md 40 · lg 48' },
+  ]}
+/>
 
-## Code
+## Public contracts
 
-- Only required licence headers belong in code. Reasoning goes in commit messages, `AGENTS.md` and these pages.
-- Registry files import each other through `@/registry/ds/...`, never relative paths, so the shadcn
-  CLI can rewrite them.
-- No `next/*`, `next-intl` or other framework imports in the registry. Routing comes from
-  `DSProvider`.
-- Colours are roles. Directions are logical. Built-in text is labels with English defaults.
+| Contract                   | Use                                                                                                         |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| State                      | `isDisabled`, `isPending`, `isSelected`                                                                     |
+| Interaction                | `onPress`, `value`, `defaultValue`, `onChange`; controlled and uncontrolled                                 |
+| Defaults                   | `solid` uses `primary`; quieter action variants use `neutral`; controls default to `md`                     |
+| Component-specific choices | Document their own variants, such as `underline` / `pill` tabs                                              |
+| Status                     | Add `success`, `warning` and `info` where meaningful                                                        |
+| Async actions              | Promise-returning `onPress`, `onConfirm` or `onSubmit`; own pending state and ignore repeat triggers        |
+| Icon-only actions          | `IconButton` with a required `aria-label`                                                                   |
+| Styling                    | Public exports such as `buttonStyles`; no nested interactive elements                                       |
+| Parts                      | `data-slot` identifies each part                                                                            |
+| State selectors            | `data-variant`, `data-size`, `data-pending`, `data-selected`, plus React Aria hover, press and focus states |
+
+## Implementation contracts
+
+- Use semantic colours, logical directions and typed labels with English defaults.
+- Registry imports use `@/registry/ds/...` so the CLI can rewrite them. Installed imports follow the consumer's aliases.
+- Keep framework imports (`next/*`, `next-intl`) out of registry files. Connect routing through `DSProvider`.
+- Keep only required licence headers in code. Explain decisions in documentation and commit messages.

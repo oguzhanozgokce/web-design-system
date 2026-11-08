@@ -1750,6 +1750,35 @@
       }
     },
     {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "title": "Sidebar",
+      "description": "Responsive navigation with an icon rail, grouped links and a mobile sheet.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/icon-button",
+        "@ds/license",
+        "@ds/sheet",
+        "@ds/tooltip",
+        "@ds/use-controllable-state",
+        "@ds/use-media-query",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/sidebar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/sidebar.tsx"
+        }
+      ]
+    },
+    {
       "name": "skeleton",
       "type": "registry:ui",
       "title": "Skeleton",
