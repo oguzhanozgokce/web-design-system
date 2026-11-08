@@ -795,6 +795,12 @@ Shared pieces used below:
   font-semibold`; arrow `fill-surface-overlay`; enter `scale(0.9)` like HeroUI for popovers (lists use
   0.95).
 - **Follows:** HeroUI motion, our 16px overlay radius.
+- **Morph option (2026-11-08):** `animation="morph"` unfolds a separate surface from React Aria's
+  resolved trigger anchor in 250ms and closes in 150ms. Content fades and translates without
+  scaling. Reduced motion fades the whole panel; disabled motion is immediate. The default
+  `scale` option is unchanged. `PopoverPreviewTrigger` provides non-modal hover/focus/long-press
+  previews with 300ms open and 200ms close delays; content must not steal focus on hover.
+  See the [morph popover study](popover-morph.md) for references and implementation decisions.
 
 ### 2.30 Tooltip
 
@@ -1073,6 +1079,21 @@ all fields share `field-frame`; all actions share `transition-control`, the pres
 - **Onboarding:** a Card example composing Checkbox, Disclosure and LinearProgress. Keep it a
   prototype until an application needs a distinct reusable state contract; actual completion
   comes from account data rather than link clicks.
+
+### 2.45 Reorderable list
+
+- **References:** [beUI Sortable Stack](https://beui.dev/components/motion/sortable-stack) for
+  visible grips and readable row hierarchy; HeroUI shapes and Astryx's restrained placement
+  motion. See `reorderable-list.md` for the study and original-code provenance.
+- **Surface:** `outline` uses separate `rounded-container` raised rows, subtle borders and 8px
+  gaps. `plain` uses dividers and neutral hover fills. Both keep 40px drag buttons, logical
+  spacing and flexible consumer-owned content. Icon tiles and thumbnails use inner corners.
+- **Behaviour:** React Aria GridList supplies internal reordering and keyboard/screen-reader
+  interaction. Stable keys identify items; controlled and uncontrolled order share one API.
+  Order changes only on a completed drop, and no-op drops do not notify consumers.
+- **Motion:** dim the source and show a primary insertion line during drag. Animate committed
+  row positions with a 250ms fluid transform tween, without changing consumer state on every
+  pointer move. Reduced and disabled motion remove spatial transitions.
 
 ## 3. Variant API for actions and the rest of the library
 

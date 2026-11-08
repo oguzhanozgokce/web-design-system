@@ -1,0 +1,154 @@
+---
+title: Reorderable List
+description: Reorderable rows with accessible drag and drop, animated placement, interactive content and controlled or uncontrolled order.
+---
+
+<ComponentPreview name="reorderable-list-demo" align="stretch" />
+
+## Installation
+
+<InstallCommand name="reorderable-list" />
+
+## Usage
+
+```tsx
+'use client';
+
+import { ReorderableList } from '@/components/ds/reorderable-list';
+
+const shortcuts = [
+  { id: 'overview', title: 'Overview' },
+  { id: 'projects', title: 'Projects' },
+  { id: 'inbox', title: 'Inbox' },
+];
+
+export function ShortcutOrder() {
+  return (
+    <ReorderableList
+      aria-label="Shortcut order"
+      defaultValue={shortcuts}
+      getKey={(item) => item.id}
+      getTextValue={(item) => item.title}
+    >
+      {(item) => <span>{item.title}</span>}
+    </ReorderableList>
+  );
+}
+```
+
+Use `ReorderableList` for a short vertical collection whose order people can change: dashboard
+sections, navigation shortcuts, a playlist or a publishing queue. Use
+[List box](/docs/components/inputs/list-box) to select values, and
+[Data table](/docs/components/data-display/data-table) to sort records by a column.
+
+## Examples
+
+### Controlled order and undo
+
+The opening example uses `value` and `onChange` to own the order. `onChange` receives a new array
+once a drop changes the order; hovering over a target, cancelling or dropping in the same position
+does not call it. Objects retain their identity. Keep the previous array in your application to
+offer Undo, or persist the accepted order to your server.
+
+```tsx
+const [items, setItems] = useState(shortcuts);
+
+<ReorderableList
+  aria-label="Shortcut order"
+  value={items}
+  onChange={setItems}
+  getKey={(item) => item.id}
+  getTextValue={(item) => item.title}
+>
+  {(item) => <span>{item.title}</span>}
+</ReorderableList>;
+```
+
+Use unique, stable keys from the data, never the array index. `defaultValue` sets the initial
+uncontrolled order; use `value` when the collection may change from outside the list.
+
+### Plain rows with controls
+
+`variant="plain"` uses dividers and a quiet hover fill. Row content can contain switches, buttons
+and links. Keep the row's label visible and give each control its own accessible name.
+
+<ComponentPreview name="reorderable-list-plain" align="stretch" />
+
+### Media queue
+
+The render function owns the content, so thumbnails and supporting text need no extra slots.
+`index` is the current zero-based position. Set decorative images to `alt=""` and `draggable={false}`
+so the browser does not start a separate image drag.
+
+<ComponentPreview name="reorderable-list-media" align="stretch" />
+
+### Disabled and empty states
+
+`isDisabled` disables reordering for the whole list. `disabledKeys` disables individual rows.
+React Aria also disables descendant buttons; pass `isDisabled` explicitly to custom fields such
+as switches when they should be disabled too. Disabled rows are not pinned: moving another row
+across them can still change their position. Explain restrictions in the row content.
+
+An empty list shows “No items to reorder”. Override `labels.empty` for different wording, or
+provide `renderEmptyState` for richer content.
+
+## API
+
+### ReorderableList
+
+| Prop               | Type                                        | Default                |
+| ------------------ | ------------------------------------------- | ---------------------- |
+| `value`            | `T[]`                                       |                        |
+| `defaultValue`     | `T[]`                                       | `[]`                   |
+| `onChange`         | `(items: T[]) => void`                      |                        |
+| `getKey`           | `(item: T) => Key`                          | Required               |
+| `getTextValue`     | `(item: T) => string`                       | Required               |
+| `children`         | `(item: T, index: number) => ReactNode`     | Required               |
+| `variant`          | `'outline' \| 'plain'`                      | `'outline'`            |
+| `isDisabled`       | `boolean`                                   | `false`                |
+| `disabledKeys`     | `Iterable<Key>`                             |                        |
+| `renderEmptyState` | `(props: GridListRenderProps) => ReactNode` | Labelled empty message |
+| `labels`           | `Partial<ReorderableListLabels>`            |                        |
+
+`T` is an object and `Key` is a string or number. Other non-selection
+[React Aria GridList](https://react-aria.adobe.com/GridList) props, including `aria-label`,
+`aria-labelledby` and render-prop `className`, pass through. Selection, custom drag-and-drop hooks,
+orientation and layout are owned by this component. It supports internal, single-row vertical
+reordering; cross-list transfers, nested trees and virtualization need a different composition.
+
+### Labels
+
+Exported as `ReorderableListLabels` and `defaultReorderableListLabels`. Override a single instance
+through `labels`, or every list with `<DSProvider labels={{ reorderableList: { … } }}>`.
+
+| Key       | Default                 |
+| --------- | ----------------------- |
+| `reorder` | `'Reorder {item}'`      |
+| `empty`   | `'No items to reorder'` |
+
+`getTextValue` supplies `{item}` and the text used for keyboard navigation and drag announcements.
+React Aria provides its own localized drag instructions and drop-target announcements.
+
+### Styles and data attributes
+
+`reorderableListStyles({ variant })` exports `root`, `item`, `handle`, `content`, `indicator` and
+`empty` slots. Use `className` on the root and data slots for targeted styling.
+
+| Element        | Attributes                                                                                                                                                      |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root           | `data-slot="reorderable-list"`, `data-variant`, `data-disabled`, `data-empty`, `data-focused`, `data-focus-visible`                                             |
+| Row            | `data-slot="reorderable-list-item"`, `data-key`, `data-dragging`, `data-allows-dragging`, `data-disabled`, `data-hovered`, `data-focused`, `data-focus-visible` |
+| Handle         | `data-slot="reorderable-list-handle"`                                                                                                                           |
+| Content        | `data-slot="reorderable-list-content"`                                                                                                                          |
+| Drop indicator | `data-slot="reorderable-list-indicator"`, `data-drop-target`                                                                                                    |
+
+## Accessibility
+
+- Provide `aria-label` or `aria-labelledby` for the list and a concise `getTextValue` for each row.
+- A pointer can drag the row. The grip is also a keyboard button: focus it and press Enter or
+  Space to start, use the arrow keys to choose a position, then Enter to drop or Escape to cancel.
+- React Aria supplies grid semantics, focus management, touch and assistive-technology drag
+  handling. Interactive row content remains independently operable.
+- The insertion line and the dimmed source row show where the item will land. The committed
+  order moves into place with a short transform transition. Reduced or disabled motion removes
+  that spatial animation, and dragging never triggers a continuous animation loop in this component.

@@ -37,6 +37,12 @@ interaction decisions from the 2026-11-08 redesign.
 The [catalogue identity](brand.md) records the symbol, colour roles, favicon exports and source
 files used by the navigation and footer.
 
+The [reorderable list study](reorderable-list.md) records reorder affordances, accessible drag-and-drop
+primitives and the decision to commit order only on drop.
+
+The [morph popover study](popover-morph.md) records the separate surface animation and the
+non-modal hover preview built on the existing overlay primitives.
+
 ## Tooling decisions
 
 | Topic       | Choice                                                    | Why                                                                                  |

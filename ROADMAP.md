@@ -72,6 +72,7 @@ on 2026-11-07. `docs/research/wave-2-requests.md` has the visual study and the d
 | NavigationBar (bottom), TopAppBar, Toolbar                                          | navigation   | Toolbar, Link                          | ⬜     |
 | Stepper (wizard steps)                                                              | navigation   | —                                      | ⬜     |
 | GridList (list with actions), Tree                                                  | data-display | GridList, Tree                         | ⬜     |
+| ReorderableList (outline/plain rows, accessible reordering, controlled order)       | data-display | GridList, useDragAndDrop, Motion       | ✅     |
 | Carousel                                                                            | layout       | scroll-snap                            | ⬜     |
 | Timeline, DescriptionList                                                           | data-display | —                                      | ⬜     |
 | StatCard                                                                            | data-display | Card, RollingNumber, Sparkline         | ⬜     |

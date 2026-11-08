@@ -1,6 +1,6 @@
 ---
 title: Popover
-description: Floating panel anchored to a trigger, with placement, an optional arrow, motion that grows from the trigger, and a dialog part with a title, a close button and two paddings.
+description: Floating panels with press or hover triggers, scale or morph animation, automatic placement, an optional arrow and accessible dialog content.
 ---
 
 <ComponentPreview name="popover-demo" />
@@ -30,6 +30,39 @@ import { Popover, PopoverDialog, PopoverTrigger } from '@/components/ds/popover'
 same `Popover` surface with a list inside instead.
 
 ## Examples
+
+### Morph popover
+
+`animation="morph"` unfolds the surface from the trigger while its content fades into place at
+its natural size. Opening takes 250ms; closing takes 150ms. The default `scale` animation stays
+unchanged. The switches below update the workspace preferences; Reset restores their defaults.
+
+<ComponentPreview name="popover-morph" />
+
+### Hover preview
+
+`PopoverPreviewTrigger` opens a non-modal preview on hover, keyboard focus or a touch long press.
+People can move the pointer into the panel without crossing a closing gap. Keyboard focus stays
+on the trigger until Tab moves it into the preview; Escape closes it and returns focus.
+This example also opens on a regular tap through the button's `onPress` and lets you save the collection.
+
+<ComponentPreview name="popover-morph-preview" />
+
+```tsx
+import { Button } from '@/components/ds/button';
+import { Popover, PopoverPreviewTrigger } from '@/components/ds/popover';
+
+<PopoverPreviewTrigger>
+  <Button>Collection preview</Button>
+  <Popover animation="morph" aria-label="Collection preview" className="w-72 p-4">
+    <p className="mb-3">Four quiet scenes for a fresh perspective.</p>
+    <Button onPress={saveCollection}>Save collection</Button>
+  </Popover>
+</PopoverPreviewTrigger>;
+```
+
+Use ordinary content and an accessible name on the preview `Popover`. `PopoverDialog` moves
+focus on mount, so reserve it for press-opened dialogs. Put forms behind a press trigger.
 
 ### Placement and arrow
 
@@ -74,6 +107,23 @@ pressable component such as `Button`.
 | `defaultOpen`  | `boolean`                   | `false` |
 | `onOpenChange` | `(isOpen: boolean) => void` |         |
 
+### PopoverPreviewTrigger
+
+React Aria [PreviewTrigger](https://react-aria.adobe.com/PreviewTrigger), with a focusable trigger
+and a `Popover` as its two children.
+
+| Prop           | Type                        | Default |
+| -------------- | --------------------------- | ------- |
+| `isOpen`       | `boolean`                   |         |
+| `defaultOpen`  | `boolean`                   | `false` |
+| `onOpenChange` | `(isOpen: boolean) => void` |         |
+| `delay`        | `number`                    | `300`   |
+| `closeDelay`   | `number`                    | `200`   |
+| `isDisabled`   | `boolean`                   | `false` |
+
+Disabling a preview closes it without disabling the trigger's own action. Controlled state is
+supported. React Aria may skip the delay and entrance animation when moving between warm previews.
+
 ### Popover
 
 | Prop               | Type                                                       | Default            |
@@ -82,6 +132,7 @@ pressable component such as `Button`.
 | `offset`           | `number`                                                   | `8`, `12` if arrow |
 | `crossOffset`      | `number`                                                   | `0`                |
 | `showArrow`        | `boolean`                                                  | `false`            |
+| `animation`        | `'scale' \| 'morph'`                                       | `'scale'`          |
 | `shouldFlip`       | `boolean`                                                  | `true`             |
 | `containerPadding` | `number`                                                   | `12`               |
 | `isNonModal`       | `boolean`                                                  | `false`            |
@@ -114,8 +165,6 @@ without a trigger needs `title` or `aria-label`. The close button is a 28px ghos
 The arrow `Popover` renders with `showArrow`. Use it in custom overlays; set its colour with a
 `text-` role class, for example `<PopoverArrow className="text-inverse-surface" />`.
 
-### Styles for other overlays
-
 ### Styling
 
 | Part    | Classes                                                                |
@@ -127,16 +176,22 @@ The arrow `Popover` renders with `showArrow`. Use it in custom overlays; set its
 | body    | `text-sm text-on-surface-variant`                                      |
 | close   | a 28px ghost, neutral Icon Button                                      |
 
-`popoverStyles({ motion, className })` returns the surface classes above, the transform origin at
+`popoverStyles({ motion, animation, className })` returns the surface classes above, the transform origin at
 the trigger and the enter and exit animations. Select, ComboBox and Menu build their lists on it.
 `usePopoverMotion()` returns `'spatial'`, `'fade'` or `'none'` from the `DSProvider` motion setting
 and the system preference, so a custom overlay animates the same way. `popoverDialogStyles({
 padding })` exposes the `base`, `header`, `title`, `close` and `body` slots.
 
+With `animation="morph"`, the surface is painted by `::before`; customize it with `before:`
+utilities. Content lives in a `data-slot="popover-content"` wrapper that stays mounted when the
+motion preference changes. The effect uses transform and opacity, without blur filters, per-frame
+React updates or an additional animation dependency.
+
 ### Data attributes
 
 Popover: `data-slot="popover"`, `data-placement`, `data-arrow`, `data-entering`, `data-exiting`,
-`data-trigger`. Dialog: `data-slot="popover-dialog"` with `data-padding`. Parts:
+`data-trigger`, `data-animation`. Morph content: `data-slot="popover-content"`.
+Dialog: `data-slot="popover-dialog"` with `data-padding`. Parts:
 `data-slot="arrow"`, `"header"`, `"title"`, `"body"`. The close button is an Icon Button
 (`data-slot="icon-button"`) with `slot="close"`.
 
@@ -153,11 +208,12 @@ popover with `<DSProvider labels={{ popover: { … } }}>`.
 
 - Built on React Aria `Popover` and `Dialog`. The trigger gets `aria-expanded` and
   `aria-controls`, and the popover is a dialog named by its title or by the trigger.
-- Focus moves into the popover when it opens, stays inside while it is open, and returns to the
-  trigger on close. Escape and a press outside close it.
+- A press-opened dialog moves focus inside, contains it while open, and returns it to the trigger
+  on close. Escape and a press outside close it. Hover previews are non-modal and preserve focus
+  on the trigger until the user tabs into them.
 - Screen reader users get hidden dismiss buttons at both ends of the popover.
 - The popover takes its direction and `lang` from the locale, so `start` and `end` placements and
   the arrow are correct in Arabic, and screen readers pick the right voice.
-- Motion scales from the trigger. With reduced motion, from the system or `DSProvider`, it fades
-  instead.
+- Both animations use the actual trigger anchor after collision handling. Reduced motion, from
+  the system or `DSProvider`, uses a fade instead; `motion="disabled"` opens and closes immediately.
 - Contrast is checked with axe in light, dark and RTL by `popover.test.tsx`.
