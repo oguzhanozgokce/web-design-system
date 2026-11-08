@@ -14,7 +14,7 @@ const cases = [
   },
   {
     caption: 'Photo failed',
-    avatar: <Avatar name="Kenji Watanabe" src="/avatars/deleted-upload.png" />,
+    avatar: <Avatar name="Kenji Watanabe" src="data:image/png;base64,AA==" />,
   },
   { caption: 'No photo', avatar: <Avatar name="Sofia Rossi" /> },
   { caption: 'No name', avatar: <Avatar alt="Unassigned" /> },

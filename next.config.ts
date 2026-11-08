@@ -5,6 +5,7 @@ const withMDX = createMDX();
 
 const config: NextConfig = {
   output: 'export',
+  trailingSlash: true,
   reactStrictMode: true,
   images: { unoptimized: true },
 };

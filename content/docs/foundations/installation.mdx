@@ -7,7 +7,7 @@ Components install as source through the shadcn CLI. Start with **React 19, Type
 Tailwind CSS 4**, plus an `@/*` alias pointing to your source root. Next.js is optional.
 
 <FoundationFlow
-  caption="There is no public registry address yet. Serve it locally, then run installation commands in your consuming app."
+  caption="Install directly from the public registry. No repository checkout or environment variable is needed."
   steps={[
     {
       title: 'Connect',
@@ -27,26 +27,9 @@ Tailwind CSS 4**, plus an `@/*` alias pointing to your source root. Next.js is o
   ]}
 />
 
-## Start the local registry
-
-Clone the repo using its [setup guide](https://github.com/oguzhanozgokce/web-design-system#run-the-catalogue).
-The catalogue requires Node.js 24 or newer. In the registry checkout, run:
-
-```bash
-npm ci
-npm run registry:build
-npm run dev
-```
-
-In your **consuming app's terminal**, set the origin printed by Next.js:
-
-```bash
-export DS_REGISTRY_URL=http://localhost:3000
-```
-
-Rebuild registry JSON after changing installable files. You can put the origin directly in
-`components.json` instead of setting an environment variable in every terminal.
-A GitHub repository URL is not a registry endpoint.
+The production namespace is `https://ui.highwren.com/r/{name}.json`.
+The first deployment is pending; use [the local registry](#develop-against-a-local-registry) until it is verified.
+After publication, run the commands below in your consuming app.
 
 ## Set up your app
 
@@ -73,7 +56,7 @@ For Vite or another client-only app, use `rsc: false` and your actual stylesheet
     "utils": "@/lib/ds/utils"
   },
   "registries": {
-    "@ds": "${DS_REGISTRY_URL}/r/{name}.json"
+    "@ds": "https://ui.highwren.com/r/{name}.json"
   }
 }
 ```
@@ -146,7 +129,22 @@ Review `npx shadcn@4.23.0 add @ds/button --diff` before updating a customised co
 changes under version control and review any overwrite. This pre-1.0 registry does not update
 installed components automatically.
 
-## Publishing a registry
+## Develop against a local registry
 
-`npm run build` exports the catalogue and `/r/*.json` together. A future deployment can use the
-same configuration with its hosted origin. Use `shadcn@4.23.0`, the CLI version verified here.
+Clone the repository and follow its [setup guide](https://github.com/oguzhanozgokce/web-design-system#run-the-catalogue).
+The catalogue requires Node.js 24 or newer. In the registry checkout, run:
+
+```bash
+npm ci
+npm run registry:build
+npm run dev
+```
+
+In your consuming app's `components.json`, replace the `@ds` URL with the origin printed by Next.js,
+for example `http://localhost:3000/r/{name}.json`. Rebuild registry JSON after changing installable files.
+
+## Registry updates
+
+The public endpoint follows verified `production` commits. Existing installed files stay yours and do not
+update automatically. Use `shadcn@4.23.0`, the CLI version verified here. Maintainers can find the
+publication controls in the [hosting guide](https://github.com/oguzhanozgokce/web-design-system/blob/main/docs/registry-hosting.md).

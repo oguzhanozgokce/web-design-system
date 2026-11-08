@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, production]
   pull_request:
   workflow_dispatch:
 
@@ -11,7 +11,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/production' }}
 
 jobs:
   verify:
@@ -21,6 +21,15 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
+      - name: Accept production changes only from this repository's main branch
+        if: github.event_name == 'pull_request' && github.base_ref == 'production'
+        env:
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          test "$HEAD_REPOSITORY" = "$GITHUB_REPOSITORY"
+          test "$HEAD_BRANCH" = main
+
       - name: Check out complete history (checkout v7)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -72,6 +81,22 @@ jobs:
           npm run build
           git diff --exit-code
 
+      - name: Validate and package catalogue and registry for Hostinger
+        run: npm run prepare:hosting
+
+      - name: Upload verified Hostinger package (upload-artifact v7.0.2)
+        if: github.ref == 'refs/heads/production' && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: hostinger-${{ github.sha }}
+          path: |
+            .hostinger/highwren-ui.tar.gz
+            .hostinger/manifest.json
+          include-hidden-files: true
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
+
       - name: Save failed browser screenshots (upload-artifact v7.0.2)
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -83,3 +108,52 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7
+
+  deploy-hostinger:
+    name: Deploy Hostinger
+    if: >-
+      github.repository == 'oguzhanozgokce/web-design-system' &&
+      github.ref == 'refs/heads/production' &&
+      github.event_name != 'pull_request' &&
+      github.actor == 'oguzhanozgokce' &&
+      github.triggering_actor == 'oguzhanozgokce' &&
+      vars.HOSTINGER_DEPLOY_ENABLED == 'true'
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    environment:
+      name: hostinger-production
+      url: https://ui.highwren.com
+    concurrency:
+      group: hostinger-production
+      cancel-in-progress: false
+    steps:
+      - name: Check out verified source (checkout v7)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Download this run's verified package (download-artifact v8)
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: hostinger-${{ github.sha }}
+          path: .hostinger
+          digest-mismatch: error
+
+      - name: Reject outdated deployment runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/production" --jq '.object.sha')
+          test "$current" = "$GITHUB_SHA"
+
+      - name: Deploy over verified SSH and check the live revision
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          HOSTINGER_KNOWN_HOSTS: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
+        run: bash scripts/deploy-hostinger.sh

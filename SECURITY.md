@@ -22,8 +22,8 @@ disclosure; no response-time guarantee is offered at this stage.
   entry is an exact fingerprint for a retired password-test fixture in the initial commit.
 - CI audits the complete npm lockfile at moderate severity and above. Dependabot proposes weekly
   npm and GitHub Actions updates; updates still require review and checks.
-- Workflows use read-only repository permissions, immutable action revisions and no application
-  secrets. Pull request code is never run through `pull_request_target`.
+- Verification jobs use read-only repository permissions, immutable action revisions and no
+  deployment secrets. Only the protected production deployment job receives Hostinger SSH credentials. Pull request code is never run through `pull_request_target`.
 - Repository settings allow only GitHub-owned actions and require full commit SHA pinning.
 - GitHub's managed CodeQL setup scans JavaScript/TypeScript and Actions workflows. Its analysis
   job can upload security results; it does not have permission to merge code.

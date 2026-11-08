@@ -78,3 +78,17 @@ bounded. There are no automatic test retries. Failed browser screenshots are ret
 days as workflow artifacts. Generation and the production build must leave tracked files unchanged.
 CI also audits dependencies and scans complete Git history; see `SECURITY.md` for the narrow
 history allowlist and the known low-severity tooling advisory.
+
+`npm run prepare:hosting` validates the production static export: complete registry payloads,
+local HTML/CSS links, page canonicals, search data and sitemap coverage. It packages the full site
+with Hostinger configuration and a checksum manifest. Run it after `npm run build`, or use
+`npm run build:hosting` for both. Unit tests cover incomplete/unsafe exports and broken links.
+Deployment tests use real local rsync and a stubbed HTTP probe to exercise replacement, preserved
+ACME files/browser chunks, rollback and rejection of uncommitted packages; they never contact Hostinger.
+These tests require Bash and rsync (included on the Linux CI runner and macOS).
+
+CI builds once. Only `production` uploads the package; its deployment job waits for `Verify` and
+is disabled until the maintainer configures the production environment and activation variable.
+`main` and PRs run validation without deployment secrets. Before first publication, also verify the
+package under Apache/LiteSpeed: deep links, trailing-slash redirects, search JSON, cache headers,
+custom 404 status and a fresh shadcn consumer. Those server checks are distinct from component tests.

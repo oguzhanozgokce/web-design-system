@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { ArrowForwardIcon } from '@/registry/ds/lib/icons';
 import { ButtonLink } from '@/registry/ds/ui/button';
 import { CopyButton } from '@/registry/ds/ui/copy-button';
@@ -12,6 +13,8 @@ import { galleryCategories, getGalleryEntries, getInstallFiles } from '@/lib/gal
 import { appName, gitConfig } from '@/lib/shared';
 
 const command = 'npx shadcn@4.23.0 add @ds/button';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 export default async function HomePage() {
   const [entries, installFiles] = await Promise.all([
