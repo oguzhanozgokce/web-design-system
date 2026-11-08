@@ -1,18 +1,13 @@
 # Research
 
-On 2026-11-06 eight reference libraries and the state of component-library tooling were researched
-in parallel. `libraries.json` holds one record per library, with its license verdict, stack, standout
-components with API notes, what to borrow and what to avoid. `tooling.json` holds the tooling survey.
-Search them for a component name before designing it.
-
-These surveys record historical evidence. Current visual decisions live in `web-style.md`,
-current component contracts in `content/docs`, and test policy in `docs/testing.md` at the
-repository root. Earlier proposals in `libraries.json` and `wave-2-requests.md` do not override
-those documents.
+Current visual rules: [web-style.md](web-style.md). Public APIs: `content/docs`.
+Historical surveys in `libraries.json`, `tooling.json` and `wave-2-requests.md` record evidence,
+not implementation instructions. Search only the relevant entry; current dependency versions are
+in `package.json`.
 
 ## License verdicts
 
-Checked again against each repository's `LICENSE` with `gh api repos/<repo>/license`.
+Licence snapshot reviewed in November 2026 against repository `LICENSE` files.
 
 | Library                                            | License                          | What the library may take                                                       |
 | -------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------- |
@@ -28,22 +23,15 @@ Checked again against each repository's `LICENSE` with `gh api repos/<repo>/lice
 Code adapted from an MIT source is recorded in the item's `credits` field in `registry/items/*.json`;
 `THIRD_PARTY_NOTICES.md` is generated from those fields.
 
-The [cookie-consent study](cookie-consent.md) records the later privacy-notice references and
-their application; its current component specification is section 2.43 of `web-style.md`.
+## Focused studies
 
-The [homepage study](homepage.md) records the catalogue's visual references, page structure and
-interaction decisions from the 2026-11-08 redesign.
+- [Cookie consent](cookie-consent.md): notice choices and preference expansion.
+- [Homepage](homepage.md): catalogue composition and interaction.
+- [Identity](brand.md): mark assets and dated trademark screening.
+- [Reorderable list](reorderable-list.md): drag affordances and commit-on-drop.
+- [Morph popover](popover-morph.md): surface animation and hover previews.
 
-The [catalogue identity](brand.md) records the symbol, colour roles, favicon exports and source
-files used by the navigation and footer.
-
-The [reorderable list study](reorderable-list.md) records reorder affordances, accessible drag-and-drop
-primitives and the decision to commit order only on drop.
-
-The [morph popover study](popover-morph.md) records the separate surface animation and the
-non-modal hover preview built on the existing overlay primitives.
-
-## Tooling decisions
+## Tooling snapshot — November 2026
 
 | Topic       | Choice                                                    | Why                                                                                  |
 | ----------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------ |

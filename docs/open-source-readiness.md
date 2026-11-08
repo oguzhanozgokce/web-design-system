@@ -1,102 +1,68 @@
 # Publication controls
 
-Highwren UI is an early, pre-1.0 source distribution. The contribution path is a fork and a pull
-request against `main`; a separate `develop` branch is unnecessary for the current release model.
-CI can publish the catalogue and registry after successful checks on `production`; it does not
-publish from `main` or publish an npm package. Deployment is disabled until explicitly configured.
-The root package stays `private: true`
-to prevent accidental npm publication, independently of the GitHub repository's visibility.
+Highwren UI distributes source through a public registry. Contributors target `main`; the owner
+promotes reviewed work to `production`, which deploys the catalogue and registry. The root
+package is `private: true` to prevent npm publication. Deployment is configured and enabled.
 
 ## Main branch and merge access
 
-Two active repository rulesets protect `main`. Their definitions are versioned in
-[`.github/rulesets/`](../.github/rulesets/); editing those files does not apply GitHub settings.
-The owner must apply changes through repository administration and verify the effective rules.
+The active rulesets are defined in [`.github/rulesets/`](../.github/rulesets/). Editing their JSON
+files does not change GitHub settings; apply changes through administration and verify effective rules.
 
-- **Main: verified pull requests** has no bypass actors. Every change requires a pull request,
-  resolved review threads and a successful `Verify` check from the GitHub Actions app (15368),
-  tested against the latest base. It also blocks force pushes and deletion, including for the owner.
-- **Main: owner-controlled merges** restricts updates to the owner, `@oguzhanozgokce` (123859594),
-  through pull requests only. It requires a code-owner review and dismisses stale approvals after
-  new changes. [CODEOWNERS](../.github/CODEOWNERS) assigns every path to that owner.
+- **Main: verified pull requests** has no bypass. Every update requires a PR, resolved threads
+  and a successful `Verify` from GitHub Actions (15368), tested against the latest base. Force
+  pushes and deletion are blocked, including for the owner.
+- **Main: owner-controlled merges** restricts updates to `@oguzhanozgokce` (123859594), through
+  PRs only. It requires code-owner review and dismisses stale approvals.
+  [CODEOWNERS](../.github/CODEOWNERS) assigns all paths to that owner.
 
-The owner may bypass the second ruleset when merging a pull request. This is deliberate: a sole
-maintainer cannot approve their own pull request. The separate quality ruleset still requires
-passing CI and prevents direct pushes; the review exception cannot skip it. For outside
-contributions, review the diff before merging. Approving a contributor's PR does not give that
-contributor permission to merge it. Auto-merge is disabled and no other collaborators have write
-access at publication.
-
-These controls govern normal repository operations. The owner can still change administrative
-settings. Recheck collaborators, installed apps and bypass actors before delegating access, and
-protect the owner's GitHub account with two-factor authentication or a passkey. Account settings
-are managed separately from this repository.
+The owner may bypass only the second ruleset when merging, because a sole maintainer cannot
+approve their own PR. The quality ruleset still requires CI and blocks direct pushes. Reviewing a
+contributor's PR does not give them merge access. Auto-merge is off; only the owner has write/admin
+access. Recheck collaborators, installed apps and bypass actors before delegating access.
 
 ## Workflow boundary
 
-External fork workflows require maintainer approval. Inspect changes to workflows, scripts and
-dependencies before approving execution, including later pushes. Use GitHub-hosted runners for
-untrusted contributions; do not attach a self-hosted runner or provide application secrets.
+External fork workflows need maintainer approval. Inspect workflow, dependency and script changes
+before approving each execution. Use GitHub-hosted runners without deployment secrets for PR code.
 
-The default workflow token is read-only and cannot approve pull requests. Only GitHub-owned
-actions are allowed, and full commit SHA pinning is enforced in repository settings. CI checks
-generation drift, types, lint, formatting, design contracts, Node and
-Chromium tests, clean-consumer registry installation and the static export. It also audits locked
-dependencies and scans complete Git history with redacted Gitleaks output. The exact retired
-password-test fixture in `.gitleaksignore` is the only history exception.
-
-GitHub's managed CodeQL setup scans JavaScript/TypeScript and Actions with the extended query
-suite. Its security-results upload permission is separate from repository write or merge access.
-Security reports go through [private vulnerability reporting](../SECURITY.md). Dependency alerts,
-secret scanning and push protection complement CI; automated scans cannot prove that every vulnerability or
-confidential value has been found. The remaining low-severity development-tool advisory is
-documented in the security policy.
+Workflow tokens are read-only and cannot approve PRs. Only GitHub-owned actions are allowed, with
+full SHA pinning. `Verify` checks the source, tests, registry installation and static build;
+[testing](testing.md) documents the checks. Dependency/history scans, CodeQL and reporting are
+covered by [SECURITY.md](../SECURITY.md).
 
 ## Version tags
 
-Annotated `v*` tags identify reviewed snapshots. The first public snapshot uses
-`v0.1.0-alpha.1`; prerelease versions signal that the API is still evolving. Create a tag only on
-a `main` commit whose post-merge CI has passed. A tag identifies source; it does not publish an npm
-package or deploy the registry.
+Create `v*` tags only on `main` commits with successful post-merge CI. The first snapshot is
+`v0.1.0-alpha.1`; pre-1.0 APIs may change. Tags identify source and do not deploy.
 
-The **Release tags: owner-created** ruleset allows only the owner to create `v*` tags. The separate
-**Release tags: immutable** ruleset has no bypass actors and prevents moving or deleting them,
-including by the owner. Corrections get a new version instead of changing a published snapshot.
-Both definitions live alongside the branch rules in `.github/rulesets/`.
+**Release tags: owner-created** permits only owner creation. **Release tags: immutable** has no
+bypass and blocks moving or deleting tags, including for the owner. Correct a release with a new
+version. Both definitions are in `.github/rulesets/`.
 
 ## Release review
 
-Before publishing a new release or changing the visibility of another branch:
+Before a release or branch-visibility change:
 
-1. Review the intended commit, complete Git history, commit metadata, workflow logs and artifacts
-   for credentials and private material. Do not treat a clean secret scan as a complete content review.
-2. Confirm third-party notices, source credits and provenance. The sample images are original
-   procedural artwork generated by `scripts/generate-samples.ts`; README previews show this
-   repository's components. Brand research is a preliminary screen, not legal clearance.
-3. Check the current lockfile audit and CI for the exact publication commit. Verify merge rules,
-   private vulnerability reporting, fork workflow approval and the current access list in GitHub.
-4. Keep the README honest about availability and compatibility. Source updates are reviewed and
-   applied by consumers; there are no maintained older release branches yet.
+1. Review the intended commit, history, metadata, logs and artifacts for credentials/private material.
+2. Check source credits, notices and asset provenance. Samples come from
+   `scripts/generate-samples.ts`; brand research is a dated preliminary screen.
+3. Verify the exact commit's audit/CI, effective rules, private reporting and current access list.
+4. Keep README availability and compatibility accurate. Consumers review and apply source updates;
+   no older release branches are maintained.
 
 ## Production branch and hosting
 
-`main` is the integration branch. The owner promotes a reviewed snapshot through a `main` →
-`production` pull request, using a merge commit to preserve ancestry. CI rejects production PRs
-from other branches or forks. `production` has matching owner-only merge and non-bypassable quality
-rules in `.github/rulesets/production-*.json`. These are prepared definitions, not applied settings;
-create and protect the branch before enabling deployment.
+Release through a `main` → `production` PR with a merge commit. Production accepts only this
+repository's `main`; its owner-only and non-bypassable quality rulesets are active.
 
-The `hostinger-production` environment must permit only the exact **branch** `production`, with
-no tag rule. Its SSH secrets are available only to the deployment job. That job requires successful
-`Verify`, the original repository, the owner as actor and triggering actor, and the repository
-variable `HOSTINGER_DEPLOY_ENABLED=true`. It checks the branch still points to the verified commit.
-The activation flag is intentionally unset during preparation. PRs, `main`, tags and fork copies
-cannot deploy through this workflow. GitHub secrets are not included in a repository clone.
+The `hostinger-production` environment permits only the exact `production` branch, with no tag
+rule. The deploy job requires successful `Verify`, the original repository, the owner as actor
+and triggering actor, and `HOSTINGER_DEPLOY_ENABLED=true`. It rejects runs whose commit is no
+longer the production head. PRs, `main`, tags and forks cannot deploy.
 
-Deployment uses the validated build artifact, strict SSH host verification and a dedicated key.
-No build runs on Hostinger. Read-only repository permissions remain in place; the SSH key grants
-hosting access, not GitHub merge access. This is an account-level hosting credential, not a
-filesystem sandbox: keep write/admin access limited and review deployment scripts before merging.
+Only deployment receives the dedicated Hostinger SSH key, with strict host verification. It grants
+hosting-account commands, not isolated per-site access or GitHub merge access. Keep the activation
+flag off during a new hosting setup. Clones contain no deployment credentials.
 
-See [registry-hosting.md](registry-hosting.md) for the endpoint, activation steps, checks and rollback.
-Publishing the registry does not announce a stable 1.0 API.
+See [registry hosting](registry-hosting.md) for release steps, verification and recovery.

@@ -162,8 +162,7 @@ held content is `float-message`; the polite live region is `announcer`.
 
 ### Labels
 
-Text the dropzone writes on its own. Pass `labels` to one dropzone, or set them for every dropzone
-with `<DSProvider labels={{ fileDropzone: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ fileDropzone: { … } }}>` app-wide.
 
 | Key                | Default                                             | Used for                                                         |
 | ------------------ | --------------------------------------------------- | ---------------------------------------------------------------- |
@@ -201,4 +200,3 @@ formatted for the locale.
 - Under reduced motion the box does not grow, shake or gulp and the tile does not lift; the fill,
   the line and its colour still change. The shake moves along the inline axis by the same amount
   each way, so it reads the same in right-to-left layouts.
-- Contrast is checked with axe in light, dark and RTL by `file-dropzone.test.tsx`.

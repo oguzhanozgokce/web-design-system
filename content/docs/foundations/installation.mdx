@@ -27,9 +27,8 @@ Tailwind CSS 4**, plus an `@/*` alias pointing to your source root. Next.js is o
   ]}
 />
 
-The production namespace is `https://ui.highwren.com/r/{name}.json`.
-The first deployment is pending; use [the local registry](#develop-against-a-local-registry) until it is verified.
-After publication, run the commands below in your consuming app.
+The public production namespace is `https://ui.highwren.com/r/{name}.json`.
+Run the commands below in your consuming app; no repository checkout or credentials are required.
 
 ## Set up your app
 
@@ -38,8 +37,10 @@ After publication, run the commands below in your consuming app.
 
 ### Point the project at the registry
 
-Merge these entries into your `components.json`; keep other registries and aliases.
-For Vite or another client-only app, use `rsc: false` and your actual stylesheet path, such as `src/index.css`.
+If your project already has a `components.json`, merge the `@ds` registry entry and keep your
+existing aliases and settings. Otherwise, use the configuration below with paths that match your app.
+For Vite or another client-only app, set `rsc: false` and use your actual stylesheet path, such as
+`src/index.css`. The examples below use the displayed aliases; imports follow your configured paths.
 
 ```json title="components.json"
 {
@@ -66,9 +67,16 @@ For Vite or another client-only app, use `rsc: false` and your actual stylesheet
 
 ### Install the theme
 
-<InstallCommand name="theme" />
+Run this in the project where you want to use the components:
 
-Import it after Tailwind in the global stylesheet:
+```bash
+npx shadcn@4.23.0 add @ds/theme @ds/ds-provider @ds/button
+```
+
+This installs the theme, provider and first component, including their dependencies and licence
+notices. Add other components later with `npx shadcn@4.23.0 add @ds/sidebar`, for example.
+
+Import the theme after Tailwind in the global stylesheet:
 
 ```css title="app/global.css"
 @import 'tailwindcss';
@@ -83,8 +91,6 @@ from `src/index.css`, use `../styles/ds/theme.css`. See [Theming](/docs/foundati
 
 ### Wrap the app in DSProvider
 
-<InstallCommand name="ds-provider" />
-
 `DSProvider` connects locale, navigation, labels, icons and motion:
 
 ```tsx title="app/providers.tsx"
@@ -98,19 +104,26 @@ export function Providers({ children }: { children: ReactNode }) {
 }
 ```
 
-Wrap your app in `Providers` and import the stylesheet at its entry point. Match document `lang`
-and `dir` to the locale. Connect a router with `navigate={(href) => router.push(href)}`.
+Render your app inside this wrapper and import the global stylesheet at the app's entry point:
+
+```tsx
+<Providers>{children}</Providers>
+```
+
+In a Vite app, the same `DSProvider` can wrap the app inside `createRoot(...).render(...)`.
+Match document `lang` and `dir` to the locale. Connect a router with
+`navigate={(href) => router.push(href)}`.
 
 </Step>
 <Step>
 
 ### Add components
 
-<InstallCommand name="button" />
+The first command already installed Button. Import it to use it in your app:
 
-The CLI installs dependencies and follows your aliases: UI in `components/ds`, helpers in
-`lib/ds`, hooks in `hooks/ds`. Keep the installed `licenses/ds/LICENSE` and `licenses/ds/NOTICE`
-when redistributing source.
+With the displayed aliases, UI files install in `components/ds`, helpers in `lib/ds` and hooks in
+`hooks/ds`, relative to your source root. Keep the installed `licenses/ds/LICENSE` and
+`licenses/ds/NOTICE` when redistributing source.
 
 ```tsx
 import { Button } from '@/components/ds/button';
@@ -125,9 +138,16 @@ export function SaveAction() {
 
 ## Update installed source
 
-Review `npx shadcn@4.23.0 add @ds/button --diff` before updating a customised copy. Keep local
-changes under version control and review any overwrite. This pre-1.0 registry does not update
-installed components automatically.
+The public registry follows verified `production` commits. Installed files belong to your project;
+updates are applied when you choose. Use `shadcn@4.23.0`, the CLI version verified here, to preview
+an update before replacing a customised copy:
+
+```bash
+npx shadcn@4.23.0 add @ds/button --diff
+```
+
+Keep local changes under version control and review any overwrite. This library is pre-1.0;
+component APIs may change between releases.
 
 ## Develop against a local registry
 
@@ -143,8 +163,5 @@ npm run dev
 In your consuming app's `components.json`, replace the `@ds` URL with the origin printed by Next.js,
 for example `http://localhost:3000/r/{name}.json`. Rebuild registry JSON after changing installable files.
 
-## Registry updates
-
-The public endpoint follows verified `production` commits. Existing installed files stay yours and do not
-update automatically. Use `shadcn@4.23.0`, the CLI version verified here. Maintainers can find the
-publication controls in the [hosting guide](https://github.com/oguzhanozgokce/web-design-system/blob/main/docs/registry-hosting.md).
+Maintainers can find publication, verification and recovery steps in the
+[hosting guide](https://github.com/oguzhanozgokce/web-design-system/blob/main/docs/registry-hosting.md).

@@ -127,8 +127,7 @@ compositions.
 
 ### Labels
 
-Text the banner writes on its own. Pass `labels` to one banner, or set them for every banner with
-`<DSProvider labels={{ banner: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ banner: { … } }}>` app-wide.
 
 | Key       | Default        | Used for                                                 |
 | --------- | -------------- | -------------------------------------------------------- |
@@ -151,5 +150,4 @@ Text the banner writes on its own. Pass `labels` to one banner, or set them for 
 - Dismiss is a React Aria button named by the `dismiss` label. The banner fades out in 100 ms,
   becomes `inert` while it does, and is removed straight away when motion is disabled.
 - Soft fills are translucent tints, so the text keeps its contrast on the canvas, on cards and in
-  dialogs alike. Contrast is checked with axe for every tone and variant in light, dark and RTL by
-  `banner.test.tsx`.
+  dialogs alike.

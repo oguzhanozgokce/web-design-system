@@ -2,19 +2,17 @@
 
 # Highwren UI
 
-Highwren UI is a collection of React components for marketing sites, admin panels and signed-in
-experiences. It started with a simple goal: bring the interface patterns I enjoy using into one
-repository, then build them around a shared standard instead of starting over in every project.
+Accessible React components for marketing sites, admin panels and signed-in experiences.
+Built on React Aria Components, Highwren UI combines expressive controls, calm surfaces and
+semantic colours generated from one seed. Install the components you need as source through
+the shadcn registry, then adapt them in your project. You own the installed copy.
 
-That standard covers more than appearance: consistent APIs, accessible interaction, meaningful
-motion, theming, documentation and focused tests. The catalogue is a place to explore those
-decisions, try real examples and find components to use in your own projects.
+[Explore components](https://ui.highwren.com/#components) ·
+[Documentation](https://ui.highwren.com/docs/) ·
+[Installation](https://ui.highwren.com/docs/foundations/installation/) ·
+[Theme builder](https://ui.highwren.com/theme/)
 
-Built on React Aria Components, Highwren UI pairs soft shapes and calm surfaces with semantic
-colours generated from one seed. Install the components you need as source through the shadcn
-registry, then adapt them in your project. You own the installed copy.
-
-[![The catalogue with a live workspace, activity chart, project list and setup checklist themed from one seed colour](.github/assets/overview.jpg)](content/docs/index.mdx)
+[![The catalogue with a live workspace, activity chart, project list and setup checklist themed from one seed colour](.github/assets/overview.jpg)](https://ui.highwren.com/)
 
 - React 19 and Tailwind CSS 4; framework-independent installed components.
 - Light and dark themes, three contrast levels, runtime branding and right-to-left layouts.
@@ -22,55 +20,16 @@ registry, then adapt them in your project. You own the installed copy.
 - Forms, navigation, overlays, feedback, data tables and charts.
 - Real Chromium interaction and accessibility tests, plus clean-consumer installation checks.
 
-This is an early, pre-1.0 library. Review upstream diffs before updating installed source.
-Version tags identify checked snapshots; `alpha` versions may change before a stable release.
-The catalogue and registry are prepared for [ui.highwren.com](https://ui.highwren.com/).
-The first deployment is pending; use the local catalogue and registry until it is verified.
-Contributions are welcome through pull requests; the maintainer reviews and merges changes into
-`main`, then promotes selected updates to `production` for publication.
-
-## Component previews
-
-These are real catalogue examples. Select an image to open its usage guide and API reference.
-
-<details>
-<summary>Cookie Consent — privacy choices with inline preferences</summary>
-
-[![Cookie Consent with equally prominent reject and accept actions and an expandable preferences control](.github/assets/cookie-consent.jpg)](content/docs/components/feedback/cookie-consent.mdx)
-
-</details>
-
-<details>
-<summary>Funnel Chart — activation stages, conversion rates and a data table</summary>
-
-[![Funnel Chart showing app installs, sign-ins, first actions and upgrades, with period selection and conversion rates](.github/assets/funnel-chart.jpg)](content/docs/components/charts/funnel-chart.mdx)
-
-</details>
-
-## Run the catalogue
-
-Use Node.js 24 or newer, npm and Git. With nvm, `nvm install` selects the checked-in Node version.
-
-```bash
-git clone https://github.com/oguzhanozgokce/web-design-system.git
-cd web-design-system
-npm ci
-npx playwright install --with-deps chromium
-npm run dev
-```
-
-Open the address printed by Next.js, normally [localhost:3000](http://localhost:3000).
-Chromium is needed for tests, not for browsing the catalogue. No application secrets or `.env` file
-are required. Dependency installation, browser installation and the build's Google Fonts download
-need network access.
+This is an early, pre-1.0 library; review changes before updating installed source.
 
 ## Install components in another project
 
-Start with a React 19, TypeScript and Tailwind CSS 4 project with the `@/*` path alias configured.
-Follow the [installation guide](content/docs/foundations/installation.mdx) to add the `@ds` registry
-to `components.json`, import the theme and wrap your app in `DSProvider`.
+Start with **React 19, TypeScript and Tailwind CSS 4**, a configured `@/*` path alias and a
+`components.json` file. Next.js is optional; installation is also verified in a Vite app.
 
-Add this namespace to your existing `components.json`:
+**1. Connect the registry.** Merge this entry into `components.json`, preserving your other
+registries and aliases. The [installation guide](https://ui.highwren.com/docs/foundations/installation/)
+includes a complete configuration.
 
 ```json
 {
@@ -80,18 +39,18 @@ Add this namespace to your existing `components.json`:
 }
 ```
 
-Then install directly in the consuming project:
+**2. Install the foundation and a component.** Run this in your own project:
 
 ```bash
 npx shadcn@4.23.0 add @ds/theme @ds/ds-provider @ds/button
 ```
 
-After the first deployment, no repository checkout or `DS_REGISTRY_URL` variable is required. The
-[installation guide](content/docs/foundations/installation.mdx) covers aliases, the theme import,
-`DSProvider` and optional local registry development. The public registry follows checked `production`
-commits; it does not update files already installed in your project.
+**3. Apply the theme and provider.** Import the installed `styles/ds/theme.css` after Tailwind in
+your global stylesheet, then wrap your app in `DSProvider`. Follow the
+[setup examples](https://ui.highwren.com/docs/foundations/installation/#set-up-your-app)
+for stylesheet paths and the provider wrapper.
 
-With the documented aliases, imports look like this:
+With the guide's aliases, you can then use:
 
 ```tsx
 import { Button } from '@/components/ds/button';
@@ -101,19 +60,68 @@ export function SaveAction() {
 }
 ```
 
-Review an update with `npx shadcn@4.23.0 add @ds/button --diff` before applying it to customised
-source. The root package's `private: true` prevents accidental npm publication; distribution is
-through the registry.
+The CLI resolves dependencies and copies the licence and notices into `licenses/ds/`.
+Public installation needs no repository checkout or credentials.
+
+### Update installed source
+
+Installed files belong to your project and stay unchanged until you choose to update them.
+Review upstream changes before replacing a customised copy:
+
+```bash
+npx shadcn@4.23.0 add @ds/button --diff
+```
+
+The public registry follows verified `production` commits. Version tags identify source snapshots;
+pre-1.0 APIs may change between releases.
+
+## Component previews
+
+These are real catalogue examples. Select an image to open its live usage guide and API reference.
+
+<details>
+<summary>Cookie Consent — privacy choices with inline preferences</summary>
+
+[![Cookie Consent with equally prominent reject and accept actions and an expandable preferences control](.github/assets/cookie-consent.jpg)](https://ui.highwren.com/docs/components/feedback/cookie-consent/)
+
+</details>
+
+<details>
+<summary>Funnel Chart — activation stages, conversion rates and a data table</summary>
+
+[![Funnel Chart showing app installs, sign-ins, first actions and upgrades, with period selection and conversion rates](.github/assets/funnel-chart.jpg)](https://ui.highwren.com/docs/components/charts/funnel-chart/)
+
+</details>
+
+## Run the catalogue
+
+To work on this library locally, use Node.js 24 or newer, npm and Git. With nvm, `nvm install`
+selects the checked-in Node version.
+
+```bash
+git clone https://github.com/oguzhanozgokce/web-design-system.git
+cd web-design-system
+npm ci
+npm run dev
+```
+
+Open the address printed by Next.js, normally [localhost:3000](http://localhost:3000).
+No application secrets or `.env` file are required. Dependency installation and the build's
+Google Fonts download need network access. See the
+[local registry guide](content/docs/foundations/installation.mdx#develop-against-a-local-registry)
+to try unpublished components in another project.
 
 ## Contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, change scope and pull request expectations.
-[docs/testing.md](docs/testing.md) defines which tests belong here; there is no test-count target.
-Fork the repository and open a pull request against `main`. There is no separate `develop` branch.
-Public access does not grant permission to push or merge; passing checks and a maintainer's merge
-decision are required. See [publication controls](docs/open-source-readiness.md) for the safeguards.
+Fork the repository, create a branch from `main` and open a pull request against `main`.
+The maintainer reviews changes and owns merging and publication. Start with
+[CONTRIBUTING.md](CONTRIBUTING.md) for scope and review expectations, and
+[docs/testing.md](docs/testing.md) for test selection.
+
+Install Chromium for browser tests, then run the required checks:
 
 ```bash
+npx playwright install --with-deps chromium
 npm run generate
 npm run check
 npm test
@@ -121,20 +129,23 @@ npm run check:registry
 npm run build
 ```
 
-GitHub Actions runs these checks on Linux, including Chromium, generated-file drift, dependency
-auditing and a full-history secret scan. After successful checks on `production`, it publishes the
-catalogue and registry to Hostinger using the same build output, once deployment is enabled; pull requests cannot deploy.
-See [registry hosting](docs/registry-hosting.md). Failed browser screenshots are retained briefly as workflow artifacts. See [SECURITY.md](SECURITY.md) for reporting and known limitations.
+GitHub Actions verifies pull requests and `main` on Linux, including dependency auditing and a
+full-history secret scan. The maintainer promotes reviewed work from `main` to `production`;
+successful production checks deploy the same build output to Hostinger. See
+[publication controls](docs/open-source-readiness.md) and [registry hosting](docs/registry-hosting.md).
+Report vulnerabilities through [SECURITY.md](SECURITY.md).
 
-| Location                     | Purpose                                                                            |
-| ---------------------------- | ---------------------------------------------------------------------------------- |
-| `registry/ds/`               | Installable components, helpers, hooks, blocks and styles; catalogue-only examples |
-| `registry/items/`            | Registry metadata and third-party credits                                          |
-| `content/docs/`              | Installation, component APIs and examples                                          |
-| `tokens/config.json`         | Seed colour and palette configuration                                              |
-| `docs/research/web-style.md` | Current visual specification                                                       |
-| `AGENTS.md`                  | Repository contracts and verification                                              |
-| `ROADMAP.md`                 | Delivery status and planned work                                                   |
+## Repository layout
+
+| Location                     | Purpose                                           |
+| ---------------------------- | ------------------------------------------------- |
+| `registry/ds/`               | Installable source and catalogue-only `examples/` |
+| `registry/items/`            | Registry metadata and third-party credits         |
+| `content/docs/`              | Installation, component APIs and examples         |
+| `tokens/config.json`         | Seed colour and palette configuration             |
+| `docs/research/web-style.md` | Current visual specification                      |
+| `AGENTS.md`                  | Repository contracts and verification             |
+| `ROADMAP.md`                 | Delivery status and planned work                  |
 
 ## Licence
 

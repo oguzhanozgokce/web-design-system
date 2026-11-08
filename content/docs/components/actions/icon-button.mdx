@@ -143,8 +143,7 @@ sets `motion` to `reduced` or `disabled`. Parts: `data-slot="icon-button"` or
 
 ### Labels
 
-Text the icon button writes on its own. Pass `labels` to one `IconButton`, or set them for every
-icon button with `<DSProvider labels={{ iconButton: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ iconButton: { … } }}>` app-wide.
 
 | Key       | Default   | Used for                                   |
 | --------- | --------- | ------------------------------------------ |
@@ -160,4 +159,3 @@ icon button with `<DSProvider labels={{ iconButton: { … } }}>`.
   announced, so focus never jumps.
 - On coarse pointers `xs`, `sm` and `md` extend their hit area to 48px.
 - The press scale follows `prefers-reduced-motion` and `DSProvider`'s `motion`.
-- Contrast is checked with axe in light, dark and RTL by `icon-button.test.tsx`.
