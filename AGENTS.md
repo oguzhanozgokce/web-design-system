@@ -15,6 +15,10 @@ behaviour are SDK contracts.
   not current API instructions. Use web references when making design decisions.
 - `ROADMAP.md`: planned components and delivery status.
 
+Read the shared contracts and only the sections relevant to the task. Use targeted searches in
+historical research instead of loading whole surveys. Document each rule in one canonical place;
+link to it from other guides. Keep API tables, required examples and operational steps precise.
+
 ## Repository
 
 `registry/ds` contains installable `ui`, `lib`, `hooks`, `blocks` and `styles`. Component browser

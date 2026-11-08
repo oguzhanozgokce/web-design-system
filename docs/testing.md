@@ -1,94 +1,61 @@
 # Testing
 
-Test behaviour this library owns. Every test should identify a distinct consumer failure; fewer
-clear scenarios are better than repeated setup and assertions. There is no test-count target.
+Test behaviour this library owns. Each scenario should reproduce a distinct consumer failure.
 
-## Choose the smallest environment
+## Environment
 
-- `.test.ts` runs in Node: parsing, formatting, filtering, sorting, scales, geometry, generated
-  metadata and import/path transformations. Keep pure calculations outside UI components when
-  they need independent coverage.
-- `.test.tsx` runs in Chromium: hooks, composed interactions, focus, layout, CSS and accessibility.
-  Use `renderWithDS` and `expectNoA11yViolations` from `test/utils.tsx`.
-  Shared setup moves the pointer outside the viewport before each test so hover cannot leak
-  between fixtures.
-- `npm run check:registry` copies the generated registry into a clean temporary consumer through
-  the shadcn installer and typechecks the result. Do not replace this with catalogue-only tests.
+- `.test.ts`: pure parsing, formatting, filtering, sorting, scales, geometry and metadata in Node.
+- `.test.tsx`: hooks, interaction, focus, layout, CSS and accessibility in Chromium. Use
+  `renderWithDS` and `expectNoA11yViolations` from `test/utils.tsx`. Shared setup clears hover.
+- `npm run check:registry`: shadcn installation and typechecking in temporary consumers with
+  default and custom aliases.
 
-## What deserves a test
+## Coverage
 
-- Added behaviour: an async action blocks repeat triggers, a confirmation phrase gates submission,
-  selection survives paging correctly, cancellation stops a queue, or state updates accumulate.
-- Changed wiring: a wrapper connects provider labels, invalid/disabled state or controlled values
-  to a composed interaction. One scenario may exercise controlled and uncontrolled forms when
-  the wrapper treats them differently.
-- Public contracts our code computes: defaults, naming, label precedence, locale handling and
-  custom geometry. Assert only the relevant contract, not every forwarded prop.
-- Regressions: name the original failure and reproduce its trigger with the smallest fixture.
-- Accessibility: one representative rich state per component, covering light, dark and RTL in
-  one sweep. For portals, apply the theme to the document root and check `document.body`.
+Cover added behaviour, changed wrapper wiring, computed public contracts and reported regressions.
+Examples include async repeat suppression, confirmation gating, selection across pages, queue
+cancellation, label precedence, locale handling and custom geometry.
 
-## What to remove or combine
+Use one representative rich accessibility state per component across light, dark and RTL. For
+portals, theme the document root and check `document.body`. Audit generated palette contrast in
+Node; rendered axe checks verify CSS wiring without mounting every palette combination.
 
-- React Aria or browser guarantees that the wrapper does not change: generic focusability,
-  Enter/Space activation, Escape dismissal, disabled event suppression and ordinary value updates.
-- TypeScript guarantees, constant/style-export snapshots, class-string checks and every variant
-  or size in a separate test. Use a compact table only when our mapping is the contract.
-- Assertions already proved by another scenario. A label-precedence scenario can cover the English
-  default, provider override and local override together.
-- Large product scenes when two rows, one control or a direct helper call reproduces the issue.
-- Pure helper assertions inside a browser suite. Move them to the helper's `.test.ts` file.
-- Fixed sleeps, animation-frame sampling and exact coordinates for ordinary controls. Wait for
-  observable state. Animation tests are justified only when motion itself is the feature; favour
-  its settled result and retain frame checks only for a specific visual regression.
+Avoid tests of unchanged React Aria/browser behaviour, TypeScript guarantees, constant snapshots,
+class strings or every style permutation. Retain checks for our own focus repair, disabled
+propagation, async handling and generated accessible text. Combine overlapping assertions, use
+small fixtures and keep pure helper tests in Node. There is no test-count target.
 
-Do not remove useful tests just to reduce the count. Keep checks for behaviour added by a wrapper,
-including its own focus repair, disabled propagation, async handling and generated accessible text.
+## Scenario style
 
-## Keep scenarios readable
-
-Use a small fixture, one action sequence and assertions for its result. Query by role and accessible
-name; use slots for visual parts without an accessible role. Keep helper functions short and local
-unless several suites use the same protocol. Avoid hidden sequencing and generic test frameworks.
-Generic copy is English. Keep non-English input only in tests that explicitly exercise a locale,
-script, numbering system or case conversion; use English test titles to explain the behaviour.
-
-Use computed styles only for a documented visual contract or regression. Compare each state to its
-own semantic role; editable and read-only controls may intentionally have different resting styles.
-Move the pointer before asserting a resting style, and wait for transitions through `expect.poll`
-when needed. Do not disable contrast rules or replace behavioural assertions with snapshots.
-Layout tests can disable motion; activity changes should assert the settled content and geometry
-rather than requiring a transient spring peak to appear within a fixed number of frames.
-Audit generated colour-pair contrast across palette combinations in Node. Browser axe checks cover
-representative rendered themes and CSS wiring; do not remount a complete screen for every seed,
-style, mode and contrast combination. Export-file comparisons also belong in Node.
+- Use one action sequence and assertions for its result. Query by role/name; use slots for parts
+  without accessible roles. Keep helpers local unless several suites share the protocol.
+- Use English copy; non-English input belongs in explicit locale/script tests with English titles.
+- Wait for observable state, not fixed sleeps. Test animation frames only for a specific motion
+  regression; ordinary layout tests may disable motion and assert settled geometry.
+- Use computed styles for documented visual contracts. Compare each state with its semantic role,
+  clear hover before resting-style assertions and use `expect.poll` for transitions. Keep axe
+  contrast rules enabled.
 
 ## Run and report
 
-Use `npx vitest run <file>` while editing, `npm run test:unit` for pure logic and
-`npm run test:browser` for UI coverage. Run `npm test` and the checks in `AGENTS.md` before delivery.
-Vite's cache lives in `.vitest/node_modules/.cache` so checkouts sharing `node_modules` cannot overwrite each
-other's prebundled React modules.
-Do not turn failed commands into success with pipes, `|| echo`, ignored errors or arbitrary
-retries. Report failures and verification gaps explicitly.
+Use `npx vitest run <file>` while editing, `npm run test:unit` for Node and
+`npm run test:browser` for Chromium. Before delivery, run the checks in `AGENTS.md`. Preserve exit
+codes and report failures or verification gaps; do not mask errors or retry arbitrarily.
 
-GitHub Actions uses Ubuntu 24.04, Node 24, the npm lockfile and Playwright Chromium with its system
-dependencies. It runs the same checks with `npm test -- --maxWorkers=2` to keep browser contention
-bounded. There are no automatic test retries. Failed browser screenshots are retained for seven
-days as workflow artifacts. Generation and the production build must leave tracked files unchanged.
-CI also audits dependencies and scans complete Git history; see `SECURITY.md` for the narrow
-history allowlist and the known low-severity tooling advisory.
+Vite's cache lives in `.vitest/node_modules/.cache` to isolate worktrees sharing `node_modules`.
+CI uses Ubuntu 24.04, Node 24, the npm lockfile and Chromium with system dependencies. It runs
+`npm test -- --maxWorkers=2`, without automatic retries, and retains failure screenshots for seven
+days. Generation and production builds must leave tracked files unchanged. Dependency/history
+scans and their exceptions are documented in `SECURITY.md`.
 
-`npm run prepare:hosting` validates the production static export: complete registry payloads,
-local HTML/CSS links, page canonicals, search data and sitemap coverage. It packages the full site
-with Hostinger configuration and a checksum manifest. Run it after `npm run build`, or use
-`npm run build:hosting` for both. Unit tests cover incomplete/unsafe exports and broken links.
-Deployment tests use real local rsync and a stubbed HTTP probe to exercise replacement, preserved
-ACME files/browser chunks, rollback and rejection of uncommitted packages; they never contact Hostinger.
-These tests require Bash and rsync (included on the Linux CI runner and macOS).
+## Hosting checks
 
-CI builds once. Only `production` uploads the package; its deployment job waits for `Verify` and
-is disabled until the maintainer configures the production environment and activation variable.
-`main` and PRs run validation without deployment secrets. Before first publication, also verify the
-package under Apache/LiteSpeed: deep links, trailing-slash redirects, search JSON, cache headers,
-custom 404 status and a fresh shadcn consumer. Those server checks are distinct from component tests.
+`npm run prepare:hosting` validates registry payloads, local links, canonicals, search and sitemap
+coverage after a build. `npm run build:hosting` builds and packages together.
+
+Node tests cover unsafe/incomplete exports and broken links. Deployment tests use local Bash and
+rsync with a stubbed HTTP probe to cover replacement, preserved ACME files/browser chunks,
+rollback and rejection of uncommitted packages; they never contact Hostinger.
+
+Live HTTP and consumer-installation checks are listed in
+[registry hosting](registry-hosting.md#verify-a-live-deployment).

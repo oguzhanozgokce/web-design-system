@@ -27,8 +27,7 @@ its provenance is `scripts/generate-samples.ts`.
 4. Nine selected components. Category and text filtering always search the entire catalogue;
    visitors can expand the full collection. Every tile links to its documentation.
 5. An open closing section with a theme-builder link, installation guide and generated file list.
-   The terminal explains the prerequisite registry configuration. No public registry host is
-   advertised until the catalogue has actually been deployed.
+   The terminal explains the prerequisite registry configuration and uses the live public registry.
 
 ## Interaction and rendering
 

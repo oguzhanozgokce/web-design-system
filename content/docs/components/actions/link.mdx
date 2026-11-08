@@ -104,8 +104,7 @@ a link.
 
 ### Labels
 
-Text the link writes on its own. Pass `labels` to one link, or set them for every link with
-`<DSProvider labels={{ link: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ link: { … } }}>` app-wide.
 
 | Key             | Default                | Used for                                                     |
 | --------------- | ---------------------- | ------------------------------------------------------------ |
@@ -122,4 +121,3 @@ Text the link writes on its own. Pass `labels` to one link, or set them for ever
   assistive technology.
 - The arrow only moves when the motion preference allows it, and its transition stops under
   `prefers-reduced-motion`.
-- Contrast is checked with axe in light, dark and RTL by `link.test.tsx`.

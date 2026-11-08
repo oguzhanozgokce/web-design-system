@@ -1,8 +1,7 @@
 # Roadmap
 
-Every component planned for the library, grouped into waves. Coordinate ownership when a wave is
-explicitly assigned to parallel agents. References point at `docs/research/libraries.json`
-entries and `docs/research/web-style.md`; read them before designing.
+Delivery status by wave. Read the affected component's visual specification and public API;
+search `docs/research/libraries.json` only when reference evidence is needed.
 
 Status: ✅ built and reviewed · 🚧 in progress · ⬜ planned
 
@@ -49,9 +48,7 @@ Status: ✅ built and reviewed · 🚧 in progress · ⬜ planned
 
 ## Wave 2 — Dates, data and navigation
 
-The four references the owner asked for on 2026-11-06 (Bencho's stacked bars, upload dropzone,
-rolling counter and dynamic island; BoardUI's data table and earnings chart card) were built first,
-on 2026-11-07. `docs/research/wave-2-requests.md` has the visual study and the decisions.
+Historical references and proposals: `docs/research/wave-2-requests.md`.
 
 | Component(s)                                                                        | Category     | Built on                               | Status |
 | ----------------------------------------------------------------------------------- | ------------ | -------------------------------------- | ------ |
@@ -107,6 +104,6 @@ KanbanBoard, OnboardingSteps, LegalPage with table of contents.
 
 ## Wave 5 — Distribution
 
-Public GitHub registry, `public/r` on a static host, shadcn MCP setup, `llms.txt`, a Claude skill
-consumers install, `THIRD_PARTY_NOTICES.md` from item credits, visual baselines in a Linux
-container, and a first consuming application.
+- ✅ Public GitHub repository, hosted registry at `ui.highwren.com`, `llms.txt` and generated
+  third-party notices.
+- ⬜ shadcn MCP setup, consumer Claude skill, Linux visual baselines and a first consuming application.

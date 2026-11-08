@@ -4,9 +4,10 @@ The complete static catalogue and registry target **https://ui.highwren.com** on
 No Node.js process or database runs on the server. The canonical `@ds` namespace is
 `https://ui.highwren.com/r/{name}.json`; `lib/site.ts` owns the origin.
 
-**Preparation status:** the domain and SSL exist. The application has not been deployed, the
-`production` branch/protections and GitHub environment have not been created, and no deployment
-secrets or activation variable have been set. The workflow is inert until setup is complete.
+**Status:** live. The protected `production` branch, restricted `hostinger-production` environment
+and deployment secrets are configured; `HOSTINGER_DEPLOY_ENABLED=true`.
+The [first deployment](https://github.com/oguzhanozgokce/web-design-system/actions/runs/42484700982)
+was verified on 8 November 2026, including installation from the public registry in a separate app.
 
 ## Release flow
 
@@ -16,16 +17,17 @@ feature PR → main → release PR → production → Verify → Hostinger
              checks only            owner merges; deployment enabled explicitly
 ```
 
-Contributors target `main`. Only the owner can merge. Promote selected work through a PR from
-this repository's `main` to `production`, using **Create a merge commit** to preserve ancestry.
-CI rejects production PRs from another branch or fork. Do not develop directly on `production`.
-Tags identify source snapshots; they do not deploy.
+1. Merge the reviewed feature PR into `main` and wait for its `Verify` check to pass.
+2. Open a PR from this repository's `main` to `production`. After its `Verify` check passes, the
+   owner merges with **Create a merge commit** to preserve ancestry.
+3. Follow the production CI run: `Verify` builds and packages the site, then `Deploy Hostinger`
+   publishes that same artifact. Check that both jobs succeed.
+4. Compare the commit in `https://ui.highwren.com/version.json` with the production commit and
+   run the [live checks](#verify-a-live-deployment) below.
 
-`Verify` scans history, audits dependencies, generates source, runs checks/tests, checks consumer
-installation, builds and packages the site. Only production uploads that artifact. Deployment uses
-that exact run's package and checksum; it does not rebuild. Older runs cannot deploy after the
-production branch advances. Production workflows are serialized and an active deployment is not
-cancelled when a newer commit arrives. The GitHub token stays read-only.
+CI rejects production PRs from other branches or forks. PRs, `main` and tags cannot deploy.
+The server receives the verified artifact without rebuilding. Outdated runs are rejected, and
+production runs are serialized so a new release does not interrupt an active deployment.
 
 ## Prepare a package locally
 
@@ -51,6 +53,8 @@ Hashed `_next/static` assets cache for a year; HTML, registry, search and versio
 There is no SPA fallback to `index.html`.
 
 ## One-time setup — only when publication is authorized
+
+This setup is complete for the current site. Use these steps when rebuilding the hosting setup.
 
 1. Merge and verify preparation on `main`. Create `production` from that reviewed commit while
    `HOSTINGER_DEPLOY_ENABLED` is unset. Apply both `.github/rulesets/production-*.json` definitions
@@ -110,7 +114,7 @@ PR. Do not force-reset production or relax protections. For an incomplete transf
 site's document root from `previous/` through the hosting account, preserving `.well-known`, then
 re-run CI for the current production commit after diagnosis.
 
-## Verify the first live deployment
+## Verify a live deployment
 
 - Open the homepage, a deep component link and theme builder anonymously. Check search, client
   navigation, reload, Markdown download, mobile layout and a nonexistent page's 404 status.
@@ -119,8 +123,6 @@ re-run CI for the current production commit after diagnosis.
   and `/r/license.json` for embedded source.
 - In a separate React 19 / Tailwind 4 app, use the production namespace and run
   `npx shadcn@4.23.0 add @ds/theme @ds/ds-provider @ds/button @ds/sidebar`, then typecheck/build.
-- Remove the pending-first-deployment notice from README/installation only after these checks pass.
-  The registry follows production; installed consumer files never auto-update.
 
 Hostinger supports [SSH/SFTP and rsync on Premium](https://www.hostinger.com/support/which-file-transfer-and-server-access-options-are-supported-at-hostinger/).
 GitHub documents [environment secrets and branch restrictions](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments).

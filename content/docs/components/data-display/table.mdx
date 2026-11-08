@@ -143,8 +143,7 @@ states `data-selected`, `data-hovered`, `data-pressed`, `data-focus-visible`, `d
 
 ### Labels
 
-Pass `labels` to the `Table`, or set them for every table with
-`<DSProvider labels={{ table: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ table: { … } }}>` app-wide.
 
 | Key           | Default         | Used for                                                |
 | ------------- | --------------- | ------------------------------------------------------- |
@@ -162,4 +161,3 @@ The checkbox names "Select All" and "Select" come from React Aria and are transl
 - Selection sets `aria-selected` on rows, and the checkboxes are named after the row header.
 - Buttons and menus inside cells are reached with the arrow keys, the way React Aria grids work.
 - Under reduced motion rows appear without the fade and the chevron turns without a transition.
-- `table.test.tsx` checks the table with axe in light, dark and RTL.
