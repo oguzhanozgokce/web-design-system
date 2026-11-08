@@ -122,8 +122,7 @@ Parts:
 
 ### Labels
 
-Text the field writes on its own. Pass `labels` to one field, or set them for every search field
-with `<DSProvider labels={{ searchField: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ searchField: { … } }}>` app-wide.
 
 | Key          | Default        | Used for                                                           |
 | ------------ | -------------- | ------------------------------------------------------------------ |
@@ -155,4 +154,3 @@ sets under `field`.
   right-to-left languages.
 - The soft variant's border is transparent, so in forced-colours mode, where its tint disappears,
   the border takes the system colour and the bar stays visible.
-- Contrast is checked with axe in light, dark and RTL by `search-field.test.tsx`.

@@ -99,8 +99,7 @@ The root has `data-slot="text-field"`, `data-size`, `data-variant`, `data-invali
 
 ### Labels
 
-Text the field writes on its own. Pass `labels` to one field, or set them for every text field with
-`<DSProvider labels={{ textField: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ textField: { … } }}>` app-wide.
 
 | Key     | Default | Used for                                |
 | ------- | ------- | --------------------------------------- |
@@ -116,4 +115,3 @@ optional marker, which `DSProvider` sets under `field`.
 - The clear button is named by the `clear` label and keeps focus on the input after clearing.
   Escape clears without reaching it.
 - Pressing an adornment focuses the input, so the whole control is one target.
-- Contrast is checked with axe in light, dark and RTL by `text-field.test.tsx`.

@@ -223,8 +223,7 @@ values down from zero), `normalizeRows`, `linePath` and `areaPath` (`'monotone'`
 
 ### Labels
 
-Copy the charts write when you pass none. Pass `labels` to one chart, or set them for every chart
-with `<DSProvider labels={{ chart: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ chart: { … } }}>` app-wide.
 
 | Key                 | Default                                                | Used for                                     |
 | ------------------- | ------------------------------------------------------ | -------------------------------------------- |
@@ -256,4 +255,3 @@ with `<DSProvider labels={{ chart: { … } }}>`.
 - Charts grow in on first view and ease to new values. Under reduced motion they draw the final
   state at once, and `isAnimated={false}` turns motion off for one chart.
 - In forced-colours mode the tooltip gets a border and the active ring uses `Highlight`.
-- Contrast is checked with axe in light, dark and RTL by `chart.test.tsx`.

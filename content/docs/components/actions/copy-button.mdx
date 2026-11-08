@@ -123,8 +123,7 @@ the only element in its parent and fits an attached `ButtonGroup`.
 
 ### Labels
 
-Text the copy button writes on its own. Pass `labels` to one copy button, or set them for every copy
-button with `<DSProvider labels={{ copyButton: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ copyButton: { … } }}>` app-wide.
 
 | Key          | Default         | Used for                                                        |
 | ------------ | --------------- | --------------------------------------------------------------- |
@@ -149,5 +148,3 @@ The pending spinner belongs to the underlying button. Name it for every icon-onl
   localhost) and a focused document; outside one the button reports "Couldn't copy".
 - Success and failure change the glyph as well as the colour, so neither rests on colour alone.
 - The glyph scales only when the motion preference allows it; otherwise it cross-fades.
-- Contrast is checked with axe in light, dark and RTL, before and after a copy, by
-  `copy-button.test.tsx`.

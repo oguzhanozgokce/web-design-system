@@ -194,8 +194,7 @@ slab's width while someone types or motion is reduced. The other parts are liste
 
 ### Labels
 
-Text the field writes on its own. Pass `labels` to one field, or set them for every number field
-with `<DSProvider labels={{ numberField: { … } }}>`.
+Set `labels` locally or `<DSProvider labels={{ numberField: { … } }}>` app-wide.
 
 | Key        | Default            | Used for                                        |
 | ---------- | ------------------ | ----------------------------------------------- |
@@ -225,4 +224,3 @@ named by reference to the label element in the same order. `incrementAriaLabel` 
   and 38 px, at least the 24 px minimum target, with the slab's inset around them. The inline
   chevrons are half the field's height, which is why that layout suits forms used with a keyboard;
   the input itself takes typing and the arrow keys. A disabled field fades once as a whole; its buttons do not fade again.
-- Contrast is checked with axe in light, dark and RTL by `number-field.test.tsx`.

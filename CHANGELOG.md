@@ -15,7 +15,7 @@
   buttons. Layout and activity-change regressions assert settled results. Development starts
   without rebuilding registry JSON; local CLI installation uses `npm run registry:build`.
 - Registry files install to the configured aliases without extra directory nesting. Development
-  and production builds include registry JSON endpoints; installation uses `DS_REGISTRY_URL`.
+  and production builds include registry JSON endpoints; installation uses the public `@ds` registry.
   Preview code shows consumer imports. A clean-consumer check installs all items and typechecks
   the documented examples with default and custom aliases.
 - File upload stops its queue on unmount. Single-selection tables replace off-page selections;
