@@ -2,7 +2,7 @@
   "name": "popover",
   "type": "registry:ui",
   "title": "Popover",
-  "description": "Floating panel anchored to a trigger, with placement, an optional arrow, motion that grows from the trigger, and a dialog part with a title, a close button and two paddings.",
+  "description": "Floating panels with press or hover triggers, scale or morph animation, automatic placement, an optional arrow and accessible dialog content.",
   "category": "overlays",
   "files": ["ui/popover.tsx"]
 }

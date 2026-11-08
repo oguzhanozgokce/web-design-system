@@ -1473,7 +1473,7 @@
       "name": "popover",
       "type": "registry:ui",
       "title": "Popover",
-      "description": "Floating panel anchored to a trigger, with placement, an optional arrow, motion that grows from the trigger, and a dialog part with a title, a close button and two paddings.",
+      "description": "Floating panels with press or hover triggers, scale or morph animation, automatic placement, an optional arrow and accessible dialog content.",
       "categories": [
         "overlays"
       ],
@@ -1486,6 +1486,7 @@
         "@ds/icon-button",
         "@ds/license",
         "@ds/theme-scope",
+        "@ds/use-controllable-state",
         "@ds/utils"
       ],
       "files": [
@@ -1541,6 +1542,40 @@
           "path": "registry/ds/ui/radio-group.tsx",
           "type": "registry:ui",
           "target": "@ui/radio-group.tsx"
+        }
+      ]
+    },
+    {
+      "name": "reorderable-list",
+      "type": "registry:ui",
+      "title": "Reorderable List",
+      "description": "Reorderable rows with accessible drag and drop, animated placement, interactive content and controlled or uncontrolled order.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "motion",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/icon-button",
+        "@ds/labels",
+        "@ds/license",
+        "@ds/motion",
+        "@ds/use-controllable-state",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/reorderable-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/reorderable-list.tsx"
+        },
+        {
+          "path": "registry/ds/lib/reorderable-list.ts",
+          "type": "registry:lib",
+          "target": "@lib/reorderable-list.ts"
         }
       ]
     },
@@ -1713,6 +1748,35 @@
           }
         ]
       }
+    },
+    {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "title": "Sidebar",
+      "description": "Responsive navigation with an icon rail, grouped links and a mobile sheet.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/ds-provider",
+        "@ds/icon-button",
+        "@ds/license",
+        "@ds/sheet",
+        "@ds/tooltip",
+        "@ds/use-controllable-state",
+        "@ds/use-media-query",
+        "@ds/utils"
+      ],
+      "files": [
+        {
+          "path": "registry/ds/ui/sidebar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/sidebar.tsx"
+        }
+      ]
     },
     {
       "name": "skeleton",
@@ -2098,7 +2162,6 @@
         "@ds/license",
         "@ds/popover",
         "@ds/theme-scope",
-        "@ds/use-controllable-state",
         "@ds/utils"
       ],
       "files": [

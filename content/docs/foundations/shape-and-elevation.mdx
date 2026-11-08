@@ -1,12 +1,13 @@
 ---
 title: Shape and elevation
-description: Radius families, the shadow scale, hover, press and disabled states, and the focus ring.
+description: Soft corners, clear layers and predictable interaction states.
 ---
 
-## Corners
+Use a radius family for each purpose. Change its token to reshape matching components together.
 
-Components take their corners from six radius families instead of a size. A theme makes the whole
-library squarer or rounder by changing these six variables.
+<ShapeSpecimen />
+
+## Radius reference
 
 | Utility             | Radius | Used by                                                                   |
 | ------------------- | ------ | ------------------------------------------------------------------------- |
@@ -17,10 +18,8 @@ library squarer or rounder by changing these six variables.
 | `rounded-container` | 20     | Cards, banners, toasts, accordion surfaces                                |
 | `rounded-dialog`    | 24     | Dialogs, alert dialogs, bottom and detached sheets                        |
 
-Tailwind's own scale keeps its default values (`rounded-sm` 4px, `rounded-md` 6px, `rounded-lg`
-8px, `rounded-xl` 12px) for small parts: checkboxes, key caps, skeleton lines. `cn()` and `tv()`
-know the families, so `cn('rounded-overlay', 'rounded-none')` keeps only the last one. Logical
-sides work too: `rounded-s-control`, `rounded-t-dialog`.
+Tailwind's standard radii remain available for small parts. `cn()` and `tv()` merge radius
+families correctly; logical forms such as `rounded-s-control` also work.
 
 ## Shadows
 
@@ -31,8 +30,7 @@ sides work too: `rounded-s-control`, `rounded-t-dialog`.
 | `shadow-md` | Popovers, menus, select lists, tooltips, toasts                   |
 | `shadow-lg` | Dialogs, sheets, the hovered FAB                                  |
 
-In dark mode a drop shadow does not read on a dark page, so `sm`, `md` and `lg` add a faint 1px
-rim in `on-surface`. Cards and fields otherwise separate from the page with a hairline border.
+Shadows add a subtle rim in dark mode. Cards and fields also use a hairline border.
 
 ## Hover, press and disabled
 

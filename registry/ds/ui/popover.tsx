@@ -1,12 +1,13 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import {
   Dialog as AriaDialog,
   DialogTrigger,
   Heading,
   OverlayArrow,
   Popover as AriaPopover,
+  PreviewTrigger,
   composeRenderProps,
   useLocale,
   type DialogProps as AriaDialogProps,
@@ -14,7 +15,9 @@ import {
   type DialogTriggerProps,
   type OverlayArrowProps,
   type PopoverProps as AriaPopoverProps,
+  type PreviewTriggerProps,
 } from 'react-aria-components';
+import { useControllableState } from '@/registry/ds/hooks/use-controllable-state';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
 import { ButtonGroupContext } from '@/registry/ds/ui/button';
 import { useIcons, useLabels, useMotionPreference } from '@/registry/ds/ui/ds-provider';
@@ -22,6 +25,7 @@ import { IconButton } from '@/registry/ds/ui/icon-button';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
 
 export type PopoverMotion = 'spatial' | 'fade' | 'none';
+export type PopoverAnimation = 'scale' | 'morph';
 
 export interface PopoverLabels {
   close: string;
@@ -48,14 +52,31 @@ export function usePopoverMotion(): PopoverMotion {
 
 export const popoverStyles = tv({
   base: [
-    'max-w-[calc(100vw-1.5rem)] rounded-overlay bg-surface-overlay text-sm text-on-surface shadow-md outline-none',
+    'group/popover max-w-[calc(100vw-1.5rem)] rounded-overlay bg-surface-overlay text-sm text-on-surface shadow-md outline-none',
     'origin-(--trigger-anchor-point) [--ds-popover-scale:0.9] forced-colors:border',
   ],
   variants: {
-    motion: popoverMotion,
+    motion: { spatial: '', fade: popoverMotion.fade, none: '' },
+    animation: {
+      scale: '',
+      morph: [
+        'isolate bg-transparent shadow-none',
+        'before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:origin-(--trigger-anchor-point) before:rounded-[inherit] before:bg-surface-overlay before:shadow-md',
+      ],
+    },
   },
+  compoundVariants: [
+    { animation: 'scale', motion: 'spatial', class: popoverMotion.spatial },
+    {
+      animation: 'morph',
+      motion: 'spatial',
+      class:
+        'data-[entering]:animate-ds-popover-presence-in data-[exiting]:animate-ds-popover-presence-out data-[entering]:before:animate-ds-popover-morph-in data-[exiting]:before:animate-ds-popover-morph-out',
+    },
+  ],
   defaultVariants: {
     motion: 'spatial',
+    animation: 'scale',
   },
 });
 
@@ -104,13 +125,46 @@ export function PopoverTrigger(props: PopoverTriggerProps) {
   return <DialogTrigger {...props} />;
 }
 
+export type PopoverPreviewTriggerProps = PreviewTriggerProps;
+
+export function PopoverPreviewTrigger({
+  isOpen: isOpenProp,
+  defaultOpen = false,
+  onOpenChange,
+  isDisabled,
+  delay = 300,
+  closeDelay = 200,
+  ...props
+}: PopoverPreviewTriggerProps) {
+  const [isOpen, setOpen] = useControllableState(isOpenProp, defaultOpen, onOpenChange);
+
+  useEffect(() => {
+    if (isDisabled && isOpen) setOpen(false);
+  }, [isDisabled, isOpen, setOpen]);
+
+  return (
+    <PreviewTrigger
+      {...props}
+      delay={delay}
+      closeDelay={closeDelay}
+      isDisabled={isDisabled}
+      isOpen={isOpen && !isDisabled}
+      onOpenChange={(next) => {
+        if (!next || !isDisabled) setOpen(next);
+      }}
+    />
+  );
+}
+
 export interface PopoverProps extends Omit<AriaPopoverProps, 'className'> {
   showArrow?: boolean;
+  animation?: PopoverAnimation;
   className?: AriaPopoverProps['className'];
 }
 
 export function Popover({
   showArrow = false,
+  animation = 'scale',
   offset,
   className,
   children,
@@ -128,12 +182,31 @@ export function Popover({
       offset={offset ?? (showArrow ? 12 : 8)}
       data-slot="popover"
       data-arrow={showArrow || undefined}
-      className={composeRenderProps(className, (className) => popoverStyles({ motion, className }))}
+      data-animation={animation}
+      className={composeRenderProps(className, (className) =>
+        popoverStyles({ motion, animation, className }),
+      )}
     >
       {composeRenderProps(children, (children) => (
         <ButtonGroupContext value={null}>
-          {showArrow ? <PopoverArrow /> : null}
-          {children}
+          {animation === 'morph' ? (
+            <div
+              data-slot="popover-content"
+              className={
+                motion === 'spatial'
+                  ? 'max-h-[inherit] group-data-[entering]/popover:animate-ds-popover-content-in group-data-[exiting]/popover:animate-ds-fade-out'
+                  : 'max-h-[inherit]'
+              }
+            >
+              {showArrow ? <PopoverArrow /> : null}
+              {children}
+            </div>
+          ) : (
+            <>
+              {showArrow ? <PopoverArrow /> : null}
+              {children}
+            </>
+          )}
         </ButtonGroupContext>
       ))}
     </AriaPopover>

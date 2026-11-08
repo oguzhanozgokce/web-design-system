@@ -1,61 +1,67 @@
 ---
 title: Motion
-description: Easings, durations and keyframes, springs for gestures, and how reduced motion works.
+description: Help people follow changes without slowing them down.
 ---
 
-## Easings and durations
+Use motion to connect an action to its result. Keep ordinary controls quick and let the user's preference lead.
 
-| Utility         | Curve                                  | Used for                                             |
-| --------------- | -------------------------------------- | ---------------------------------------------------- |
-| `ease-fluid`    | `cubic-bezier(0.32, 0.72, 0, 1)`       | Sliding indicators, the switch thumb, sheets, toasts |
-| `ease-out-quad` | `cubic-bezier(0.25, 0.46, 0.45, 0.94)` | Dialog entrance, disclosure height                   |
-| `ease-out`      | Tailwind's default                     | Colour, border, shadow and background changes        |
-| `ease`          | The CSS keyword                        | Press scale, popover entrance and exit               |
+<ComponentPreview name="switch-demo" />
 
-Durations are 100ms for colour, 150ms for popovers and chevrons, 200ms for exits, 250ms for
-presses, dialogs and indicators, 300ms for the switch thumb and 350ms for toasts.
+<FoundationFlow
+  caption="Set motion on DSProvider. Nested providers and portaled overlays keep the same preference."
+  steps={[
+    { title: 'system', description: 'Follow the operating system. This is the default.' },
+    { title: 'reduced', description: 'Remove movement and scaling. Keep short fades.' },
+    { title: 'disabled', description: 'Remove movement and fades.' },
+  ]}
+/>
 
-In JavaScript, `motionEasings` and `motionDurations` from `@/lib/ds/motion` carry the same values,
-and `fluidTween()` returns a `motion` transition on the fluid curve.
+```tsx
+<DSProvider motion="reduced" motionProfile="productive">
+  {children}
+</DSProvider>
+```
 
-## Keyframes
+`productive` uses calmer springs; `expressive` is the default.
+Place the provider around a flow-content region, not directly inside a table, list or select.
 
-Overlays animate on React Aria's `data-entering` and `data-exiting` attributes with the keyframes
-in `theme.css`:
+## Timing reference
 
-| Utility                                 | Motion                                                                               |
-| --------------------------------------- | ------------------------------------------------------------------------------------ |
-| `animate-ds-popover-in` / `-out`        | 150ms in from 95% (90% for popovers and tooltips), 4px toward the trigger; 100ms out |
-| `animate-ds-dialog-in` / `-out`         | 250ms in from 105% on `ease-out-quad`; 100ms out to 95%                              |
-| `animate-ds-sheet-in-{side}` / `-out-`  | 250ms in and 200ms out on `ease-fluid`; start and end follow `dir`                   |
-| `animate-ds-fade-in` / `-out`           | Scrims and reduced-motion fallbacks                                                  |
-| `animate-ds-spin`, `-shimmer`, `-pulse` | Spinners, skeleton shimmer, pulsing placeholders                                     |
+| Change                  | Timing / curve                         |
+| ----------------------- | -------------------------------------- |
+| Fill, border and shadow | 100ms · `ease-out`                     |
+| Press scale             | 250ms · `ease`                         |
+| Popover                 | 150ms in / 100ms out · `ease`          |
+| Dialog                  | 250ms in / 100ms out · `ease-out-quad` |
+| Sheet                   | 250ms in / 200ms out · `ease-fluid`    |
+| Switch thumb            | 300ms · `ease-fluid`                   |
+| Toast                   | 350ms · `ease-fluid`                   |
 
-## Springs
+`ease-fluid` is `cubic-bezier(0.32, 0.72, 0, 1)`;
+`ease-out-quad` is `cubic-bezier(0.25, 0.46, 0.45, 0.94)`.
 
-Springs are for gestures that carry velocity: dragging a sheet, swiping a toast, the digits of a
-[Rolling number](/docs/components/data-display/rolling-number), the morph of a
-[Dynamic island](/docs/components/feedback/dynamic-island).
-`spatialSpring('fast')` and `effectSpring()` from `@/lib/ds/motion` return transitions for the
-`motion` package, and the generator also writes each spring as a CSS `linear()` easing with its
-settle time (`--ds-ease-spatial`, `--ds-duration-spatial`).
+## Build on the shared motion
 
-`data-motion-profile="productive"` on any ancestor switches to calmer, less bouncy springs, the
-right choice for dense admin screens.
+- Use `transition-control` for control states.
+- Use `motionEasings`, `motionDurations` and `fluidTween()` from `@/lib/ds/motion` in JavaScript.
+- Use `spatialSpring()` for gestures that carry velocity, such as sheet dragging. Use `effectSpring()` for visual effects.
+- Read `useMotionPreference()` before custom movement. CSS-only effects also need `motion-reduce:`.
 
-## Reduced motion
+<details>
+<summary>Overlay keyframes and CSS scopes</summary>
 
-`DSProvider motion` accepts `system`, `reduced` or `disabled`.
+React Aria's `data-entering` and `data-exiting` drive the shared keyframes:
 
-- `system` follows the operating system.
-- `reduced` removes movement and scaling but keeps short fades.
-- `disabled` removes fades too.
+| Utility                                      | Purpose                            |
+| -------------------------------------------- | ---------------------------------- |
+| `animate-ds-popover-in` / `-out`             | Scale and move toward the trigger  |
+| `animate-ds-dialog-in` / `-out`              | Dialog scale and fade              |
+| `animate-ds-sheet-in-{side}` / `-out-{side}` | Slide from a logical edge          |
+| `animate-ds-fade-in` / `-out`                | Scrims and reduced-motion fallback |
+| `animate-ds-spin`, `-shimmer`, `-pulse`      | Progress and placeholders          |
 
-Components read it through `useMotionPreference()`. The provider also renders a `display: contents`
-scope carrying `data-ds-motion` and `data-motion-profile`, so CSS press effects and disabled
-transitions follow the same setting without per-control attributes. Nested providers override
-their own scope; overlays carry it across portals. Wrap an app or a flow-content region with the
-provider, rather than placing it directly inside a table, list or select.
+Generated spring curves are also available as `--ds-ease-spatial` and `--ds-duration-spatial`.
+The provider renders a `display: contents` scope with `data-ds-motion` and `data-motion-profile`.
+It handles shared press effects; custom spatial transitions still need to read the preference.
 
-CSS animations also use `motion-reduce:` for the operating system preference. Entering and exiting
-overlays fade when movement is reduced.
+</details>

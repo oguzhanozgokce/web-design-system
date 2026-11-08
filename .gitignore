@@ -32,3 +32,5 @@ next-env.d.ts
 /test-results/
 
 .claude/settings.local.json
+
+/.hostinger/

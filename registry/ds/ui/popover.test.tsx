@@ -6,6 +6,7 @@ import { ButtonGroup } from '@/registry/ds/ui/button-group';
 import {
   Popover,
   PopoverDialog,
+  PopoverPreviewTrigger,
   PopoverTrigger,
   type PopoverDialogProps,
   type PopoverProps,
@@ -42,6 +43,123 @@ function roleBackground(className: string) {
 }
 
 describe('Popover', () => {
+  it('animates the morph surface without scaling its content and finishes closing', async () => {
+    const completed: string[] = [];
+    const screen = await renderWithDS(
+      <FolderPopover
+        popover={{
+          animation: 'morph',
+          onAnimationStart: (event) => {
+            if (event.target !== event.currentTarget || event.pseudoElement) return;
+            const popover = event.currentTarget;
+            const surface = getComputedStyle(popover, '::before');
+            expect(surface.backgroundColor).toBe(roleBackground('bg-surface-overlay'));
+            expect(surface.animationName).not.toBe('none');
+            expect(surface.transformOrigin).toBe(getComputedStyle(popover).transformOrigin);
+            const content = popover.querySelector('[data-slot="popover-content"]')!;
+            expect(getComputedStyle(content).transform).toBe('none');
+            expect(getComputedStyle(popover).scale).toBe('none');
+            const phase = popover.hasAttribute('data-exiting') ? 'exit' : 'enter';
+            void Promise.all(popover.getAnimations().map((animation) => animation.finished)).then(
+              () => completed.push(phase),
+            );
+          },
+        }}
+      />,
+    );
+    await screen.getByRole('button', { name: 'Storage' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Storage details' });
+    await expect.element(dialog).toBeVisible();
+    await expect.poll(() => completed).toEqual(['enter']);
+    await dialog.getByRole('button', { name: 'Close' }).click();
+    await expect.element(dialog).not.toBeInTheDocument();
+    await expect.poll(() => completed).toEqual(['enter', 'exit']);
+  });
+
+  it.each(['reduced', 'disabled'] as const)(
+    'respects %s motion for the morph surface and content',
+    async (motion) => {
+      const screen = await renderWithDS(
+        <FolderPopover popover={{ animation: 'morph', isEntering: true }} />,
+        { provider: { motion } },
+      );
+      await screen.getByRole('button', { name: 'Storage' }).click();
+      await expect.element(page.getByRole('dialog')).toBeVisible();
+      const popover = document.querySelector('[data-slot="popover"]')!;
+      expect(getComputedStyle(popover, '::before').animationName).toBe('none');
+      expect(
+        getComputedStyle(popover.querySelector('[data-slot="popover-content"]')!).animationName,
+      ).toBe('none');
+      if (motion === 'disabled') expect(getComputedStyle(popover).animationName).toBe('none');
+      await page.getByRole('button', { name: 'Close', exact: true }).click();
+      await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
+    },
+  );
+
+  it('keeps a hover preview non-modal and lets focus enter its action', async () => {
+    const onPress = vi.fn();
+    const screen = await renderWithDS(
+      <PopoverPreviewTrigger delay={0}>
+        <Button>Preview collection</Button>
+        <Popover animation="morph" aria-label="Collection preview" className="p-4">
+          <p>Four original scenes.</p>
+          <Button onPress={onPress}>Save collection</Button>
+        </Popover>
+      </PopoverPreviewTrigger>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Preview collection' });
+    trigger.element().focus();
+    await trigger.hover();
+    const preview = page.getByRole('dialog', { name: 'Collection preview' });
+    await expect.element(preview).toBeVisible();
+    await expect.element(trigger).toHaveFocus();
+    await expect.element(preview).not.toHaveAttribute('aria-modal', 'true');
+    await userEvent.keyboard('{Tab}');
+    const save = page.getByRole('button', { name: 'Save collection' });
+    await expect.element(save).toHaveFocus();
+    await save.click();
+    expect(onPress).toHaveBeenCalledOnce();
+    await expect.element(preview).toBeVisible();
+    await userEvent.keyboard('{Escape}');
+    await expect.element(preview).not.toBeInTheDocument();
+  });
+
+  it('keeps a long morph panel inside a compact viewport with scrollable content', async () => {
+    const previous = { width: window.innerWidth, height: window.innerHeight };
+    await page.viewport(375, 667);
+    try {
+      const screen = await renderWithDS(
+        <div className="flex h-32 items-center justify-center">
+          <PopoverTrigger>
+            <Button>Details</Button>
+            <Popover animation="morph">
+              <PopoverDialog title="Collection details" showCloseButton className="w-80">
+                {Array.from({ length: 20 }, (_, index) => (
+                  <p key={index} className="py-2">
+                    Scene {index + 1}
+                  </p>
+                ))}
+              </PopoverDialog>
+            </Popover>
+          </PopoverTrigger>
+        </div>,
+      );
+      await screen.getByRole('button', { name: 'Details', exact: true }).click();
+      const dialog = page.getByRole('dialog', { name: 'Collection details' });
+      await expect.element(dialog).toBeVisible();
+      const content = dialog.element();
+      await expect.poll(() => content.scrollHeight > content.clientHeight).toBe(true);
+      const bounds = content.getBoundingClientRect();
+      expect(bounds.left).toBeGreaterThanOrEqual(0);
+      expect(bounds.right).toBeLessThanOrEqual(375);
+      expect(bounds.bottom).toBeLessThanOrEqual(667);
+      await page.getByRole('button', { name: 'Close', exact: true }).click();
+      await expect.element(dialog).not.toBeInTheDocument();
+    } finally {
+      await page.viewport(previous.width, previous.height);
+    }
+  });
+
   it('opens a dialog named by its title and closes from the close button', async () => {
     const screen = await renderWithDS(<FolderPopover />);
     const trigger = screen.getByRole('button', { name: 'Storage' });
@@ -201,10 +319,15 @@ describe('Popover', () => {
   it('has no accessibility violations in light, dark and RTL', async () => {
     for (const options of [{}, { dark: true }, { locale: 'ar' }]) {
       document.documentElement.classList.toggle('dark', 'dark' in options);
-      const screen = await renderWithDS(<FolderPopover popover={{ showArrow: true }} />, options);
+      const screen = await renderWithDS(
+        <FolderPopover popover={{ showArrow: true, animation: 'morph' }} />,
+        options,
+      );
       await screen.getByRole('button', { name: 'Storage' }).click();
       await expect.element(page.getByRole('dialog')).toBeVisible();
-      await new Promise((resolve) => setTimeout(resolve, 250));
+      await expect
+        .poll(() => document.querySelector('[data-slot="popover"]')?.hasAttribute('data-entering'))
+        .toBe(false);
       await expectNoA11yViolations(document.body);
       await userEvent.keyboard('{Escape}');
       await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();

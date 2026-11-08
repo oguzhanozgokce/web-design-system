@@ -24,9 +24,10 @@ registry, then adapt them in your project. You own the installed copy.
 
 This is an early, pre-1.0 library. Review upstream diffs before updating installed source.
 Version tags identify checked snapshots; `alpha` versions may change before a stable release.
-There is no public catalogue host yet; the local catalogue includes the installation guide, examples
-and API reference. Contributions are welcome through pull requests; the maintainer reviews and
-merges changes into `main`.
+The catalogue and registry are prepared for [ui.highwren.com](https://ui.highwren.com/).
+The first deployment is pending; use the local catalogue and registry until it is verified.
+Contributions are welcome through pull requests; the maintainer reviews and merges changes into
+`main`, then promotes selected updates to `production` for publication.
 
 ## Component previews
 
@@ -69,24 +70,26 @@ Start with a React 19, TypeScript and Tailwind CSS 4 project with the `@/*` path
 Follow the [installation guide](content/docs/foundations/installation.mdx) to add the `@ds` registry
 to `components.json`, import the theme and wrap your app in `DSProvider`.
 
-To serve the registry locally, run this in the library checkout before starting the catalogue:
+Add this namespace to your existing `components.json`:
 
-```bash
-npm run registry:build
-npm run dev
+```json
+{
+  "registries": {
+    "@ds": "https://ui.highwren.com/r/{name}.json"
+  }
+}
 ```
 
-In the consuming project, use the catalogue's actual origin:
+Then install directly in the consuming project:
 
 ```bash
-export DS_REGISTRY_URL=http://localhost:3000
 npx shadcn@4.23.0 add @ds/theme @ds/ds-provider @ds/button
 ```
 
-You can put that origin directly in `components.json` instead of setting an environment variable.
-A GitHub repository URL does not serve registry JSON. Rebuild registry JSON after changing
-installable source. `npm run build` produces both the static catalogue and `/r/*.json` in `out/`;
-publishing that directory is a separate release step.
+After the first deployment, no repository checkout or `DS_REGISTRY_URL` variable is required. The
+[installation guide](content/docs/foundations/installation.mdx) covers aliases, the theme import,
+`DSProvider` and optional local registry development. The public registry follows checked `production`
+commits; it does not update files already installed in your project.
 
 With the documented aliases, imports look like this:
 
@@ -119,8 +122,9 @@ npm run build
 ```
 
 GitHub Actions runs these checks on Linux, including Chromium, generated-file drift, dependency
-auditing and a full-history secret scan. Failed browser screenshots are retained briefly as
-workflow artifacts. See [SECURITY.md](SECURITY.md) for reporting and known limitations.
+auditing and a full-history secret scan. After successful checks on `production`, it publishes the
+catalogue and registry to Hostinger using the same build output, once deployment is enabled; pull requests cannot deploy.
+See [registry hosting](docs/registry-hosting.md). Failed browser screenshots are retained briefly as workflow artifacts. See [SECURITY.md](SECURITY.md) for reporting and known limitations.
 
 | Location                     | Purpose                                                                            |
 | ---------------------------- | ---------------------------------------------------------------------------------- |

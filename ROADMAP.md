@@ -68,10 +68,12 @@ on 2026-11-07. `docs/research/wave-2-requests.md` has the visual study and the d
 | DataTable (after BoardUI's data table; no TanStack)                                 | data-display | Table, Pagination, lib/data-table      | ✅     |
 | Pagination                                                                          | navigation   | Button, IconButton                     | ✅     |
 | Breadcrumbs                                                                         | navigation   | Breadcrumbs                            | ✅     |
-| Sidebar, NavigationRail                                                             | navigation   | Disclosure, Link                       | ⬜     |
+| Sidebar (desktop rail, floating, mobile sheet)                                      | navigation   | Link, Tooltip, Sheet                   | ✅     |
+| NavigationRail (standalone)                                                         | navigation   | Link                                   | ⬜     |
 | NavigationBar (bottom), TopAppBar, Toolbar                                          | navigation   | Toolbar, Link                          | ⬜     |
 | Stepper (wizard steps)                                                              | navigation   | —                                      | ⬜     |
 | GridList (list with actions), Tree                                                  | data-display | GridList, Tree                         | ⬜     |
+| ReorderableList (outline/plain rows, accessible reordering, controlled order)       | data-display | GridList, useDragAndDrop, Motion       | ✅     |
 | Carousel                                                                            | layout       | scroll-snap                            | ⬜     |
 | Timeline, DescriptionList                                                           | data-display | —                                      | ⬜     |
 | StatCard                                                                            | data-display | Card, RollingNumber, Sparkline         | ⬜     |

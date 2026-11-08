@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { resolveConfigPaths } from '@shadcn/registry/internal/get-config';
 import { updateFiles } from '@shadcn/registry/internal/updaters/update-files';
 import { rawConfigSchema, registrySchema } from 'shadcn/schema';
+import { registryTemplate } from '../lib/site.ts';
 import { installedRegistryPath, rewriteRegistryImports } from '../lib/registry-paths.ts';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -28,6 +29,8 @@ const installation = await readFile(
 const snippet = installation.match(/```json title="components.json"\n([\s\S]*?)\n```/);
 if (!snippet) throw new Error('Installation docs must contain a components.json example');
 const documented = rawConfigSchema.parse(JSON.parse(snippet[1]));
+if (documented.registries?.['@ds'] !== registryTemplate)
+  throw new Error('The installation guide must use the canonical public registry URL');
 const files = await Promise.all(
   registry.items
     .flatMap((item) => item.files ?? [])
@@ -112,7 +115,12 @@ try {
         path.join(consumer, 'app/page.tsx'),
         'export default function Page() { return null; }\n',
       );
-      const raw = { ...documented, aliases, tailwind: { ...documented.tailwind, baseColor: '' } };
+      const raw = {
+        ...documented,
+        aliases,
+        registries: { ...documented.registries, '@ds': `${registryOrigin}/r/{name}.json` },
+        tailwind: { ...documented.tailwind, baseColor: '' },
+      };
       await writeFile(path.join(consumer, 'components.json'), JSON.stringify(raw));
       const config = await resolveConfigPaths(consumer, raw);
       requestedItems.clear();
@@ -129,7 +137,6 @@ try {
         ],
         {
           cwd: consumer,
-          env: { ...process.env, DS_REGISTRY_URL: registryOrigin },
           maxBuffer: 1024 * 1024,
         },
       );

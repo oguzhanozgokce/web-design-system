@@ -1,39 +1,48 @@
 ---
 title: Introduction
-description: A React component library for marketing sites, admin panels and signed-in user panels.
+description: Components you can install, understand and make your own.
 ---
 
-Highwren UI is the component library behind every web project: marketing sites, admin
-panels and the panels users sign in to. Pill-shaped controls and quick, calm motion sit on neutral
-surfaces, and the accent appears only where it means something.
+Highwren UI brings useful interface patterns into one consistent React library.
+It is built for marketing sites, admin tools and signed-in products: familiar controls,
+quiet surfaces and motion that helps you follow the action.
+
+<FoundationFlow
+  caption="React 19 + Tailwind CSS 4. The CLI copies source into your app; you own that copy."
+  steps={[
+    {
+      title: 'Choose a component',
+      description: 'Try it in the catalogue. Check its states, keyboard behaviour and API.',
+    },
+    {
+      title: 'Install the source',
+      description: 'The shadcn CLI adds the component and its dependencies.',
+      code: 'npx shadcn@4.23.0 add @ds/button',
+    },
+    {
+      title: 'Make it yours',
+      description: 'Use your brand, connect your data and edit the installed code.',
+    },
+  ]}
+/>
+
+**Start with [Installation](/docs/foundations/installation).** Connect the public registry once,
+then install components directly into your app.
+
+## One shared language
 
 <ComponentPreview name="button-variants" />
 
-## What it is
+| You control          | The library provides                                           |
+| -------------------- | -------------------------------------------------------------- |
+| Brand and appearance | Semantic colours, consistent shapes and light/dark themes      |
+| App behaviour        | React Aria controls, keyboard interaction and accessible names |
+| Product wording      | English defaults with label overrides                          |
+| Routing and locale   | A provider that connects to your app                           |
+| Motion               | Shared timing and reduced-motion support                       |
 
-- **Colour roles, generated from one seed colour.** `bg-canvas`, `bg-surface-raised`,
-  `bg-primary-solid`, `bg-neutral-soft`, `text-on-surface-variant`. Every role has a light and a
-  dark value at three contrast levels, and the same engine themes a card or the whole page at
-  runtime.
-- **One variant vocabulary.** `variant` says how much ink a component uses (`solid`, `soft`,
-  `outline`, `ghost`), `tone` says which role paints it (`primary`, `neutral`, `error` and the
-  status tones), and `size` is `sm`, `md` or `lg` at 32, 40 and 48px.
-- **Source you own.** Components install through the shadcn CLI as files in your project, from a
-  registry. You change them per project and pull upstream changes with `--diff`.
-- **Accessible by construction.** Interactive components are built on React Aria Components:
-  keyboard support, focus management, screen reader announcements, 13 calendar systems and
-  right-to-left layout come with them.
-- **Your words.** The library ships no translations. Every string a component writes on its own
-  is an English default you replace per component or once for the app.
-- **Motion with manners.** Presses scale, indicators slide and overlays grow from their trigger in
-  150 to 350ms, and every animated component honours reduced motion.
+## Where to go
 
-## How it is organised
-
-| Layer       | What lives there                                                               |
-| ----------- | ------------------------------------------------------------------------------ |
-| Foundations | Tokens, theme, dynamic colour, `DSProvider`, icons, text and direction, motion |
-| Components  | Accessible primitives and composites: buttons, inputs, overlays, tables, dates |
-| Blocks      | Whole sections: app shell, settings page, sign-in, data table page             |
-
-Start with [Installation](/docs/foundations/installation).
+- [Browse components](/docs/components) to find a pattern.
+- [Build a theme](/theme) to try your brand colour.
+- [Read the conventions](/docs/foundations/conventions) when extending a component.

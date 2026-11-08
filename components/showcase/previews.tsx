@@ -77,6 +77,7 @@ import { SegmentedControl, SegmentedControlItem } from '@/registry/ds/ui/segment
 import { Select } from '@/registry/ds/ui/select';
 import { Skeleton } from '@/registry/ds/ui/skeleton';
 import { Slider } from '@/registry/ds/ui/slider';
+import { ReorderableList } from '@/registry/ds/ui/reorderable-list';
 import { Sparkline } from '@/registry/ds/ui/sparkline';
 import { Spinner } from '@/registry/ds/ui/spinner';
 import { StatusTag } from '@/registry/ds/ui/status-tag';
@@ -415,6 +416,26 @@ export const galleryPreviews: Record<string, () => ReactNode> = {
     </div>
   ),
   slider: () => <Slider className="w-60" label="Volume" defaultValue={60} />,
+  'reorderable-list': () => (
+    <ReorderableList
+      aria-label="Shortcut order"
+      className="w-72"
+      defaultValue={[
+        { id: 'overview', title: 'Overview', icon: GridViewIcon },
+        { id: 'inbox', title: 'Inbox', icon: InboxIcon },
+        { id: 'saved', title: 'Saved', icon: BookmarkIcon },
+      ]}
+      getKey={(item) => item.id}
+      getTextValue={(item) => item.title}
+    >
+      {(item) => (
+        <>
+          <item.icon className="size-5 text-on-surface-variant" />
+          <span className="font-medium">{item.title}</span>
+        </>
+      )}
+    </ReorderableList>
+  ),
   'list-box': () => (
     <ListBox
       aria-label="Folders"

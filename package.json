@@ -28,7 +28,9 @@
     "test:browser": "vitest run --project browser",
     "check:registry": "tsx scripts/check-registry.ts",
     "test:watch": "vitest",
-    "check:secrets": "tsx scripts/check-secrets.ts"
+    "check:secrets": "tsx scripts/check-secrets.ts",
+    "prepare:hosting": "tsx scripts/prepare-hostinger.ts",
+    "build:hosting": "npm run build && npm run prepare:hosting"
   },
   "dependencies": {
     "@internationalized/date": "^3.12.4",

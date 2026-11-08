@@ -1,0 +1,8 @@
+{
+  "name": "reorderable-list",
+  "type": "registry:ui",
+  "title": "Reorderable List",
+  "description": "Reorderable rows with accessible drag and drop, animated placement, interactive content and controlled or uncontrolled order.",
+  "category": "data-display",
+  "files": ["ui/reorderable-list.tsx", "lib/reorderable-list.ts"]
+}

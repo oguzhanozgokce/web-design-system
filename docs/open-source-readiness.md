@@ -2,7 +2,9 @@
 
 Highwren UI is an early, pre-1.0 source distribution. The contribution path is a fork and a pull
 request against `main`; a separate `develop` branch is unnecessary for the current release model.
-CI does not deploy a catalogue or publish an npm package. The root package stays `private: true`
+CI can publish the catalogue and registry after successful checks on `production`; it does not
+publish from `main` or publish an npm package. Deployment is disabled until explicitly configured.
+The root package stays `private: true`
 to prevent accidental npm publication, independently of the GitHub repository's visibility.
 
 ## Main branch and merge access
@@ -76,9 +78,25 @@ Before publishing a new release or changing the visibility of another branch:
 4. Keep the README honest about availability and compatibility. Source updates are reviewed and
    applied by consumers; there are no maintained older release branches yet.
 
-## Catalogue hosting is a separate step
+## Production branch and hosting
 
-There is no public catalogue or registry host yet. Local installation is documented and supported.
-When a host is chosen, publish `out/`, verify `/r/button.json` and a real consumer installation,
-then set the stable `@ds` URL in the installation guide and repository homepage. A GitHub HTML
-repository URL is not a registry endpoint. Publishing source does not announce a stable 1.0 API.
+`main` is the integration branch. The owner promotes a reviewed snapshot through a `main` →
+`production` pull request, using a merge commit to preserve ancestry. CI rejects production PRs
+from other branches or forks. `production` has matching owner-only merge and non-bypassable quality
+rules in `.github/rulesets/production-*.json`. These are prepared definitions, not applied settings;
+create and protect the branch before enabling deployment.
+
+The `hostinger-production` environment must permit only the exact **branch** `production`, with
+no tag rule. Its SSH secrets are available only to the deployment job. That job requires successful
+`Verify`, the original repository, the owner as actor and triggering actor, and the repository
+variable `HOSTINGER_DEPLOY_ENABLED=true`. It checks the branch still points to the verified commit.
+The activation flag is intentionally unset during preparation. PRs, `main`, tags and fork copies
+cannot deploy through this workflow. GitHub secrets are not included in a repository clone.
+
+Deployment uses the validated build artifact, strict SSH host verification and a dedicated key.
+No build runs on Hostinger. Read-only repository permissions remain in place; the SSH key grants
+hosting access, not GitHub merge access. This is an account-level hosting credential, not a
+filesystem sandbox: keep write/admin access limited and review deployment scripts before merging.
+
+See [registry-hosting.md](registry-hosting.md) for the endpoint, activation steps, checks and rollback.
+Publishing the registry does not announce a stable 1.0 API.

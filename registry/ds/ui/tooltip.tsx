@@ -5,7 +5,6 @@ import {
   createContext,
   isValidElement,
   use,
-  useEffect,
   useId,
   useLayoutEffect,
   useMemo,
@@ -17,22 +16,24 @@ import {
 import {
   Keyboard,
   Popover as AriaPopover,
-  PreviewTrigger,
   Tooltip as AriaTooltip,
   TooltipTrigger as AriaTooltipTrigger,
   TooltipTriggerStateContext,
   composeRenderProps,
   useLocale,
-  type PreviewTriggerProps,
   type TooltipProps as AriaTooltipProps,
   type TooltipTriggerComponentProps,
 } from 'react-aria-components';
-import { useControllableState } from '@/registry/ds/hooks/use-controllable-state';
 import { tv, type VariantProps } from '@/registry/ds/lib/utils';
 import { ButtonGroupContext } from '@/registry/ds/ui/button';
 import { useDirection } from '@/registry/ds/ui/ds-provider';
 import { Kbd, type KbdKey } from '@/registry/ds/ui/kbd';
-import { PopoverArrow, popoverMotion, usePopoverMotion } from '@/registry/ds/ui/popover';
+import {
+  PopoverArrow,
+  PopoverPreviewTrigger,
+  popoverMotion,
+  usePopoverMotion,
+} from '@/registry/ds/ui/popover';
 import { useThemeScopeProps } from '@/registry/ds/lib/theme-scope';
 
 export type TooltipPlacement = NonNullable<AriaTooltipProps['placement']>;
@@ -99,9 +100,9 @@ export function TooltipTrigger({
   return (
     <InteractiveTooltipContext value={setInteractiveTooltips}>
       {isInteractive ? (
-        <PreviewTooltipTrigger {...props} {...timing}>
+        <PopoverPreviewTrigger {...props} {...timing}>
           {children}
-        </PreviewTooltipTrigger>
+        </PopoverPreviewTrigger>
       ) : (
         <AriaTooltipTrigger
           {...props}
@@ -113,31 +114,6 @@ export function TooltipTrigger({
         </AriaTooltipTrigger>
       )}
     </InteractiveTooltipContext>
-  );
-}
-
-function PreviewTooltipTrigger({
-  isOpen: isOpenProp,
-  defaultOpen = false,
-  onOpenChange,
-  isDisabled,
-  ...props
-}: PreviewTriggerProps) {
-  const [isOpen, setOpen] = useControllableState(isOpenProp, defaultOpen, onOpenChange);
-
-  useEffect(() => {
-    if (isDisabled && isOpen) setOpen(false);
-  }, [isDisabled, isOpen, setOpen]);
-
-  return (
-    <PreviewTrigger
-      {...props}
-      isDisabled={isDisabled}
-      isOpen={isOpen && !isDisabled}
-      onOpenChange={(next) => {
-        if (!next || !isDisabled) setOpen(next);
-      }}
-    />
   );
 }
 

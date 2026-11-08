@@ -204,6 +204,11 @@
   --animate-ds-fade-out: ds-fade-out 100ms ease-out both;
   --animate-ds-popover-in: ds-popover-in 150ms ease both;
   --animate-ds-popover-out: ds-popover-out 100ms ease both;
+  --animate-ds-popover-morph-in: ds-popover-morph-in 250ms var(--ease-fluid) both;
+  --animate-ds-popover-morph-out: ds-popover-morph-out 150ms var(--ease-out-quad) both;
+  --animate-ds-popover-presence-in: ds-fade-in 250ms var(--ease-fluid) both;
+  --animate-ds-popover-presence-out: ds-fade-out 150ms var(--ease-out-quad) both;
+  --animate-ds-popover-content-in: ds-popover-content-in 250ms var(--ease-fluid) both;
   --animate-ds-dialog-in: ds-dialog-in 250ms var(--ease-out-quad) both;
   --animate-ds-dialog-out: ds-dialog-out 100ms ease both;
   --animate-ds-sheet-in-bottom: ds-sheet-in-bottom 250ms var(--ease-fluid) both;
@@ -241,6 +246,36 @@
     to {
       opacity: 0;
       scale: 0.95;
+    }
+  }
+
+  @keyframes ds-popover-morph-in {
+    from {
+      opacity: 0;
+      transform: scale(0.35, 0.12);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes ds-popover-morph-out {
+    to {
+      opacity: 0;
+      transform: scale(0.7, 0.2);
+    }
+  }
+
+  @keyframes ds-popover-content-in {
+    0%,
+    20% {
+      opacity: 0;
+      translate: var(--ds-popover-offset, 0 0);
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
     }
   }
 
