@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, expect, it } from 'vitest';
-import { validateExport } from './hosting';
+import { fileDigest, validateExport } from './hosting';
 import { siteUrl } from './site';
 
 const directories: string[] = [];
@@ -58,15 +58,32 @@ it('rejects exports that would upload symlinks, hidden configuration or executab
   }
 });
 
-it('reports a broken deep link before packaging', async () => {
+it('reports broken links in lowercase and uppercase HTML before packaging', async () => {
   const directory = await fixture();
-  await writeFile(
-    path.join(directory, 'docs/index.html'),
-    `<link rel="canonical" href="${siteUrl}/docs/"><a href="/docs/missing/">Missing</a>`,
+  for (const link of [
+    '<a href="/docs/missing/">Missing</a>',
+    '<SCRIPT SRC="/missing.js"></SCRIPT>',
+  ]) {
+    await writeFile(
+      path.join(directory, 'docs/index.html'),
+      `<link rel="canonical" href="${siteUrl}/docs/">${link}`,
+    );
+    await expect(validateExport(directory, ['button'])).rejects.toThrow(
+      'Broken exported link in docs/index.html',
+    );
+  }
+});
+
+it('hashes a regular artifact and refuses to follow a substituted symlink', async () => {
+  const directory = await fixture();
+  const artifact = path.join(directory, 'artifact');
+  await writeFile(artifact, 'abc');
+  expect(await fileDigest(artifact)).toBe(
+    'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
   );
-  await expect(validateExport(directory, ['button'])).rejects.toThrow(
-    'Broken exported link in docs/index.html',
-  );
+  await rm(artifact);
+  await symlink(path.join(directory, 'index.html'), artifact);
+  await expect(fileDigest(artifact)).rejects.toThrow();
 });
 
 it('rejects registry JSON without embedded source and pages with the wrong canonical host', async () => {

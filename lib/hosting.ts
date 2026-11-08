@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
-import { lstat, readdir, readFile } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { open, readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { registryItemSchema } from 'shadcn/schema';
 import { siteUrl } from './site';
@@ -64,9 +65,9 @@ export async function validateExport(directory: string, itemNames: string[]) {
   for (const page of pages) {
     const html = await readFile(path.join(directory, page), 'utf8');
     for (const tag of html.matchAll(
-      /<(?:a|area|link|script|img|source|video|audio|iframe|use|image)\b[^>]*>/g,
+      /<(?:a|area|link|script|img|source|video|audio|iframe|use|image)\b[^>]*>/gi,
     )) {
-      for (const match of tag[0].matchAll(/\s(?:href|src)="([^"]+)"/g))
+      for (const match of tag[0].matchAll(/\s(?:href|src)="([^"]+)"/gi))
         checkReference(match[1], page);
     }
     if (page === '404.html' || page === '404/index.html' || page.startsWith('_not-found/'))
@@ -86,8 +87,13 @@ export async function validateExport(directory: string, itemNames: string[]) {
 }
 
 export async function fileDigest(file: string) {
-  if (!(await lstat(file)).isFile()) throw new Error(`Expected a regular file: ${file}`);
-  return createHash('sha256')
-    .update(await readFile(file))
-    .digest('hex');
+  const handle = await open(file, constants.O_RDONLY | constants.O_NOFOLLOW);
+  try {
+    if (!(await handle.stat()).isFile()) throw new Error(`Expected a regular file: ${file}`);
+    return createHash('sha256')
+      .update(await handle.readFile())
+      .digest('hex');
+  } finally {
+    await handle.close();
+  }
 }
